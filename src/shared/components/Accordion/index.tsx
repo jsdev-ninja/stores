@@ -7,12 +7,7 @@ import "./index.scss";
 
 export const Accordion = ({ children }: { children: ReactNode }) => {
 	return (
-		<AccordionPrimitives.Root
-			className="AccordionRoot"
-			type="single"
-			defaultValue="item-1"
-			collapsible
-		>
+		<AccordionPrimitives.Root className="AccordionRoot" type="single" collapsible={false}>
 			{children}
 		</AccordionPrimitives.Root>
 	);

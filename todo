@@ -1,0 +1,13 @@
+
+
+entities
+
+
+company -> 
+shop -> 
+category -> 
+product -> 
+cart -> 
+order ->
+payment -> 
+user -> shop admin | shop member | client

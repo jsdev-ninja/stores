@@ -1,19 +1,14 @@
-import { ReactNode, createContext, useContext } from "react";
+import { ReactNode } from "react";
 import { TProduct } from "src/domains";
-
-type ProductContextType = {
-	product: TProduct | null;
-};
-const ProductContext = createContext<ProductContextType>({
-	product: null,
-});
+import { ProductContext, ProductContextType } from "./ProductContext";
+import { useProduct } from "./useProduct";
+import { ProductCartButton } from "./ProductCartButton";
+import { tv } from "tailwind-variants";
 
 export type ProductProps = {
 	product: TProduct;
 	children: ReactNode;
 };
-
-export const useProduct = () => useContext(ProductContext);
 
 export function Product(props: ProductProps) {
 	const { product, children } = props;
@@ -22,38 +17,93 @@ export function Product(props: ProductProps) {
 
 	return (
 		<ProductContext.Provider value={context}>
-			<div
-				data-name="Product"
-				className="bg-background-paper p-4 w-[300px] rounded-lg cursor-pointer"
-			>
+			<div data-name="Product" className="bg-gray-50 transition hover:-translate-y-1 hover:bg-gray-100 p-4 rounded-3xl cursor-pointer group">
 				{children}
 			</div>
 		</ProductContext.Provider>
 	);
 }
 
-Product.Image = function Image() {
+const style = tv({
+	base: "rounded object-cover drop-shadow-md group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
+	defaultVariants: {
+		size: "md",
+	},
+	variants: {
+		size: {
+			xs: "h-16 w-16",
+			sm: "h-24 w-24",
+			md: "h-32 w-32",
+			lg: "h-40 w-40",
+		},
+	},
+});
+
+Product.Image = function Image({ size }: { size?: "xs" | "sm" | "md" | "lg" }) {
 	const { product } = useProduct();
-	return (
-		<div className="">
-			<img src="banana.png" />
-		</div>
-	);
+
+	return <img className={style({ size })} src={product?.images?.[0]?.url ?? "banana.png"} />;
 };
 Product.Name = function Name() {
 	const { product } = useProduct();
-	return <div className="text-text-primary">{product?.name}</div>;
+	return <div className="text-text-primary text-sm">{product?.name}</div>;
 };
 Product.Description = function Description() {
 	const { product } = useProduct();
-	return <div className="text-text-secondary">{product?.description}</div>;
+	return <div className="text-gray-400">{product?.description}</div>;
 };
 
 Product.Price = function Price() {
 	const { product } = useProduct();
-	return <div className="text-primary">{product?.price.value}</div>;
+
+	if (!product) return null;
+
+	const finalPrice = getPriceAfterDiscount(product);
+
+	const priceView = new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: product.currency,
+	}).format(product.price);
+
+	const finalPriceView = new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: product.currency,
+	}).format(finalPrice);
+
+	return (
+		<div className="flex gap-1 items-center">
+			<div className="text-secondary-main font-semibold">{finalPriceView}</div>
+			<div className="text-gray-400 line-through">{priceView}</div>
+		</div>
+	);
 };
 Product.Currency = function Currency() {
 	const { product } = useProduct();
-	return <div className="text-primary">{product?.price.currency}</div>;
+
+	return <div className="text-secondary-main">{product?.currency}</div>;
 };
+
+Product.Weight = function Weight() {
+	const { product } = useProduct();
+	if (!product) return null;
+
+	return (
+		<div className="text-gray-300">
+			{product.weight.value} {product.weight.unit}
+		</div>
+	);
+};
+
+Product.CartButton = ProductCartButton;
+
+function getPriceAfterDiscount(product: TProduct) {
+	if (product.discount?.type === "percent") {
+		const dscountAmount = (product.price * product.discount.value) / 100;
+		return product.price - dscountAmount;
+	}
+	if (product.discount?.type === "number") {
+		const dscountAmount = product.price - product.discount.value;
+		return dscountAmount;
+	}
+	return product.price;
+}

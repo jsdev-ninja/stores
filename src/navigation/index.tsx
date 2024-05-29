@@ -1,6 +1,24 @@
 import { createRouter } from "src/lib/router";
 
-const Router = createRouter({
+const routes = {
+	store: {
+		path: "/",
+		children: {
+			home: {
+				path: "/",
+			},
+			catalog: {
+				path: "/catalog",
+				exact: false,
+			},
+			cart: {
+				path: "/cart",
+			},
+			checkout: {
+				path: "/checkout",
+			},
+		},
+	},
 	admin: {
 		path: "/admin",
 		children: {
@@ -12,14 +30,14 @@ const Router = createRouter({
 			},
 			categories: {
 				path: "/categories",
-				children: {
-					add: {
-						path: "/add",
-					},
-				},
+			},
+			addCategory: {
+				path: "/addCategory",
 			},
 		},
 	},
-});
+} as const;
+
+const Router = createRouter(routes);
 
 export const { Link, Route, navigate } = Router;

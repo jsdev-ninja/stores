@@ -11,3 +11,9 @@
 		clip-path: circle(100% at 80% -50%);
 	}
 }
+
+@layer components {
+	.page-with-header {
+		height: calc(100vh - 64px);
+	}
+}

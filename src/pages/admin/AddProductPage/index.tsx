@@ -1,18 +1,40 @@
+import { useEffect, useState } from "react";
 import { Form } from "src/components/Form";
-import { NewProductSchema, ProductSchema, TNewProduct } from "src/domains";
+import { NewProductSchema, ProductSchema, TNewProduct, TProduct } from "src/domains";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate } from "src/navigation";
 
 export function AddProductPage() {
+	const [categories, setCategories] = useState([]);
+	useEffect(() => {
+		FirebaseApi.firestore
+			.list(FirebaseApi.firestore.collections.categories)
+			.then((res) => setCategories(res.data));
+	}, []);
 	return (
 		<div className="">
 			<div className="flex flex-col gap-4 w-[500px] mx-auto mt-10 shadow p-4">
 				<Form
 					schema={NewProductSchema}
-					onSubmit={(data: TNewProduct) => {
-						console.log("WORK", data);
-						navigate("admin");
-						// FirebaseApi.firestore.create(data, FirebaseApi.firestore.collections.products);
+					onSubmit={async (data: TNewProduct) => {
+						const fileRef = await FirebaseApi.storage.upload("image.png", data.image[0]);
+						console.log("WORK", data, fileRef);
+
+						let product: TProduct = {
+							images: [{ id: crypto.randomUUID(), url: fileRef.url }],
+						};
+
+						delete data.image;
+
+						product = { ...product, ...data };
+
+						const res = await FirebaseApi.firestore.create(
+							product,
+							FirebaseApi.firestore.collections.products
+						);
+						console.log("res", res);
+
+						navigate("admin.products");
 					}}
 					defaultValues={{
 						currency: "ILS",
@@ -33,6 +55,7 @@ export function AddProductPage() {
 							placeholder="Enter product description"
 						/>
 					</div>
+
 					<div className="my-4">
 						<Form.Input
 							name="price"
@@ -42,7 +65,16 @@ export function AddProductPage() {
 						/>
 					</div>
 					<div className="my-4">
-						<Form.Select name="unit.type" placeholder={"select"}>
+						<Form.Select name="category" placeholder={"select category"}>
+							{categories.map((category) => (
+								<Form.Select.Item key={category.id} value={category.id}>
+									{category.name}
+								</Form.Select.Item>
+							))}
+						</Form.Select>
+					</div>
+					<div className="my-4">
+						<Form.Select name="unit.type" placeholder={"select unit"}>
 							<Form.Select.Item value="unit">unit</Form.Select.Item>
 							<Form.Select.Item value="kg">kg</Form.Select.Item>
 							<Form.Select.Item value="gram">gram</Form.Select.Item>

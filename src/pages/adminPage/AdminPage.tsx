@@ -3,6 +3,7 @@ import { Link, Route } from "src/navigation";
 import { AddProductPage } from "../admin/AddProductPage";
 import { AdminProductsPage } from "../admin/AdminProductsPage";
 import { AdminCategoriesPages } from "../admin/AdminCategoriesPages";
+import { AddCategoryPage } from "../admin/AddCategoryPage";
 
 const items = [
 	{
@@ -13,8 +14,8 @@ const items = [
 ];
 
 export function AdminPage() {
-	console.log('RENDER');
-	
+	console.log("RENDER");
+
 	return (
 		<div className="flex h-screen">
 			<div className="border w-1/4">
@@ -30,7 +31,7 @@ export function AdminPage() {
 					</List>
 				</div>
 			</div>
-			<div className="">
+			<div className="w-full">
 				<Route name="admin.addProduct">
 					<AddProductPage />
 				</Route>
@@ -40,7 +41,9 @@ export function AdminPage() {
 				<Route name="admin.categories">
 					<AdminCategoriesPages />
 				</Route>
-				<Route name="admin.categories.add">add</Route>
+				<Route name="admin.addCategory">
+					<AddCategoryPage />
+				</Route>
 			</div>
 		</div>
 	);

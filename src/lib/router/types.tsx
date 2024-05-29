@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
 export type Routes = {
-	[key: string]: Route;
+	[K: string]: Route;
 };
 
 export type Route = {
@@ -9,7 +9,11 @@ export type Route = {
 	children?: Routes;
 };
 
-export type Param<Segment extends string> = Segment extends `:${infer P}` ? P : never;
+export type Param<Segment extends string> = Segment extends `:${infer P}`
+	? P
+	: Segment extends `/:${infer P}`
+	? P
+	: never;
 
 export type AllParams<Path extends string> = Path extends `${infer SegmentA}/${infer SegmentB}`
 	? Param<SegmentA> | AllParams<SegmentB>

@@ -68,6 +68,19 @@ export function createStore(routes: Routes) {
 		emitChange();
 	};
 	const getSnapshot = () => state;
+
+	// Function to handle popstate event
+	window.addEventListener("popstate", function (event) {
+		console.log("back button clicked", event);
+		const path = window.location.pathname;
+		state = {
+			pathname: path,
+			currentRoute: getRouteFromPath(routes, path),
+			activeRoutes: resolveActiveRoutes(routes, window.location.pathname),
+		};
+		emitChange();
+	});
+
 	return {
 		state,
 		subscribe,

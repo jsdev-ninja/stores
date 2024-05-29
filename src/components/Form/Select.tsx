@@ -6,8 +6,6 @@ import { useController, useFormContext } from "react-hook-form";
 import classNames from "classnames";
 
 export const Select = ({ children, name, placeholder }) => {
-	const form = useFormContext();
-
 	const selectStyle = classNames([
 		"w-full h-12, p-2",
 		"shadow rounded",

@@ -53,7 +53,7 @@ export function AppBar() {
 	const { t } = useTranslation();
 
 	return (
-		<Navbar isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
+		<Navbar position="sticky" isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
 			<NavbarContent className="pr-3" justify="center">
 				<NavbarBrand>
 					<div className="h-[50px] w-[100px]">

@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { app } from "./app";
 import { firestore } from "./firestore";
+import { firebaseStorage } from "./storage";
 
 const auth = getAuth(app);
 
@@ -16,5 +17,7 @@ export const FirebaseApi = {
 			return { success: false, user: null };
 		}
 	},
+
 	firestore: firestore,
+	storage: firebaseStorage,
 };

@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { ReactNode } from "react";
 import { store, useAppSelector } from "../store";
 import { AddProductModal } from "src/features/product/addProduct/AddProductModal";
 

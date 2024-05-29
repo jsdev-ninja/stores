@@ -3,8 +3,27 @@ import { Route, RouteKeys, RouteParams, Routes } from "../types";
 import { replaceParamsInPath } from "../utils";
 
 export function createLink<T extends Routes>(routes: T, store: any) {
+	// key extends RouteKeys<typeof routes>
+	type RoutePath<key extends string, T extends Routes> = key extends keyof T
+		? T[key] extends Route
+			? T[key]["path"]
+			: never
+		: key extends `${infer S}.${infer B}`
+		? S extends keyof T
+			? T[S] extends Route
+				? B extends keyof T[S]["children"]
+					? T[S] extends undefined
+						? never
+						: T[S]["children"] extends Routes
+						? RoutePath<B, T[S]["children"]>
+						: never
+					: never
+				: never
+			: never
+		: never;
+
 	function Link<K extends RouteKeys<typeof routes>>(
-		props: RouteParams<(typeof routes)[K]["path"]> extends never
+		props: RouteParams<RoutePath<K, typeof routes>> extends never
 			? {
 					to: K;
 					children: ReactNode;
@@ -12,7 +31,7 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 			: {
 					to: K;
 					children: ReactNode;
-					params: RouteParams<T[K]["path"]>;
+					params: RouteParams<RoutePath<K, typeof routes>>;
 			  }
 	) {
 		const isDeepPath = props.to.includes(".");
@@ -80,6 +99,10 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 
 			s.forEach((a) => {
 				x = x?.children?.[a];
+				if (fullPath === "/") {
+					fullPath = x?.path ?? "";
+					return;
+				}
 				fullPath = fullPath.concat(x?.path ?? "");
 			});
 
@@ -91,6 +114,8 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 		const route = getRoute();
 
 		const path = replaceParamsInPath(fullPath, params); //todo fix type
+
+		console.log("navigate", path);
 
 		store.navigate(path);
 	}

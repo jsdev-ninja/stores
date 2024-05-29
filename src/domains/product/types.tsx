@@ -8,6 +8,7 @@ export const ProductSchema = z.object({
 	vat: z.boolean(),
 	price: z.number(),
 	currency: z.literal("ILS"),
+	category: z.string().optional(),
 	discount: z
 		.object({
 			type: z.enum(["number", "percent"]),
@@ -16,6 +17,11 @@ export const ProductSchema = z.object({
 		.optional(),
 	unit: z.object({
 		type: z.enum(["unit", "kg", "gram", "liter", "ml"]),
+		value: z.number(),
+	}),
+	weight: z.object({
+		value: z.number(),
+		unit: z.enum(["kg", "gram"]),
 	}),
 	images: z.array(z.object({ url: z.string().url(), id: z.string() })),
 });
