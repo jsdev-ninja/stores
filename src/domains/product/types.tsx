@@ -24,11 +24,12 @@ export const ProductSchema = z.object({
 		unit: z.enum(["kg", "gram"]),
 	}),
 	images: z.array(z.object({ url: z.string().url(), id: z.string() })),
+	locales: z.array(z.object({ type: z.string(), value: z.string() })),
 });
 
 export const NewProductSchema = ProductSchema.omit({ id: true, images: true }).merge(
 	z.object({
-		image: z.instanceof(FileList),
+		image: z.instanceof(FileList).optional(),
 	})
 );
 export type TProduct = z.infer<typeof ProductSchema>;

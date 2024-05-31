@@ -1,11 +1,13 @@
 import { List } from "src/components/List";
-import { Link, Route } from "src/navigation";
+import { Link, Route, routes } from "src/navigation";
 import { AddProductPage } from "../admin/AddProductPage";
 import { AdminProductsPage } from "../admin/AdminProductsPage";
 import { AdminCategoriesPages } from "../admin/AdminCategoriesPages";
 import { AddCategoryPage } from "../admin/AddCategoryPage";
+import { RouteKeys } from "src/lib/router/types";
 
-const items = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
 	{
 		name: "products",
 		path: "admin.products",
@@ -14,8 +16,6 @@ const items = [
 ];
 
 export function AdminPage() {
-	console.log("RENDER");
-
 	return (
 		<div className="flex h-screen">
 			<div className="border w-1/4">
@@ -24,7 +24,9 @@ export function AdminPage() {
 						{items.map((item) => {
 							return (
 								<List.Item key={item.name}>
-									<Link to={item.path}>{item.name}</Link>
+									<Link params={item.params} to={item.path}>
+										{item.name}
+									</Link>
 								</List.Item>
 							);
 						})}

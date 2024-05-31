@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReactNode } from "react";
-import { FormProvider, SubmitHandler, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import type { ZodSchema } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,12 +12,12 @@ import { Submit } from "./Submit";
 
 type Props<T> = {
 	children: ReactNode;
-	onSubmit: () => void;
+	onSubmit: (data: any) => void;
 	schema: T & ZodSchema;
 	defaultValues: z.infer<Props<T>["schema"]>;
 };
 
-export function Form(props: Props) {
+export function Form(props: Props<any>) {
 	const { children, schema, onSubmit, defaultValues } = props;
 
 	const form = useForm({

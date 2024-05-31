@@ -1,5 +1,7 @@
-export function Submit(props) {
-	const { children, fullWidth } = props;
+import { ReactNode } from "react";
+
+export function Submit(props: { children: ReactNode; fullWidth?: boolean }) {
+	const { children } = props;
 
 	return (
 		<button

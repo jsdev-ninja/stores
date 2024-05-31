@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { addDoc, collection, getDocs, getFirestore, query } from "firebase/firestore";
 import { app } from "./app";
 
 const db = getFirestore(app);
 
-async function create(item, coll) {
+async function create(item: any, coll: any) {
 	try {
 		const docRef = await addDoc(collection(db, coll), item);
 
@@ -16,11 +17,11 @@ async function create(item, coll) {
 	}
 }
 
-async function list(coll) {
+async function list(coll: any) {
 	try {
 		const q = query(collection(db, coll));
 
-		const result = [];
+		const result: any = [];
 		const querySnapshot = await getDocs(q);
 		querySnapshot.forEach((doc) => {
 			// doc.data() is never undefined for query doc snapshots
@@ -29,8 +30,6 @@ async function list(coll) {
 				...doc.data(),
 			});
 		});
-
-		console.log("result", result);
 
 		return { success: true, data: result };
 	} catch (error) {

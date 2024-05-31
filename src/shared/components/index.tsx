@@ -1,2 +1,2 @@
-export * from "./Accordion";
+/* eslint-disable react-refresh/only-export-components */
 export * from "./Icon";

@@ -8,16 +8,21 @@ import { tv } from "tailwind-variants";
 export type ProductProps = {
 	product: TProduct;
 	children: ReactNode;
+	onClick?: (product: TProduct) => void;
 };
 
 export function Product(props: ProductProps) {
-	const { product, children } = props;
+	const { product, children, onClick } = props;
 
 	const context: ProductContextType = { product };
 
 	return (
 		<ProductContext.Provider value={context}>
-			<div data-name="Product" className="bg-gray-50 transition hover:-translate-y-1 hover:bg-gray-100 p-4 rounded-3xl cursor-pointer group">
+			<div
+				data-name="Product"
+				className="bg-gray-50 transition hover:-translate-y-1 hover:bg-gray-100 p-4 rounded-3xl cursor-pointer group"
+				onClick={() => onClick?.(product)}
+			>
 				{children}
 			</div>
 		</ProductContext.Provider>

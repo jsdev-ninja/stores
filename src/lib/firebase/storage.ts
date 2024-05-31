@@ -13,7 +13,6 @@ function createRef(path: string) {
 async function upload(name: string, file: File) {
 	const res = await uploadBytes(createRef(name), file);
 	const url = await getDownloadURL(res.ref);
-	console.log("url", url);
 
 	return { ...res, url };
 }

@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import * as RadixSelect from "@radix-ui/react-select";
 import classnames from "classnames";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
-import { useController, useFormContext } from "react-hook-form";
+import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import { useController } from "react-hook-form";
 import classNames from "classnames";
 
-export const Select = ({ children, name, placeholder }) => {
+export const Select = ({ children, name, placeholder }: any) => {
 	const selectStyle = classNames([
 		"w-full h-12, p-2",
 		"shadow rounded",
@@ -33,7 +34,7 @@ export const Select = ({ children, name, placeholder }) => {
 	);
 };
 
-const SelectItem = React.forwardRef(({ children, ...props }, forwardedRef) => {
+const SelectItem = React.forwardRef<any, any>(({ children, ...props }, forwardedRef) => {
 	return (
 		<RadixSelect.Item
 			className={classnames(

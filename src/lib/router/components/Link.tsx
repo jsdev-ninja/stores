@@ -35,31 +35,34 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 			  }
 	) {
 		const isDeepPath = props.to.includes(".");
+		console.log("isDeepPath", isDeepPath);
 
-		let fullPath = "";
-		function getRoute() {
-			if (!isDeepPath) {
-				return routes[props.to];
-			}
+		const fullPath = "";
+		// function getRoute() {
+		// 	if (!isDeepPath) {
+		// 		return routes[props.to];
+		// 	}
 
-			const s = props.to.split(".");
+		// 	const s = props.to.split(".");
 
-			let x: Route | undefined = routes[s.shift()!];
-			fullPath = fullPath.concat(x.path);
+		// 	let x: Route | undefined = routes[s.shift()!];
+		// 	fullPath = fullPath.concat(x.path);
 
-			s.forEach((a) => {
-				x = x?.children?.[a];
-				fullPath = fullPath.concat(x?.path ?? "");
-			});
+		// 	s.forEach((a) => {
+		// 		x = x?.children?.[a];
+		// 		fullPath = fullPath.concat(x?.path ?? "");
+		// 	});
 
-			const result = x;
+		// 	const result = x;
 
-			return result as Route;
-		}
+		// 	return result as Route;
+		// }
 
-		const route = getRoute();
+		// const route = getRoute();
 
-		const path = replaceParamsInPath(fullPath, props.params); //todo fix type
+		const p = "params" in props ? props.params : {};
+
+		const path = replaceParamsInPath(fullPath, p); //todo fix type
 
 		return (
 			<a
@@ -78,40 +81,41 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 
 	function navigate<K extends RouteKeys<typeof routes>>(
 		to: K,
-		params?: RouteParams<(typeof routes)[K]["path"]> extends never
-			? undefined // todo fix parmas type
-			: RouteParams<T[K]["path"]>
+		...[params]: RouteParams<RoutePath<K, typeof routes>> extends never
+			? [] // todo fix parmas type
+			: [RouteParams<RoutePath<K, typeof routes>>]
 	) {
 		const isDeepPath = to.includes(".");
+		console.log("isDeepPath", isDeepPath);
 
 		let fullPath = "";
-		function getRoute() {
-			if (!isDeepPath) {
-				fullPath = fullPath.concat(routes[to].path);
+		// function getRoute() {
+		// 	if (!isDeepPath) {
+		// 		fullPath = fullPath.concat(routes[to].path);
 
-				return routes[to];
-			}
+		// 		return routes[to];
+		// 	}
 
-			const s = to.split(".");
+		// 	const s = to.split(".");
 
-			let x: Route | undefined = routes[s.shift()!];
-			fullPath = fullPath.concat(x.path);
+		// 	let x: Route | undefined = routes[s.shift()!];
+		// 	fullPath = fullPath.concat(x.path);
 
-			s.forEach((a) => {
-				x = x?.children?.[a];
-				if (fullPath === "/") {
-					fullPath = x?.path ?? "";
-					return;
-				}
-				fullPath = fullPath.concat(x?.path ?? "");
-			});
+		// 	s.forEach((a) => {
+		// 		x = x?.children?.[a];
+		// 		if (fullPath === "/") {
+		// 			fullPath = x?.path ?? "";
+		// 			return;
+		// 		}
+		// 		fullPath = fullPath.concat(x?.path ?? "");
+		// 	});
 
-			const result = x;
+		// 	const result = x;
 
-			return result as Route;
-		}
+		// 	return result as Route;
+		// }
 
-		const route = getRoute();
+		// const route = getRoute();
 
 		const path = replaceParamsInPath(fullPath, params); //todo fix type
 

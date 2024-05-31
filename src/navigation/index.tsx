@@ -1,6 +1,6 @@
 import { createRouter } from "src/lib/router";
 
-const routes = {
+export const routes = {
 	store: {
 		path: "/",
 		children: {
@@ -11,6 +11,12 @@ const routes = {
 				path: "/catalog",
 				exact: false,
 			},
+
+			product: {
+				path: "/products/:id",
+				exact: false,
+			},
+
 			cart: {
 				path: "/cart",
 			},
@@ -38,6 +44,6 @@ const routes = {
 	},
 } as const;
 
-const Router = createRouter(routes);
+export const Router = createRouter(routes);
 
 export const { Link, Route, navigate } = Router;

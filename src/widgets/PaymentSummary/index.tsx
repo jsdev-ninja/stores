@@ -3,7 +3,6 @@ import { useAppSelector } from "src/infra/store";
 
 export function PaymentSummary() {
 	const cartCost = useAppSelector(cartSlice.selectors.selectCost);
-	console.log("cartCost", cartCost);
 	return (
 		<div className="p-4">
 			<div className="">Total</div>
@@ -17,7 +16,7 @@ export function PaymentSummary() {
 	);
 }
 
-function LineItem({ label, value }) {
+function LineItem({ label, value }: { label: string; value: string | number }) {
 	return (
 		<div className="flex items-center justify-between">
 			<div className="">{label}</div>

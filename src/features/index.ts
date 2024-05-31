@@ -1,10 +1,7 @@
-import { TProduct } from "src/domains";
 
 export const AppApi = {
 	cart: {
-		add(product: TProduct) {
-			console.log(product);
-
+		add() {
 			// update server
 			// update ui
 		},

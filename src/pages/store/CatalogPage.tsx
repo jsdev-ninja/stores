@@ -12,7 +12,7 @@ export function CatalogPage() {
 	useEffect(() => {
 		FirebaseApi.firestore
 			.list(FirebaseApi.firestore.collections.products)
-			.then((res) => setProducts(res.data));
+			.then((res) => setProducts(res.data ?? []));
 	}, []);
 	console.log("products", products);
 
@@ -39,6 +39,7 @@ export function CatalogPage() {
 			},
 		],
 		unit: { type: "gram", value: 190 },
+		locales: [],
 	};
 
 	let ps = [p];
@@ -49,7 +50,13 @@ export function CatalogPage() {
 			</div>
 			<div className=" flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
 				{ps.map((product) => (
-					<Product key={product.id} product={product}>
+					<Product
+						onClick={() => {
+							navigate("store.product", { id: product.id });
+						}}
+						key={product.id}
+						product={product}
+					>
 						<Product.Image size="lg" />
 						<div className="flex flex-col gap-1 mt-4">
 							<Product.Name />

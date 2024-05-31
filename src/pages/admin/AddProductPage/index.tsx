@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { Form } from "src/components/Form";
-import { NewProductSchema, ProductSchema, TNewProduct, TProduct } from "src/domains";
+import { NewProductSchema, TNewProduct, TProduct } from "src/domains";
+import { TCompany } from "src/domains/Company";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate } from "src/navigation";
 
 export function AddProductPage() {
-	const [categories, setCategories] = useState([]);
+	const [categories, setCategories] = useState<Array<TCompany>>([]);
 	useEffect(() => {
 		FirebaseApi.firestore
 			.list(FirebaseApi.firestore.collections.categories)
-			.then((res) => setCategories(res.data));
+			.then((res) => setCategories(res.data ?? []));
 	}, []);
 	return (
 		<div className="">
@@ -17,14 +18,15 @@ export function AddProductPage() {
 				<Form
 					schema={NewProductSchema}
 					onSubmit={async (data: TNewProduct) => {
+						if (!data.image) return;
 						const fileRef = await FirebaseApi.storage.upload("image.png", data.image[0]);
 						console.log("WORK", data, fileRef);
 
-						let product: TProduct = {
+						let product: Partial<TProduct> = {
 							images: [{ id: crypto.randomUUID(), url: fileRef.url }],
 						};
 
-						delete data.image;
+						delete data["image"];
 
 						product = { ...product, ...data };
 

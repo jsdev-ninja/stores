@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { store, useAppSelector } from "../store";
@@ -58,7 +59,7 @@ export function ModalProvider() {
 	return (
 		<>
 			{openModals.map((modal) => {
-				const component = modals[modal.id];
+				const component = modals[modal.id as keyof typeof modals] as any;
 				return component(modal.props);
 			})}
 		</>

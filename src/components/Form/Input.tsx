@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import classNames from "classnames";
 import { useFormContext } from "react-hook-form";
 
-export function Input(props) {
+export function Input(props: any) {
 	const { name, label, placeholder, type } = props;
 
 	const methods = useFormContext();

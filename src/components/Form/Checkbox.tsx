@@ -2,7 +2,7 @@ import * as RadixCheckbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import { useController } from "react-hook-form";
 
-export const Checkbox = ({ name, label }) => {
+export const Checkbox = ({ name, label }: { name: string; label?: string }) => {
 	const form = useController({ name });
 	return (
 		<div className="flex gap-2 items-center">

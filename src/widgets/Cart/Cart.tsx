@@ -2,8 +2,6 @@ import { TProduct } from "src/domains";
 import { cartSlice } from "src/domains/Cart";
 import { useAppSelector } from "src/infra/store";
 import { Product } from "../Product";
-import { Button } from "src/components/Button/Button";
-import { navigate } from "src/navigation";
 
 export function Cart() {
 	const cart = useAppSelector(cartSlice.selectors.selectCart);
@@ -21,7 +19,7 @@ export function Cart() {
 }
 
 function CartItem({ cartItem }: { cartItem: { amount: number; product: TProduct } }) {
-	const { product, amount } = cartItem;
+	const { product } = cartItem;
 	return (
 		<Product product={product}>
 			<div className="h-20 flex items-center gap-3 justify-start">

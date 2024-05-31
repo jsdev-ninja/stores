@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // your-dialog.jsx
 import React, { ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 
-export const DialogContent = React.forwardRef(({ children, ...props }, forwardedRef) => (
+export const DialogContent = React.forwardRef<any, any>(({ children, ...props }, forwardedRef) => (
 	<DialogPrimitive.Portal>
 		<DialogPrimitive.Overlay className="bg-blackA6 data-[state=open]:animate-overlayShow fixed inset-0" />
 		<DialogPrimitive.Content

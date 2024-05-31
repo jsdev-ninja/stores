@@ -8,9 +8,8 @@ export function AdminProductsPage() {
 	useEffect(() => {
 		FirebaseApi.firestore
 			.list(FirebaseApi.firestore.collections.products)
-			.then((res) => setCategories(res.data));
+			.then((res) => setCategories(res.data ?? []));
 	}, []);
-	console.log("products", products);
 
 	return (
 		<div className="">

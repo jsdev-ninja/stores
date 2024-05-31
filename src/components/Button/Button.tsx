@@ -32,7 +32,13 @@ export function Button(props: Props) {
 	});
 
 	return (
-		<button onClick={onClick} className={style({ size })}>
+		<button
+			onClick={(e) => {
+				e.stopPropagation();
+				onClick?.();
+			}}
+			className={style({ size })}
+		>
 			{children}
 		</button>
 	);
@@ -59,7 +65,13 @@ export function IconButton(props: Props) {
 	});
 
 	return (
-		<button onClick={onClick} className={style({ size })}>
+		<button
+			onClick={(e) => {
+				e.stopPropagation();
+				onClick?.();
+			}}
+			className={style({ size })}
+		>
 			{children}
 		</button>
 	);
@@ -81,6 +93,7 @@ export function InputButton(props: {
 			{},
 		]),
 	});
+	console.log("style", style);
 
 	return (
 		<div className="flex w-full items-center">
@@ -97,6 +110,7 @@ export function InputButton(props: {
 					{ "h-9 w-9": size == "sm" },
 					{ "h-12 w-12": size == "md" },
 				])}
+				onClick={(e) => e.stopPropagation()}
 			>
 				{value}
 			</div>

@@ -1,10 +1,9 @@
 import AllCategories from "../../../transformed_categories.json";
-import { TCategory } from "src/domains/Category";
-import { List } from "src/components/List";
-import { Link, navigate } from "src/navigation";
+
+import { navigate } from "src/navigation";
 
 export function Home() {
-	const rootCategories = AllCategories.filter((category) => !category.parent);
+	const rootCategories = AllCategories.filter((category) => !category.parentId);
 
 	return (
 		<div className="p-4 overflow-auto">
@@ -14,8 +13,6 @@ export function Home() {
 						const subCategories = AllCategories.filter(
 							(categoryItem) => categoryItem.parentId === category.id
 						);
-
-						console.log("subCategories", subCategories);
 
 						return (
 							<div

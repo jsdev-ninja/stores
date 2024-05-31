@@ -13,26 +13,6 @@ import {
 } from "@nextui-org/react";
 import AcmeLogo from "../../assets/logo.png";
 import { Icon } from "src/shared";
-import { useTranslation } from "react-i18next";
-
-const items = [
-	{
-		key: "new",
-		label: "New file",
-	},
-	{
-		key: "copy",
-		label: "Copy link",
-	},
-	{
-		key: "edit",
-		label: "Edit file",
-	},
-	{
-		key: "delete",
-		label: "Delete file",
-	},
-];
 
 export function AppBar() {
 	const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -49,8 +29,6 @@ export function AppBar() {
 		"Help & Feedback",
 		"Log Out",
 	];
-
-	const { t } = useTranslation();
 
 	return (
 		<Navbar position="sticky" isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>

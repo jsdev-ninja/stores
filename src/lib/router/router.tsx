@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { createStore } from "./store";
-import { Route, RouteKeys, RouteParams, Routes } from "./types";
-import { comparePathWithRoutePath, replaceParamsInPath } from "./utils";
+import { Route, RouteKeys, Routes } from "./types";
+import { comparePathWithRoutePath } from "./utils";
 import { createLink } from "./components/Link";
 
 // nested routes
@@ -16,6 +16,8 @@ import { createLink } from "./components/Link";
 //  useLocation
 //  useHistory
 // query params
+
+export type { RouteKeys };
 
 export function createRouter<T extends Routes>(routes: T) {
 	const store = createStore(routes);
@@ -36,8 +38,9 @@ export function createRouter<T extends Routes>(routes: T) {
 		const isContain = pathname.includes(routeConfig.fullPath);
 		console.log("routeConfig.fullPath", routeConfig.fullPath, pathname);
 
-		const isChildMatch = !exactMatch && isContain ? check(routeConfig, pathSegments) : false;
-		function check(r, paths) {
+		const isChildMatch =
+			!exactMatch && isContain ? check(routeConfig as Route, pathSegments) : false;
+		function check(r: Route, paths: Array<string>) {
 			if (!r) return false;
 
 			const [current, ...rest] = paths;
@@ -87,7 +90,7 @@ export function createRouter<T extends Routes>(routes: T) {
 
 	function Route(props: { name: RouteKeys<T>; children: ReactNode }) {
 		const state = store.useRouterStore();
-		const routeConfig = getRouteConfigByName(props.name);
+		// const routeConfig = getRouteConfigByName(props.name);
 
 		const isRouteMatch = matchRoute(props.name, state.pathname);
 

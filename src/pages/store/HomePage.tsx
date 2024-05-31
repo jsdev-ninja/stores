@@ -10,12 +10,13 @@ export function HomePage() {
 			<AppBar />
 
 			<main className="page-with-header flex flex-col overflow-hidden">
-			<Route name="store.home">
+				<Route name="store.home">
 					<Home />
 				</Route>
 				<Route name="store.catalog">
 					<CatalogPage />
 				</Route>
+
 				<Route name="store.cart">
 					<CartPage />
 				</Route>
