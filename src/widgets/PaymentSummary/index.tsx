@@ -1,4 +1,4 @@
-import { cartSlice } from "src/domains/Cart";
+import { cartSlice } from "src/domains/cart";
 import { useAppSelector } from "src/infra/store";
 
 export function PaymentSummary() {

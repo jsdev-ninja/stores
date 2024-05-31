@@ -1,7 +1,7 @@
 import { Button, InputButton } from "src/components/Button/Button";
 import { useProduct } from "./useProduct";
 import { useAppSelector, useStoreActions } from "src/infra/store";
-import { cartSlice } from "src/domains/Cart";
+import { cartSlice } from "src/domains/cart";
 
 type Props = {
 	size: "sm" | "md";

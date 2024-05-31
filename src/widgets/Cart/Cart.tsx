@@ -1,5 +1,5 @@
 import { TProduct } from "src/domains";
-import { cartSlice } from "src/domains/Cart";
+import { cartSlice } from "src/domains/cart";
 import { useAppSelector } from "src/infra/store";
 import { Product } from "../Product";
 

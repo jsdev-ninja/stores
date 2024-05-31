@@ -1,6 +1,6 @@
-import { authSlice } from "src/domains/Auth";
+import { authSlice } from "src/domains/auth";
 import { modalsSlice } from "../modals";
-import { cartSlice } from "src/domains/Cart";
+import { cartSlice } from "src/domains/cart";
 
 export const reducer = {
 	auth: authSlice.reducer,
