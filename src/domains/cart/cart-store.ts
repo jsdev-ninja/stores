@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import type { TProduct } from "..";
+import type { TProduct } from "../product";
 
 type TCart = {
 	items: Array<{ product: TProduct; amount: number }>;
