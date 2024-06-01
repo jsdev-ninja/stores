@@ -1,7 +1,7 @@
 import { Route } from "src/navigation";
 import { AppBar } from "src/widgets/AppBar";
 
-import { CartPage, CatalogPage } from "..";
+import { CartPage, CatalogPage, ProductPage } from "..";
 import { Home } from "./Home";
 
 export function HomePage() {
@@ -19,6 +19,9 @@ export function HomePage() {
 
 				<Route name="store.cart">
 					<CartPage />
+				</Route>
+				<Route name="store.product">
+					<ProductPage />
 				</Route>
 			</main>
 		</div>

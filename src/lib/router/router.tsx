@@ -19,6 +19,35 @@ import { createLink } from "./components/Link";
 
 export type { RouteKeys };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getRoutePath(name: any, routes: any, base: string = "") {
+	if (!routes) return base;
+
+	const segments = name.split(".");
+
+	const [current, ...rest] = segments;
+
+	const isLast = !rest.length;
+
+	const route = routes[current];
+
+	const path = base.concat(route.path);
+
+	if (isLast) return path;
+
+	return getRoutePath(rest.join("."), route.children, path);
+}
+
+function checkChildMatch(route: Route | undefined, pathname: string = ""): boolean {
+	if (!route) return false;
+	if (comparePathWithRoutePath(pathname, route.path)) {
+		return true;
+	}
+	if (!route?.children) return false;
+
+	return Object.values(route?.children).some((r) => checkChildMatch(r, pathname));
+}
+
 export function createRouter<T extends Routes>(routes: T) {
 	const store = createStore(routes);
 
@@ -30,29 +59,11 @@ export function createRouter<T extends Routes>(routes: T) {
 	function matchRoute(name: RouteKeys<T>, pathname: string): { match: boolean; exact: boolean } {
 		const routeConfig = getRouteConfigByName(name);
 
-		const exactMatch = comparePathWithRoutePath(pathname, routeConfig.fullPath);
+		const routePath = getRoutePath(name, routes, "");
 
-		const childrenPath = pathname.replace(routeConfig.fullPath, "");
-		const pathSegments = childrenPath.split("/").filter(Boolean);
+		const exactMatch = comparePathWithRoutePath(pathname, routePath);
 
-		const isContain = pathname.includes(routeConfig.fullPath);
-		console.log("routeConfig.fullPath", routeConfig.fullPath, pathname);
-
-		const isChildMatch =
-			!exactMatch && isContain ? check(routeConfig as Route, pathSegments) : false;
-		function check(r: Route, paths: Array<string>) {
-			if (!r) return false;
-
-			const [current, ...rest] = paths;
-
-			if (!r?.children?.[current]) return false;
-
-			if (r?.children?.[current] && rest.length === 0) {
-				return true;
-			}
-
-			return check(r?.children?.[current], rest);
-		}
+		const isChildMatch = checkChildMatch(routeConfig, pathname);
 
 		return {
 			match: exactMatch || !!isChildMatch,
@@ -60,13 +71,12 @@ export function createRouter<T extends Routes>(routes: T) {
 		};
 	}
 
-	function getRouteConfigByName(routeName: RouteKeys<T>) {
+	function getRouteConfigByName(routeName: RouteKeys<T>): Route | undefined {
 		const segments = routeName.split(".");
 
 		const rootRoute = segments.shift();
 
 		let route: Route | undefined = rootRoute ? routes[rootRoute] : undefined;
-		let deepPath = route?.path ?? "";
 
 		if (segments.length) {
 			segments.forEach((segment) => {
@@ -75,17 +85,10 @@ export function createRouter<T extends Routes>(routes: T) {
 				}
 
 				route = route.children[segment];
-
-				if (deepPath === "/") {
-					deepPath = route.path;
-					return;
-				}
-
-				deepPath = deepPath.concat(route.path);
 			});
 		}
 
-		return { ...route, fullPath: deepPath };
+		return route;
 	}
 
 	function Route(props: { name: RouteKeys<T>; children: ReactNode }) {
@@ -94,7 +97,9 @@ export function createRouter<T extends Routes>(routes: T) {
 
 		const isRouteMatch = matchRoute(props.name, state.pathname);
 
-		console.log("name", props.name, isRouteMatch);
+		if (isRouteMatch.match) {
+			console.warn("name", props.name, isRouteMatch);
+		}
 
 		if (!isRouteMatch.match) {
 			return null;
