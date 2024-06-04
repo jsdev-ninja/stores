@@ -16,7 +16,7 @@ export function AdminCategoriesPages() {
 			<div className="w-full">
 				<List>
 					{categories.map((category) => {
-						return <List.Item key={category.id}>{category.name}</List.Item>;
+						return <List.Item key={category.id}>{category.locales[0].value}</List.Item>;
 					})}
 				</List>
 			</div>

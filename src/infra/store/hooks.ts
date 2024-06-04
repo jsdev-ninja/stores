@@ -1,5 +1,5 @@
 import { cartSlice } from "src/domains/cart";
-import { useAppDispatch } from ".";
+import { useAppDispatch } from "./store";
 
 const actions = {
 	cart: cartSlice.actions,

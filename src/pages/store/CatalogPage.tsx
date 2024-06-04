@@ -40,9 +40,10 @@ export function CatalogPage() {
 		],
 		unit: { type: "gram", value: 190 },
 		locales: [],
+		categories: [],
 	};
 
-	let ps = [p];
+	const ps = [p];
 	return (
 		<div className="flex w-full h-full">
 			<div className="flex-shrink-0  overflow-auto h-full">

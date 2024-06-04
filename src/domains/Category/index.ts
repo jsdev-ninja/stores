@@ -1,11 +1,13 @@
-import { TCompany } from "../Company";
-import { TStore } from "../Store";
+import { z } from "zod";
+import { LocaleSchema } from "src/shared/types";
 
-export type TCategory = {
-	id: string;
-	companyId: TCompany["id"];
-	storeId: TStore["id"];
-	name: string;
-	displayName: string;
-	parentId?: TCategory["id"] | ""; // empty string is root category
-};
+export const CategorySchema = z.object({
+	id: z.string().min(1),
+	companyId: z.string().min(1),
+	storeId: z.string().min(1),
+	parentId: z.string().min(1),
+	tag: z.string().min(1),
+	locales: z.array(LocaleSchema),
+});
+
+export type TCategory = z.infer<typeof CategorySchema>;

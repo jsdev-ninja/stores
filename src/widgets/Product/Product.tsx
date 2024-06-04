@@ -94,7 +94,7 @@ Product.Weight = function Weight() {
 
 	return (
 		<div className="text-gray-300">
-			{product.weight.value} {product.weight.unit}
+			{product.weight?.value} {product.weight?.unit}
 		</div>
 	);
 };

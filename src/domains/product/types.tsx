@@ -1,3 +1,4 @@
+import { LocaleSchema } from "src/shared/types";
 import { z } from "zod";
 
 export const ProductSchema = z.object({
@@ -8,7 +9,12 @@ export const ProductSchema = z.object({
 	vat: z.boolean(),
 	price: z.number(),
 	currency: z.literal("ILS"),
-	category: z.string().optional(),
+	category: z.string().optional(), // remove
+	categories: z.array(
+		z.object({
+			name: z.string().optional(),
+		})
+	),
 	discount: z
 		.object({
 			type: z.enum(["number", "percent"]),
@@ -19,12 +25,20 @@ export const ProductSchema = z.object({
 		type: z.enum(["unit", "kg", "gram", "liter", "ml"]),
 		value: z.number(),
 	}),
-	weight: z.object({
-		value: z.number(),
-		unit: z.enum(["kg", "gram"]),
-	}),
+	weight: z
+		.object({
+			value: z.number(),
+			unit: z.enum(["kg", "gram"]),
+		})
+		.optional(),
+	volume: z
+		.object({
+			value: z.number(),
+			unit: z.enum(["liter", "ml"]),
+		})
+		.optional(),
 	images: z.array(z.object({ url: z.string().url(), id: z.string() })),
-	locales: z.array(z.object({ type: z.string(), value: z.string() })),
+	locales: z.array(LocaleSchema),
 });
 
 export const NewProductSchema = ProductSchema.omit({ id: true, images: true }).merge(

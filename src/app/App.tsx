@@ -2,11 +2,8 @@ import { useEffect } from "react";
 
 import "./App.scss";
 
-import { Provider } from "react-redux";
-
 import { useTranslation } from "react-i18next";
 
-import { store } from "src/infra/store";
 import { Route } from "src/navigation";
 import { ModalProvider } from "src/infra/modals";
 import { AdminPage } from "src/pages";
@@ -20,13 +17,14 @@ function App() {
 	}, [dir]);
 
 	// get company details
+
 	// get store details
 	// get storeCategories
 	// payment -> heshbonit vs kabala
 	// order from history
 
 	return (
-		<Provider store={store}>
+		<>
 			<ModalProvider />
 			<Route name="store">
 				<HomePage />
@@ -34,7 +32,7 @@ function App() {
 			<Route name="admin">
 				<AdminPage />
 			</Route>
-		</Provider>
+		</>
 	);
 }
 
