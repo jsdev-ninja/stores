@@ -21,7 +21,7 @@ async function main() {
 			tag: category.tag,
 			locales: [
 				{
-					lang: "he-IL",
+					lang: "he",
 					value: category.name,
 				},
 			],
@@ -37,7 +37,7 @@ async function main() {
 	categories.forEach((c) => {
 		const collectionRef = db.collection("categories").doc(c.id);
 		delete c.id;
-		batch.set(collectionRef, c);
+		batch.update(collectionRef, c);
 	});
 
 	// Set the value of 'NYC'
