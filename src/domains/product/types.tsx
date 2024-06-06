@@ -4,15 +4,18 @@ import { z } from "zod";
 export const ProductSchema = z.object({
 	id: z.string(),
 	sku: z.string(),
-	name: z.string(),
 	description: z.string().optional(),
 	vat: z.boolean(),
+	unit: z.object({
+		type: z.enum(["unit", "kg", "gram", "liter", "ml"]),
+		value: z.number(),
+	}),
 	price: z.number(),
 	currency: z.literal("ILS"),
-	category: z.string().optional(), // remove
 	categories: z.array(
 		z.object({
-			name: z.string().optional(),
+			tag: z.string(),
+			id: z.string(),
 		})
 	),
 	discount: z
@@ -21,10 +24,7 @@ export const ProductSchema = z.object({
 			value: z.number(),
 		})
 		.optional(),
-	unit: z.object({
-		type: z.enum(["unit", "kg", "gram", "liter", "ml"]),
-		value: z.number(),
-	}),
+
 	weight: z
 		.object({
 			value: z.number(),

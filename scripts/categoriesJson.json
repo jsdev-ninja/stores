@@ -1,0 +1,850 @@
+[
+	{
+		"id": "11807",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "FruitsVegetables",
+		"locales": [{ "lang": "he", "value": "פירות וירקות" }]
+	},
+	{
+		"id": "11806",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "Frozen",
+		"locales": [{ "lang": "he", "value": "קפואים" }]
+	},
+	{
+		"id": "11812",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "BreadsBakery",
+		"locales": [{ "lang": "he", "value": "לחמים ומוצרי מאפה" }]
+	},
+	{
+		"id": "11811",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "DairyProductsEggs",
+		"locales": [{ "lang": "he", "value": "מוצרי חלב וביצים" }]
+	},
+	{
+		"id": "11810",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "Deli",
+		"locales": [{ "lang": "he", "value": "מעדניה" }]
+	},
+	{
+		"id": "11809",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "DrinkWine",
+		"locales": [{ "lang": "he", "value": "משקאות ויין" }]
+	},
+	{
+		"id": "11816",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "Groceries",
+		"locales": [{ "lang": "he", "value": "דברי מכולת" }]
+	},
+	{
+		"id": "11814",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "SnacksSweets",
+		"locales": [{ "lang": "he", "value": "חטיפים וממתקים" }]
+	},
+	{
+		"id": "11808",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "PharmHygieneInfants",
+		"locales": [{ "lang": "he", "value": "פארם, היגיינה ותינוקות" }]
+	},
+	{
+		"id": "11815",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "Cleaners",
+		"locales": [{ "lang": "he", "value": "חומרי ניקוי" }]
+	},
+	{
+		"id": "11813",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "",
+		"tag": "HousewaresGadgets",
+		"locales": [{ "lang": "he", "value": "כלי בית  וג'אדג'טים" }]
+	},
+	{
+		"id": "11900",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "Beers",
+		"locales": [{ "lang": "he", "value": "בירות" }]
+	},
+	{
+		"id": "11958",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11814",
+		"tag": "ChewingGumCandies",
+		"locales": [{ "lang": "he", "value": "מסטיקים וסוכריות" }]
+	},
+	{
+		"id": "11948",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11815",
+		"tag": "Dishwashing",
+		"locales": [{ "lang": "he", "value": "שטיפת כלים" }]
+	},
+	{
+		"id": "11923",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11807",
+		"tag": "FreshFruits",
+		"locales": [{ "lang": "he", "value": "פירות טריים" }]
+	},
+	{
+		"id": "11941",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11806",
+		"tag": "Glaciers",
+		"locales": [{ "lang": "he", "value": "שלגונים" }]
+	},
+	{
+		"id": "11893",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "GoatCheeseSheep",
+		"locales": [{ "lang": "he", "value": "גבינות עיזים וכבשים" }]
+	},
+	{
+		"id": "11854",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11807",
+		"tag": "FreshVegetables",
+		"locales": [{ "lang": "he", "value": "ירקות טריים" }]
+	},
+	{
+		"id": "11932",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "HygieneCleaning",
+		"locales": [{ "lang": "he", "value": "תכשירי טיפוח ונקיון" }]
+	},
+	{
+		"id": "11889",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11806",
+		"tag": "IceCreams",
+		"locales": [{ "lang": "he", "value": "גלידות" }]
+	},
+	{
+		"id": "11935",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "IngredientsSoupSalad",
+		"locales": [{ "lang": "he", "value": "תוספים למרק/סלט" }]
+	},
+	{
+		"id": "11820",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11814",
+		"tag": "ChocolateTables",
+		"locales": [{ "lang": "he", "value": "טבלאות שוקולד" }]
+	},
+	{
+		"id": "11988",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11815",
+		"tag": "CleaningHouse",
+		"locales": [{ "lang": "he", "value": "ניקוי הבית" }]
+	},
+	{
+		"id": "11844",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11812",
+		"tag": "BreadsPastries",
+		"locales": [{ "lang": "he", "value": "לחמים ומאפים" }]
+	},
+	{
+		"id": "11856",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "Wines",
+		"locales": [{ "lang": "he", "value": "יינות" }]
+	},
+	{
+		"id": "11855",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11807",
+		"tag": "VegetableHerbsSprouts",
+		"locales": [{ "lang": "he", "value": "ירק, עשבי תיבול ונבטים" }]
+	},
+	{
+		"id": "11827",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11814",
+		"tag": "SweetsSnacks",
+		"locales": [{ "lang": "he", "value": "חטיפים מתוקים" }]
+	},
+	{
+		"id": "11936",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Tea",
+		"locales": [{ "lang": "he", "value": "תה" }]
+	},
+	{
+		"id": "11904",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "YogurtWhiteCream",
+		"locales": [{ "lang": "he", "value": "אשל/לבן/שמנת" }]
+	},
+	{
+		"id": "11963",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11815",
+		"tag": "AirFreshenersInsecticide",
+		"locales": [{ "lang": "he", "value": "מטהרי אויר וקוטל חרקים" }]
+	},
+	{
+		"id": "11961",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "MineralFlavors",
+		"locales": [{ "lang": "he", "value": "מים מינרלים/ בטעמים" }]
+	},
+	{
+		"id": "11916",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11810",
+		"tag": "PastramiColdCuts",
+		"locales": [{ "lang": "he", "value": "פסטרמה ונקניקים" }]
+	},
+	{
+		"id": "11843",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11812",
+		"tag": "Rolls",
+		"locales": [{ "lang": "he", "value": "לחמניות" }]
+	},
+	{
+		"id": "11829",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11814",
+		"tag": "SaltySnacks",
+		"locales": [{ "lang": "he", "value": "חטיפים מלוחים" }]
+	},
+	{
+		"id": "11985",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11810",
+		"tag": "HotDogs",
+		"locales": [{ "lang": "he", "value": "נקניקיות" }]
+	},
+	{
+		"id": "11975",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "EnergyDrinks",
+		"locales": [{ "lang": "he", "value": "משקאות אנרגיה" }]
+	},
+	{
+		"id": "11922",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11807",
+		"tag": "DriedFruit",
+		"locales": [{ "lang": "he", "value": "פירות יבשים" }]
+	},
+	{
+		"id": "11984",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11810",
+		"tag": "DriedSausages",
+		"locales": [{ "lang": "he", "value": "נקניקים יבשים" }]
+	},
+	{
+		"id": "11871",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11815",
+		"tag": "CleaningAccessories",
+		"locales": [{ "lang": "he", "value": "אביזרי ניקוי" }]
+	},
+	{
+		"id": "11974",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "AlcoholicBeveragesFlavor",
+		"locales": [{ "lang": "he", "value": "משקאות אלכוהוליים בטעמים" }]
+	},
+	{
+		"id": "11925",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11807",
+		"tag": "Nuts",
+		"locales": [{ "lang": "he", "value": "פיצוחים" }]
+	},
+	{
+		"id": "11894",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "WhiteCheesesCream",
+		"locales": [{ "lang": "he", "value": "גבינות לבנות ושמנת" }]
+	},
+	{
+		"id": "11858",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "TextileHome",
+		"locales": [{ "lang": "he", "value": "טקסטיל לבית" }]
+	},
+	{
+		"id": "11982",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "SoapsBath",
+		"locales": [{ "lang": "he", "value": "סבונים/תכשירי רחצה" }]
+	},
+	{
+		"id": "11830",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11814",
+		"tag": "WafersBiscuits",
+		"locales": [{ "lang": "he", "value": "וופלים ובסקוויטים" }]
+	},
+	{
+		"id": "11938",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Spices",
+		"locales": [{ "lang": "he", "value": "תבלינים" }]
+	},
+	{
+		"id": "11992",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "Sodas",
+		"locales": [{ "lang": "he", "value": "משקאות מוגזים" }]
+	},
+	{
+		"id": "11891",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "SoftSaltedCheeses",
+		"locales": [{ "lang": "he", "value": "גבינות רכות ומלוחות" }]
+	},
+	{
+		"id": "11989",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "ToiletPaperTissue",
+		"locales": [{ "lang": "he", "value": "נייר טואלט/טישו" }]
+	},
+	{
+		"id": "11940",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "OilsVinegar",
+		"locales": [{ "lang": "he", "value": "שמנים וחומץ" }]
+	},
+	{
+		"id": "11977",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11810",
+		"tag": "Salads",
+		"locales": [{ "lang": "he", "value": "סלטים" }]
+	},
+	{
+		"id": "11903",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11814",
+		"tag": "Bonbonniere",
+		"locales": [{ "lang": "he", "value": "בונבוניירות" }]
+	},
+	{
+		"id": "11953",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11812",
+		"tag": "CakesCookies",
+		"locales": [{ "lang": "he", "value": "עוגות ועוגיות" }]
+	},
+	{
+		"id": "11910",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11810",
+		"tag": "Desserts",
+		"locales": [{ "lang": "he", "value": "קינוחים" }]
+	},
+	{
+		"id": "11927",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11812",
+		"tag": "PitaBread",
+		"locales": [{ "lang": "he", "value": "פיתות" }]
+	},
+	{
+		"id": "11824",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11814",
+		"tag": "HalvaMarzipanLocom",
+		"locales": [{ "lang": "he", "value": "חלווה מרציפן ולוקום" }]
+	},
+	{
+		"id": "11991",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "SoftDrinks",
+		"locales": [{ "lang": "he", "value": "משקאות קלים" }]
+	},
+	{
+		"id": "11849",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "StorageTools",
+		"locales": [{ "lang": "he", "value": "כלי איחסון" }]
+	},
+	{
+		"id": "11892",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "YellowHardCheeses",
+		"locales": [{ "lang": "he", "value": "גבינות צהובות וקשות" }]
+	},
+	{
+		"id": "11960",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "JuicesNectar",
+		"locales": [{ "lang": "he", "value": "מיצים ונקטרים" }]
+	},
+	{
+		"id": "11825",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "FreshMilk",
+		"locales": [{ "lang": "he", "value": "חלב טרי" }]
+	},
+	{
+		"id": "11848",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "DisposableDishes",
+		"locales": [{ "lang": "he", "value": "כלים חד פעמים" }]
+	},
+	{
+		"id": "11930",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11812",
+		"tag": "Crackers",
+		"locales": [{ "lang": "he", "value": "קרקרים ופרכיות" }]
+	},
+	{
+		"id": "11819",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "ConcentrationsDrinking",
+		"locales": [{ "lang": "he", "value": "תרכיזי שתיה" }]
+	},
+	{
+		"id": "11944",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "CannedVegetables",
+		"locales": [{ "lang": "he", "value": "שימורי ירקות" }]
+	},
+	{
+		"id": "11924",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11812",
+		"tag": "Breadcrumbs",
+		"locales": [{ "lang": "he", "value": "פירורי לחם" }]
+	},
+	{
+		"id": "11822",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "ButterMargarine",
+		"locales": [{ "lang": "he", "value": "חמאה ומרגרינה" }]
+	},
+	{
+		"id": "11993",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11809",
+		"tag": "AlcoholicBeverages",
+		"locales": [{ "lang": "he", "value": "משקאות חריפים" }]
+	},
+	{
+		"id": "11945",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "CannedPickleVegetables",
+		"locales": [{ "lang": "he", "value": "שימורי חמוצים" }]
+	},
+	{
+		"id": "11965",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "Paper",
+		"locales": [{ "lang": "he", "value": "מוצרי נייר" }]
+	},
+	{
+		"id": "11857",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "Yogurt",
+		"locales": [{ "lang": "he", "value": "יוגורט" }]
+	},
+	{
+		"id": "11905",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "WetWipes",
+		"locales": [{ "lang": "he", "value": "מגבונים לחים" }]
+	},
+	{
+		"id": "11981",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "Batteries",
+		"locales": [{ "lang": "he", "value": "סוללות" }]
+	},
+	{
+		"id": "11946",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "CannedFishTuna",
+		"locales": [{ "lang": "he", "value": "שימורי דגים וטונה" }]
+	},
+	{
+		"id": "11956",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "Delicacies",
+		"locales": [{ "lang": "he", "value": "מעדנים" }]
+	},
+	{
+		"id": "11990",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "NylonClingAluminum",
+		"locales": [{ "lang": "he", "value": "ניילון נצמד/אלומיניום" }]
+	},
+	{
+		"id": "11994",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "MilkDrinks",
+		"locales": [{ "lang": "he", "value": "משקאות חלב" }]
+	},
+	{
+		"id": "11949",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Sauces",
+		"locales": [{ "lang": "he", "value": "רטבים ורסקים" }]
+	},
+	{
+		"id": "11859",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "DentalCare",
+		"locales": [{ "lang": "he", "value": "טיפוח שיניים" }]
+	},
+	{
+		"id": "11912",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "Cottage",
+		"locales": [{ "lang": "he", "value": "קוטג׳" }]
+	},
+	{
+		"id": "11983",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "CandlesMatches",
+		"locales": [{ "lang": "he", "value": "נרות וגפרורים" }]
+	},
+	{
+		"id": "11928",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "WhippedCream",
+		"locales": [{ "lang": "he", "value": "קצפות" }]
+	},
+	{
+		"id": "11917",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Coffee",
+		"locales": [{ "lang": "he", "value": "קפה" }]
+	},
+	{
+		"id": "11934",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "MilkSubstitutes",
+		"locales": [{ "lang": "he", "value": "תחליפי חלב" }]
+	},
+	{
+		"id": "11909",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "FlourSugarSalt",
+		"locales": [{ "lang": "he", "value": "קמח, סוכר ומלח" }]
+	},
+	{
+		"id": "11939",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11813",
+		"tag": "PlasticBags",
+		"locales": [{ "lang": "he", "value": "שקיות פלסטיק" }]
+	},
+	{
+		"id": "11840",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "CultivationHygiene",
+		"locales": [{ "lang": "he", "value": "טיפוח והגיינה" }]
+	},
+	{
+		"id": "11951",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11811",
+		"tag": "Cheesesubstitutes",
+		"locales": [{ "lang": "he", "value": "תחליפי גבינה" }]
+	},
+	{
+		"id": "11911",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Legumes",
+		"locales": [{ "lang": "he", "value": "קטניות" }]
+	},
+	{
+		"id": "11918",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "PastaFlakesCouscous",
+		"locales": [{ "lang": "he", "value": "פסטה/פתיתים/קוסקוס" }]
+	},
+	{
+		"id": "11834",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "OralHygiene",
+		"locales": [{ "lang": "he", "value": "הגיינת הפה" }]
+	},
+	{
+		"id": "11835",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "FeminineHygiene",
+		"locales": [{ "lang": "he", "value": "הגיינה נשית" }]
+	},
+	{
+		"id": "11886",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "DeodorantWomen",
+		"locales": [{ "lang": "he", "value": "דאודורנט לנשים" }]
+	},
+	{
+		"id": "11954",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "SoupsFastFood",
+		"locales": [{ "lang": "he", "value": "מרקים ומזון מהיר להכנה" }]
+	},
+	{
+		"id": "11887",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "DeodorantMen",
+		"locales": [{ "lang": "he", "value": "דאודורנט לגברים" }]
+	},
+	{
+		"id": "11959",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "ArtificialSweeteners",
+		"locales": [{ "lang": "he", "value": "ממתיקים מלאכותיים" }]
+	},
+	{
+		"id": "11964",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Soy",
+		"locales": [{ "lang": "he", "value": "מוצרי סויה" }]
+	},
+	{
+		"id": "11971",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Baking",
+		"locales": [{ "lang": "he", "value": "מוצרי אפייה" }]
+	},
+	{
+		"id": "11874",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11808",
+		"tag": "CareRefreshment",
+		"locales": [{ "lang": "he", "value": "אביזרי טיפוח וריענון" }]
+	},
+	{
+		"id": "11838",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "SnacksHealth",
+		"locales": [{ "lang": "he", "value": "חטיפי בריאות" }]
+	},
+	{
+		"id": "11836",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "CerealsOatmeal",
+		"locales": [{ "lang": "he", "value": "דגנים/שיבולת שועל" }]
+	},
+	{
+		"id": "11837",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Cereal",
+		"locales": [{ "lang": "he", "value": "דגני בוקר" }]
+	},
+	{
+		"id": "11863",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "HoneyJamspreads",
+		"locales": [{ "lang": "he", "value": "דבש/ריבה/ממרחים" }]
+	},
+	{
+		"id": "11888",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Granola",
+		"locales": [{ "lang": "he", "value": "גרנולה" }]
+	},
+	{
+		"id": "11883",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "Rice",
+		"locales": [{ "lang": "he", "value": "אורז" }]
+	},
+	{
+		"id": "11865",
+		"storeId": "dhXXgvpn1wyTfqxoQfr0",
+		"companyId": "HpxoL3sSMqNmo3rAzGVk",
+		"parentId": "11816",
+		"tag": "PowdersDrinking",
+		"locales": [{ "lang": "he", "value": "אבקות שתיה" }]
+	}
+]
