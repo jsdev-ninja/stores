@@ -1,9 +1,6 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { firestoreDB } from "./utils/firestore.js";
-import axios from "axios";
 import categories from "./categoriesJson.json" assert { type: "json" };
-import { createWriteStream } from "node:fs";
 import { storageApi } from "./utils/storage.js";
 
 const dirName = "./data/products/";
