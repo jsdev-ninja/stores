@@ -27,7 +27,6 @@ async function main() {
 			],
 		};
 	});
-	console.log("categories", categories.length);
 
 	const db = firestoreDB;
 
