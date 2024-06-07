@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Button } from "src/components/Button/Button";
 import { TProduct } from "src/domains";
 import { ProductApi } from "src/domains/product/product-api";
 import { useParams } from "src/navigation";

@@ -9,11 +9,10 @@ import { ProductName } from "./ProductName";
 export type ProductProps = {
 	product: TProduct;
 	children: ReactNode;
-	onClick?: (product: TProduct) => void;
 };
 
 export function Product(props: ProductProps) {
-	const { product, children, onClick } = props;
+	const { product, children } = props;
 
 	const context: ProductContextType = { product };
 
@@ -24,10 +23,10 @@ const style = tv({
 	base: "h-full w-full rounded object-cover  group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
 });
 
-Product.Image = function Image({ size }: { size?: "xs" | "sm" | "md" | "lg" }) {
+Product.Image = function Image() {
 	const { product } = useProduct();
 
-	return <img className={style({ size })} src={product?.images?.[0]?.url ?? "banana.png"} />;
+	return <img className={style({})} src={product?.images?.[0]?.url ?? "banana.png"} />;
 };
 
 Product.Description = function Description() {

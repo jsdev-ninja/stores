@@ -22,7 +22,6 @@ export function CatalogPage() {
 	const p: TProduct = {
 		id: "1",
 		sku: "11",
-		name: "Natural nuts tray",
 		description: "lorem impsum more..",
 		vat: true,
 		price: 200,

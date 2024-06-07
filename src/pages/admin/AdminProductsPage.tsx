@@ -26,7 +26,7 @@ export function AdminProductsPage() {
 						return (
 							<tr className="border" key={product.id}>
 								<td>{product.sku}</td>
-								<td>{product.name}</td>
+								<td>{'product.name'}</td>
 								<td>
 									{product.price}
 									{product.currency}

@@ -1,6 +1,6 @@
 import AllCategories from "../../../transformed_categories.json";
 
-import { Link, navigate } from "src/navigation";
+import { navigate } from "src/navigation";
 
 export function Home() {
 	const rootCategories = AllCategories.filter((category) => !category.parentId);
