@@ -84,17 +84,6 @@ export function InputButton(props: {
 }) {
 	const { onChange, value, size = "md" } = props;
 
-	const style = tv({
-		base: classNames([
-			"block box-border transition-all",
-			"shadow  rounded-lg bg-primary-main text-white px-2 py-1 text-lg text-center",
-			"hover:bg-primary-dark",
-			"active:bg-primary-light active:shadow-none active:scale-95",
-			{},
-		]),
-	});
-	console.log("style", style);
-
 	return (
 		<div className="flex w-full items-center">
 			<IconButton

@@ -13,6 +13,7 @@ import {
 } from "@nextui-org/react";
 import AcmeLogo from "../../assets/logo.png";
 import { Icon } from "src/shared";
+import { navigate } from "src/navigation";
 
 export function AppBar() {
 	const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -35,7 +36,13 @@ export function AppBar() {
 			<NavbarContent className="pr-3" justify="center">
 				<NavbarBrand>
 					<div className="h-[50px] w-[100px]">
-						<img src={AcmeLogo} alt="" />
+						<img
+							src={AcmeLogo}
+							alt=""
+							onClick={() => {
+								navigate("store");
+							}}
+						/>
 					</div>
 				</NavbarBrand>
 			</NavbarContent>

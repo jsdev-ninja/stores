@@ -4,6 +4,7 @@ import { ProductContext, ProductContextType } from "./ProductContext";
 import { useProduct } from "./useProduct";
 import { ProductCartButton } from "./ProductCartButton";
 import { tv } from "tailwind-variants";
+import { ProductName } from "./ProductName";
 
 export type ProductProps = {
 	product: TProduct;
@@ -16,32 +17,11 @@ export function Product(props: ProductProps) {
 
 	const context: ProductContextType = { product };
 
-	return (
-		<ProductContext.Provider value={context}>
-			<div
-				data-name="Product"
-				className="bg-gray-50 transition hover:-translate-y-1 hover:bg-gray-100 p-4 rounded-3xl cursor-pointer group"
-				onClick={() => onClick?.(product)}
-			>
-				{children}
-			</div>
-		</ProductContext.Provider>
-	);
+	return <ProductContext.Provider value={context}>{children}</ProductContext.Provider>;
 }
 
 const style = tv({
-	base: "rounded object-cover drop-shadow-md group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
-	defaultVariants: {
-		size: "md",
-	},
-	variants: {
-		size: {
-			xs: "h-16 w-16",
-			sm: "h-24 w-24",
-			md: "h-32 w-32",
-			lg: "h-40 w-40",
-		},
-	},
+	base: "h-full w-full rounded object-cover  group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
 });
 
 Product.Image = function Image({ size }: { size?: "xs" | "sm" | "md" | "lg" }) {
@@ -49,13 +29,7 @@ Product.Image = function Image({ size }: { size?: "xs" | "sm" | "md" | "lg" }) {
 
 	return <img className={style({ size })} src={product?.images?.[0]?.url ?? "banana.png"} />;
 };
-Product.Name = function Name() {
-	const { product } = useProduct();
-	if (!product) return null;
 
-	const name = product.locales[0].value;
-	return <div className="text-text-primary text-sm">{name}</div>;
-};
 Product.Description = function Description() {
 	const { product } = useProduct();
 	return <div className="text-gray-400">{product?.description}</div>;
@@ -103,6 +77,7 @@ Product.Weight = function Weight() {
 };
 
 Product.CartButton = ProductCartButton;
+Product.Name = ProductName;
 
 function getPriceAfterDiscount(product: TProduct) {
 	if (product.discount?.type === "percent") {
