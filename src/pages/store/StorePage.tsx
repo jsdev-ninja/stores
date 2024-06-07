@@ -63,8 +63,6 @@ export function StorePage() {
 							(categoryItem) => categoryItem.parentId === category.id
 						);
 
-						console.log("subCategories", subCategories);
-
 						return (
 							<div key={category.id} className="flex flex-col gap-5">
 								<div className="text-2xl font-semibold">{category.locales[0].value}</div>

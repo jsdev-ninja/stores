@@ -10,10 +10,15 @@ import { AdminPage } from "src/pages";
 import { HomePage } from "src/pages/store/HomePage";
 import { CategoryService } from "src/domains/Category";
 import { useStoreActions } from "src/infra";
+import { AlgoliaService } from "src/services";
 
 function App() {
 	const { i18n } = useTranslation();
 	const dir = i18n.dir();
+
+	useEffect(() => {
+		AlgoliaService.getProducts();
+	}, []);
 
 	const actions = useStoreActions();
 	useEffect(() => {
