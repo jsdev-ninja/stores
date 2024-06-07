@@ -14,7 +14,6 @@ export const routes = {
 
 			product: {
 				path: "/products/:id",
-				exact: false,
 			},
 
 			cart: {

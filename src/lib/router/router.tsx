@@ -29,7 +29,11 @@ function getRoutePath(name: any, routes: any, base: string = "") {
 
 	const isLast = !rest.length;
 
-	const route = routes[current];
+	const route = routes[current] as Route | undefined;
+
+	if (!route) return "";
+
+	base = base.endsWith("/") ? base.slice(0, -1) : base;
 
 	const path = base.concat(route.path);
 
@@ -39,6 +43,8 @@ function getRoutePath(name: any, routes: any, base: string = "") {
 }
 
 function checkChildMatch(route: Route | undefined, pathname: string = ""): boolean {
+	console.log("child", route?.path);
+
 	if (!route) return false;
 	if (comparePathWithRoutePath(pathname, route.path, route.exact)) {
 		return true;
@@ -53,22 +59,18 @@ export function createRouter<T extends Routes>(routes: T) {
 
 	const { Link, navigate } = createLink<T>(routes, store);
 
-	// match is exact
-	// if not exact check if any children match
-
 	function matchRoute(name: RouteKeys<T>, pathname: string): { match: boolean; exact: boolean } {
 		const routeConfig = getRouteConfigByName(name);
 
-		console.log(name, routeConfig);
-
 		const routePath = getRoutePath(name, routes, "");
-
-		console.log("routePath", routePath);
 
 		const exactMatch = comparePathWithRoutePath(pathname, routePath);
 
-		const isChildMatch = checkChildMatch(routeConfig, pathname);
+		const isContain = pathname.includes(routePath);
 
+		const isChildMatch = isContain && checkChildMatch(routeConfig, pathname);
+
+		console.info("name", name, isContain, isChildMatch);
 		return {
 			match: exactMatch || !!isChildMatch,
 			exact: exactMatch,
@@ -135,9 +137,29 @@ export function createRouter<T extends Routes>(routes: T) {
 	function useParams<K extends TTo>(
 		name: K
 	): RouteParams<RoutePath<K, typeof routes>> extends never
-		? undefined
+		? object
 		: RouteParams<RoutePath<K, typeof routes>> {
-		return {};
+		const { pathname } = store.useRouterStore();
+
+		type Result = RouteParams<RoutePath<K, typeof routes>> extends never
+			? object
+			: RouteParams<RoutePath<K, typeof routes>>;
+
+		const routePath = getRoutePath(name, routes, "");
+
+		const result: { [key: string]: string } = {};
+
+		const segments = routePath.split("/");
+		const pathSegments = pathname.split("/");
+
+		segments.forEach((segment, index) => {
+			if (segment.startsWith(":")) {
+				const paramName = segment.slice(1);
+				result[paramName] = pathSegments[index] ?? "";
+			}
+		});
+
+		return result as Result;
 	}
 
 	return {
@@ -147,8 +169,6 @@ export function createRouter<T extends Routes>(routes: T) {
 		useParams: useParams,
 	};
 }
-
-
 
 //  / /
 // /avi /avi

@@ -1,6 +1,10 @@
 import { Button } from "src/components/Button/Button";
+import { useParams } from "src/navigation";
 
 export function ProductPage() {
+	const params = useParams("store.product");
+	console.log("params", params);
+
 	return (
 		<div className="container mx-4 border px-20 flex-grow flex items-center justify-center gap-20 flex-wrap">
 			<div className="h-96 w-96">

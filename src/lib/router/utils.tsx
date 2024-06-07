@@ -11,18 +11,21 @@ export function replaceParamsInPath(path: string, params?: object) {
 }
 
 export function comparePathWithRoutePath(path: string, routePath: string, exact?: boolean) {
-	const pathSegments = path.split("/");
-	const routePathSegments = routePath.split("/");
-
 	const isExact = exact ?? true;
-	console.log("routePathSegments", routePathSegments, pathSegments, isExact);
+	const pathSegments = path.split("/").filter(Boolean);
+	const routePathSegments = routePath.split("/").filter(Boolean);
 
-	if (pathSegments.length !== routePathSegments.length && isExact) return false;
+	if (pathSegments.length !== routePathSegments.length && isExact) {
+		return false;
+	}
 
 	return routePathSegments.every((routeSegment, index) => {
 		const pathSegment = pathSegments[index];
-		if (pathSegment === routeSegment) return true;
-		if (routeSegment.startsWith(":")) return true;
-		return false;
+		if (routeSegment.startsWith(":") && isExact && !pathSegment) {
+			return false;
+		}
+		if (pathSegment !== routeSegment && !routeSegment.startsWith(":")) return false;
+
+		return true;
 	});
 }
