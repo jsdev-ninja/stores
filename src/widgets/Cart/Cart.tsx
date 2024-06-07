@@ -5,9 +5,14 @@ import { Product } from "../Product";
 
 export function Cart() {
 	const cart = useAppSelector(cartSlice.selectors.selectCart);
+
+	const isEmpty = cart.length === 0;
+
 	return (
 		<div className="flex flex-col h-full p-4">
 			<div className="p-4 text-3xl font-bold">Cart</div>
+
+			{isEmpty && <div className="">Empty Cart</div>}
 
 			<div className="">
 				{cart.map((cartItem) => (
@@ -23,7 +28,9 @@ function CartItem({ cartItem }: { cartItem: { amount: number; product: TProduct 
 	return (
 		<Product product={product}>
 			<div className="h-20 flex items-center gap-3 justify-start">
-				<Product.Image />
+				<div className="w-16 h-16">
+					<Product.Image />
+				</div>
 				<div className="flex flex-col">
 					<Product.Name />
 					<div className="flex gap-1">

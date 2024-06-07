@@ -1,8 +1,9 @@
-import AllCategories from "../../../transformed_categories.json";
+import { useAppSelector } from "src/infra";
 import { List } from "src/components/List";
+import { CategorySlice } from "src/domains/Category";
 
 export const SideNavigator = () => {
-	const rootCategories = AllCategories.filter((category) => !category.parentId);
+	const rootCategories = useAppSelector(CategorySlice.selectors.selectRootCategories);
 
 	return (
 		<div id="SideNavigator" className="flex-grow max-h-full">
@@ -11,7 +12,7 @@ export const SideNavigator = () => {
 					{rootCategories.map((category) => {
 						return (
 							<List.Item onClick={() => {}} value={category.id}>
-								{category.displayName}
+								{category.locales[0]?.value}
 							</List.Item>
 						);
 					})}

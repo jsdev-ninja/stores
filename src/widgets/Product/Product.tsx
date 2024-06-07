@@ -20,7 +20,7 @@ export function Product(props: ProductProps) {
 }
 
 const style = tv({
-	base: "h-full w-full rounded object-cover  group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
+	base: "h-full w-full rounded object-contain  group-hover:scale-125 group-hover:rotate-6 transition duration-500",
 });
 
 Product.Image = function Image() {

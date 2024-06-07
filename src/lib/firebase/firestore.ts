@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { addDoc, collection, doc, getDoc, getDocs, getFirestore, query } from "firebase/firestore";
+import {
+	addDoc,
+	collection,
+	doc,
+	getDoc,
+	getDocs,
+	getFirestore,
+	limit,
+	query,
+} from "firebase/firestore";
 import { app } from "./app";
 
 const db = getFirestore(app);
@@ -38,7 +47,7 @@ async function get(id: string, coll: string) {
 
 async function list(coll: any) {
 	try {
-		const q = query(collection(db, coll));
+		const q = query(collection(db, coll), limit(150)); //where("parentId", "==", "")
 
 		const result: any = [];
 		const querySnapshot = await getDocs(q);

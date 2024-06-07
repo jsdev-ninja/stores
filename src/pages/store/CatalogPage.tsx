@@ -19,54 +19,36 @@ export function CatalogPage() {
 	}, []);
 	console.log("products", products);
 
-	const p: TProduct = {
-		id: "1",
-		sku: "11",
-		description: "lorem impsum more..",
-		vat: true,
-		price: 200,
-		currency: "ILS",
-		discount: {
-			value: 10,
-			type: "percent",
-		},
-		weight: {
-			unit: "gram",
-			value: 190,
-		},
-		images: [
-			{
-				id: "1",
-				url: "https://yastatic.net/avatars/get-grocery-goods/2791769/2a054b2d-3628-41c3-adf7-563d7f6ce6cb/600x600?webp=true",
-			},
-		],
-		unit: { type: "gram", value: 190 },
-		locales: [],
-		categories: [],
-	};
-
-	const ps = [p];
 	return (
 		<div className="flex w-full h-full">
 			<div className="flex-shrink-0  overflow-auto h-full">
 				<SideNavigator />
 			</div>
 			<div className=" flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
-				{ps.map((product) => (
+				{products.map((product) => (
 					<Product key={product.id} product={product}>
-						<Product.Image />
-						<div className="flex flex-col gap-1 mt-4">
-							<Product.Name />
-							<div className="flex gap-1">
-								<Product.Price />
+						<div
+							className="shadow p-4 w-64"
+							onClick={() => {
+								navigate("store.product", { id: product.id });
+							}}
+						>
+							<div className="w-32 h-32">
+								<Product.Image />
 							</div>
+							<div className="flex flex-col gap-1 mt-4">
+								<Product.Name />
+								<div className="flex gap-1">
+									<Product.Price />
+								</div>
 
-							<div className="">
-								<Product.Weight />
-							</div>
+								<div className="">
+									<Product.Weight />
+								</div>
 
-							<div className="mt-6 w-full">
-								<Product.CartButton size="md" />
+								<div className="mt-6 w-full">
+									<Product.CartButton size="md" />
+								</div>
 							</div>
 						</div>
 					</Product>
