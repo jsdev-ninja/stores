@@ -7,8 +7,8 @@ export const routes = {
 			home: {
 				path: "/",
 			},
-			catalog: {
-				path: "/catalog",
+			category: {
+				path: "/category/:rootCategory/:subCategory",
 				exact: false,
 			},
 
@@ -46,4 +46,4 @@ export const routes = {
 
 export const Router = createRouter(routes);
 
-export const { Link, Route, navigate } = Router;
+export const { Link, Route, navigate, useParams } = Router;

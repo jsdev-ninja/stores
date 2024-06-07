@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Button } from "src/components/Button/Button";
 import { TProduct } from "src/domains";
 import { FirebaseApi } from "src/lib/firebase";
-import { navigate } from "src/navigation";
+import { navigate, useParams } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
 import { Product } from "src/widgets/Product";
 import { SideNavigator } from "src/widgets/SideNavigator";
 
 export function CatalogPage() {
+	const params = useParams("store.category");
+	console.log("params", params);
+
 	const [products, setProducts] = useState<Array<TProduct>>([]);
 	useEffect(() => {
 		FirebaseApi.firestore

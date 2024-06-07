@@ -10,11 +10,14 @@ export function replaceParamsInPath(path: string, params?: object) {
 	return newPath;
 }
 
-export function comparePathWithRoutePath(path: string, routePath: string) {
+export function comparePathWithRoutePath(path: string, routePath: string, exact?: boolean) {
 	const pathSegments = path.split("/");
 	const routePathSegments = routePath.split("/");
 
-	if (pathSegments.length !== routePathSegments.length) return false;
+	const isExact = exact ?? true;
+	console.log("routePathSegments", routePathSegments, pathSegments, isExact);
+
+	if (pathSegments.length !== routePathSegments.length && isExact) return false;
 
 	return routePathSegments.every((routeSegment, index) => {
 		const pathSegment = pathSegments[index];

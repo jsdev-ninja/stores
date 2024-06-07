@@ -5,6 +5,7 @@ export type Routes = {
 export type Route = {
 	path: string;
 	children?: Routes;
+	exact?: boolean;
 };
 
 export type Param<Segment extends string> = Segment extends `:${infer P}`

@@ -1,6 +1,6 @@
 import AllCategories from "../../../transformed_categories.json";
 
-import { navigate } from "src/navigation";
+import { Link, navigate } from "src/navigation";
 
 export function Home() {
 	const rootCategories = AllCategories.filter((category) => !category.parentId);
@@ -17,7 +17,10 @@ export function Home() {
 						return (
 							<div
 								onClick={() => {
-									navigate("store.catalog");
+									navigate("store.category", {
+										rootCategory: category.id,
+										subCategory: "",
+									});
 								}}
 								key={category.id}
 								className="flex flex-col gap-5"

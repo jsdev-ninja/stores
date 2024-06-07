@@ -8,12 +8,11 @@ export function HomePage() {
 	return (
 		<div className="flex flex-col">
 			<AppBar />
-
 			<main className="page-with-header flex flex-col overflow-hidden">
 				<Route name="store.home">
 					<Home />
 				</Route>
-				<Route name="store.catalog">
+				<Route name="store.category">
 					<CatalogPage />
 				</Route>
 

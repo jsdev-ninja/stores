@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { createStore } from "./store";
-import { Route, RouteKeys, Routes } from "./types";
+import { Route, RouteKeys, RouteParams, Routes } from "./types";
 import { comparePathWithRoutePath } from "./utils";
 import { createLink } from "./components/Link";
 
@@ -40,7 +40,7 @@ function getRoutePath(name: any, routes: any, base: string = "") {
 
 function checkChildMatch(route: Route | undefined, pathname: string = ""): boolean {
 	if (!route) return false;
-	if (comparePathWithRoutePath(pathname, route.path)) {
+	if (comparePathWithRoutePath(pathname, route.path, route.exact)) {
 		return true;
 	}
 	if (!route?.children) return false;
@@ -59,7 +59,11 @@ export function createRouter<T extends Routes>(routes: T) {
 	function matchRoute(name: RouteKeys<T>, pathname: string): { match: boolean; exact: boolean } {
 		const routeConfig = getRouteConfigByName(name);
 
+		console.log(name, routeConfig);
+
 		const routePath = getRoutePath(name, routes, "");
+
+		console.log("routePath", routePath);
 
 		const exactMatch = comparePathWithRoutePath(pathname, routePath);
 
@@ -108,9 +112,48 @@ export function createRouter<T extends Routes>(routes: T) {
 		return props.children;
 	}
 
+	type RoutePath<key extends string, T extends Routes> = key extends keyof T
+		? T[key] extends Route
+			? T[key]["path"]
+			: never
+		: key extends `${infer S}.${infer B}`
+		? S extends keyof T
+			? T[S] extends Route
+				? B extends keyof T[S]["children"]
+					? T[S] extends undefined
+						? never
+						: T[S]["children"] extends Routes
+						? RoutePath<B, T[S]["children"]>
+						: never
+					: never
+				: never
+			: never
+		: never;
+
+	type TTo = RouteKeys<typeof routes>;
+
+	function useParams<K extends TTo>(
+		name: K
+	): RouteParams<RoutePath<K, typeof routes>> extends never
+		? undefined
+		: RouteParams<RoutePath<K, typeof routes>> {
+		return {};
+	}
+
 	return {
 		navigate: navigate,
 		Link: Link,
 		Route: Route,
+		useParams: useParams,
 	};
 }
+
+
+
+//  / /
+// /avi /avi
+
+// /:name /anything
+
+// /a/b /a/b
+// /a/:b /a/b
