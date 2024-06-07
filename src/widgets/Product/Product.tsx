@@ -51,7 +51,10 @@ Product.Image = function Image({ size }: { size?: "xs" | "sm" | "md" | "lg" }) {
 };
 Product.Name = function Name() {
 	const { product } = useProduct();
-	return <div className="text-text-primary text-sm">{product?.name}</div>;
+	if (!product) return null;
+
+	const name = product.locales[0].value;
+	return <div className="text-text-primary text-sm">{name}</div>;
 };
 Product.Description = function Description() {
 	const { product } = useProduct();

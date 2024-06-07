@@ -43,7 +43,6 @@ function getRoutePath(name: any, routes: any, base: string = "") {
 }
 
 function checkChildMatch(route: Route | undefined, pathname: string = ""): boolean {
-	console.log("child", route?.path);
 
 	if (!route) return false;
 	if (comparePathWithRoutePath(pathname, route.path, route.exact)) {
@@ -70,7 +69,6 @@ export function createRouter<T extends Routes>(routes: T) {
 
 		const isChildMatch = isContain && checkChildMatch(routeConfig, pathname);
 
-		console.info("name", name, isContain, isChildMatch);
 		return {
 			match: exactMatch || !!isChildMatch,
 			exact: exactMatch,
