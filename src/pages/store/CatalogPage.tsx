@@ -53,14 +53,8 @@ export function CatalogPage() {
 			</div>
 			<div className=" flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
 				{ps.map((product) => (
-					<Product
-						onClick={() => {
-							navigate("store.product", { id: product.id });
-						}}
-						key={product.id}
-						product={product}
-					>
-						<Product.Image size="lg" />
+					<Product key={product.id} product={product}>
+						<Product.Image />
 						<div className="flex flex-col gap-1 mt-4">
 							<Product.Name />
 							<div className="flex gap-1">

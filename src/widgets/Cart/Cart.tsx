@@ -23,7 +23,7 @@ function CartItem({ cartItem }: { cartItem: { amount: number; product: TProduct 
 	return (
 		<Product product={product}>
 			<div className="h-20 flex items-center gap-3 justify-start">
-				<Product.Image size="xs" />
+				<Product.Image />
 				<div className="flex flex-col">
 					<Product.Name />
 					<div className="flex gap-1">

@@ -35,8 +35,6 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 					params: RouteParams<RoutePath<K, typeof routes>>;
 			  }
 	) {
-		const isDeepPath = props.to.includes(".");
-
 		const fullPath = "";
 
 		const p = "params" in props ? props.params : {};
