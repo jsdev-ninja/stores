@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "algoliasearch": "^4.23.3",
     "axios": "^1.7.2",
     "firebase-admin": "^12.1.1"
   }
