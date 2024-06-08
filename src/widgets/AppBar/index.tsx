@@ -14,6 +14,7 @@ import {
 import AcmeLogo from "../../assets/logo.png";
 import { Icon } from "src/shared";
 import { navigate } from "src/navigation";
+import { modalApi } from "src/infra/modals";
 
 export function AppBar() {
 	const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -63,7 +64,14 @@ export function AppBar() {
 			/>
 			<NavbarContent justify="end">
 				<NavbarItem>
-					<Button color="warning" href="#" variant="flat">
+					<Button
+						color="warning"
+						href="#"
+						variant="flat"
+						onClick={() => {
+							modalApi.openModal("authModal");
+						}}
+					>
 						Login
 					</Button>
 				</NavbarItem>

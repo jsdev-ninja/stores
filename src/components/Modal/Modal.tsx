@@ -34,3 +34,7 @@ export function Modal({ children }: { children: ReactNode }) {
 		</Dialog>
 	);
 }
+
+Modal.Title = function ModalTitle({ children }: { children: ReactNode }) {
+	return <div className="font-semibold text-2xl">{children}</div>;
+};

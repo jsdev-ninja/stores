@@ -2,7 +2,14 @@
 import classNames from "classnames";
 import { useFormContext } from "react-hook-form";
 
-export function Input(props: any) {
+type Props = {
+	name: string;
+	placeholder?: string;
+	label?: string;
+	type?: string;
+};
+
+export function Input(props: Props) {
 	const { name, label, placeholder, type } = props;
 
 	const methods = useFormContext();

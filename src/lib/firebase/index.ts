@@ -1,23 +1,9 @@
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
-import { app } from "./app";
 import { firestore } from "./firestore";
 import { firebaseStorage } from "./storage";
-
-const auth = getAuth(app);
+import { Auth } from "./auth";
 
 export const FirebaseApi = {
-	createUser: async (email: string, password: string) => {
-		try {
-			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-			console.log("userCredential", userCredential);
-
-			return { success: true, user: userCredential.user };
-		} catch (error) {
-			console.error("auth.createUser", error);
-			return { success: false, user: null };
-		}
-	},
-
 	firestore: firestore,
 	storage: firebaseStorage,
+	auth: Auth,
 };

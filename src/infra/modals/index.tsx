@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { store, useAppSelector } from "../store";
 import { AddProductModal } from "src/features/product/addProduct/AddProductModal";
+import { AuthModal } from "src/features/auth";
 
 type Modal = {
 	id: string;
@@ -17,6 +18,7 @@ const modals = {
 	addProduct: () => {
 		return <AddProductModal />;
 	},
+	authModal: () => <AuthModal />,
 };
 
 // Define the initial state using that type

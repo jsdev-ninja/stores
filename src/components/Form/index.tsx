@@ -14,7 +14,7 @@ type Props<T> = {
 	children: ReactNode;
 	onSubmit: (data: any) => void;
 	schema: T & ZodSchema;
-	defaultValues: z.infer<Props<T>["schema"]>;
+	defaultValues?: z.infer<Props<T>["schema"]>;
 };
 
 export function Form(props: Props<any>) {
