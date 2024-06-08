@@ -20,13 +20,15 @@ export function Product(props: ProductProps) {
 }
 
 const style = tv({
-	base: "h-full w-full rounded object-contain  group-hover:scale-125 group-hover:rotate-6 transition duration-500 shadow",
+	base: "h-full w-full rounded object-contain  group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
 });
 
 Product.Image = function Image() {
 	const { product } = useProduct();
 
-	return <img className={style({})} src={product?.images?.[0]?.url ?? "banana.png"} />;
+	return (
+		<img className={style({ className: "" })} src={product?.images?.[0]?.url ?? "banana.png"} />
+	);
 };
 
 Product.Description = function Description() {
