@@ -100,6 +100,10 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 		console.log("navigate", path);
 
 		store.navigate(path);
+
+		document.startViewTransition?.(() => {
+			console.log("start");
+		});
 	}
 
 	return { Link, navigate };
