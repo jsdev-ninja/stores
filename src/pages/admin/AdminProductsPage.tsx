@@ -11,6 +11,9 @@ export function AdminProductsPage() {
 			.then((res) => setCategories(res.data ?? []));
 	}, []);
 
+	console.log('products',products);
+	
+
 	return (
 		<div className="">
 			<table>
@@ -26,7 +29,7 @@ export function AdminProductsPage() {
 						return (
 							<tr className="border" key={product.id}>
 								<td>{product.sku}</td>
-								<td>{'product.name'}</td>
+								<td>{"product.name"}</td>
 								<td>
 									{product.price}
 									{product.currency}

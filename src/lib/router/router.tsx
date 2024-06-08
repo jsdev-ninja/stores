@@ -42,15 +42,21 @@ function getRoutePath(name: any, routes: any, base: string = "") {
 	return getRoutePath(rest.join("."), route.children, path);
 }
 
-function checkChildMatch(route: Route | undefined, pathname: string = ""): boolean {
-
+function checkChildMatch(
+	route: Route | undefined,
+	pathname: string = "",
+	parent?: Route | undefined
+): boolean {
 	if (!route) return false;
-	if (comparePathWithRoutePath(pathname, route.path, route.exact)) {
+
+	const fullPath = (parent?.path ? (parent.path === "/" ? "" : parent.path) : "") + route.path;
+
+	if (comparePathWithRoutePath(pathname, fullPath, route.exact)) {
 		return true;
 	}
 	if (!route?.children) return false;
 
-	return Object.values(route?.children).some((r) => checkChildMatch(r, pathname));
+	return Object.values(route?.children).some((r) => checkChildMatch(r, pathname, route));
 }
 
 export function createRouter<T extends Routes>(routes: T) {
