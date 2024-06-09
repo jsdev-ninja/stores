@@ -26,9 +26,9 @@ const style = tv({
 Product.Image = function Image() {
 	const { product } = useProduct();
 
-	return (
-		<img className={style({ className: "" })} src={product?.images?.[0]?.url ?? "banana.png"} />
-	);
+	const src = product?.images?.[0]?.url || "/No-Image-Placeholder.png";
+
+	return <img className={style({ className: "" })} src={src} />;
 };
 
 Product.Description = function Description() {
