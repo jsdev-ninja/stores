@@ -1,6 +1,5 @@
-import { tv } from "tailwind-variants";
+import { VariantProps, tv } from "tailwind-variants";
 import { useProduct } from "./useProduct";
-import { VariantProps } from "@nextui-org/react";
 
 const style = tv({
 	base: "text-text-primary  font-semibold",
