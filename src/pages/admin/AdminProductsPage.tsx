@@ -1,5 +1,5 @@
 import { Button } from "src/components/Button/Button";
-import { Link, navigate } from "src/navigation";
+import { navigate } from "src/navigation";
 
 import { Products, ProductsSearch, ProductsWidget } from "src/widgets/Products";
 

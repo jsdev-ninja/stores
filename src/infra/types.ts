@@ -1,5 +1,8 @@
-export interface ExtendedHTMLBodyElement extends Document {
-	startViewTransition: (callback?: () => void) => void;
+// custom.d.ts
+declare global {
+	interface Document {
+		startViewTransition?: (callback?: () => void) => void;
+	}
 }
 
 export {};

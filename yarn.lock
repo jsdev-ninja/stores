@@ -5496,7 +5496,7 @@ instantsearch-ui-components@0.6.0:
   dependencies:
     "@babel/runtime" "^7.1.2"
 
-instantsearch.js@4.71.0:
+instantsearch.js@4.71.0, instantsearch.js@^4.71.0:
   version "4.71.0"
   resolved "https://registry.yarnpkg.com/instantsearch.js/-/instantsearch.js-4.71.0.tgz#00ea17669c879cf93981b7e32db3e3db807a3db0"
   integrity sha512-mh/bSw5Q4/xKUwYRuFQAeTX5olz2h7uCBHSvqtYfA4D8HDCYQfeWPx0ilaGTfaZFCi/twzAbAE/pFIkLVXO3LQ==

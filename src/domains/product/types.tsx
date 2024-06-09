@@ -39,6 +39,11 @@ export const ProductSchema = z.object({
 		.optional(),
 	images: z.array(z.object({ url: z.string().url(), id: z.string() })),
 	locales: z.array(LocaleSchema),
+	manufacturer: z.string(),
+	brand: z.string(),
+	importer: z.string(),
+	supplier: z.string(),
+	ingredients: z.array(LocaleSchema),
 });
 
 export const NewProductSchema = ProductSchema.omit({ id: true, images: true }).merge(

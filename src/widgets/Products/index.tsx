@@ -1,17 +1,12 @@
-import {
-	Highlight,
-	Hits,
-	InstantSearch,
-	Pagination,
-	RefinementList,
-	SearchBox,
-} from "react-instantsearch";
+import { Highlight, Hits, InstantSearch, SearchBox } from "react-instantsearch";
 import { TProduct } from "src/domains";
 import { AlgoliaClient } from "src/services";
 import { Product } from "../Product";
 import { Button } from "src/components/Button/Button";
 import { ReactNode } from "react";
 import { navigate } from "src/navigation";
+
+import type { Hit as AlgoliaHit } from "instantsearch.js";
 
 export function ProductsWidget({ children }: { children: ReactNode }) {
 	return (
@@ -33,7 +28,9 @@ export function ProductsSearch() {
 	);
 }
 
-function HitComponent({ hit }: { hit: TProduct }) {
+type Hit = AlgoliaHit<TProduct>;
+
+function HitComponent({ hit }: { hit: Hit }) {
 	return (
 		<Product product={hit}>
 			<div className="w-80 shadow p-4 flex flex-col ">
