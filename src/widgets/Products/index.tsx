@@ -1,4 +1,4 @@
-import { Highlight, Hits, InstantSearch, SearchBox } from "react-instantsearch";
+import { Configure, Highlight, Hits, InstantSearch, SearchBox } from "react-instantsearch";
 import { TProduct } from "src/domains";
 import { AlgoliaClient } from "src/services";
 import { Product } from "../Product";
@@ -11,13 +11,14 @@ import type { Hit as AlgoliaHit } from "instantsearch.js";
 export function ProductsWidget({ children }: { children: ReactNode }) {
 	return (
 		<InstantSearch searchClient={AlgoliaClient} indexName={"products"}>
+			<Configure />
 			{children}
 		</InstantSearch>
 	);
 }
 
 export function Products() {
-	return <Hits hitComponent={HitComponent} />;
+	return <Hits className="" hitComponent={HitComponent} />;
 }
 
 export function ProductsSearch() {

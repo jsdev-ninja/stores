@@ -54,8 +54,16 @@ export function StorePage() {
 	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
 	const rootCategories = useAppSelector(CategorySlice.selectors.selectRootCategories);
 
+	console.log("rootCategories", rootCategories);
+
 	return (
-		<div className="flex ga-8  items-start">
+		<div className="">
+			<div
+				className="w-full h-80 bg-cover"
+				style={{
+					backgroundImage: "url(/banner.png)",
+				}}
+			></div>
 			<div className="p-4">
 				<div className="flex flex-col gap-8">
 					{rootCategories.map((category) => {
@@ -89,9 +97,6 @@ export function StorePage() {
 						);
 					})}
 				</div>
-			</div>
-			<div className="w-[320px] flex-shrink-0 sticky top-16 page-with-header">
-				<Cart />
 			</div>
 		</div>
 	);

@@ -7,8 +7,8 @@ import { modalApi } from "src/infra/modals";
 export function AppBar() {
 	const { t } = useTranslation();
 	return (
-		<div className="shadow p-4 flex items-center">
-			<div className="h-[48px] w-[96px]">
+		<div className="shadow px-4 py-2 flex items-center h-16">
+			<div className="h-[40px] w-[80px]">
 				<img
 					src={AcmeLogo}
 					alt=""

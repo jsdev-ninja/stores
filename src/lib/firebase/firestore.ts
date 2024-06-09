@@ -47,7 +47,7 @@ async function get(id: string, coll: string) {
 
 async function list(coll: any) {
 	try {
-		const q = query(collection(db, coll), limit(10)); //where("parentId", "==", "")
+		const q = query(collection(db, coll), limit(150)); //where("parentId", "==", "")
 
 		const result: any = [];
 		const querySnapshot = await getDocs(q);

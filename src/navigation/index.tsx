@@ -5,7 +5,7 @@ export const routes = {
 		path: "/",
 		children: {
 			home: {
-				path: "/",
+				path: "/", // index
 			},
 			category: {
 				path: "/category/:rootCategory/:subCategory",
