@@ -5,11 +5,24 @@ import { useProduct } from "./useProduct";
 import { ProductCartButton } from "./ProductCartButton";
 import { tv } from "tailwind-variants";
 import { ProductName } from "./ProductName";
+import { ProductSku } from "./ProductSku";
+import { ProductVat } from "./ProductVat";
+import { ProductUnit } from "./ProductUnit";
+import { ProductDiscount } from "./ProductDiscount";
+import { ProductVolume } from "./ProductVolume";
+import { ProductWeight } from "./ProductWeight";
 
 export type ProductProps = {
 	product: TProduct;
 	children: ReactNode;
 };
+
+// categories: z.array(
+// 	z.object({
+// 		tag: z.string(),
+// 		id: z.string(),
+// 	})
+// ),
 
 export function Product(props: ProductProps) {
 	const { product, children } = props;
@@ -79,6 +92,12 @@ Product.Weight = function Weight() {
 
 Product.CartButton = ProductCartButton;
 Product.Name = ProductName;
+Product.Sku = ProductSku;
+Product.Vat = ProductVat;
+Product.Unit = ProductUnit;
+Product.Discount = ProductDiscount;
+Product.Volume = ProductVolume;
+Product.Weight = ProductWeight;
 
 function getPriceAfterDiscount(product: TProduct) {
 	if (product.discount?.type === "percent") {

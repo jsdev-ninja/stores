@@ -33,6 +33,9 @@ export const routes = {
 			products: {
 				path: "/products",
 			},
+			editProduct: {
+				path: "/products/:id",
+			},
 			categories: {
 				path: "/categories",
 			},

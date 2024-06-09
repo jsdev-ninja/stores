@@ -37,6 +37,9 @@ export function AdminPage() {
 				<Route name="admin.addProduct">
 					<AddProductPage />
 				</Route>
+				<Route name="admin.editProduct">
+					<AddProductPage />
+				</Route>
 				<Route name="admin.products">
 					<AdminProductsPage />
 				</Route>
