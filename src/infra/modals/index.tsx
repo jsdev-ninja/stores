@@ -52,7 +52,9 @@ export const modalApi = {
 	) => {
 		store.dispatch(modalsSlice.actions.openModal({ id, props }));
 	},
-	closeModal: () => {},
+	closeModal: <T extends keyof typeof modals>(id: T) => {
+		store.dispatch(modalsSlice.actions.closeModal(id));
+	},
 };
 
 export function ModalProvider() {

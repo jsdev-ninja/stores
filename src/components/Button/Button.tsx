@@ -16,7 +16,7 @@ export function Button(props: Props) {
 	const style = tv({
 		base: classNames([
 			"block box-border transition-all",
-			"shadow  rounded-lg bg-primary-main text-white px-2 py-1 text-lg text-center",
+			"shadow  rounded-lg bg-primary-main text-white px-4 py-2 text-lg text-center",
 			"hover:bg-primary-dark",
 			"active:bg-primary-light active:shadow-none active:scale-95",
 			{

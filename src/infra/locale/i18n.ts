@@ -10,8 +10,7 @@ export const defaultNS = "common";
 export const resources = {
 	en: {
 		common: {
-			"Welcome to React": "Welcome to React and react-i18next",
-
+			login: "login",
 			categories: {
 				frozenFruitsAndVegetables: "Frozen Fruits and Vegetables",
 				breadsAndBakeryProducts: "Breads and Bakery Products",
@@ -34,7 +33,8 @@ export const resources = {
 	},
 	he: {
 		common: {
-			"Welcome to React": "שלום לכולם",
+			login: "התחברות",
+
 			categories: {
 				frozenFruitsAndVegetables: "פרות וירקות קפואים",
 				breadsAndBakeryProducts: "לחמים ומוצרי מאפה",
@@ -76,4 +76,3 @@ i18n
 export { i18n };
 
 console.log(i18n);
-

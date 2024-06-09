@@ -2,6 +2,7 @@
 // your-dialog.jsx
 import React, { ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Icon } from "..";
 
 export const DialogContent = React.forwardRef<any, any>(({ children, ...props }, forwardedRef) => (
 	<DialogPrimitive.Portal>
@@ -11,21 +12,12 @@ export const DialogContent = React.forwardRef<any, any>(({ children, ...props },
 			{...props}
 			ref={forwardedRef}
 		>
-			<div className="flex justify-end">
-				<DialogPrimitive.Close
-					className="bg-green4 text-green11 hover:bg-green5 focus:shadow-green7 inline-flex h-[35px] items-center justify-center rounded-[4px] px-[15px] font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none"
-					aria-label="Close"
-				>
-					X
-				</DialogPrimitive.Close>
-			</div>
 			{children}
 		</DialogPrimitive.Content>
 	</DialogPrimitive.Portal>
 ));
 
-export const Dialog = DialogPrimitive.Root;
-export const DialogTrigger = DialogPrimitive.Trigger;
+const Dialog = DialogPrimitive.Root;
 
 export function Modal({ children }: { children: ReactNode }) {
 	return (
@@ -34,6 +26,20 @@ export function Modal({ children }: { children: ReactNode }) {
 		</Dialog>
 	);
 }
+
+Modal.CloseButton = ({ onClick }: { onClick?: () => void }) => {
+	return (
+		<div className="flex justify-end">
+			<DialogPrimitive.Close
+				className="bg-green4 text-green11 hover:bg-green5 focus:shadow-green7 inline-flex h-[35px] items-center justify-center rounded-[4px] px-[15px] font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none"
+				aria-label="Close"
+				onClick={onClick}
+			>
+				<Icon name="close" />
+			</DialogPrimitive.Close>
+		</div>
+	);
+};
 
 Modal.Title = function ModalTitle({ children }: { children: ReactNode }) {
 	return <div className="font-semibold text-2xl">{children}</div>;

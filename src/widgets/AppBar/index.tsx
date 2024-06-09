@@ -1,101 +1,25 @@
-import React from "react";
-import {
-	Navbar,
-	NavbarBrand,
-	NavbarMenuToggle,
-	NavbarMenuItem,
-	NavbarMenu,
-	NavbarContent,
-	NavbarItem,
-	Link,
-	Button,
-	Input,
-} from "@nextui-org/react";
+import { Button } from "src/components/Button/Button";
 import AcmeLogo from "../../assets/logo.png";
-import { Icon } from "src/shared";
 import { navigate } from "src/navigation";
+import { useTranslation } from "react-i18next";
 import { modalApi } from "src/infra/modals";
 
 export function AppBar() {
-	const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
-	const menuItems = [
-		"Profile",
-		"Dashboard",
-		"Activity",
-		"Analytics",
-		"System",
-		"Deployments",
-		"My Settings",
-		"Team Settings",
-		"Help & Feedback",
-		"Log Out",
-	];
-
+	const { t } = useTranslation();
 	return (
-		<Navbar position="sticky" isBordered isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
-			<NavbarContent className="pr-3" justify="center">
-				<NavbarBrand>
-					<div className="h-[50px] w-[100px]">
-						<img
-							src={AcmeLogo}
-							alt=""
-							onClick={() => {
-								navigate("store");
-							}}
-						/>
-					</div>
-				</NavbarBrand>
-			</NavbarContent>
-			<NavbarContent className="sm:hidden" justify="start">
-				<NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
-			</NavbarContent>
-			<Input
-				classNames={{
-					base: "max-w-full h-10",
-					input: "text-small",
-					inputWrapper:
-						"h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
-				}}
-				placeholder="Type to search..."
-				size="sm"
-				startContent={<Icon name="search" />}
-				type="search"
-			/>
-			<NavbarContent justify="end">
-				<NavbarItem>
-					<Button
-						color="warning"
-						href="#"
-						variant="flat"
-						onClick={() => {
-							modalApi.openModal("authModal");
-						}}
-					>
-						Login
-					</Button>
-				</NavbarItem>
-			</NavbarContent>
-			<NavbarMenu>
-				{menuItems.map((item, index) => (
-					<NavbarMenuItem key={`${item}-${index}`}>
-						<Link
-							className="w-full"
-							color={
-								index === 2
-									? "warning"
-									: index === menuItems.length - 1
-									? "danger"
-									: "foreground"
-							}
-							href="#"
-							size="lg"
-						>
-							{item}
-						</Link>
-					</NavbarMenuItem>
-				))}
-			</NavbarMenu>
-		</Navbar>
+		<div className="shadow p-4 flex items-center">
+			<div className="h-[48px] w-[96px]">
+				<img
+					src={AcmeLogo}
+					alt=""
+					onClick={() => {
+						navigate("store");
+					}}
+				/>
+			</div>
+			<div className="ms-auto">
+				<Button onClick={() => modalApi.openModal("authModal")}>{t("login")}</Button>
+			</div>
+		</div>
 	);
 }
