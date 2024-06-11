@@ -3,6 +3,7 @@ import { createStore } from "./store";
 import { Route, RouteKeys, RouteParams, Routes } from "./types";
 import { comparePathWithRoutePath } from "./utils";
 import { createLink } from "./components/Link";
+import { RouteData, getRouteData } from "./utils/traverse";
 
 // nested routes
 // rank routing
@@ -15,7 +16,7 @@ import { createLink } from "./components/Link";
 //  useNavigate
 //  useLocation
 //  useHistory
-// query params
+// query paramsp
 
 export type { RouteKeys };
 
@@ -64,16 +65,15 @@ export function createRouter<T extends Routes>(routes: T) {
 
 	const { Link, navigate } = createLink<T>(routes, store);
 
-	function matchRoute(name: RouteKeys<T>, pathname: string): { match: boolean; exact: boolean } {
-		const routeConfig = getRouteConfigByName(name);
+	function matchRoute(
+		routeData: RouteData,
+		pathname: string
+	): { match: boolean; exact: boolean } {
+		const exactMatch = comparePathWithRoutePath(pathname, routeData.fullPath);
 
-		const routePath = getRoutePath(name, routes, "");
+		const isContain = pathname.includes(routeData.fullPath);
 
-		const exactMatch = comparePathWithRoutePath(pathname, routePath);
-
-		const isContain = pathname.includes(routePath);
-
-		const isChildMatch = isContain && checkChildMatch(routeConfig, pathname);
+		const isChildMatch = isContain && checkChildMatch(routeData, pathname);
 
 		return {
 			match: exactMatch || !!isChildMatch,
@@ -101,17 +101,26 @@ export function createRouter<T extends Routes>(routes: T) {
 		return route;
 	}
 
-	function Route(props: { name: RouteKeys<T>; children: ReactNode }) {
+	function Route(props: { name: RouteKeys<T>; children: ReactNode; index?: boolean }) {
 		const state = store.useRouterStore();
 		// const routeConfig = getRouteConfigByName(props.name);
 
-		const isRouteMatch = matchRoute(props.name, state.pathname);
+		console.log("getRouteData", props.name, getRouteData(props.name, routes));
+		const routeData = getRouteData(props.name, routes);
+
+		if (!routeData) return null;
+
+		const isRouteMatch = matchRoute(routeData, state.pathname);
 
 		if (isRouteMatch.match) {
 			console.warn("name", props.name, isRouteMatch);
 		}
 
 		if (!isRouteMatch.match) {
+			return null;
+		}
+
+		if (props.index && !isRouteMatch.exact) {
 			return null;
 		}
 

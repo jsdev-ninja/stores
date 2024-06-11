@@ -9,7 +9,7 @@ export function HomePage() {
 		<div className="flex flex-col">
 			<AppBar />
 			<main className="page-with-header flex flex-col">
-				<Route name="store.home">
+				<Route name="store" index>
 					<StorePage />
 				</Route>
 				<Route name="store.category">
