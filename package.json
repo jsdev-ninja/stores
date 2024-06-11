@@ -23,7 +23,7 @@
 		"animejs": "^3.2.2",
 		"classnames": "^2.5.1",
 		"firebase": "^10.10.0",
-		"framer-motion": "^11.0.8",
+		"framer-motion": "^11.2.10",
 		"i18next": "^23.10.1",
 		"instantsearch.js": "^4.71.0",
 		"react": "^18.2.0",
