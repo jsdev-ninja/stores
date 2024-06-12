@@ -26,7 +26,10 @@ export const Select = ({ children, name, placeholder }: any) => {
 				</RadixSelect.Icon>
 			</RadixSelect.Trigger>
 			<RadixSelect.Portal>
-				<RadixSelect.Content className="overflow-hidden bg-white rounded-md">
+				<RadixSelect.Content
+					position="item-aligned"
+					className="overflow-hidden bg-white rounded-md "
+				>
 					<RadixSelect.Viewport className="">{children}</RadixSelect.Viewport>
 				</RadixSelect.Content>
 			</RadixSelect.Portal>
@@ -38,7 +41,7 @@ const SelectItem = React.forwardRef<any, any>(({ children, ...props }, forwarded
 	return (
 		<RadixSelect.Item
 			className={classnames(
-				"flex items-center select-none justify-between h-12  bg-white hover:bg-secondary-main p-2 "
+				"flex items-center select-none justify-between h-12  bg-white hover:bg-primary-main p-2 "
 			)}
 			{...props}
 			ref={forwardedRef}

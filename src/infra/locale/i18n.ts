@@ -30,6 +30,8 @@ export const resources = {
 				desserts: "Desserts",
 			},
 		},
+		store: {},
+		admin: {},
 	},
 	he: {
 		common: {
@@ -52,6 +54,17 @@ export const resources = {
 				drySausages: "נקניקים יבשים",
 				salads: "סלטים",
 				desserts: "קינוחים",
+			},
+		},
+		store: {},
+		admin: {
+			productForm: {
+				edit: {
+					title: "ערוך מוצר",
+				},
+				add: {
+					title: "הוסף מוצר",
+				},
 			},
 		},
 	},

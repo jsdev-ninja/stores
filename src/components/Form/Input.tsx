@@ -1,17 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import classNames from "classnames";
 import { useFormContext } from "react-hook-form";
+import { NestedKeys } from "src/shared/types";
 
 // Recursive type to extract nested keys including array indices
-type NestedKeys<T> = T extends object
-	? {
-			[K in keyof T]: K extends string
-				? T[K] extends (infer U)[]
-					? `${K}` | `${K}[${number}]` | `${K}[${number}].${NestedKeys<U>}`
-					: `${K}` | `${K}.${NestedKeys<T[K]>}`
-				: never;
-	  }[keyof T]
-	: never;
 
 // Extract keys as type
 
@@ -39,13 +31,14 @@ export function Input<T extends object>(props: Props<T>) {
 	]);
 
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col  gap-2">
 			<label htmlFor={name}>{label}</label>
 			<input
 				id={name}
 				{...methods.register(name, {
 					valueAsNumber: type === "number",
 				})}
+				step=".01"
 				placeholder={placeholder}
 				type={type}
 				className={inputStyle}

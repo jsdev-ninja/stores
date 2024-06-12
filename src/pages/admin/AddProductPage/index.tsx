@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
 import { NewProductSchema, TNewProduct, TProduct } from "src/domains";
-import { TCompany } from "src/domains/Company";
+import { TCategory } from "src/domains/Category";
 import { ProductService } from "src/domains/product/productService";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate, useParams } from "src/navigation";
 
 export function AddProductPage() {
-	const [categories, setCategories] = useState<Array<TCompany>>([]);
+	const [categories, setCategories] = useState<Array<TCategory>>([]);
+
+	const { t } = useTranslation(["admin", "common"]);
 
 	const params = useParams("admin.editProduct");
 	console.log("params", params.id);
 
 	const [product, setProduct] = useState<TProduct | null>(null);
 	console.log("product", product);
+
+	const isNewProductFlow = !params.id;
 
 	useEffect(() => {
 		if (params.id) {
@@ -33,10 +39,15 @@ export function AddProductPage() {
 
 	if (!product) return;
 
+	const title = isNewProductFlow
+		? t("admin:productForm.add.title")
+		: t("admin:productForm.edit.title");
+
 	return (
 		<div className="">
+			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
 			<Form<TNewProduct>
-				className="flex flex-wrap gap-4 mx-auto mt-10  p-4 justify-center items-center"
+				className="flex flex-wrap flex-col gap-4 mx-auto mt-10  p-4 justify-center"
 				schema={NewProductSchema}
 				defaultValues={product}
 				onSubmit={async (data: TNewProduct) => {
@@ -64,11 +75,7 @@ export function AddProductPage() {
 				}}
 			>
 				<div className="my-4">
-					<Form.Input<TNewProduct>
-						name="locales[0].value"
-						label="Name"
-						placeholder="Enter product name"
-					/>
+					<NameDetails />
 				</div>
 				<div className="my-4">
 					<Form.Input name="sku" label="Sku" placeholder="Enter product sku" />
@@ -93,7 +100,7 @@ export function AddProductPage() {
 					<Form.Select name="category" placeholder={"select category"}>
 						{categories.map((category) => (
 							<Form.Select.Item key={category.id} value={category.id}>
-								{category.name}
+								{category.locales[0].value}
 							</Form.Select.Item>
 						))}
 					</Form.Select>
@@ -106,7 +113,7 @@ export function AddProductPage() {
 					</Form.Select>
 				</div>
 				<div className="my-4">
-					<Form.Checkbox name="vat" label="Vat" />
+					<Form.Checkbox<TNewProduct> name="vat" label="Vat" />
 				</div>
 				<div className="my-4">
 					<Form.File name="image" label="Product image" />
@@ -115,6 +122,25 @@ export function AddProductPage() {
 					<Form.Submit>Add product</Form.Submit>
 				</div>
 			</Form>
+		</div>
+	);
+}
+
+function NameDetails() {
+	const form = useFormContext();
+
+	const locales = form.watch("locales") as TNewProduct["locales"];
+
+	console.log("locales", locales);
+	return (
+		<div className="">
+			{locales.map((locale, index) => (
+				<Form.Input<TNewProduct>
+					name={`locales[${index}].value`}
+					label={"Name"}
+					placeholder="Enter product name"
+				/>
+			))}
 		</div>
 	);
 }
