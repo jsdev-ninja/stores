@@ -17,7 +17,6 @@ export function AuthModal() {
 			<Form
 				schema={loginSchema}
 				onSubmit={(data) => {
-					console.log("data", data);
 					FirebaseApi.auth.login(data.email, data.password);
 				}}
 			>

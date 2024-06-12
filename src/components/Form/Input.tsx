@@ -2,14 +2,31 @@
 import classNames from "classnames";
 import { useFormContext } from "react-hook-form";
 
-type Props = {
-	name: string;
+// Recursive type to extract nested keys including array indices
+type NestedKeys<T> = T extends object
+	? {
+			[K in keyof T]: K extends string
+				? T[K] extends (infer U)[]
+					? `${K}` | `${K}[${number}]` | `${K}[${number}].${NestedKeys<U>}`
+					: `${K}` | `${K}.${NestedKeys<T[K]>}`
+				: never;
+	  }[keyof T]
+	: never;
+
+// Extract keys as type
+
+// `${K}` | `${K}[${number}]` | K[number] extends object
+// 						? `${K}[${number}].${NestedKeys<U>}`
+// 						: never
+
+type Props<T extends object> = {
+	name: NestedKeys<T> & string;
 	placeholder?: string;
 	label?: string;
 	type?: string;
 };
 
-export function Input(props: Props) {
+export function Input<T extends object>(props: Props<T>) {
 	const { name, label, placeholder, type } = props;
 
 	const methods = useFormContext();

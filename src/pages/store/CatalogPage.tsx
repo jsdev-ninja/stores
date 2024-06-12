@@ -10,7 +10,6 @@ import { SideNavigator } from "src/widgets/SideNavigator";
 
 export function CatalogPage() {
 	const params = useParams("store.category");
-	console.log("params", params);
 
 	const [products, setProducts] = useState<Array<TProduct>>([]);
 

@@ -17,7 +17,6 @@ export function AddCategoryPage() {
 							{ ...data },
 							FirebaseApi.firestore.collections.categories
 						);
-						console.log("res", res);
 					}}
 					defaultValues={{}}
 				>

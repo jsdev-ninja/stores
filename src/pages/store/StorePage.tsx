@@ -54,8 +54,6 @@ export function StorePage() {
 	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
 	const rootCategories = useAppSelector(CategorySlice.selectors.selectRootCategories);
 
-	console.log("rootCategories", rootCategories);
-
 	return (
 		<div className="">
 			<div

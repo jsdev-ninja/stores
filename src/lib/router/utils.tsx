@@ -11,8 +11,6 @@ export function replaceParamsInPath(path: string, params?: object) {
 }
 
 export function comparePathWithRoutePath(path: string, routePath: string, exact?: boolean) {
-	console.log(path, routePath);
-
 	const isExact = exact ?? true;
 	const pathSegments = path.split("/").filter(Boolean);
 	const routePathSegments = routePath.split("/").filter(Boolean);

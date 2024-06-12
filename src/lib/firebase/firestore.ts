@@ -26,22 +26,24 @@ async function create(item: any, coll: any) {
 	}
 }
 
-async function get(id: string, coll: string) {
+async function get<T extends { id: string }>(id: string, coll: string) {
 	try {
 		const q = doc(db, coll, id);
 
 		const querySnapshot = await getDoc(q);
 
+		const data = querySnapshot.data() as T;
+
 		if (!querySnapshot.exists()) {
 			return { success: true, data: null };
 		}
 
-		const result = { ...querySnapshot.data(), id: querySnapshot.id };
+		const result = { ...data, id: querySnapshot.id };
 
 		return { success: true, data: result };
 	} catch (error) {
 		console.error(error);
-		return { success: false };
+		return { success: false, data: null };
 	}
 }
 

@@ -1,26 +1,23 @@
 import { useEffect, useState } from "react";
 import { TProduct } from "src/domains";
-import { ProductApi } from "src/domains/product/product-api";
+import { ProductService } from "src/domains/product/productService";
 import { useParams } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
 export function ProductPage() {
 	const params = useParams("store.product");
-	console.log("params", params);
 
 	const [product, setProduct] = useState<TProduct | null>(null);
 
 	useEffect(() => {
 		if (!params.id) return;
 
-		ProductApi.get(params.id).then((result) => {
+		ProductService.get(params.id).then((result) => {
 			setProduct(result.data as TProduct);
 		});
 	}, [params.id]);
 
 	if (!product) return null;
-
-	console.log(product);
 
 	return (
 		<Product product={product}>

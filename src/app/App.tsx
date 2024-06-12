@@ -27,7 +27,6 @@ function App() {
 
 	useEffect(() => {
 		CategoryService.list().then((result) => {
-			console.log("result", result);
 			if (result.success) {
 				actions.dispatch(actions.category.setCategories(result.data));
 			}

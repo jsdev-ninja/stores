@@ -17,24 +17,18 @@ files.sort(function (a, b) {
 let newProducts = [];
 
 for (const file of files) {
-	console.log("file", file);
-
 	const content = await fs.readFile(dirName + file, { encoding: "utf-8" });
 	let json = JSON.parse(content);
 	const data = json.data;
 
-	console.log("data", data.length);
-
 	for (const product of data) {
 		const tags = JSON.parse(product.Tags);
-		// console.log(tags);
 
 		const image = await downloadImage(product);
 
 		const images = image ? [image] : [];
 
 		const categoryNames = tags.map((tag) => extractStringBetweenParentheses(tag.name));
-		// console.log("categoryNames", categoryNames);
 		const categoryTags = categoryNames.map((name) => {
 			const cat = categories.find((c) => c.tag === name);
 
@@ -46,7 +40,6 @@ for (const file of files) {
 			};
 		});
 
-		// console.log("categories", categories);
 		const result = {
 			sku: product.ProductSKU ?? product.SKU,
 			locales: [{ lang: "he", value: product.Name || product.ProductName || "" }],

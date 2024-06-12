@@ -65,10 +65,7 @@ export function createRouter<T extends Routes>(routes: T) {
 
 	const { Link, navigate } = createLink<T>(routes, store);
 
-	function matchRoute(
-		routeData: RouteData,
-		pathname: string
-	): { match: boolean; exact: boolean } {
+	function matchRoute(routeData: RouteData, pathname: string): { match: boolean; exact: boolean } {
 		const exactMatch = comparePathWithRoutePath(pathname, routeData.fullPath);
 
 		const isContain = pathname.includes(routeData.fullPath);
@@ -81,31 +78,9 @@ export function createRouter<T extends Routes>(routes: T) {
 		};
 	}
 
-	function getRouteConfigByName(routeName: RouteKeys<T>): Route | undefined {
-		const segments = routeName.split(".");
-
-		const rootRoute = segments.shift();
-
-		let route: Route | undefined = rootRoute ? routes[rootRoute] : undefined;
-
-		if (segments.length) {
-			segments.forEach((segment) => {
-				if (!route?.children?.[segment] && !route?.children?.[segment]?.path) {
-					return null;
-				}
-
-				route = route.children[segment];
-			});
-		}
-
-		return route;
-	}
-
 	function Route(props: { name: RouteKeys<T>; children: ReactNode; index?: boolean }) {
 		const state = store.useRouterStore();
-		// const routeConfig = getRouteConfigByName(props.name);
 
-		console.log("getRouteData", props.name, getRouteData(props.name, routes));
 		const routeData = getRouteData(props.name, routes);
 
 		if (!routeData) return null;

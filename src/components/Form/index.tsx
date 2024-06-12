@@ -13,21 +13,24 @@ import { Submit } from "./Submit";
 type Props<T> = {
 	children: ReactNode;
 	onSubmit: (data: any) => void;
-	schema: T & ZodSchema;
+	schema: ZodSchema;
 	defaultValues?: z.infer<Props<T>["schema"]>;
+	className?: string;
 };
 
-export function Form(props: Props<any>) {
-	const { children, schema, onSubmit, defaultValues } = props;
+export function Form<T = any>(props: Props<T>) {
+	const { children, schema, onSubmit, defaultValues, className } = props;
 
 	const form = useForm({
 		resolver: schema && zodResolver(schema),
 		defaultValues,
 	});
 
+	console.log("form", form.getValues());
+
 	return (
 		<FormProvider {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="">
+			<form onSubmit={form.handleSubmit(onSubmit)} className={className}>
 				{children}
 			</form>
 		</FormProvider>

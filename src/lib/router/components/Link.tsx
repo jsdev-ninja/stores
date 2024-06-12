@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Route, RouteKeys, RouteParams, Routes } from "../types";
 import { replaceParamsInPath } from "../utils";
+import { getRouteData } from "../utils/traverse";
 
 export function createLink<T extends Routes>(routes: T, store: any) {
 	type RoutePath<key extends string, T extends Routes> = key extends keyof T
@@ -23,6 +24,14 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 
 	type TTo = RouteKeys<typeof routes>;
 
+	function _navigate(path: string) {
+		store.navigate(path);
+
+		document.startViewTransition?.(() => {
+			console.log("_navigate", path);
+		});
+	}
+
 	function Link<K extends TTo>(
 		props: RouteParams<RoutePath<K, typeof routes>> extends never
 			? {
@@ -35,21 +44,18 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 					params: RouteParams<RoutePath<K, typeof routes>>;
 			  }
 	) {
-		const fullPath = "";
+		const routeConfig = getRouteData(props.to, routes);
 
 		const p = "params" in props ? props.params : {};
 
-		const path = replaceParamsInPath(fullPath, p); //todo fix type
+		const path = replaceParamsInPath(routeConfig?.fullPath ?? "", p); //todo fix type
 
 		return (
 			<a
 				onClick={(e) => {
 					e.preventDefault();
-					console.log("navigate", path);
-
-					store.navigate(path);
+					_navigate(path);
 				}}
-				href=""
 			>
 				{props.children}
 			</a>
@@ -62,48 +68,11 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 			? [] // todo fix parmas type
 			: [RouteParams<RoutePath<K, typeof routes>>]
 	) {
-		const isDeepPath = to.includes(".");
+		const routeConfig = getRouteData(to, routes);
 
-		let fullPath = "";
-		function getRoute() {
-			if (!isDeepPath) {
-				fullPath = fullPath.concat(routes[to].path);
+		const path = replaceParamsInPath(routeConfig?.fullPath ?? "", params); //todo fix type
 
-				return routes[to];
-			}
-
-			const s = to.split(".");
-
-			let x: Route | undefined = routes[s.shift()!];
-			fullPath = fullPath.concat(x.path);
-
-			s.forEach((a) => {
-				x = x?.children?.[a];
-				if (fullPath === "/") {
-					fullPath = x?.path ?? "";
-					return;
-				}
-				fullPath = fullPath.concat(x?.path ?? "");
-			});
-
-			const result = x;
-
-			return result as Route;
-		}
-
-		const route = getRoute();
-
-		console.log("route", route);
-
-		const path = replaceParamsInPath(fullPath, params); //todo fix type
-
-		console.log("navigate", path);
-
-		store.navigate(path);
-
-		document.startViewTransition?.(() => {
-			console.log("start");
-		});
+		_navigate(path);
 	}
 
 	return { Link, navigate };

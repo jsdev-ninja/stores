@@ -17,7 +17,7 @@ export function ProductsWidget({ children }: { children: ReactNode }) {
 	);
 }
 
-export function Products() {
+export function Products({ productComponent }: {}) {
 	return <Hits className="" hitComponent={HitComponent} />;
 }
 

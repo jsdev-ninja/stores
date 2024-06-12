@@ -17,8 +17,6 @@ shapshot.forEach((doc) => {
 	products.push(product);
 });
 
-console.log("products", products.length);
-
 products = products.map((product) => {
 	return {
 		...product,
