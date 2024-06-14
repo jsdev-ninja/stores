@@ -4,6 +4,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { store, useAppSelector } from "../store";
 import { AddProductModal } from "src/features/product/addProduct/AddProductModal";
 import { AuthModal } from "src/features/auth";
+import { ModalsContainer } from "./Base";
 
 type Modal = {
 	id: string;
@@ -61,11 +62,11 @@ export function ModalProvider() {
 	const openModals = useAppSelector(modalsSlice.selectors.selectModals);
 
 	return (
-		<>
+		<ModalsContainer>
 			{openModals.map((modal) => {
 				const component = modals[modal.id as keyof typeof modals] as any;
 				return component(modal.props);
 			})}
-		</>
+		</ModalsContainer>
 	);
 }
