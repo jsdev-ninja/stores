@@ -37,7 +37,7 @@ export function AddProductPage() {
 			.then((res) => setCategories(res.data ?? []));
 	}, []);
 
-	if (!product) return;
+	if (!product && !isNewProductFlow) return;
 
 	const title = isNewProductFlow
 		? t("admin:productForm.add.title")
@@ -116,7 +116,7 @@ export function AddProductPage() {
 					<Form.Checkbox<TNewProduct> name="vat" label="Vat" />
 				</div>
 				<div className="my-4">
-					<Form.File name="image" label="Product image" />
+					<Form.File<TNewProduct> name="images" label="Product image" />
 				</div>
 				<div className="my-4">
 					<Form.Submit>Add product</Form.Submit>

@@ -48,7 +48,7 @@ export const ProductSchema = z.object({
 
 export const NewProductSchema = ProductSchema.omit({ id: true, images: true }).merge(
 	z.object({
-		image: z.instanceof(FileList).optional(),
+		images: z.array(z.instanceof(File)).optional(),
 	})
 );
 export type TProduct = z.infer<typeof ProductSchema>;

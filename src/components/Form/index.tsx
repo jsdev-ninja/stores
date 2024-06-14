@@ -28,6 +28,8 @@ export function Form<T = any>(props: Props<T>) {
 
 	console.log("form", form.getValues());
 
+	console.log("error", form.formState.errors);
+
 	return (
 		<FormProvider {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className={className}>
