@@ -5,7 +5,6 @@ import { comparePathWithRoutePath } from "./utils";
 import { createLink } from "./components/Link";
 import { RouteData, getRouteData } from "./utils/traverse";
 
-// nested routes
 // rank routing
 // active link (NavLink)
 // animation
@@ -19,29 +18,6 @@ import { RouteData, getRouteData } from "./utils/traverse";
 // query paramsp
 
 export type { RouteKeys };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getRoutePath(name: any, routes: any, base: string = "") {
-	if (!routes) return base;
-
-	const segments = name.split(".");
-
-	const [current, ...rest] = segments;
-
-	const isLast = !rest.length;
-
-	const route = routes[current] as Route | undefined;
-
-	if (!route) return "";
-
-	base = base.endsWith("/") ? base.slice(0, -1) : base;
-
-	const path = base.concat(route.path);
-
-	if (isLast) return path;
-
-	return getRoutePath(rest.join("."), route.children, path);
-}
 
 function checkChildMatch(
 	route: Route | undefined,
@@ -125,22 +101,27 @@ export function createRouter<T extends Routes>(routes: T) {
 	function useParams<K extends TTo>(
 		name: K
 	): RouteParams<RoutePath<K, typeof routes>> extends never
-		? object
+		? Record<string, never>
 		: RouteParams<RoutePath<K, typeof routes>> {
 		const { pathname } = store.useRouterStore();
 
 		type Result = RouteParams<RoutePath<K, typeof routes>> extends never
-			? object
+			? Record<string, never>
 			: RouteParams<RoutePath<K, typeof routes>>;
 
-		const routePath = getRoutePath(name, routes, "");
+		const route = getRouteData(name, routes);
+
+		if (!route) {
+			console.warn("useParams: route not exists", name);
+			return {} as Result;
+		}
 
 		const result: { [key: string]: string } = {};
 
-		const segments = routePath.split("/");
+		const segments = route?.path.split("/");
 		const pathSegments = pathname.split("/");
 
-		segments.forEach((segment, index) => {
+		segments?.forEach((segment, index) => {
 			if (segment.startsWith(":")) {
 				const paramName = segment.slice(1);
 				result[paramName] = pathSegments[index] ?? "";
@@ -157,11 +138,3 @@ export function createRouter<T extends Routes>(routes: T) {
 		useParams: useParams,
 	};
 }
-
-//  / /
-// /avi /avi
-
-// /:name /anything
-
-// /a/b /a/b
-// /a/:b /a/b
