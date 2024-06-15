@@ -2,7 +2,6 @@ import { useAppSelector } from "src/infra";
 
 import { navigate } from "src/navigation";
 import { CategorySlice } from "src/domains/Category";
-import { Cart } from "src/widgets/Cart/Cart";
 
 const colors = [
 	"#d68533",

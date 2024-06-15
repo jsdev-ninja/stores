@@ -4,8 +4,10 @@ import { cartSlice } from "src/domains/cart";
 import { CompanySlice } from "src/domains/Company";
 import { StoreSlice } from "src/domains/Store";
 import { CategorySlice } from "src/domains/Category";
+import { userSlice } from "src/domains/user";
 
 export const reducer = {
+	[userSlice.name]: userSlice.reducer,
 	[CompanySlice.name]: CompanySlice.reducer,
 	[StoreSlice.name]: StoreSlice.reducer,
 	[CategorySlice.name]: CategorySlice.reducer,

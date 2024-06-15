@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { Button } from "src/components/Button/Button";
 import { TProduct } from "src/domains";
-import { FirebaseApi } from "src/lib/firebase";
 import { navigate, useParams } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
 import { Product } from "src/widgets/Product";
@@ -10,47 +8,51 @@ import { SideNavigator } from "src/widgets/SideNavigator";
 
 export function CatalogPage() {
 	const params = useParams("store.category");
-
-	const [products, setProducts] = useState<Array<TProduct>>([]);
+	console.log(params);
 
 	return (
 		<div className="flex w-full h-full">
 			<div className="flex-shrink-0  overflow-auto h-full">
 				<SideNavigator />
 			</div>
-			<div className=" flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
+			<div className="flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
 				<ProductsWidget>
 					<ProductsSearch />
-					<Products />
-				</ProductsWidget>
-				{/* {products.map((product) => (
-					<Product key={product.id} product={product}>
-						<div
-							className="shadow p-4 w-64"
-							onClick={() => {
-								navigate("store.product", { id: product.id });
+					<div className="">
+						<ProductsWidget.Products>
+							{(products) => {
+								return products.map((product) => (
+									<Product key={product.id} product={product}>
+										<div
+											className="shadow p-4 w-64"
+											onClick={() => {
+												navigate("store.product", { id: product.id });
+											}}
+										>
+											<div className="w-32 h-32">
+												<Product.Image />
+											</div>
+											<div className="flex flex-col gap-1 mt-4">
+												<Product.Name />
+												<div className="flex gap-1">
+													<Product.Price />
+												</div>
+
+												<div className="">
+													<Product.Weight />
+												</div>
+
+												<div className="mt-6 w-full">
+													<Product.CartButton size="md" />
+												</div>
+											</div>
+										</div>
+									</Product>
+								));
 							}}
-						>
-							<div className="w-32 h-32">
-								<Product.Image />
-							</div>
-							<div className="flex flex-col gap-1 mt-4">
-								<Product.Name />
-								<div className="flex gap-1">
-									<Product.Price />
-								</div>
-
-								<div className="">
-									<Product.Weight />
-								</div>
-
-								<div className="mt-6 w-full">
-									<Product.CartButton size="md" />
-								</div>
-							</div>
-						</div>
-					</Product>
-				))} */}
+						</ProductsWidget.Products>
+					</div>
+				</ProductsWidget>
 			</div>
 			<div className="w-[500px] flex flex-col  flex-shrink-0">
 				<Cart />

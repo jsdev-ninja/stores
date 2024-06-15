@@ -19,7 +19,9 @@ export function getRouteData(
 
 	result = {
 		...route,
-		fullPath: !result ? route.path : result.fullPath.concat(route.path),
+		fullPath: !result
+			? route.path
+			: (result.fullPath === "/" ? "" : result.fullPath).concat(route.path),
 		name: result?.name ?? name,
 	};
 

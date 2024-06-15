@@ -1,4 +1,4 @@
-import { Configure, Highlight, Hits, InstantSearch, SearchBox } from "react-instantsearch";
+import { Configure, Highlight, Hits, InstantSearch, SearchBox, useHits } from "react-instantsearch";
 import { TProduct } from "src/domains";
 import { AlgoliaClient } from "src/services";
 import { Product } from "../Product";
@@ -17,8 +17,17 @@ export function ProductsWidget({ children }: { children: ReactNode }) {
 	);
 }
 
-export function Products({ productComponent }: {}) {
-	return <Hits className="" hitComponent={HitComponent} />;
+ProductsWidget.Products = Products;
+
+export function Products({
+	children,
+}: {
+	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
+}) {
+	const result = useHits<TProduct>();
+	console.log("result", result.items);
+
+	return children(result.items);
 }
 
 export function ProductsSearch() {

@@ -11,9 +11,9 @@ import { Input } from "./Input";
 import { Submit } from "./Submit";
 
 type Props<T> = {
-	children: ReactNode;
-	onSubmit: (data: any) => void;
 	schema: ZodSchema;
+	children: ReactNode;
+	onSubmit: (data: T) => void;
 	defaultValues?: z.infer<Props<T>["schema"]>;
 	className?: string;
 };

@@ -69,8 +69,11 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 			: [RouteParams<RoutePath<K, typeof routes>>]
 	) {
 		const routeConfig = getRouteData(to, routes);
+		console.log("routeConfig", routeConfig);
 
 		const path = replaceParamsInPath(routeConfig?.fullPath ?? "", params); //todo fix type
+
+		console.log("path", path);
 
 		_navigate(path);
 	}
