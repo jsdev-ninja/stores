@@ -1,60 +1,67 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import type { TProduct } from "../product";
 
-type TCart = {
-	items: Array<{ product: TProduct; amount: number }>;
+export type TCart = {
+	cart: {
+		items: Array<{ product: TProduct; amount: number }>;
+	};
 };
 
 const initialState: TCart = {
-	items: [],
+	cart: {
+		items: [],
+	},
 };
 
 export const cartSlice = createSlice({
 	name: "cart",
 	initialState: initialState,
 	reducers: {
+		setCart: (state, action) => {
+			state.cart.items = action.payload;
+		},
 		addItem: (state, action: PayloadAction<TProduct>) => {
 			const product = action.payload;
-			const productIndex = state.items.findIndex(
+			const productIndex = state.cart.items.findIndex(
 				(cartItem) => cartItem.product.id === product.id
 			);
 			const productInCart = productIndex !== -1;
 			if (productInCart) {
-				state.items[productIndex].amount += 1;
+				state.cart.items[productIndex].amount += 1;
 				return;
 			}
-			state.items.push({
+			state.cart.items.push({
 				amount: 1,
 				product,
 			});
 		},
 		removeItem: (state, action) => {
 			const product = action.payload;
-			const productIndex = state.items.findIndex(
+			const productIndex = state.cart.items.findIndex(
 				(cartItem) => cartItem.product.id === product.id
 			);
 			const productInCart = productIndex !== -1;
 			if (!productInCart) return;
 
-			if (state.items[productIndex].amount > 1) {
-				state.items[productIndex].amount -= 1;
+			if (state.cart.items[productIndex].amount > 1) {
+				state.cart.items[productIndex].amount -= 1;
 				return;
 			}
-			state.items.splice(productIndex, 1);
+			state.cart.items.splice(productIndex, 1);
 		},
 		clear: (state) => {
-			state.items = [];
+			state.cart.items = [];
 		},
 	},
 	selectors: {
 		selectCart: (state) => {
-			return state.items;
+			return state.cart.items;
 		},
 		selectProduct: (state, productId?: string) => {
-			return state.items.find((item) => item.product.id === productId);
+			return state.cart.items.find((item) => item.product.id === productId);
 		},
 		selectCost: (state) => {
-			return state.items.reduce(
+			return state.cart.items.reduce(
 				(acc, item) => {
 					const { product, amount } = item;
 					const productPrice = getPriceAfterDiscount(product);

@@ -7,7 +7,9 @@ import {
 	getDocs,
 	getFirestore,
 	limit,
+	onSnapshot,
 	query,
+	setDoc,
 } from "firebase/firestore";
 import { app } from "./app";
 
@@ -24,6 +26,28 @@ async function create(item: any, coll: any) {
 		console.error(error);
 		return { success: false };
 	}
+}
+async function set(id: string, item: any) {
+	try {
+		await setDoc(doc(db, id), item);
+
+		const data = { ...item, id: id };
+
+		return { success: true, data };
+	} catch (error) {
+		console.error(error);
+		return { success: false };
+	}
+}
+
+function subscribeDoc(col: string, id: string, callback: any) {
+	return onSnapshot(doc(db, col, id), (querySnapshot) => {
+		const data = {
+			id: querySnapshot.id,
+			...querySnapshot.data(),
+		};
+		callback(data);
+	});
 }
 
 async function get<T extends { id: string }>(id: string, coll: string) {
@@ -72,4 +96,4 @@ const collections = {
 	products: "products",
 	categories: "categories",
 };
-export const firestore = { create, list, collections, get };
+export const firestore = { create, list, collections, get, set, subscribeDoc };

@@ -9,13 +9,16 @@ import { ModalProvider } from "src/infra/modals";
 import { AdminPage } from "src/pages";
 import { HomePage } from "src/pages/store/HomePage";
 import { CategoryService } from "src/domains/Category";
-import { useStoreActions } from "src/infra";
+import { useFullID, useStoreActions } from "src/infra";
 import { AlgoliaService } from "src/services";
 import { FirebaseApi } from "src/lib/firebase";
+import { TCart } from "src/domains/cart";
 
 function App() {
 	const { i18n } = useTranslation();
 	const dir = i18n.dir();
+
+	const fullID = useFullID();
 
 	useEffect(() => {
 		AlgoliaService.getProducts();
@@ -25,6 +28,17 @@ function App() {
 	useEffect(() => {
 		document.body.dir = dir;
 	}, [dir]);
+
+	useEffect(() => {
+		if (!fullID) return;
+
+		const unsubscribe = FirebaseApi.firestore.subscribeDoc("cart", fullID, (cart) => {
+			console.log("cart", cart);
+			actions.dispatch(actions.cart.setCart(cart.items ?? []));
+		});
+
+		return () => unsubscribe();
+	}, [fullID]);
 
 	useEffect(() => {
 		FirebaseApi.auth.onUser((user) => {

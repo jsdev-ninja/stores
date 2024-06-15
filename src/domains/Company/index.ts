@@ -14,7 +14,7 @@ export type TCompany = z.infer<typeof CompanySchema>;
 // todo: make sure load company safe!!!
 const initialState: { data: TCompany | null } = {
 	data: {
-		id: "",
+		id: "opal_market",
 		name: "opal makret",
 		owner: {},
 		websiteDomains: [],
