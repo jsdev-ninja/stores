@@ -21,8 +21,6 @@ export function ProductCartButton(props: Props) {
 		cartSlice.selectors.selectProduct(state, product?.id)
 	);
 
-	const actions = useStoreActions();
-
 	console.log("cartItems.cartItems", cartItems);
 
 	function addItem() {

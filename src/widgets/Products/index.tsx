@@ -1,4 +1,4 @@
-import { Configure, Highlight, Hits, InstantSearch, SearchBox, useHits } from "react-instantsearch";
+import { Configure, Highlight, InstantSearch, SearchBox, useHits } from "react-instantsearch";
 import { TProduct } from "src/domains";
 import { AlgoliaClient } from "src/services";
 import { Product } from "../Product";
@@ -39,7 +39,7 @@ export function ProductsSearch() {
 
 type Hit = AlgoliaHit<TProduct>;
 
-function HitComponent({ hit }: { hit: Hit }) {
+export function HitComponent({ hit }: { hit: Hit }) {
 	return (
 		<Product product={hit}>
 			<div className="w-80 shadow p-4 flex flex-col ">

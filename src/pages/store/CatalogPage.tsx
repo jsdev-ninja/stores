@@ -1,9 +1,8 @@
 import { Button } from "src/components/Button/Button";
-import { TProduct } from "src/domains";
 import { navigate, useParams } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
 import { Product } from "src/widgets/Product";
-import { Products, ProductsSearch, ProductsWidget } from "src/widgets/Products";
+import { ProductsSearch, ProductsWidget } from "src/widgets/Products";
 import { SideNavigator } from "src/widgets/SideNavigator";
 
 export function CatalogPage() {
