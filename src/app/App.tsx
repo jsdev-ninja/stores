@@ -11,6 +11,7 @@ import { HomePage } from "src/pages/store/HomePage";
 import { CategoryService } from "src/domains/Category";
 import { useStoreActions } from "src/infra";
 import { AlgoliaService } from "src/services";
+import { FirebaseApi } from "src/lib/firebase";
 
 function App() {
 	const { i18n } = useTranslation();
@@ -26,6 +27,10 @@ function App() {
 	}, [dir]);
 
 	useEffect(() => {
+		FirebaseApi.auth.onUser((user) => {
+			console.log("user", user);
+			actions.dispatch(actions.user.setUser(user));
+		});
 		CategoryService.list().then((result) => {
 			if (result.success) {
 				actions.dispatch(actions.category.setCategories(result.data));

@@ -1,4 +1,10 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import {
+	createUserWithEmailAndPassword,
+	signInWithEmailAndPassword,
+	getAuth,
+	onAuthStateChanged,
+	User,
+} from "firebase/auth";
 import { app } from "./app";
 
 const auth = getAuth(app);
@@ -25,5 +31,11 @@ export const Auth = {
 			console.error("auth.createUser", error);
 			return { success: false, user: null };
 		}
+	},
+	onUser: (callback: (user: User | null) => void) => {
+		const unSubscribe = onAuthStateChanged(auth, (user) => {
+			callback?.(user);
+		});
+		return unSubscribe;
 	},
 };
