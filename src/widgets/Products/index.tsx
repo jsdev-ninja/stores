@@ -25,7 +25,6 @@ export function Products({
 	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
 }) {
 	const result = useHits<TProduct>();
-	console.log("result", result.items);
 
 	return children(result.items);
 }

@@ -13,7 +13,6 @@ export const Auth = {
 	createUser: async (email: string, password: string) => {
 		try {
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-			console.log("userCredential", userCredential);
 
 			return { success: true, user: userCredential.user };
 		} catch (error) {

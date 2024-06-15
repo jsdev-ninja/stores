@@ -12,7 +12,7 @@ import { CategoryService } from "src/domains/Category";
 import { useFullID, useStoreActions } from "src/infra";
 import { AlgoliaService } from "src/services";
 import { FirebaseApi } from "src/lib/firebase";
-import { TCart } from "src/domains/cart";
+import { TProduct } from "src/domains";
 
 function App() {
 	const { i18n } = useTranslation();
@@ -32,17 +32,20 @@ function App() {
 	useEffect(() => {
 		if (!fullID) return;
 
-		const unsubscribe = FirebaseApi.firestore.subscribeDoc("cart", fullID, (cart) => {
-			console.log("cart", cart);
-			actions.dispatch(actions.cart.setCart(cart.items ?? []));
-		});
+		// todo: fix
+		const unsubscribe = FirebaseApi.firestore.subscribeDoc(
+			"cart",
+			fullID,
+			(cart: { items: Array<TProduct> }) => {
+				actions.dispatch(actions.cart.setCart(cart.items ?? []));
+			}
+		);
 
 		return () => unsubscribe();
-	}, [fullID]);
+	}, [fullID, actions]);
 
 	useEffect(() => {
 		FirebaseApi.auth.onUser((user) => {
-			console.log("user", user);
 			actions.dispatch(actions.user.setUser(user));
 		});
 		CategoryService.list().then((result) => {

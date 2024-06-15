@@ -14,10 +14,8 @@ export function AddProductPage() {
 	const { t } = useTranslation(["admin", "common"]);
 
 	const params = useParams("admin.editProduct");
-	console.log("params", params.id);
 
 	const [product, setProduct] = useState<TProduct | null>(null);
-	console.log("product", product);
 
 	const isNewProductFlow = !params.id;
 
@@ -131,7 +129,6 @@ function NameDetails() {
 
 	const locales = form.watch("locales") as TNewProduct["locales"];
 
-	console.log("locales", locales);
 	return (
 		<div className="">
 			{locales.map((locale, index) => (

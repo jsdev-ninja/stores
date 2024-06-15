@@ -14,7 +14,6 @@ export function FileInput<T>(props: { name: NestedKeys<T>; label?: string }) {
 			type="file"
 			onChange={(event) => {
 				const file = event.target.files?.[0];
-				console.log("file", file);
 				control.field.onChange(file);
 			}}
 		/>

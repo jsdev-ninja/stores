@@ -2,6 +2,7 @@ import { cartSlice } from "src/domains/cart";
 import { useAppDispatch, useAppSelector } from "./store";
 import { CategorySlice } from "src/domains/Category";
 import { userSlice } from "src/domains/user";
+import { useMemo } from "react";
 
 const actions = {
 	cart: cartSlice.actions,
@@ -11,10 +12,14 @@ const actions = {
 export const useStoreActions = () => {
 	const dispatch = useAppDispatch();
 
-	return {
-		...actions,
-		dispatch,
-	};
+	const result = useMemo(() => {
+		return {
+			...actions,
+			dispatch,
+		};
+	}, [dispatch]);
+
+	return result;
 };
 
 export const useFullID = () => {

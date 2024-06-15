@@ -73,9 +73,7 @@ export function createStore(routes: Routes) {
 	window.addEventListener("popstate", function (event) {
 		console.log("back button clicked", event);
 		const path = window.location.pathname;
-		document.startViewTransition?.(() => {
-			console.log("start");
-		});
+		document.startViewTransition?.(() => {});
 		state = {
 			pathname: path,
 			currentRoute: getRouteFromPath(routes, path),
