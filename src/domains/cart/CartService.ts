@@ -1,7 +1,7 @@
 import { FirebaseApi } from "src/lib/firebase";
 
 export const CartService = {
-	updateCart(id, item) {
+	updateCart(id: string, item: any) {
 		FirebaseApi.firestore.set(`cart/${id}`, item);
 	},
 };

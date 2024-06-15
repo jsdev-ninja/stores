@@ -1,4 +1,4 @@
-import { useController, useFormContext } from "react-hook-form";
+import { useController } from "react-hook-form";
 import { NestedKeys } from "src/shared/types";
 
 export function FileInput<T>(props: { name: NestedKeys<T>; label?: string }) {
@@ -6,7 +6,7 @@ export function FileInput<T>(props: { name: NestedKeys<T>; label?: string }) {
 
 	const control = useController({ name });
 
-	const form = useFormContext();
+	// const form = useFormContext();
 
 	return (
 		<input

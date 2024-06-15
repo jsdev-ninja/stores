@@ -1,7 +1,7 @@
 import { Button } from "src/components/Button/Button";
 import { navigate } from "src/navigation";
 
-import { Products, ProductsSearch, ProductsWidget } from "src/widgets/Products";
+import { ProductsSearch, ProductsWidget } from "src/widgets/Products";
 
 export function AdminProductsPage() {
 	return (
@@ -15,9 +15,7 @@ export function AdminProductsPage() {
 				</div>
 
 				<div className="flex">
-					<div className="shadow border flex-grow">
-						<Products></Products>
-					</div>
+					<div className="shadow border flex-grow">{/* <Products></Products> */}</div>
 					<div className="shadow w-80 shrink-0">sidebar</div>
 				</div>
 			</div>

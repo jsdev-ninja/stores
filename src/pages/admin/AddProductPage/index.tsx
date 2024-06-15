@@ -49,25 +49,26 @@ export function AddProductPage() {
 				schema={NewProductSchema}
 				defaultValues={product}
 				onSubmit={async (data: TNewProduct) => {
-					if (!data.image) return;
+					if (!data.images) return;
 
 					console.log("SUBMIT", data);
-					return;
 
-					const fileRef = await FirebaseApi.storage.upload("image.png", data.image[0]);
+					const fileRef = await FirebaseApi.storage.upload("image.png", data.images[0]);
 
-					let product: Partial<TProduct> = {
+					const product: Partial<TProduct> = {
 						images: [{ id: crypto.randomUUID(), url: fileRef.url }],
 					};
 
-					delete data["image"];
+					delete data["images"];
 
-					product = { ...product, ...data };
+					// product = { ...product, ...data };
 
 					const res = await FirebaseApi.firestore.create(
 						product,
 						FirebaseApi.firestore.collections.products
 					);
+
+					console.log("res", res);
 
 					navigate("admin.products");
 				}}
@@ -134,7 +135,7 @@ function NameDetails() {
 			{locales.map((locale, index) => (
 				<Form.Input<TNewProduct>
 					name={`locales[${index}].value`}
-					label={"Name"}
+					label={locale.lang}
 					placeholder="Enter product name"
 				/>
 			))}

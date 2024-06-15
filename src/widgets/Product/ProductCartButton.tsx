@@ -1,6 +1,6 @@
 import { Button, InputButton } from "src/components/Button/Button";
 import { useProduct } from "./useProduct";
-import { useAppSelector, useFullID, useStoreActions } from "src/infra/store";
+import { useAppSelector, useFullID } from "src/infra/store";
 import { cartSlice } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
 
