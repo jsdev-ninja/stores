@@ -9,6 +9,12 @@ export const productIndex = AlgoliaClient.initIndex("products");
 // const record = { objectID: 1, name: "test_record" };
 // index.saveObject(record).wait();
 
+function init() {
+	productIndex.setSettings({
+		attributesForFaceting: ["categories"],
+	});
+}
+
 async function getProducts() {
 	try {
 		const result = await productIndex.search("", {
@@ -26,4 +32,5 @@ async function getProducts() {
 
 export const AlgoliaService = {
 	getProducts,
+	init,
 };

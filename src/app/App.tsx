@@ -12,6 +12,9 @@ import { CategoryService } from "src/domains/Category";
 import { useFullID, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { TProduct } from "src/domains";
+import { AlgoliaService } from "src/services";
+
+AlgoliaService.init();
 
 function App() {
 	const { i18n } = useTranslation();

@@ -17,7 +17,7 @@ export function CatalogPage() {
 			<div className="flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
 				<ProductsWidget categories={params.subCategory}>
 					<ProductsSearch />
-					<div className="flex gap-4 flex-wrap">
+					<div className="flex gap-4 flex-wrap justify-center">
 						<ProductsWidget.Products>
 							{(products) => {
 								return products.map((product) => (
