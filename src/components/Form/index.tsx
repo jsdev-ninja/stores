@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReactNode } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
+import { DefaultValues, FieldValues, FormProvider, useForm } from "react-hook-form";
 import type { ZodSchema } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Select } from "./Select";
@@ -9,12 +8,13 @@ import { Checkbox } from "./Checkbox";
 import { FileInput } from "./FileInput";
 import { Input } from "./Input";
 import { Submit } from "./Submit";
+import { ErrorMessage } from "./ErrorMessage";
 
 type Props<T> = {
 	schema: ZodSchema;
 	children: ReactNode;
-	onSubmit: (data: T) => void;
-	defaultValues?: z.infer<Props<T>["schema"]>;
+	onSubmit: (data: FieldValues) => void;
+	defaultValues?: DefaultValues<T>;
 	className?: string;
 };
 
@@ -40,7 +40,7 @@ export function Form<T = any>(props: Props<T>) {
 }
 
 Form.Input = Input;
-
+Form.ErrorMessage = ErrorMessage;
 Form.Checkbox = Checkbox;
 Form.Select = Select;
 Form.File = FileInput;

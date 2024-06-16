@@ -1,12 +1,11 @@
-import { useController } from "react-hook-form";
+import { useController, useFormContext } from "react-hook-form";
 import { NestedKeys } from "src/shared/types";
 
 export function FileInput<T>(props: { name: NestedKeys<T>; label?: string }) {
 	const { name } = props;
 
-	const control = useController({ name });
-
-	// const form = useFormContext();
+	const form = useFormContext();
+	const control = useController({ name, control: form.control });
 
 	return (
 		<input
@@ -14,6 +13,8 @@ export function FileInput<T>(props: { name: NestedKeys<T>; label?: string }) {
 			type="file"
 			onChange={(event) => {
 				const file = event.target.files?.[0];
+				console.log("file", file);
+
 				control.field.onChange(file);
 			}}
 		/>

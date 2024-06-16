@@ -1,9 +1,10 @@
 import { LocaleSchema } from "src/shared/types";
 import { z } from "zod";
 
+const text = z.string().min(1);
 export const ProductSchema = z.object({
 	id: z.string(),
-	sku: z.string(),
+	sku: text,
 	description: z.string().optional(),
 	vat: z.boolean(),
 	unit: z.object({
@@ -12,12 +13,12 @@ export const ProductSchema = z.object({
 	}),
 	price: z.number(),
 	currency: z.literal("ILS"),
-	categories: z.array(
-		z.object({
+	categories: z
+		.object({
 			tag: z.string(),
 			id: z.string(),
 		})
-	),
+		.array(),
 	discount: z
 		.object({
 			type: z.enum(["number", "percent"]),
@@ -39,10 +40,10 @@ export const ProductSchema = z.object({
 		.optional(),
 	images: z.array(z.object({ url: z.string().url(), id: z.string() })),
 	locales: z.array(LocaleSchema),
-	manufacturer: z.string(),
-	brand: z.string(),
-	importer: z.string(),
-	supplier: z.string(),
+	manufacturer: text.optional(),
+	brand: text.optional(),
+	importer: text.optional(),
+	supplier: text.optional(),
 	ingredients: z.array(LocaleSchema),
 });
 

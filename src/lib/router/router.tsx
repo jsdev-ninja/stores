@@ -118,8 +118,8 @@ export function createRouter<T extends Routes>(routes: T) {
 
 		const result: { [key: string]: string } = {};
 
-		const segments = route?.path.split("/");
-		const pathSegments = pathname.split("/");
+		const segments = route?.fullPath.split("/").filter(Boolean);
+		const pathSegments = pathname.split("/").filter(Boolean);
 
 		segments?.forEach((segment, index) => {
 			if (segment.startsWith(":")) {

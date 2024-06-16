@@ -12,7 +12,7 @@ import { NestedKeys } from "src/shared/types";
 // 						: never
 
 type Props<T extends object> = {
-	name: NestedKeys<T> & string;
+	name: NestedKeys<T>;
 	placeholder?: string;
 	label?: string;
 	type?: string;

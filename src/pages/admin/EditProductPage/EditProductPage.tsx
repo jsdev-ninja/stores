@@ -1,16 +1,32 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
-import { NewProductSchema } from "src/domains";
-import type { TNewProduct, TProduct } from "src/domains";
+import { NewProductSchema, TNewProduct, TProduct } from "src/domains";
 import { TCategory } from "src/domains/Category";
+import { ProductService } from "src/domains/product/productService";
 import { FirebaseApi } from "src/lib/firebase";
-import { navigate } from "src/navigation";
+import { navigate, useParams } from "src/navigation";
 
-export function AddProductPage() {
+export function EditProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
 
 	const { t } = useTranslation(["admin", "common"]);
+
+	const params = useParams("admin.editProduct");
+
+	const [product, setProduct] = useState<TProduct | null>(null);
+
+	const isNewProductFlow = !params.id;
+
+	useEffect(() => {
+		if (params.id) {
+			ProductService.get(params.id).then((response) => {
+				if (response.success) {
+					setProduct(response.data);
+				}
+			});
+		}
+	}, [params.id]);
 
 	useEffect(() => {
 		FirebaseApi.firestore
@@ -18,7 +34,12 @@ export function AddProductPage() {
 			.then((res) => setCategories(res.data ?? []));
 	}, []);
 
-	const title = t("admin:productForm.add.title");
+	console.log("product", product);
+	if (!product && !isNewProductFlow) return;
+
+	const title = isNewProductFlow
+		? t("admin:productForm.add.title")
+		: t("admin:productForm.edit.title");
 
 	return (
 		<div className="">
@@ -26,17 +47,8 @@ export function AddProductPage() {
 			<Form<TNewProduct>
 				className="flex flex-wrap flex-col gap-4 mx-auto mt-10  p-4 justify-center"
 				schema={NewProductSchema}
-				defaultValues={{
-					locales: [{ lang: "he" }],
-					vat: false,
-					ingredients: [],
-					unit: {
-						type: "unit",
-						value: 1,
-					},
-					currency: "ILS",
-				}}
-				onSubmit={async (data) => {
+				defaultValues={product}
+				onSubmit={async (data: TNewProduct) => {
 					if (!data.images) return;
 
 					console.log("SUBMIT", data);
@@ -68,7 +80,7 @@ export function AddProductPage() {
 				</div>
 				<div className="my-4">
 					<Form.Input name="sku" label="Sku" placeholder="Enter product sku" />
-					<Form.ErrorMessage<TNewProduct> name="sku" />
+					<Form.ErrorMessage<TNewProduct> name="" />
 				</div>
 				<div className="my-4">
 					<Form.Input<TNewProduct>
@@ -119,17 +131,11 @@ export function AddProductPage() {
 function NameDetails() {
 	return (
 		<div className="">
-			<div className="flex gap-4">
-				<Form.Input<TNewProduct> name={`locales[0].lang`} label={"Lang"} />
-				<div className="flex flex-col gap-1">
-					<Form.Input<TNewProduct>
-						name={`locales[0].value`}
-						label={"Name"}
-						placeholder="Enter product name"
-					/>
-					<Form.ErrorMessage<TNewProduct> name="locales[0].value" />
-				</div>
-			</div>
+			<Form.Input<TNewProduct>
+				name={`locales.value`}
+				label={"Name"}
+				placeholder="Enter product name"
+			/>
 		</div>
 	);
 }
