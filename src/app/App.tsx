@@ -10,7 +10,6 @@ import { AdminPage } from "src/pages";
 import { HomePage } from "src/pages/store/HomePage";
 import { CategoryService } from "src/domains/Category";
 import { useFullID, useStoreActions } from "src/infra";
-import { AlgoliaService } from "src/services";
 import { FirebaseApi } from "src/lib/firebase";
 import { TProduct } from "src/domains";
 
@@ -19,10 +18,6 @@ function App() {
 	const dir = i18n.dir();
 
 	const fullID = useFullID();
-
-	useEffect(() => {
-		AlgoliaService.getProducts();
-	}, []);
 
 	const actions = useStoreActions();
 	useEffect(() => {

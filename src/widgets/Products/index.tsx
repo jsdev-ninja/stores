@@ -8,10 +8,17 @@ import { navigate } from "src/navigation";
 
 import type { Hit as AlgoliaHit } from "instantsearch.js";
 
-export function ProductsWidget({ children }: { children: ReactNode }) {
+export function ProductsWidget({
+	children,
+	categories,
+}: {
+	children: ReactNode;
+	categories?: string;
+}) {
+	const filter = categories ? `categories.tag:${categories}` : "";
 	return (
 		<InstantSearch searchClient={AlgoliaClient} indexName={"products"}>
-			<Configure />
+			<Configure filters={filter} />
 			{children}
 		</InstantSearch>
 	);
@@ -25,13 +32,14 @@ export function Products({
 	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
 }) {
 	const result = useHits<TProduct>();
+	console.log("result", result.items);
 
 	return children(result.items);
 }
 
 export function ProductsSearch() {
 	return (
-		<div className="">
+		<div className="w-full">
 			<SearchBox />
 		</div>
 	);

@@ -7,7 +7,7 @@ import { SideNavigator } from "src/widgets/SideNavigator";
 
 export function CatalogPage() {
 	const params = useParams("store.category");
-	console.log(params);
+	console.log("params", params);
 
 	return (
 		<div className="flex w-full h-full">
@@ -15,9 +15,9 @@ export function CatalogPage() {
 				<SideNavigator />
 			</div>
 			<div className="flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
-				<ProductsWidget>
+				<ProductsWidget categories={params.subCategory}>
 					<ProductsSearch />
-					<div className="">
+					<div className="flex gap-4 flex-wrap">
 						<ProductsWidget.Products>
 							{(products) => {
 								return products.map((product) => (

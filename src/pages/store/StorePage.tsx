@@ -81,8 +81,8 @@ export function StorePage() {
 											}}
 											onClick={() => {
 												navigate("store.category", {
-													rootCategory: category.id,
-													subCategory: subCategory.id,
+													rootCategory: category.tag,
+													subCategory: subCategory.tag,
 												});
 											}}
 										>

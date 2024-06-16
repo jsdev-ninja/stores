@@ -5,16 +5,16 @@ import { PaymentSummary } from "src/widgets/PaymentSummary";
 
 export function CartPage() {
 	return (
-		<div className="flex-grow border-4 flex flex-col  sm:container sm:mx-auto">
-			<div className="w-full mx-auto flex border  flex-grow">
+		<div className="flex-grow  flex flex-col  sm:container sm:mx-auto">
+			<div className="w-full mx-auto flex   flex-grow">
 				<div className="w-3/5">
 					<Cart />
 				</div>
-				<div className="w-96 mx-auto border bg-gray-50 flex flex-col">
+				<div className="w-96 mx-auto  bg-gray-50 flex flex-col">
 					<PaymentSummary />
 					<div className="p-4">
-						<Button fullWidth onClick={() => navigate("store.cart")}>
-							Go to cart
+						<Button fullWidth onClick={() => navigate("store.checkout")}>
+							Go to checkout
 						</Button>
 					</div>
 				</div>
