@@ -3,9 +3,18 @@ import AcmeLogo from "../../assets/logo.png";
 import { navigate } from "src/navigation";
 import { useTranslation } from "react-i18next";
 import { modalApi } from "src/infra/modals";
+import { useAppSelector } from "src/infra";
+import { FirebaseApi } from "src/lib/firebase";
 
 export function AppBar() {
 	const { t } = useTranslation();
+
+	const user = useAppSelector((state) => state.user.user);
+
+	const text = user ? t("logout") : t("login");
+
+	const onClick = user ? () => FirebaseApi.auth.logout() : () => modalApi.openModal("authModal");
+
 	return (
 		<div className="shadow px-4 py-2 flex items-center h-16">
 			<div className="h-[40px] w-[80px]">
@@ -18,7 +27,7 @@ export function AppBar() {
 				/>
 			</div>
 			<div className="ms-auto">
-				<Button onClick={() => modalApi.openModal("authModal")}>{t("login")}</Button>
+				<Button onClick={onClick}>{text}</Button>
 			</div>
 		</div>
 	);

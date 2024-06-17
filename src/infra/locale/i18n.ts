@@ -11,6 +11,7 @@ export const resources = {
 	en: {
 		common: {
 			login: "login",
+			logout: "logout",
 			categories: {
 				frozenFruitsAndVegetables: "Frozen Fruits and Vegetables",
 				breadsAndBakeryProducts: "Breads and Bakery Products",
@@ -36,7 +37,7 @@ export const resources = {
 	he: {
 		common: {
 			login: "התחברות",
-
+			logout: "התנתקות",
 			categories: {
 				frozenFruitsAndVegetables: "פרות וירקות קפואים",
 				breadsAndBakeryProducts: "לחמים ומוצרי מאפה",

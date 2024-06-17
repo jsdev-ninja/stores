@@ -4,6 +4,7 @@ import {
 	getAuth,
 	onAuthStateChanged,
 	User,
+	signOut,
 } from "firebase/auth";
 import { app } from "./app";
 
@@ -27,6 +28,16 @@ export const Auth = {
 			return { success: true, user: userCredential.user };
 		} catch (error) {
 			console.error("auth.createUser", error);
+			return { success: false, user: null };
+		}
+	},
+	logout: async () => {
+		try {
+			await signOut(auth);
+
+			return { success: true };
+		} catch (error) {
+			console.error("auth.logout", error);
 			return { success: false, user: null };
 		}
 	},
