@@ -4,7 +4,8 @@ import { AppBar } from "src/widgets/AppBar";
 import { CartPage, CatalogPage, ProductPage } from "..";
 import { StorePage } from "./StorePage";
 
-export function HomePage() {
+import CheckoutPage from "./CheckoutPage/CheckoutPage";
+export function StoreLayout() {
 	return (
 		<div className="flex flex-col">
 			<AppBar />
@@ -16,11 +17,16 @@ export function HomePage() {
 					<CatalogPage />
 				</Route>
 
+				<Route name="store.product">
+					<ProductPage />
+				</Route>
+
 				<Route name="store.cart">
 					<CartPage />
 				</Route>
-				<Route name="store.product">
-					<ProductPage />
+
+				<Route name="store.checkout">
+					<CheckoutPage />
 				</Route>
 			</main>
 		</div>

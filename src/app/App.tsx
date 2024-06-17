@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Route } from "src/navigation";
 import { ModalProvider } from "src/infra/modals";
 import { AdminPage } from "src/pages";
-import { HomePage } from "src/pages/store/HomePage";
+import { StoreLayout } from "src/pages/store/StoreLayout";
 import { CategoryService } from "src/domains/Category";
 import { useFullID, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
@@ -64,7 +64,7 @@ function App() {
 		<>
 			<ModalProvider />
 			<Route name="store">
-				<HomePage />
+				<StoreLayout />
 			</Route>
 			<Route name="admin">
 				<AdminPage />
