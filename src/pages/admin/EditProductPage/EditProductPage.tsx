@@ -44,11 +44,11 @@ export function EditProductPage() {
 	return (
 		<div className="">
 			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
-			<Form<TNewProduct>
+			<Form<TProduct>
 				className="flex flex-wrap flex-col gap-4 mx-auto mt-10  p-4 justify-center"
 				schema={NewProductSchema}
-				defaultValues={product}
-				onSubmit={async (data: TNewProduct) => {
+				defaultValues={product ?? undefined}
+				onSubmit={async (data) => {
 					if (!data.images) return;
 
 					console.log("SUBMIT", data);
@@ -80,7 +80,6 @@ export function EditProductPage() {
 				</div>
 				<div className="my-4">
 					<Form.Input name="sku" label="Sku" placeholder="Enter product sku" />
-					<Form.ErrorMessage<TNewProduct> name="" />
 				</div>
 				<div className="my-4">
 					<Form.Input<TNewProduct>
@@ -132,7 +131,7 @@ function NameDetails() {
 	return (
 		<div className="">
 			<Form.Input<TNewProduct>
-				name={`locales.value`}
+				name={`locales[0].value`}
 				label={"Name"}
 				placeholder="Enter product name"
 			/>
