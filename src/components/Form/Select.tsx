@@ -1,12 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { ReactNode } from "react";
 import * as RadixSelect from "@radix-ui/react-select";
 import classnames from "classnames";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { useController } from "react-hook-form";
 import classNames from "classnames";
+import { NestedKeys } from "src/shared/types";
 
-export const Select = ({ children, name, placeholder }: any) => {
+export const Select = <T,>({
+	children,
+	name,
+	placeholder,
+}: {
+	name: NestedKeys<T>;
+	placeholder?: string;
+	children: ReactNode;
+}) => {
 	const selectStyle = classNames([
 		"w-full h-12, p-2",
 		"shadow rounded",

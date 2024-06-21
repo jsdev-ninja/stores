@@ -47,9 +47,14 @@ export const ProductSchema = z.object({
 	ingredients: z.array(LocaleSchema),
 });
 
-export const NewProductSchema = ProductSchema.omit({ id: true, images: true }).merge(
+export const NewProductSchema = ProductSchema.omit({
+	id: true,
+	images: true,
+	categories: true,
+}).merge(
 	z.object({
 		images: z.array(z.instanceof(File)).optional(),
+		categories: z.string().optional(),
 	})
 );
 export type TProduct = z.infer<typeof ProductSchema>;

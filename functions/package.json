@@ -8,10 +8,12 @@
 		"shell": "npm run build && firebase functions:shell",
 		"start": "npm run shell",
 		"deploy": "firebase deploy --only functions",
-		"logs": "firebase functions:log"
+		"logs": "firebase functions:log",
+		"cli:login": "firebase login --reauth"
 	},
 	"main": "lib/index.js",
 	"dependencies": {
+		"algoliasearch": "^4.23.3",
 		"firebase-admin": "^10.0.2",
 		"firebase-functions": "^3.18.0"
 	},

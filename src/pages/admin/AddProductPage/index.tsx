@@ -12,6 +12,8 @@ export function AddProductPage() {
 
 	const { t } = useTranslation(["admin", "common"]);
 
+	console.log("categories.categories", categories);
+
 	useEffect(() => {
 		FirebaseApi.firestore
 			.list(FirebaseApi.firestore.collections.categories)
@@ -35,23 +37,31 @@ export function AddProductPage() {
 						value: 1,
 					},
 					currency: "ILS",
+					images: [],
 				}}
 				onSubmit={async (data) => {
-					if (!data.images) return;
-
 					console.log("SUBMIT", data);
 
-					return;
-
-					const fileRef = await FirebaseApi.storage.upload("image.png", data.images[0]);
+					const { categories: formCategories, images, ...rest } = data;
 
 					const product: Partial<TProduct> = {
-						images: [{ id: crypto.randomUUID(), url: fileRef.url }],
+						...rest,
 					};
 
-					delete data["images"];
+					if (images?.[0]) {
+						const fileRef = await FirebaseApi.storage.upload("image.png", images[0]);
+						delete data["images"];
+						product.images?.push({ id: crypto.randomUUID(), url: fileRef.url });
+					}
 
-					// product = { ...product, ...data };
+					const category = categories.find((c) => c.id === formCategories);
+
+					if (category) {
+						product.categories?.push({
+							id: category.id,
+							tag: category.tag,
+						});
+					}
 
 					const res = await FirebaseApi.firestore.create(
 						product,
@@ -87,7 +97,7 @@ export function AddProductPage() {
 					/>
 				</div>
 				<div className="my-4">
-					<Form.Select name="category" placeholder={"select category"}>
+					<Form.Select<TNewProduct> name="categories" placeholder={"select category"}>
 						{categories.map((category) => (
 							<Form.Select.Item key={category.id} value={category.id}>
 								{category.locales[0].value}
@@ -96,7 +106,7 @@ export function AddProductPage() {
 					</Form.Select>
 				</div>
 				<div className="my-4">
-					<Form.Select name="unit.type" placeholder={"select unit"}>
+					<Form.Select<TNewProduct> name="unit.type" placeholder={"select unit"}>
 						<Form.Select.Item value="unit">unit</Form.Select.Item>
 						<Form.Select.Item value="kg">kg</Form.Select.Item>
 						<Form.Select.Item value="gram">gram</Form.Select.Item>

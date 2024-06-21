@@ -10,15 +10,15 @@ import { Input } from "./Input";
 import { Submit } from "./Submit";
 import { ErrorMessage } from "./ErrorMessage";
 
-type Props<T> = {
+type Props<T extends FieldValues> = {
 	schema: ZodSchema;
 	children: ReactNode;
-	onSubmit: (data: FieldValues) => void;
+	onSubmit: (data: T) => void;
 	defaultValues?: DefaultValues<T>;
 	className?: string;
 };
 
-export function Form<T = any>(props: Props<T>) {
+export function Form<T extends FieldValues>(props: Props<T>) {
 	const { children, schema, onSubmit, defaultValues, className } = props;
 
 	const form = useForm({
@@ -31,7 +31,7 @@ export function Form<T = any>(props: Props<T>) {
 	console.log("error", form.formState.errors);
 
 	return (
-		<FormProvider {...form}>
+		<FormProvider<T> {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className={className}>
 				{children}
 			</form>
