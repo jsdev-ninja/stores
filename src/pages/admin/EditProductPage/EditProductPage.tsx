@@ -52,27 +52,18 @@ export function EditProductPage() {
 					if (!data.images) return;
 
 					console.log("SUBMIT", data);
+					if (data.images[0]) {
+						// product = { ...product, ...data };
 
-					return;
+						const res = await FirebaseApi.firestore.create(
+							product,
+							FirebaseApi.firestore.collections.products
+						);
 
-					const fileRef = await FirebaseApi.storage.upload("image.png", data.images[0]);
+						console.log("res", res);
 
-					const product: Partial<TProduct> = {
-						images: [{ id: crypto.randomUUID(), url: fileRef.url }],
-					};
-
-					delete data["images"];
-
-					// product = { ...product, ...data };
-
-					const res = await FirebaseApi.firestore.create(
-						product,
-						FirebaseApi.firestore.collections.products
-					);
-
-					console.log("res", res);
-
-					navigate("admin.products");
+						navigate("admin.products");
+					}
 				}}
 			>
 				<div className="my-4">
