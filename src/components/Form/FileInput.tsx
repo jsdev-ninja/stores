@@ -10,6 +10,7 @@ export function FileInput<T>(props: { name: NestedKeys<T>; label?: string }) {
 	return (
 		<input
 			multiple={false}
+			accept="image/*"
 			type="file"
 			onChange={(event) => {
 				const file = event.target.files?.[0];

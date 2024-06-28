@@ -3,7 +3,7 @@ import * as functions from "firebase-functions/v1";
 
 import algoliasearch from "algoliasearch";
 
-const algolia = algoliasearch("633V4WVLUB", "SECRET_KEY");
+const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 
 const index = algolia.initIndex("products");
 
@@ -17,6 +17,7 @@ export const onProductCreate = functions.firestore
 
 		return await index.saveObject({
 			objectID: snap.id,
+			id: snap.id,
 			...snap.data(),
 		});
 	});
@@ -30,8 +31,18 @@ export const onProductDelete = functions.firestore
 
 export const onProductUpdate = functions.firestore
 	.document("/products/{productId}")
-	.onUpdate((snap, context) => {
-		console.log(context);
+	.onUpdate(async (snap, context) => {
+		const before = snap.before.data();
+		const after = snap.after.data();
+
+		const { productId } = context.params;
+
+		console.log("update ", productId, after, before);
+		return await index.saveObject({
+			objectID: productId,
+			id: productId,
+			...after,
+		});
 	});
 
 export const onUserCreate = functions.auth.user().onCreate((user) => {

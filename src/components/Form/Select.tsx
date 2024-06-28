@@ -3,18 +3,24 @@ import React, { ReactNode } from "react";
 import * as RadixSelect from "@radix-ui/react-select";
 import classnames from "classnames";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
-import { useController } from "react-hook-form";
+import { useController, useFormContext } from "react-hook-form";
 import classNames from "classnames";
 import { NestedKeys } from "src/shared/types";
+
+import { Select as BaseSelect } from "../Select/Select";
 
 export const Select = <T,>({
 	children,
 	name,
 	placeholder,
+	multiple = false,
+	displayValue,
 }: {
 	name: NestedKeys<T>;
 	placeholder?: string;
 	children: ReactNode;
+	multiple?: boolean;
+	displayValue: any;
 }) => {
 	const selectStyle = classNames([
 		"w-full h-12, p-2",
@@ -26,8 +32,29 @@ export const Select = <T,>({
 
 	const control = useController({ name });
 
+	const form = useFormContext();
+
 	return (
-		<RadixSelect.Root onValueChange={control.field.onChange}>
+		<BaseSelect
+			displayValue={displayValue}
+			multiple={multiple}
+			onChange={(newValue) => {
+				console.log("newValue", newValue);
+
+				if (multiple && Array.isArray(newValue)) {
+					return form.setValue(name, newValue.flat());
+				}
+				control.field.onChange(newValue);
+			}}
+			placeholder={placeholder}
+			value={control.field.value}
+		>
+			{children}
+		</BaseSelect>
+	);
+
+	return (
+		<RadixSelect.Root value={control.field.value} onValueChange={control.field.onChange}>
 			<RadixSelect.Trigger className={selectStyle} aria-label={name}>
 				<RadixSelect.Value placeholder={placeholder} />
 				<RadixSelect.Icon className="text-primary-main">
@@ -63,4 +90,4 @@ const SelectItem = React.forwardRef<any, any>(({ children, ...props }, forwarded
 	);
 });
 
-Select.Item = SelectItem;
+Select.Item = BaseSelect.Item;
