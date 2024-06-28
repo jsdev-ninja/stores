@@ -81,36 +81,49 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "id">
 export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 	(
 		{
+			id,
+			depth,
 			childCount,
 			clone,
-			depth,
-			disableSelection,
-			disableInteraction,
-			ghost,
-			handleProps,
 			indentationWidth,
 			indicator,
 			collapsed,
 			onCollapse,
 			onRemove,
-			style,
 			value,
-			wrapperRef,
 			...props
 		},
 		ref
 	) => {
+		const {
+			attributes,
+			listeners,
+			isDragging,
+			isSorting,
+			setDraggableNodeRef,
+			setDroppableNodeRef,
+			transform,
+			transition,
+		} = useSortable({
+			id,
+			animateLayoutChanges,
+		});
+		const style: CSSProperties = {
+			transform: CSS.Translate.toString(transform),
+			transition,
+		};
+
 		return (
 			<li
 				className={classNames(
 					styles.Wrapper,
 					clone && styles.clone,
-					ghost && styles.ghost,
+					isDragging && styles.ghost,
 					indicator && styles.indicator,
-					disableSelection && styles.disableSelection,
-					disableInteraction && styles.disableInteraction
+					iOS && styles.disableSelection,
+					isSorting && styles.disableInteraction
 				)}
-				ref={wrapperRef}
+				ref={setDroppableNodeRef}
 				style={
 					{
 						"--spacing": `${indentationWidth * depth}px`,
@@ -118,16 +131,16 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 				}
 				{...props}
 			>
-				<div className={styles.TreeItem} ref={ref} style={style}>
-					<Handle {...handleProps} />
-					{onCollapse && (
+				<div className={styles.TreeItem} ref={setDraggableNodeRef} style={style}>
+					<Handle {...attributes} {...listeners} />
+					{/* {onCollapse && (
 						<Action
 							onClick={onCollapse}
 							className={classNames(styles.Collapse, collapsed && styles.collapsed)}
 						>
 							{collapseIcon}
 						</Action>
-					)}
+					)} */}
 					<span className={styles.Text}>{value}</span>
 					{!clone && onRemove && <Remove onClick={onRemove} />}
 					{clone && childCount && childCount > 1 ? (
@@ -145,46 +158,5 @@ const collapseIcon = (
 	</svg>
 );
 
-interface Props extends TreeItemProps {
-	id: string;
-}
-
 const animateLayoutChanges: AnimateLayoutChanges = ({ isSorting, wasDragging }) =>
 	isSorting || wasDragging ? false : true;
-
-export function SortableTreeItem({ id, depth, ...props }: Props) {
-	const {
-		attributes,
-		isDragging,
-		isSorting,
-		listeners,
-		setDraggableNodeRef,
-		setDroppableNodeRef,
-		transform,
-		transition,
-	} = useSortable({
-		id,
-		animateLayoutChanges,
-	});
-	const style: CSSProperties = {
-		transform: CSS.Translate.toString(transform),
-		transition,
-	};
-
-	return (
-		<TreeItem
-			ref={setDraggableNodeRef}
-			wrapperRef={setDroppableNodeRef}
-			style={style}
-			depth={depth}
-			ghost={isDragging}
-			disableSelection={iOS}
-			disableInteraction={isSorting}
-			handleProps={{
-				...attributes,
-				...listeners,
-			}}
-			{...props}
-		/>
-	);
-}

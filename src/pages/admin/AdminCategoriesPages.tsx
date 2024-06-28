@@ -8,7 +8,7 @@ import { SortableTree } from "./Tree";
 import { CategoriesTree } from "./AdminCategoriesPage/CategoriesTree";
 
 export function AdminCategoriesPages() {
-	const [, setCategories] = useState<Array<TCategory>>([]);
+	const [categories, setCategories] = useState<Array<TCategory>>([]);
 	useEffect(() => {
 		FirebaseApi.firestore
 			.list(FirebaseApi.firestore.collections.categories)
@@ -16,8 +16,9 @@ export function AdminCategoriesPages() {
 	}, []);
 	return (
 		<div className="w-full border p-20 ltr">
-			<CategoriesTree />
-			<SortableTree collapsible indicator removable />
+			{!!categories.length && (
+				<SortableTree categories={categories} collapsible indicator removable />
+			)}
 			{/* <div className="w-full">
 				<List>
 					{categories.map((category) => {

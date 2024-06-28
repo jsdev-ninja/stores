@@ -53,7 +53,8 @@ export function Select({
 					anchor="bottom"
 					transition
 					className={clsx(
-						" bg-gray-700 shadow w-[var(--input-width)] rounded border border-white/5 bg-white/5 p-1 [--anchor-gap:var(--spacing-1)] empty:invisible ",
+						" bg-gray-700 shadow w-[var(--input-width)] rounded border border-white/5  p-1 [--anchor-gap:var(--spacing-1)] empty:invisible ",
+
 						"transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
 					)}
 				>

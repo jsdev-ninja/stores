@@ -1,20 +1,20 @@
 .Wrapper {
 	list-style: none;
 	box-sizing: border-box;
-	padding-left: var(--spacing);
+	padding-inline-start: var(--spacing);
 	margin-bottom: -1px;
 
 	&.clone {
 		display: inline-block;
 		pointer-events: none;
 		padding: 0;
-		padding-left: 10px;
+		padding-inline-start: 10px;
 		padding-top: 5px;
 
 		.TreeItem {
 			--vertical-padding: 5px;
 
-			padding-right: 24px;
+			padding-inline-end: 24px;
 			border-radius: 4px;
 			box-shadow: 0px 15px 15px 0 rgba(34, 33, 81, 0.1);
 		}
@@ -36,7 +36,7 @@
 
 				&:before {
 					position: absolute;
-					left: -8px;
+					inset-inline-start: -8px;
 					top: -4px;
 					display: block;
 					content: "";
@@ -81,7 +81,7 @@
 
 .Text {
 	flex-grow: 1;
-	padding-left: 0.5rem;
+	padding-inline-end: 0.5rem;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -90,7 +90,7 @@
 .Count {
 	position: absolute;
 	top: -10px;
-	right: -10px;
+	inset-inline-end: -10px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
