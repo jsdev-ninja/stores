@@ -18,13 +18,15 @@ export function Select({
 	placeholder = "",
 	displayValue,
 	multiple = false,
-}) {
+}: any) {
 	const inputStyle = classNames([
 		"w-full   p-2",
 		"shadow rounded",
 		"text-gray-500",
 		"bg-gray-100",
 	]);
+
+	console.log(query);
 
 	return (
 		<div className="w-full h-12 p-2">
@@ -62,7 +64,7 @@ export function Select({
 	);
 }
 
-Select.Item = function SelectItem({ children, value }) {
+Select.Item = function SelectItem({ children, value }: any) {
 	return (
 		<ComboboxOption
 			value={value}

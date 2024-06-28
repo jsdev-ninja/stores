@@ -51,7 +51,9 @@ export function AdminProductsPage() {
 											</div>
 											<div className="flex gap-4 justify-center my-4">
 												<Button
-													onClick={() => navigate("admin.editProduct", { id: product.id })}
+													onClick={() =>
+														navigate("admin.editProduct", { id: product.id })
+													}
 													fullWidth
 												>
 													Edit
@@ -64,7 +66,7 @@ export function AdminProductsPage() {
 							}}
 						</ProductsWidget.Products>
 					</div>
-					<div className="w-80 shrink-0">sidebar</div>
+					{/* <div className="w-80 shrink-0">sidebar</div> */}
 				</div>
 			</div>
 		</ProductsWidget>

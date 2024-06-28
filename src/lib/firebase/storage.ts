@@ -1,5 +1,5 @@
 import { getApp } from "firebase/app";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 // Get a non-default Storage bucket
 const firebaseApp = getApp();
@@ -16,5 +16,11 @@ async function upload(name: string, file: File) {
 
 	return { ...res, url };
 }
+async function remove(ref: string) {
+	await deleteObject(createRef(ref));
+	console.log("storage.remove success");
 
-export const firebaseStorage = { upload };
+	return { success: true };
+}
+
+export const firebaseStorage = { upload, remove };

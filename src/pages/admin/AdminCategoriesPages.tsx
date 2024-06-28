@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
-import { List } from "src/components/List";
+// import { List } from "src/components/List";
 import { TCategory } from "src/domains/Category";
 import { FirebaseApi } from "src/lib/firebase";
-import { Link } from "src/navigation";
+// import { Link } from "src/navigation";
+import { SortableTree } from "./Tree";
+// import { CategoryItem } from "./AdminCategoriesPage/CategoryItem";
+import { CategoriesTree } from "./AdminCategoriesPage/CategoriesTree";
 
 export function AdminCategoriesPages() {
-	const [categories, setCategories] = useState<Array<TCategory>>([]);
+	const [, setCategories] = useState<Array<TCategory>>([]);
 	useEffect(() => {
 		FirebaseApi.firestore
 			.list(FirebaseApi.firestore.collections.categories)
 			.then((res) => setCategories(res.data ?? []));
 	}, []);
 	return (
-		<div className="w-full border">
-			<div className="w-full">
+		<div className="w-full border p-20 ltr">
+			<CategoriesTree />
+			<SortableTree collapsible indicator removable />
+			{/* <div className="w-full">
 				<List>
 					{categories.map((category) => {
 						return <List.Item key={category.id}>{category.locales[0].value}</List.Item>;
@@ -21,7 +26,7 @@ export function AdminCategoriesPages() {
 				</List>
 			</div>
 			<hr className="mt-16 w-full" />
-			<Link to="admin.addCategory">add category</Link>
+			<Link to="admin.addCategory">add category</Link> */}
 		</div>
 	);
 }

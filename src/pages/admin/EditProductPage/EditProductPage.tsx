@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
-import { NewProductSchema, TNewProduct, TProduct } from "src/domains";
+import { ProductSchema, TProduct } from "src/domains";
 import { TCategory } from "src/domains/Category";
 import { ProductService } from "src/domains/product/productService";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate, useParams } from "src/navigation";
+import { z } from "zod";
+
+export const NewProductSchema = ProductSchema.omit({}).merge(
+	z.object({
+		newImage: z.instanceof(File).optional(),
+	})
+);
+
+type TNewProduct = z.infer<typeof NewProductSchema>;
 
 export function EditProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
@@ -15,8 +25,6 @@ export function EditProductPage() {
 	const params = useParams("admin.editProduct");
 
 	const [product, setProduct] = useState<TProduct | null>(null);
-
-	const isNewProductFlow = !params.id;
 
 	useEffect(() => {
 		if (params.id) {
@@ -35,35 +43,47 @@ export function EditProductPage() {
 	}, []);
 
 	console.log("product", product);
-	if (!product && !isNewProductFlow) return;
+	if (!product) return;
 
-	const title = isNewProductFlow
-		? t("admin:productForm.add.title")
-		: t("admin:productForm.edit.title");
+	const title = t("admin:productForm.edit.title");
 
 	return (
 		<div className="">
 			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
-			<Form<TProduct>
+			<Form<TNewProduct>
 				className="flex flex-wrap flex-col gap-4 mx-auto mt-10  p-4 justify-center"
 				schema={NewProductSchema}
 				defaultValues={product ?? undefined}
 				onSubmit={async (data) => {
-					if (!data.images) return;
-
 					console.log("SUBMIT", data);
-					if (data.images[0]) {
-						// product = { ...product, ...data };
 
-						const res = await FirebaseApi.firestore.create(
-							product,
-							FirebaseApi.firestore.collections.products
-						);
+					const { categories: formCategories, images, newImage, ...rest } = data;
 
-						console.log("res", res);
+					const product: Partial<TProduct> = {
+						...rest,
+					};
 
-						navigate("admin.products");
+					if (newImage) {
+						const fileRef = await FirebaseApi.storage.upload("image.png", newImage);
+						console.log(fileRef);
+
+						if (images?.[0]) {
+							await FirebaseApi.storage.remove(images?.[0].url);
+							console.log("removed");
+						}
+						product.images = [{ id: crypto.randomUUID(), url: fileRef.url }];
 					}
+					// product = { ...product, ...data };
+
+					const res = await FirebaseApi.firestore.update(
+						product.id ?? "",
+						product,
+						FirebaseApi.firestore.collections.products
+					);
+
+					console.log("res", res);
+
+					navigate("admin.products");
 				}}
 			>
 				<div className="my-4">
@@ -89,9 +109,17 @@ export function EditProductPage() {
 					/>
 				</div>
 				<div className="my-4">
-					<Form.Select name="category" placeholder={"select category"}>
+					<Form.Select<TNewProduct>
+						multiple
+						displayValue={(categories: any[]) => categories.map((c: any) => c.tag).join(", ")}
+						name="categories"
+						placeholder={"select category"}
+					>
 						{categories.map((category) => (
-							<Form.Select.Item key={category.id} value={category.id}>
+							<Form.Select.Item
+								key={category.id}
+								value={{ id: category.id, tag: category.tag }}
+							>
 								{category.locales[0].value}
 							</Form.Select.Item>
 						))}
@@ -107,15 +135,28 @@ export function EditProductPage() {
 				<div className="my-4">
 					<Form.Checkbox<TNewProduct> name="vat" label="Vat" />
 				</div>
-				<div className="my-4">
-					<Form.File<TNewProduct> name="images" label="Product image" />
+				<div className="my-4 flex flex-col gap-4">
+					<Form.File<TNewProduct> name="newImage" label="Product image" />
+					<ImagePreview productImage={product.images[0]} />
 				</div>
-				<div className="my-4">
+				<div className="my-8">
 					<Form.Submit>Add product</Form.Submit>
 				</div>
 			</Form>
 		</div>
 	);
+}
+
+function ImagePreview({ productImage }: { productImage: any }) {
+	const form = useFormContext();
+	const newImage = form.watch("newImage");
+
+	console.log("newImage", newImage);
+	// newImage ? URL.createObjectURL(images) :
+	const url = newImage ? URL.createObjectURL(newImage) : productImage ? productImage.url : null;
+	console.log("url", url);
+
+	return <div className="h-40 w-40">{url && <img src={url} className="" alt="" />}</div>;
 }
 
 function NameDetails() {

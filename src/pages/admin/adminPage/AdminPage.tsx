@@ -1,10 +1,11 @@
 import { List } from "src/components/List";
 import { Link, Route, routes } from "src/navigation";
-import { AddProductPage } from "../admin/AddProductPage";
-import { AdminProductsPage } from "../admin/AdminProductsPage";
-import { AdminCategoriesPages } from "../admin/AdminCategoriesPages";
-import { AddCategoryPage } from "../admin/AddCategoryPage";
+import { AddProductPage } from "../AddProductPage";
+import { AdminProductsPage } from "../AdminProductsPage";
+import { AdminCategoriesPages } from "../AdminCategoriesPages";
+import { AddCategoryPage } from "../AddCategoryPage";
 import { RouteKeys } from "src/lib/router/types";
+import { EditProductPage } from "../EditProductPage/EditProductPage";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
@@ -38,7 +39,7 @@ export function AdminPage() {
 					<AddProductPage />
 				</Route>
 				<Route name="admin.editProduct">
-					<AddProductPage />
+					<EditProductPage />
 				</Route>
 				<Route name="admin.products">
 					<AdminProductsPage />

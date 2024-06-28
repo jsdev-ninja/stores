@@ -10,6 +10,7 @@ import {
 	onSnapshot,
 	query,
 	setDoc,
+	updateDoc,
 } from "firebase/firestore";
 import { app } from "./app";
 
@@ -20,6 +21,19 @@ async function create(item: any, coll: any) {
 		const docRef = await addDoc(collection(db, coll), item);
 
 		const data = { ...item, id: docRef.id };
+
+		return { success: true, data };
+	} catch (error) {
+		console.error(error);
+		return { success: false };
+	}
+}
+async function update(id: string, item: any, coll: any) {
+	try {
+		await updateDoc(doc(db, coll, id), item);
+
+		const data = { ...item };
+		console.log("update", data);
 
 		return { success: true, data };
 	} catch (error) {
@@ -96,4 +110,4 @@ const collections = {
 	products: "products",
 	categories: "categories",
 };
-export const firestore = { create, list, collections, get, set, subscribeDoc };
+export const firestore = { create, list, collections, get, set, subscribeDoc, update };

@@ -20,7 +20,7 @@ export const Select = <T,>({
 	placeholder?: string;
 	children: ReactNode;
 	multiple?: boolean;
-	displayValue: any;
+	displayValue?: any;
 }) => {
 	const selectStyle = classNames([
 		"w-full h-12, p-2",
@@ -38,11 +38,11 @@ export const Select = <T,>({
 		<BaseSelect
 			displayValue={displayValue}
 			multiple={multiple}
-			onChange={(newValue) => {
+			onChange={(newValue: any) => {
 				console.log("newValue", newValue);
 
 				if (multiple && Array.isArray(newValue)) {
-					return form.setValue(name, newValue.flat());
+					return form.setValue(name, newValue.flat() as any);
 				}
 				control.field.onChange(newValue);
 			}}
@@ -73,7 +73,7 @@ export const Select = <T,>({
 	);
 };
 
-const SelectItem = React.forwardRef<any, any>(({ children, ...props }, forwardedRef) => {
+export const SelectItem = React.forwardRef<any, any>(({ children, ...props }, forwardedRef) => {
 	return (
 		<RadixSelect.Item
 			className={classnames(

@@ -41,20 +41,18 @@ export const ProductSchema = z.object({
 	images: z.array(z.object({ url: z.string().url(), id: z.string() })),
 	locales: z.array(LocaleSchema),
 	manufacturer: text.optional(),
-	brand: text.optional(),
-	importer: text.optional(),
-	supplier: text.optional(),
+	brand: z.string().optional(),
+	importer: z.string().optional(),
+	supplier: z.string().optional(),
 	ingredients: z.array(LocaleSchema),
 });
 
 export const NewProductSchema = ProductSchema.omit({
 	id: true,
 	images: true,
-	categories: true,
 }).merge(
 	z.object({
-		images: z.array(z.instanceof(File)).optional(),
-		categories: z.string().optional(),
+		images: z.instanceof(File).optional(),
 	})
 );
 export type TProduct = z.infer<typeof ProductSchema>;
