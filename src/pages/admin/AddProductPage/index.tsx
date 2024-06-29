@@ -143,6 +143,30 @@ export function AddProductPage() {
 				<div className="my-4">
 					<Form.Checkbox<TNewProduct> name="vat" label="Vat" />
 				</div>
+				<div className="my-4">
+					<Form.Input<TNewProduct>
+						name="brand"
+						label="brand"
+						placeholder="Enter product brand"
+					/>
+					<Form.ErrorMessage<TNewProduct> name="brand" />
+				</div>
+				<div className="my-4">
+					<Form.Input<TNewProduct>
+						name="manufacturer"
+						label="manufacturer"
+						placeholder="Enter product manufacturer"
+					/>
+					<Form.ErrorMessage<TNewProduct> name="manufacturer" />
+				</div>
+				<div className="my-4">
+					<Form.Input<TNewProduct>
+						name="supplier"
+						label="supplier"
+						placeholder="Enter product supplier"
+					/>
+					<Form.ErrorMessage<TNewProduct> name="supplier" />
+				</div>
 				<div className="my-4 flex flex-col gap-4">
 					<Form.File<TNewProduct> name="images" label="Product image" />
 					<ImagePreview />
