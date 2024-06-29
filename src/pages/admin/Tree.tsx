@@ -23,6 +23,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { MutableRefObject } from "react";
 import { TreeItem } from "./Item/Item";
 import { TCategory } from "src/domains/Category";
+import { buildTree, flattenTree, removeChildrenOf } from "./utils";
 
 export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
 
@@ -61,8 +62,6 @@ export function getProjection(
 	} else if (projectedDepth < minDepth) {
 		depth = minDepth;
 	}
-
-	console.log("dep", depth, getParentId());
 
 	return { depth, maxDepth, minDepth, parentId: getParentId() };
 
@@ -153,7 +152,7 @@ export interface TreeItem {
 }
 
 export interface FlattenedItem extends TreeItem {
-	parentId: string | null;
+	parentId: string;
 	depth: number;
 	index: number;
 }
@@ -204,45 +203,52 @@ export interface Item extends TCategory {
 	// index: number;
 }
 
-export function SortableTree({
-	indicator = false,
-	indentationWidth = 50,
-	removable,
-	categories = [],
-}: Props) {
+export interface TreeItem extends TCategory {
+	children: TreeItem[];
+}
+
+function prepareData(categories: TCategory[], parents?: TCategory[]) {
+	const root = categories.filter((c) => !c.parentId);
+
+	const current = parents ?? root;
+
+	const x: TreeItem[] = [];
+
+	current.forEach((c) => {
+		const result: TreeItem = { ...c, children: [] };
+		const children = categories
+			.filter((child) => child.parentId === c.id)
+			.map((i) => ({ ...i, children: [] }));
+		result.children = children;
+
+		x.push(result);
+	});
+
+	return x.reduce((acc, item: any) => {
+		!parents?.length && (acc as any).push(item);
+		acc.push(...prepareData(categories, item.children));
+		return acc;
+	}, []);
+}
+
+export function SortableTree({ indicator = false, indentationWidth = 50, categories = [] }: Props) {
 	const [items, setItems] = useState<Item[]>(() => {
-		const c = categories.slice(0, 15);
-		return c.map((item) => {
-			return {
-				...item,
-				depth: item.parentId ? 1 : 0,
-			};
-		});
+		return prepareData(categories);
 	});
 
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [overId, setOverId] = useState<string | null>(null);
 	const [offsetLeft, setOffsetLeft] = useState(0);
 
-	const root = items.filter((i) => !i.parentId);
-	console.log("activeId", activeId);
+	const flattenedItems = useMemo(() => {
+		const flattenedTree = flattenTree(items as any);
 
-	const allItems = root.reduce((acc: Item[], item) => {
-		acc.push(item);
-
-		if (item.id !== activeId) {
-			let sub = items.filter((i) => i.parentId === item.id);
-			// sub = sub.map((i) => ({ ...i, depth: 1 }));
-
-			acc.push(...sub);
-		}
-
-		return acc;
-	}, []);
+		return removeChildrenOf(flattenedTree, activeId ? [activeId] : []);
+	}, [activeId, items]);
 
 	const projected =
 		activeId && overId
-			? getProjection(allItems, activeId, overId, offsetLeft, indentationWidth)
+			? getProjection(flattenedItems as any, activeId, overId, offsetLeft, indentationWidth)
 			: null;
 
 	function countChildren(item: TCategory): number {
@@ -257,13 +263,8 @@ export function SortableTree({
 
 	const sensors = useSensors(useSensor(PointerSensor));
 
-	const sortedIds = useMemo(() => allItems.map(({ id }) => id), [allItems]);
-	const activeItem = activeId ? items.find(({ id }) => id === activeId) : null;
-
-	console.log(
-		"allItems",
-		allItems.map((i) => `${i.locales[0].value} ${i.parentId}`)
-	);
+	const sortedIds = useMemo(() => flattenedItems.map(({ id }) => id), [flattenedItems]);
+	const activeItem = activeId ? flattenedItems.find(({ id }) => id === activeId) : null;
 
 	return (
 		<DndContext
@@ -277,7 +278,7 @@ export function SortableTree({
 			onDragCancel={handleDragCancel}
 		>
 			<SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
-				{allItems.map(({ id, locales, depth }) => {
+				{flattenedItems.map(({ id, locales, depth }: any) => {
 					const name = locales[0].value;
 
 					return (
@@ -290,7 +291,7 @@ export function SortableTree({
 							indicator={indicator}
 							// collapsed={Boolean(collapsed && children.length)}
 							// onCollapse={collapsible && children.length ? () => handleCollapse(id) : undefined}
-							onRemove={removable ? () => handleRemove(id) : undefined}
+							// onRemove={removable ? () => handleRemove(id) : undefined}
 						/>
 					);
 				})}
@@ -305,7 +306,7 @@ export function SortableTree({
 								depth={activeItem.depth}
 								clone
 								childCount={getChildCount(items, activeId) + 1}
-								value={activeItem?.locales[0].value}
+								value={(activeItem as any)?.locales[0].value}
 								indentationWidth={indentationWidth}
 							/>
 						) : null}
@@ -333,37 +334,21 @@ export function SortableTree({
 
 	function handleDragEnd({ active, over }: DragEndEvent) {
 		resetState();
-		const root = items.filter((i) => !i.parentId);
-
-		const allItems = root.reduce((acc: Item[], item) => {
-			acc.push(item);
-
-			let sub = items.filter((i) => i.parentId === item.id);
-			// sub = sub.map((i) => ({ ...i, depth: 1 }));
-
-			acc.push(...sub);
-
-			return acc;
-		}, []);
 
 		if (projected && over) {
 			const { depth, parentId } = projected;
-			const clonedItems: TCategory[] = JSON.parse(JSON.stringify(allItems));
+
+			const clonedItems: FlattenedItem[] = JSON.parse(JSON.stringify(flattenTree(items as any)));
 			const overIndex = clonedItems.findIndex(({ id }) => id === over.id);
 			const activeIndex = clonedItems.findIndex(({ id }) => id === active.id);
 			const activeTreeItem = clonedItems[activeIndex];
 
-			console.log("DRAG", activeIndex, overIndex);
-
 			clonedItems[activeIndex] = { ...activeTreeItem, depth, parentId } as any;
 
 			const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
-			console.log(
-				"sortedItems",
-				sortedItems.map((i) => `${i.locales[0].value} ${i.parentId}`)
-			);
+			const newItems = buildTree(sortedItems);
 
-			setItems(sortedItems as any);
+			setItems(newItems as any);
 		}
 	}
 
@@ -379,11 +364,9 @@ export function SortableTree({
 		document.body.style.setProperty("cursor", "");
 	}
 
-	function handleRemove(id: string) {
-		console.log("handleRemove", id);
-
-		// setItems((items) => removeItem(items, id));
-	}
+	// function handleRemove(id: string) {
+	// 	// setItems((items) => removeItem(items, id));
+	// }
 
 	// function handleCollapse(id: string) {
 	// 	setItems((items) =>
