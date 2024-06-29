@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-	Announcements,
 	DndContext,
 	closestCenter,
-	KeyboardSensor,
 	PointerSensor,
 	useSensor,
 	useSensors,
@@ -49,15 +47,12 @@ export function getProjection(
 	const previousItem = newItems[overItemIndex - 1];
 	const nextItem = newItems[overItemIndex + 1];
 	const dragDepth = getDragDepth(dragOffset, indentationWidth);
-	console.log("dragDepth", dragDepth);
 
-	const projectedDepth = activeItem.depth + dragDepth;
+	const projectedDepth = (activeItem as any).depth + dragDepth;
 	const maxDepth = getMaxDepth({
 		previousItem,
 	});
 	const minDepth = getMinDepth({ nextItem });
-
-	console.log("deps", minDepth, maxDepth);
 
 	let depth = projectedDepth;
 
@@ -67,6 +62,8 @@ export function getProjection(
 		depth = minDepth;
 	}
 
+	console.log("dep", depth, getParentId());
+
 	return { depth, maxDepth, minDepth, parentId: getParentId() };
 
 	function getParentId() {
@@ -74,24 +71,24 @@ export function getProjection(
 			return null;
 		}
 
-		if (depth === previousItem.depth) {
+		if (depth === (previousItem as any).depth) {
 			return previousItem.parentId;
 		}
 
-		if (depth > previousItem.depth) {
+		if (depth > (previousItem as any).depth) {
 			return previousItem.id;
 		}
 
 		const newParent = newItems
 			.slice(0, overItemIndex)
 			.reverse()
-			.find((item) => item.depth === depth)?.parentId;
+			.find((item) => (item as any).depth === depth)?.parentId;
 
 		return newParent ?? null;
 	}
 }
 
-function getMaxDepth({ previousItem }: { previousItem: FlattenedItem }) {
+function getMaxDepth({ previousItem }: { previousItem: any }) {
 	if (previousItem) {
 		return previousItem.depth + 1;
 	}
@@ -99,7 +96,7 @@ function getMaxDepth({ previousItem }: { previousItem: FlattenedItem }) {
 	return 0;
 }
 
-function getMinDepth({ nextItem }: { nextItem: FlattenedItem }) {
+function getMinDepth({ nextItem }: { nextItem: any }) {
 	if (nextItem) {
 		return nextItem.depth;
 	}
@@ -111,43 +108,43 @@ function findItem(items: TCategory[], itemId: string) {
 	return items.find(({ id }) => id === itemId);
 }
 
-function removeItem(items: TreeItems, id: string) {
-	const newItems = [];
+// function removeItem(items: TreeItems, id: string) {
+// 	const newItems = [];
 
-	for (const item of items) {
-		if (item.id === id) {
-			continue;
-		}
+// 	for (const item of items) {
+// 		if (item.id === id) {
+// 			continue;
+// 		}
 
-		if (item.children.length) {
-			item.children = removeItem(item.children, id);
-		}
+// 		if (item.children.length) {
+// 			item.children = removeItem(item.children, id);
+// 		}
 
-		newItems.push(item);
-	}
+// 		newItems.push(item);
+// 	}
 
-	return newItems;
-}
+// 	return newItems;
+// }
 
-function setProperty<T extends keyof TreeItem>(
-	items: TreeItems,
-	id: string,
-	property: T,
-	setter: (value: TreeItem[T]) => TreeItem[T]
-) {
-	for (const item of items) {
-		if (item.id === id) {
-			item[property] = setter(item[property]);
-			continue;
-		}
+// function setProperty<T extends keyof TreeItem>(
+// 	items: TreeItems,
+// 	id: string,
+// 	property: T,
+// 	setter: (value: TreeItem[T]) => TreeItem[T]
+// ) {
+// 	for (const item of items) {
+// 		if (item.id === id) {
+// 			item[property] = setter(item[property]);
+// 			continue;
+// 		}
 
-		if (item.children.length) {
-			item.children = setProperty(item.children, id, property, setter);
-		}
-	}
+// 		if (item.children.length) {
+// 			item.children = setProperty(item.children, id, property, setter);
+// 		}
+// 	}
 
-	return [...items];
-}
+// 	return [...items];
+// }
 
 export interface TreeItem {
 	id: string;
@@ -204,7 +201,7 @@ interface Props {
 
 export interface Item extends TCategory {
 	depth: number;
-	index: number;
+	// index: number;
 }
 
 export function SortableTree({
@@ -215,7 +212,7 @@ export function SortableTree({
 }: Props) {
 	const [items, setItems] = useState<Item[]>(() => {
 		const c = categories.slice(0, 15);
-		return c.map((item, index) => {
+		return c.map((item) => {
 			return {
 				...item,
 				depth: item.parentId ? 1 : 0,
@@ -226,16 +223,29 @@ export function SortableTree({
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [overId, setOverId] = useState<string | null>(null);
 	const [offsetLeft, setOffsetLeft] = useState(0);
-	console.log("offsetLeft", offsetLeft);
+
+	const root = items.filter((i) => !i.parentId);
+	console.log("activeId", activeId);
+
+	const allItems = root.reduce((acc: Item[], item) => {
+		acc.push(item);
+
+		if (item.id !== activeId) {
+			let sub = items.filter((i) => i.parentId === item.id);
+			// sub = sub.map((i) => ({ ...i, depth: 1 }));
+
+			acc.push(...sub);
+		}
+
+		return acc;
+	}, []);
 
 	const projected =
 		activeId && overId
-			? getProjection(items, activeId, overId, offsetLeft, indentationWidth)
+			? getProjection(allItems, activeId, overId, offsetLeft, indentationWidth)
 			: null;
 
-	console.log("projected", projected);
-
-	function countChildren(item: TCategory, count = 0): number {
+	function countChildren(item: TCategory): number {
 		const childrenItems = items.filter((i) => i.parentId === item.id);
 		return childrenItems.length;
 	}
@@ -247,20 +257,13 @@ export function SortableTree({
 
 	const sensors = useSensors(useSensor(PointerSensor));
 
-	const root = items.filter((i) => !i.parentId);
-
-	const allItems = root.reduce((acc: Item[], item) => {
-		acc.push(item);
-
-		const sub = items.filter((i) => i.parentId === item.id);
-
-		acc.push(...sub);
-
-		return acc;
-	}, []);
-
 	const sortedIds = useMemo(() => allItems.map(({ id }) => id), [allItems]);
 	const activeItem = activeId ? items.find(({ id }) => id === activeId) : null;
+
+	console.log(
+		"allItems",
+		allItems.map((i) => `${i.locales[0].value} ${i.parentId}`)
+	);
 
 	return (
 		<DndContext
@@ -274,42 +277,21 @@ export function SortableTree({
 			onDragCancel={handleDragCancel}
 		>
 			<SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
-				{root.map(({ id, locales }) => {
+				{allItems.map(({ id, locales, depth }) => {
 					const name = locales[0].value;
-					const sub = items.filter((c) => c.parentId === id);
 
 					return (
-						<React.Fragment key={id}>
-							<TreeItem
-								id={id}
-								value={name}
-								depth={id === activeId && projected ? projected.depth : 0}
-								indentationWidth={indentationWidth}
-								indicator={indicator}
-								// collapsed={Boolean(collapsed && children.length)}
-								// onCollapse={collapsible && children.length ? () => handleCollapse(id) : undefined}
-								onRemove={removable ? () => handleRemove(id) : undefined}
-							/>
-							{activeId !== id &&
-								sub.map(({ id: subId, locales }) => {
-									const name = locales[0].value;
-
-									return (
-										<TreeItem
-											key={subId}
-											id={subId}
-											value={name}
-											depth={1}
-											depth={id === activeId && projected ? projected.depth : 1}
-											indentationWidth={indentationWidth}
-											indicator={indicator}
-											// collapsed={Boolean(collapsed && children.length)}
-											// onCollapse={collapsible && children.length ? () => handleCollapse(id) : undefined}
-											onRemove={removable ? () => handleRemove(id) : undefined}
-										/>
-									);
-								})}
-						</React.Fragment>
+						<TreeItem
+							key={id}
+							id={id}
+							value={name}
+							depth={id === activeId && projected ? projected.depth : depth}
+							indentationWidth={indentationWidth}
+							indicator={indicator}
+							// collapsed={Boolean(collapsed && children.length)}
+							// onCollapse={collapsible && children.length ? () => handleCollapse(id) : undefined}
+							onRemove={removable ? () => handleRemove(id) : undefined}
+						/>
 					);
 				})}
 				{createPortal(
@@ -323,7 +305,7 @@ export function SortableTree({
 								depth={activeItem.depth}
 								clone
 								childCount={getChildCount(items, activeId) + 1}
-								value={activeId.toString()}
+								value={activeItem?.locales[0].value}
 								indentationWidth={indentationWidth}
 							/>
 						) : null}
@@ -351,19 +333,37 @@ export function SortableTree({
 
 	function handleDragEnd({ active, over }: DragEndEvent) {
 		resetState();
+		const root = items.filter((i) => !i.parentId);
+
+		const allItems = root.reduce((acc: Item[], item) => {
+			acc.push(item);
+
+			let sub = items.filter((i) => i.parentId === item.id);
+			// sub = sub.map((i) => ({ ...i, depth: 1 }));
+
+			acc.push(...sub);
+
+			return acc;
+		}, []);
 
 		if (projected && over) {
-			const { depth } = projected;
-			const clonedItems: TCategory[] = JSON.parse(JSON.stringify(items));
+			const { depth, parentId } = projected;
+			const clonedItems: TCategory[] = JSON.parse(JSON.stringify(allItems));
 			const overIndex = clonedItems.findIndex(({ id }) => id === over.id);
 			const activeIndex = clonedItems.findIndex(({ id }) => id === active.id);
 			const activeTreeItem = clonedItems[activeIndex];
 
-			clonedItems[activeIndex] = { ...activeTreeItem, depth };
+			console.log("DRAG", activeIndex, overIndex);
+
+			clonedItems[activeIndex] = { ...activeTreeItem, depth, parentId } as any;
 
 			const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
+			console.log(
+				"sortedItems",
+				sortedItems.map((i) => `${i.locales[0].value} ${i.parentId}`)
+			);
 
-			setItems(sortedItems);
+			setItems(sortedItems as any);
 		}
 	}
 
@@ -380,16 +380,18 @@ export function SortableTree({
 	}
 
 	function handleRemove(id: string) {
-		setItems((items) => removeItem(items, id));
+		console.log("handleRemove", id);
+
+		// setItems((items) => removeItem(items, id));
 	}
 
-	function handleCollapse(id: string) {
-		setItems((items) =>
-			setProperty(items, id, "collapsed", (value) => {
-				return !value;
-			})
-		);
-	}
+	// function handleCollapse(id: string) {
+	// 	setItems((items) =>
+	// 		setProperty(items, id, "collapsed", (value) => {
+	// 			return !value;
+	// 		})
+	// 	);
+	// }
 }
 
 const adjustTranslate: Modifier = ({ transform }) => {

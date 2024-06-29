@@ -5,7 +5,7 @@ import { FirebaseApi } from "src/lib/firebase";
 // import { Link } from "src/navigation";
 import { SortableTree } from "./Tree";
 // import { CategoryItem } from "./AdminCategoriesPage/CategoryItem";
-import { CategoriesTree } from "./AdminCategoriesPage/CategoriesTree";
+// import { CategoriesTree } from "./AdminCategoriesPage/CategoriesTree";
 
 export function AdminCategoriesPages() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
@@ -16,9 +16,7 @@ export function AdminCategoriesPages() {
 	}, []);
 	return (
 		<div className="w-full border p-20 ltr">
-			{!!categories.length && (
-				<SortableTree categories={categories} collapsible indicator removable />
-			)}
+			{!!categories.length && <SortableTree categories={categories} indicator removable />}
 			{/* <div className="w-full">
 				<List>
 					{categories.map((category) => {
