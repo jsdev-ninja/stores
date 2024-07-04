@@ -9,6 +9,7 @@ import {
 import { app } from "./app";
 
 const auth = getAuth(app);
+// auth.tenantId = "my-tenant-xqf3p";
 
 export const Auth = {
 	createUser: async (email: string, password: string) => {

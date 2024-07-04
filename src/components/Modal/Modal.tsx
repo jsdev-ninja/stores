@@ -19,9 +19,9 @@ export const DialogContent = React.forwardRef<any, any>(({ children, ...props },
 				initial={{ scale: 0, rotate: "12.5deg", translateX: "-50%", translateY: "-50%" }}
 				animate={{ scale: 1, rotate: "0deg" }}
 				exit={{ scale: 0, rotate: "0deg" }}
-				className="z-20 fixed top-[50%] left-[50%] max-h-[85vh] w-[90vw] max-w-[450px] rounded-[6px] bg-white p-[25px] shadow"
+				className="z-20 fixed top-[50%] left-[50%] max-h-[85vh]  rounded-[6px] bg-white shadow"
 			>
-				<div className="relative z-10">{children}</div>
+				{children}
 			</motion.div>
 		</DialogPrimitive.Content>
 	</DialogPrimitive.Portal>
