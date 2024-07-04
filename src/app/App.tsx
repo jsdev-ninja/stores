@@ -9,20 +9,25 @@ import { ModalProvider } from "src/infra/modals";
 import { AdminPage } from "src/pages";
 import { StoreLayout } from "src/pages/store/StoreLayout";
 import { CategoryService } from "src/domains/Category";
-import { useFullID, useStoreActions } from "src/infra";
+import { useAppSelector, useFullID, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { TProduct } from "src/domains";
 import { AlgoliaService } from "src/services";
+import { useAppInit } from "./init";
 
 AlgoliaService.init();
 
 function App() {
 	const { i18n } = useTranslation();
 	const dir = i18n.dir();
-
 	const fullID = useFullID();
 
 	const actions = useStoreActions();
+
+	const appReady = useAppSelector((state) => state.ui.appReady);
+
+	useAppInit();
+
 	useEffect(() => {
 		document.body.dir = dir;
 	}, [dir]);
@@ -59,6 +64,10 @@ function App() {
 	// get storeCategories
 	// payment -> heshbonit vs kabala
 	// order from history
+
+	if (!appReady) {
+		return "loading..";
+	}
 
 	return (
 		<>

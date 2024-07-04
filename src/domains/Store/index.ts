@@ -13,12 +13,7 @@ export type TStore = z.infer<typeof StoreSchema>;
 
 // todo: make sure load company safe!!!
 const initialState: { data: TStore | null } = {
-	data: {
-		id: "dhXXgvpn1wyTfqxoQfr0",
-		companyId: "HpxoL3sSMqNmo3rAzGVk",
-		logoUrl: "",
-		websiteDomain: "",
-	},
+	data: null,
 };
 
 export const StoreSlice = createSlice({
