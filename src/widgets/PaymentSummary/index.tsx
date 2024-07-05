@@ -3,6 +3,8 @@ import { useAppSelector } from "src/infra/store";
 
 export function PaymentSummary() {
 	const cartCost = useAppSelector(cartSlice.selectors.selectCost);
+	console.log('cartCost',cartCost);
+	
 	return (
 		<div className="p-4">
 			<div className="">Total</div>

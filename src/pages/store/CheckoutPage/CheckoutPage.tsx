@@ -8,13 +8,14 @@ function CheckoutPage() {
 		<div className="flex-grow  flex flex-col  sm:container sm:mx-auto">
 			<div className="w-full mx-auto flex   flex-grow">
 				<div className="w-3/5">
-					<Cart />
+					<div className="">payment details</div>
+					<div className="">delivery address</div>
 				</div>
 				<div className="w-96 mx-auto  bg-gray-50 flex flex-col">
 					<PaymentSummary />
 					<div className="p-4">
 						<Button fullWidth onClick={() => navigate("store.checkout")}>
-							Go to checkout
+							order
 						</Button>
 					</div>
 				</div>
