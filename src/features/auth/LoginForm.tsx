@@ -25,7 +25,7 @@ const loginSchema = z.object({
 
 type TLoginForm = z.infer<typeof loginSchema>;
 
-export function SignupForm() {
+export function LoginForm() {
 	const actions = useStoreActions();
 
 	const { t } = useTranslation(["common", "auth"]);

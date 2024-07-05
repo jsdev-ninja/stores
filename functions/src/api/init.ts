@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import admin from "firebase-admin";
 
-export const init = functions.https.onCall(async (data, context) => {
+export const appInit = functions.https.onCall(async (data, context) => {
 	console.log("init", context.rawRequest.headers.origin);
 	// http://localhost:5173
 	const origin = context.rawRequest.headers.origin;

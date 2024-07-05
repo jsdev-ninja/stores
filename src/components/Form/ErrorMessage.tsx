@@ -8,3 +8,11 @@ export function ErrorMessage<T extends object>({ name }: { name: NestedKeys<T> }
 
 	return <div className="text-error-main text-sm">{state.error?.message?.toString() ?? ""}</div>;
 }
+
+export function GlobalError() {
+	const form = useFormContext();
+
+	const state = form.getFieldState("global");
+
+	return <div className="text-error-main text-sm">{state.error?.message?.toString() ?? ""}</div>;
+}

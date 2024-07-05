@@ -9,7 +9,7 @@ const index = algolia.initIndex("products");
 
 admin.initializeApp({});
 
-export { init } from "./api/init";
+export { appInit } from "./api/init";
 
 export const onProductCreate = functions.firestore
 	.document("/products/{productId}")

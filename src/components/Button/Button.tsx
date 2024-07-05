@@ -8,10 +8,11 @@ type Props = {
 	onClick?: () => void;
 	size?: "sm" | "md";
 	className?: string;
+	type?: "button" | "submit" | "reset";
 };
 
 export function Button(props: Props) {
-	const { children, fullWidth, size = "md", onClick } = props;
+	const { children, fullWidth, size = "md", type, onClick } = props;
 
 	const style = tv({
 		base: classNames([
@@ -33,6 +34,7 @@ export function Button(props: Props) {
 
 	return (
 		<button
+			type={type}
 			onClick={(e) => {
 				e.stopPropagation();
 				onClick?.();

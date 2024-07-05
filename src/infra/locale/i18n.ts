@@ -12,51 +12,35 @@ export const resources = {
 		common: {
 			login: "login",
 			logout: "logout",
-			categories: {
-				frozenFruitsAndVegetables: "Frozen Fruits and Vegetables",
-				breadsAndBakeryProducts: "Breads and Bakery Products",
-				dairyAndEggs: "Dairy and Eggs",
-				delicatessen: "Delicatessen",
-				beveragesAndWine: "Beverages and Wine",
-				groceryItems: "Grocery Items",
-				snacksAndSweets: "Snacks and Sweets",
-				pharmacyHygieneAndBabies: "Pharmacy, Hygiene, and Babies",
-				cleaningMaterials: "Cleaning Materials",
-				householdUtensilsAndGadgets: "Household Utensils and Gadgets",
-
-				pastramiAndSausages: "Pastrami and Sausages",
-				sausages: "Sausages",
-				drySausages: "Dry Sausages",
-				salads: "Salads",
-				desserts: "Desserts",
-			},
 		},
 		store: {},
 		admin: {},
 	},
 	he: {
+		// static
 		common: {
 			login: "התחברות",
 			logout: "התנתקות",
-			categories: {
-				frozenFruitsAndVegetables: "פרות וירקות קפואים",
-				breadsAndBakeryProducts: "לחמים ומוצרי מאפה",
-				dairyAndEggs: "מוצרי חלב וביצים",
-				delicatessen: "מעדניה",
-				beveragesAndWine: "משקאות ויין",
-				groceryItems: "דברי מכולת",
-				snacksAndSweets: "חטיפים וממתקים",
-				pharmacyHygieneAndBabies: "פארם היגיינה ותינוקות",
-				cleaningMaterials: "חומרי ניקוי",
-				householdUtensilsAndGadgets: "כלי בית וג'אדג'טים",
-
-				pastramiAndSausages: "פסטרמה ונקניקים",
-				sausages: "נקניקיות",
-				drySausages: "נקניקים יבשים",
-				salads: "סלטים",
-				desserts: "קינוחים",
+		},
+		auth: {
+			form: {
+				errors: {
+					invalidEmail: "אימייל לא תקין",
+					codes: {
+						"auth/invalid-credential": "אימייל או סיסמה לא נכונים",
+					},
+				},
+				email: {
+					label: "אימייל",
+					placeholder: " הכנס אימייל",
+				},
+				password: {
+					label: "סיסמה",
+					placeholder: " הכנס סיסמה",
+				},
 			},
 		},
+		// dynamic
 		store: {},
 		admin: {
 			productForm: {

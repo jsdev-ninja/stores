@@ -5,7 +5,7 @@ const functions = getFunctions(app);
 
 async function init() {
 	try {
-		const func = httpsCallable(functions, "init");
+		const func = httpsCallable(functions, "appInit");
 
 		const response = await func();
 		console.log("response", response);

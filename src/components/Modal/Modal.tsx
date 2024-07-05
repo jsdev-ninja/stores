@@ -41,7 +41,7 @@ Modal.CloseButton = ({ onClick }: { onClick?: () => void }) => {
 	return (
 		<div className="flex justify-end">
 			<DialogPrimitive.Close
-				className="bg-green4 text-green11 hover:bg-green5 focus:shadow-green7 inline-flex h-[35px] items-center justify-center rounded-[4px] px-[15px] font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none"
+				className="bg-green4 text-black hover:bg-green5 focus:shadow-green7 inline-flex h-[35px] items-center justify-center rounded-[4px] px-[15px] font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none"
 				aria-label="Close"
 				onClick={onClick}
 			>

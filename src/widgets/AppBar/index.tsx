@@ -11,9 +11,12 @@ export function AppBar() {
 
 	const user = useAppSelector((state) => state.user.user);
 
-	const text = user ? t("logout") : t("login");
+	const text = user && !user.isAnonymous ? t("logout") : t("login");
 
-	const onClick = user ? () => FirebaseApi.auth.logout() : () => modalApi.openModal("authModal");
+	const onClick =
+		user && !user.isAnonymous
+			? () => FirebaseApi.auth.logout()
+			: () => modalApi.openModal("authModal");
 
 	return (
 		<div className="shadow px-4 py-2 flex items-center h-16">

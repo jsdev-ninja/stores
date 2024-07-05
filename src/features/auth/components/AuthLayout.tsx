@@ -1,72 +1,27 @@
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import "./style.css";
+import { LoginForm } from "../LoginForm";
+import { useTranslation } from "react-i18next";
+import { SignupForm } from "./SignupForm";
 
 export const AuthLayout = () => {
+	const { i18n } = useTranslation();
+	const dir = i18n.dir();
 	const [x, setX] = useState(false);
+
+	console.log("dir", dir);
+
+	useLayoutEffect(() => {
+		document.getElementById("container")?.style.setProperty("--dir", dir == "ltr" ? "1" : "-1");
+	}, []);
+
 	return (
-		<div
-			className={`container ${x && "right-panel-active"}`}
-			style={{ direction: "ltr" }}
-			id="container"
-		>
+		<div className={`container ${x && "right-panel-active"}`} id="container">
 			<div className="form-container sign-up-container">
-				<form action="#">
-					<h1>Create Account</h1>
-					<div className="social-container">
-						<a href="#" className="social">
-							<i className="fab fa-facebook-f"></i>
-						</a>
-						<a href="#" className="social">
-							<i className="fab fa-google-plus-g"></i>
-						</a>
-						<a href="#" className="social">
-							<i className="fab fa-linkedin-in"></i>
-						</a>
-					</div>
-					<span>or use your email for registration</span>
-					<div className="infield">
-						<input type="text" placeholder="Name" />
-						<label></label>
-					</div>
-					<div className="infield">
-						<input type="email" placeholder="Email" name="email" />
-						<label></label>
-					</div>
-					<div className="infield">
-						<input type="password" placeholder="Password" />
-						<label></label>
-					</div>
-					<button>Sign Up</button>
-				</form>
+				<SignupForm />
 			</div>
 			<div className="form-container sign-in-container">
-				<form action="#">
-					<h1>Sign in</h1>
-					<div className="social-container">
-						<a href="#" className="social">
-							<i className="fab fa-facebook-f"></i>
-						</a>
-						<a href="#" className="social">
-							<i className="fab fa-google-plus-g"></i>
-						</a>
-						<a href="#" className="social">
-							<i className="fab fa-linkedin-in"></i>
-						</a>
-					</div>
-					<span>or use your account</span>
-					<div className="infield">
-						<input type="email" placeholder="Email" name="email" />
-						<label></label>
-					</div>
-					<div className="infield">
-						<input type="password" placeholder="Password" />
-						<label></label>
-					</div>
-					<a href="#" className="forgot">
-						Forgot your password?
-					</a>
-					<button>Sign In</button>
-				</form>
+				<LoginForm />
 			</div>
 			<div className="overlay-container" id="overlayCon">
 				<div className="overlay">

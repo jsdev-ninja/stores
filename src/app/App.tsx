@@ -48,15 +48,27 @@ function App() {
 	}, [fullID, actions]);
 
 	useEffect(() => {
+		if (!appReady) return;
 		FirebaseApi.auth.onUser((user) => {
+			console.log("user", user);
+
+			if (!user) {
+				console.log("not login");
+				FirebaseApi.auth.signInAnonymously();
+				return;
+			}
+
 			actions.dispatch(actions.user.setUser(user));
 		});
+
 		CategoryService.list().then((result) => {
 			if (result.success) {
 				actions.dispatch(actions.category.setCategories(result.data));
 			}
 		});
-	}, [actions]);
+
+		return () => {};
+	}, [actions, appReady]);
 
 	// get company details
 
