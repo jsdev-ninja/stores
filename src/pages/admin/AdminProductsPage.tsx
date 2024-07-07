@@ -1,3 +1,4 @@
+import { HierarchicalMenu } from "react-instantsearch";
 import { Button } from "src/components/Button/Button";
 import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
@@ -16,6 +17,17 @@ export function AdminProductsPage() {
 				</div>
 
 				<div className="flex">
+					<div className="w-96 shrink-0">
+						hi
+						<HierarchicalMenu
+							attributes={[
+								"categories.lvl0",
+								"categories.lvl1",
+								"categories.lvl2",
+								"categories.lvl3",
+							]}
+						/>
+					</div>
 					<div className="flex-grow p-4 flex flex-wrap gap-4">
 						<ProductsWidget.Products>
 							{(products) => {

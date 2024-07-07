@@ -34,8 +34,6 @@ export const CategorySlice = createSlice({
 	selectors: {
 		selectCategories: (state) => state.categories,
 
-		selectRootCategories: (state) => state.categories.filter((c) => !c.parentId),
-
 		selectsSubCategories: (state, parentId: TCategory["id"]) =>
 			state.categories.filter((c) => c.parentId === parentId),
 	},

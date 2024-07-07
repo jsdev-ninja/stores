@@ -4,6 +4,7 @@ import { TCategory } from "src/domains/Category";
 import { FirebaseApi } from "src/lib/firebase";
 // import { Link } from "src/navigation";
 import { SortableTree } from "./Tree";
+
 // import { CategoryItem } from "./AdminCategoriesPage/CategoryItem";
 // import { CategoriesTree } from "./AdminCategoriesPage/CategoriesTree";
 
@@ -14,8 +15,11 @@ export function AdminCategoriesPages() {
 			.list(FirebaseApi.firestore.collections.categories)
 			.then((res) => setCategories(res.data ?? []));
 	}, []);
+	console.log("categories", categories);
+
 	return (
 		<div className="w-full border p-20 ltr">
+			<div className=""></div>
 			{!!categories.length && <SortableTree categories={categories} indicator removable />}
 			{/* <div className="w-full">
 				<List>

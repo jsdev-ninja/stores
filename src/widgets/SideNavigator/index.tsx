@@ -3,7 +3,9 @@ import { List } from "src/components/List";
 import { CategorySlice } from "src/domains/Category";
 
 export const SideNavigator = () => {
-	const rootCategories = useAppSelector(CategorySlice.selectors.selectRootCategories);
+	const rootCategories = useAppSelector(CategorySlice.selectors.selectCategories).filter(
+		(c) => !c.parentId
+	);
 
 	return (
 		<div id="SideNavigator" className="flex-grow max-h-full">

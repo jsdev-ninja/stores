@@ -51,7 +51,9 @@ function hashStringToIndex(str: string) {
 
 export function StorePage() {
 	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
-	const rootCategories = useAppSelector(CategorySlice.selectors.selectRootCategories);
+	const rootCategories = useAppSelector(CategorySlice.selectors.selectCategories).filter(
+		(c) => !c.parentId
+	);
 
 	return (
 		<div className="">
