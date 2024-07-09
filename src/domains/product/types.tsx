@@ -1,7 +1,7 @@
 import { LocaleSchema } from "src/shared/types";
 import { z } from "zod";
 
-const text = z.string().min(1);
+const text = z.string();
 export const ProductSchema = z.object({
 	id: z.string(),
 	sku: text,

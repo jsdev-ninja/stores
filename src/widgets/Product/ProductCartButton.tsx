@@ -3,6 +3,7 @@ import { useProduct } from "./useProduct";
 import { useAppSelector, useFullID } from "src/infra/store";
 import { cartSlice } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
+import { ProductSchema } from "src/domains";
 
 type Props = {
 	size: "sm" | "md";
@@ -24,6 +25,17 @@ export function ProductCartButton(props: Props) {
 	function addItem() {
 		if (!product) return;
 
+		const result = ProductSchema.safeParse(product);
+
+		console.log("WOKR", result, product);
+		if (!result.success) {
+			console.log(result.error.errors);
+
+			return null; // todo
+		}
+
+		const _product = result.data;
+
 		const productIndex = cartItems.findIndex((cartItem) => cartItem.product.id === product?.id);
 		const productInCart = productIndex !== -1;
 		if (productInCart) {
@@ -38,7 +50,7 @@ export function ProductCartButton(props: Props) {
 			...cartItems,
 			{
 				amount: 1,
-				product,
+				product: _product,
 			},
 		];
 

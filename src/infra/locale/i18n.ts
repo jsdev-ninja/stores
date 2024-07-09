@@ -21,6 +21,8 @@ export const resources = {
 		common: {
 			login: "התחברות",
 			logout: "התנתקות",
+			city: "עיר",
+			street: "רחוב",
 		},
 		auth: {
 			form: {
@@ -41,6 +43,9 @@ export const resources = {
 			},
 		},
 		// dynamic
+		checkout: {
+			title: "ביצוע תשלום",
+		},
 		store: {},
 		admin: {
 			productForm: {

@@ -9,6 +9,7 @@ import { FileInput } from "./FileInput";
 import { Input } from "./Input";
 import { Submit } from "./Submit";
 import { ErrorMessage, GlobalError } from "./ErrorMessage";
+import { Field } from "./Field";
 
 type Props<T extends FieldValues> = {
 	schema: ZodSchema;
@@ -45,4 +46,5 @@ Form.Checkbox = Checkbox;
 Form.Select = Select;
 Form.File = FileInput;
 Form.GlobalError = GlobalError;
+Form.Field = Field;
 Form.Submit = Submit;

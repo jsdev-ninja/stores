@@ -15,7 +15,7 @@ export function ProductsWidget({
 	const filter = categories ? `categories.tag:${categories}` : "";
 	return (
 		<InstantSearch searchClient={AlgoliaClient} indexName={"products"}>
-			<Configure filters={filter} />
+			<Configure filters={filter} attributesToHighlight={[]} />
 			{children}
 		</InstantSearch>
 	);
