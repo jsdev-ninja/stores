@@ -1,11 +1,12 @@
 import { List } from "src/components/List";
-import { Link, Route, routes } from "src/navigation";
+import { Link, Route, navigate, routes } from "src/navigation";
 import { AddProductPage } from "../AddProductPage";
 import { AdminProductsPage } from "../AdminProductsPage";
 import { AdminCategoriesPages } from "../AdminCategoriesPages";
 import { AddCategoryPage } from "../AddCategoryPage";
 import { RouteKeys } from "src/lib/router/types";
 import { EditProductPage } from "../EditProductPage/EditProductPage";
+import AdminOrdersPages from "../Orders/AdminOrdersPages";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
@@ -14,6 +15,7 @@ const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any 
 		path: "admin.products",
 	},
 	{ name: "category", path: "admin.categories" },
+	{ name: "Orders", path: "admin.orders" },
 ];
 
 export function AdminPage() {
@@ -24,10 +26,13 @@ export function AdminPage() {
 					<List>
 						{items.map((item) => {
 							return (
-								<List.Item key={item.name}>
-									<Link params={item.params} to={item.path}>
-										{item.name}
-									</Link>
+								<List.Item
+									key={item.name}
+									onClick={() => {
+										navigate(item.path, item.params);
+									}}
+								>
+									{item.name}
 								</List.Item>
 							);
 						})}
@@ -49,6 +54,9 @@ export function AdminPage() {
 				</Route>
 				<Route name="admin.addCategory">
 					<AddCategoryPage />
+				</Route>
+				<Route name="admin.orders">
+					<AdminOrdersPages />
 				</Route>
 			</div>
 		</div>

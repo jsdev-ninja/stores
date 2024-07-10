@@ -13,3 +13,10 @@ payment ->
 user -> shop admin | shop member | client
 
 product brand
+
+
+
+client create order
+client pay order
+store accept order
+store deliver order

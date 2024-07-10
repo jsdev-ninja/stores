@@ -8,6 +8,8 @@ export const OrderSchema = z.object({
 	status: z.enum(["pending", "inProgress", "delivered", "canceled", "completed"]),
 	paymentStatus: z.enum(["paid", "notPaid"]),
 	cart: z.array(z.object({})), // todo
+	date: z.number(),
+	deliveryDate: z.number().optional(),
 });
 
 export const NewOrderSchema = OrderSchema.omit({ id: true });

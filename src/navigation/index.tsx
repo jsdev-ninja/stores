@@ -39,6 +39,9 @@ export const routes = {
 			addCategory: {
 				path: "/addCategory",
 			},
+			orders: {
+				path: "/orders",
+			},
 		},
 	},
 } as const;

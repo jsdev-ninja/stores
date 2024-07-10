@@ -24,6 +24,7 @@ function CheckoutPage() {
 					companyId: store.companyId,
 					status: "pending",
 					storeId: store.id,
+					paymentStatus: "notPaid",
 				});
 			}}
 			className="flex-grow  flex flex-col  sm:container sm:mx-auto"

@@ -37,11 +37,13 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 			? {
 					to: K;
 					children: ReactNode;
+					className?: string;
 			  }
 			: {
 					to: K;
 					children: ReactNode;
 					params: RouteParams<RoutePath<K, typeof routes>>;
+					className?: string;
 			  }
 	) {
 		const routeConfig = getRouteData(props.to, routes);
