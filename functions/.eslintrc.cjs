@@ -27,5 +27,7 @@ module.exports = {
 		"no-tabs": "off",
 		"object-curly-spacing": 0,
 		indent: ["error", "tab"],
+		"max-len": ["error", { code: 100 }],
+		"quote-props": ["error", "as-needed"],
 	},
 };
