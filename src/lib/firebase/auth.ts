@@ -7,16 +7,27 @@ import {
 	signOut,
 	signInAnonymously,
 	EmailAuthProvider,
+	linkWithCredential,
 } from "firebase/auth";
 import { app } from "./app";
-import { FirebaseError } from "firebase/app";
 
 const auth = getAuth(app);
-// auth.tenantId = "my-tenant-xqf3p";
 
 export const Auth = {
+	auth: auth,
+	setTenantId: (tenantId: string) => {
+		auth.tenantId = tenantId;
+	},
 	createUser: async (email: string, password: string) => {
 		try {
+			if (auth.currentUser && auth.currentUser.isAnonymous) {
+				console.log("create account for anonymous user");
+				const credential = EmailAuthProvider.credential(email, password);
+				console.log("credential", credential);
+				const response = await linkWithCredential(auth.currentUser, credential);
+				console.log("response", response);
+				return { success: true, user: response.user, error: null };
+			}
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
 			return { success: true, user: userCredential.user, error: null };

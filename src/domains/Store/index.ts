@@ -7,6 +7,7 @@ const StoreSchema = z.object({
 	companyId: z.string(),
 	websiteDomain: z.string(),
 	logoUrl: z.string(),
+	tenantId: z.string(), // firebase auth tenantId
 });
 
 export type TStore = z.infer<typeof StoreSchema>;

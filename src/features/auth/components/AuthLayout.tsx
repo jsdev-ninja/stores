@@ -1,22 +1,28 @@
 import { useLayoutEffect, useState } from "react";
-import "./style.css";
-import { LoginForm } from "../LoginForm";
 import { useTranslation } from "react-i18next";
 import { SignupForm } from "./SignupForm";
+import { LoginForm } from "./LoginForm";
+import "./AuthLayout.css";
 
 export const AuthLayout = () => {
-	const { i18n } = useTranslation();
+	const { i18n, t } = useTranslation(["auth"]);
 	const dir = i18n.dir();
-	const [x, setX] = useState(false);
+	const [isLoginForm, setIsLoginForm] = useState(true);
 
 	console.log("dir", dir);
+
+	const title = isLoginForm ? t("auth:welcome.login.title") : t("welcome.signup.title");
+	const button = isLoginForm ? t("auth:welcome.login.button") : t("welcome.signup.button");
+	const description = isLoginForm
+		? t("auth:welcome.login.description")
+		: t("welcome.signup.description");
 
 	useLayoutEffect(() => {
 		document.getElementById("container")?.style.setProperty("--dir", dir == "ltr" ? "1" : "-1");
 	}, []);
 
 	return (
-		<div className={`container ${x && "right-panel-active"}`} id="container">
+		<div className={`container ${!isLoginForm && "right-panel-active"}`} id="container">
 			<div className="form-container sign-up-container">
 				<SignupForm />
 			</div>
@@ -26,18 +32,18 @@ export const AuthLayout = () => {
 			<div className="overlay-container" id="overlayCon">
 				<div className="overlay">
 					<div className="overlay-panel overlay-left">
-						<h1>Welcome Back!</h1>
-						<p>To keep connected with us please login with your personal info</p>
-						<button id="overlayBtn" onClick={() => setX(!x)}>
-							Sign In
+						<h1>{title}</h1>
+						<p>{description}</p>
+						<button id="overlayBtn" onClick={() => setIsLoginForm(!isLoginForm)}>
+							{button}
 						</button>
 					</div>
 					<div className="overlay-panel overlay-right">
-						<h1>Hello, Friend!</h1>
-						<p>Enter your personal details and start journey with us</p>
-						<button id="overlayBtn" onClick={() => setX(!x)}>
-							Sign Up
-						</button>{" "}
+						<h1>{title}</h1>
+						<p>{description}</p>
+						<button id="overlayBtn" onClick={() => setIsLoginForm(!isLoginForm)}>
+							{button}
+						</button>
 					</div>
 				</div>
 			</div>

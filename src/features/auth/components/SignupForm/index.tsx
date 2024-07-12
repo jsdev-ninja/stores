@@ -34,7 +34,7 @@ export function SignupForm() {
 		<Form<z.infer<typeof loginSchema>>
 			schema={loginSchema}
 			onSubmit={async (data, form) => {
-				const result = await FirebaseApi.auth.login(data.email, data.password);
+				const result = await FirebaseApi.auth.createUser(data.email, data.password);
 				if (!result.success) {
 					form.setError("global", { message: getError(result.error) });
 					return;
@@ -77,7 +77,7 @@ export function SignupForm() {
 				<Form.GlobalError />
 			</div>
 			<div className="mt-auto">
-				<Form.Submit fullWidth>Login</Form.Submit>
+				<Form.Submit fullWidth>הרשמה</Form.Submit>
 			</div>
 		</Form>
 	);

@@ -16,6 +16,13 @@ export async function useAppInit() {
 	const response = await FirebaseApi.api.init();
 	const data = response.data as Data;
 
+	console.log("store", data.store);
+
+	if (!data.store.tenantId) {
+		console.error("data.store.tenantId", data?.store?.tenantId);
+	}
+
+	FirebaseApi.auth.setTenantId(data.store.tenantId);
 	actions.dispatch(actions.company.setCompany(data.company));
 	actions.dispatch(actions.store.setStore(data.store));
 	actions.dispatch(actions.ui.setAppReady(true));

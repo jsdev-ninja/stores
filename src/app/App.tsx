@@ -50,7 +50,9 @@ function App() {
 	useEffect(() => {
 		if (!appReady) return;
 		FirebaseApi.auth.onUser((user) => {
-			console.log("user", user);
+			console.log("FirebaseApi.auth", FirebaseApi.auth.auth.tenantId);
+
+			console.log("user", user, user?.isAnonymous);
 
 			if (!user) {
 				console.log("not login");
