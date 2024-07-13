@@ -22,9 +22,18 @@ store accept order
 store deliver order
 
 
+todo: 
+- react lazy loading pages
+- on user delete -> remove cart
+
+
 
 remove category  -  find all children and clean all products
 move category  -  find all children and update all products
 
 
 firestore doc size - 1 MiB - 89 bytes (1,048,487 bytes)
+
+
+features
+- auth anonymous

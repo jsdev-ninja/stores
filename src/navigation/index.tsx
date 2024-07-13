@@ -19,6 +19,9 @@ export const routes = {
 			checkout: {
 				path: "/checkout",
 			},
+			profile: {
+				path: "/profile",
+			},
 		},
 	},
 	admin: {

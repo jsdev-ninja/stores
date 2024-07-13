@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { modalApi } from "src/infra/modals";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
+import { Icon } from "src/components";
 
 export function AppBar() {
 	const { t } = useTranslation();
@@ -18,6 +19,10 @@ export function AppBar() {
 			? () => FirebaseApi.auth.logout()
 			: () => modalApi.openModal("authModal");
 
+	function navigateToProfile() {
+		navigate("store.profile");
+	}
+
 	return (
 		<div className="shadow px-4 py-2 flex items-center h-16">
 			<div className="h-[40px] w-[80px]">
@@ -30,7 +35,13 @@ export function AppBar() {
 				/>
 			</div>
 			<div className="ms-auto">
-				<Button onClick={onClick}>{text}</Button>
+				{!!user && !user.isAnonymous ? (
+					<div className="">
+						<Icon onClick={navigateToProfile} name="userCircle" size="lg" />
+					</div>
+				) : (
+					<Button onClick={onClick}>{text}</Button>
+				)}
 			</div>
 		</div>
 	);

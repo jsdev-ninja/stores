@@ -21,11 +21,8 @@ export const Auth = {
 	createUser: async (email: string, password: string) => {
 		try {
 			if (auth.currentUser && auth.currentUser.isAnonymous) {
-				console.log("create account for anonymous user");
 				const credential = EmailAuthProvider.credential(email, password);
-				console.log("credential", credential);
 				const response = await linkWithCredential(auth.currentUser, credential);
-				console.log("response", response);
 				return { success: true, user: response.user, error: null };
 			}
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);

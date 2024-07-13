@@ -1,3 +1,5 @@
+import { tv, type VariantProps } from "tailwind-variants";
+
 const icons = {
 	search: (
 		<path
@@ -7,9 +9,32 @@ const icons = {
 		/>
 	),
 	close: <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />,
+	userCircle: (
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+		/>
+	),
 };
 
-type IconProps = {
+const style = tv({
+	base: "cursor-pointer",
+	variants: {
+		size: {
+			sm: "size-4",
+			md: "size-6",
+			lg: "size-8",
+		},
+	},
+	defaultVariants: {
+		size: "md",
+	},
+});
+
+type StyleVariants = VariantProps<typeof style>;
+
+type IconProps = StyleVariants & {
 	name: keyof typeof icons;
 	onClick?: () => void;
 };
@@ -27,7 +52,7 @@ export function Icon(props: IconProps) {
 			viewBox="0 0 24 24"
 			strokeWidth={1.5}
 			stroke="currentColor"
-			className="size-6 cursor-pointer"
+			className={style(props)}
 		>
 			{path}
 		</svg>

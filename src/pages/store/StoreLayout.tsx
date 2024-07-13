@@ -5,6 +5,8 @@ import { CartPage, CatalogPage, ProductPage } from "..";
 import { StorePage } from "./StorePage";
 
 import CheckoutPage from "./CheckoutPage/CheckoutPage";
+import ProfilePage from "./ProfilePage/ProfilePage";
+
 export function StoreLayout() {
 	return (
 		<div className="flex flex-col">
@@ -27,6 +29,9 @@ export function StoreLayout() {
 
 				<Route name="store.checkout">
 					<CheckoutPage />
+				</Route>
+				<Route name="store.profile">
+					<ProfilePage />
 				</Route>
 			</main>
 		</div>
