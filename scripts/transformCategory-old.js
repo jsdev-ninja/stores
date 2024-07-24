@@ -7,6 +7,13 @@ const companyId = "HpxoL3sSMqNmo3rAzGVk";
 
 main();
 
+// id: z.string().min(1),
+// companyId: z.string().min(1),
+// storeId: z.string().min(1),
+// parentId: z.string().min(1),
+// tag: z.string().min(1),
+// locales: z.array(LocaleSchema),
+
 async function main() {
 	const categories = categoryJson.map((category) => {
 		const parentId = category.parentCategoryInShopID

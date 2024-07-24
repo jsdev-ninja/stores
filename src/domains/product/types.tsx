@@ -13,6 +13,7 @@ export const ProductSchema = z.object({
 	}),
 	price: z.number(),
 	currency: z.literal("ILS"),
+	// @deprecated
 	categories: z
 		.object({
 			tag: z.string(),
@@ -45,6 +46,14 @@ export const ProductSchema = z.object({
 	importer: z.string().optional(),
 	supplier: z.string().optional(),
 	ingredients: z.array(LocaleSchema),
+
+	// algolia
+	objectID: z.string(),
+	"categories.lvl0": z.array(z.string()),
+	"categories.lvl1": z.array(z.string()),
+	"categories.lvl2": z.array(z.string()),
+	"categories.lvl3": z.array(z.string()),
+	"categories.lvl4": z.array(z.string()),
 });
 
 export const NewProductSchema = ProductSchema.omit({

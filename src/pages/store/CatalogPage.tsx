@@ -1,3 +1,4 @@
+import { HierarchicalMenu } from "react-instantsearch";
 import { Button } from "src/components/Button/Button";
 import { navigate, useParams } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";

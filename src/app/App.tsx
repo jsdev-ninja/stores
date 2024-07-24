@@ -64,9 +64,7 @@ function App() {
 		});
 
 		CategoryService.list().then((result) => {
-			if (result.success) {
-				actions.dispatch(actions.category.setCategories(result.data));
-			}
+			actions.dispatch(actions.category.setCategories(result));
 		});
 
 		return () => {};

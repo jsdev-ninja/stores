@@ -3,13 +3,21 @@ import { LocaleSchema } from "src/shared/types";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { FirebaseApi } from "src/lib/firebase";
 
-export const CategorySchema = z.object({
+export const BaseCategorySchema = z.object({
 	id: z.string().min(1),
 	companyId: z.string().min(1),
 	storeId: z.string().min(1),
-	parentId: z.string().min(1),
+	parentId: z.string().nullish(),
 	tag: z.string().min(1),
 	locales: z.array(LocaleSchema),
+});
+
+type Category = z.infer<typeof BaseCategorySchema> & {
+	children: Category[];
+};
+
+export const CategorySchema: z.ZodType<Category> = BaseCategorySchema.extend({
+	children: z.lazy(() => CategorySchema.array()),
 });
 
 export type TCategory = z.infer<typeof CategorySchema>;
@@ -41,6 +49,11 @@ export const CategorySlice = createSlice({
 
 export const CategoryService = {
 	list() {
-		return FirebaseApi.firestore.list(FirebaseApi.firestore.collections.categories);
+		return FirebaseApi.firestore
+			.get("dhXXgvpn1wyTfqxoQfr0", FirebaseApi.firestore.collections.categories)
+			.then((res) => {
+				console.log("res", res.data.categories);
+				return res.data.categories;
+			});
 	},
 };

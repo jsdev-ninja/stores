@@ -1,4 +1,10 @@
-import { Configure, InstantSearch, SearchBox, useHits } from "react-instantsearch";
+import {
+	Configure,
+	HierarchicalMenu,
+	InstantSearch,
+	SearchBox,
+	useHits,
+} from "react-instantsearch";
 import { TProduct } from "src/domains";
 import { AlgoliaClient } from "src/services";
 import { ReactNode } from "react";
@@ -14,8 +20,28 @@ export function ProductsWidget({
 }) {
 	const filter = categories ? `categories.tag:${categories}` : "";
 	return (
-		<InstantSearch searchClient={AlgoliaClient} indexName={"products"}>
-			<Configure filters={filter} attributesToHighlight={[]} />
+		<InstantSearch
+			searchClient={AlgoliaClient}
+			indexName={"products"}
+			future={{
+				preserveSharedStateOnUnmount: false,
+				// persistHierarchicalRootCount: true,
+			}}
+		>
+			<Configure
+				//  filters={filter}
+				attributesToHighlight={[]}
+			/>
+			<div className="min-h-32 min-w-32 border">
+				<HierarchicalMenu
+					attributes={[
+						"hierarchicalCategories.lvl0",
+						"hierarchicalCategories.lvl1",
+						"hierarchicalCategories.lvl2",
+						"hierarchicalCategories.lvl3",
+					]}
+				/>
+			</div>
 			{children}
 		</InstantSearch>
 	);

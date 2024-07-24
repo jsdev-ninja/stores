@@ -18,9 +18,9 @@ export const onProductCreate = functions.firestore
 		console.log("AUTH", context.authType, context.auth?.uid);
 
 		return await index.saveObject({
-			objectID: snap.id,
-			id: snap.id,
 			...snap.data(),
+			id: snap.id,
+			objectID: snap.id,
 		});
 	});
 
@@ -60,7 +60,7 @@ export const onUserCreate = functions.auth.user().onCreate((user) => {
 		.doc(uid)
 		.set({
 			email: email,
-			displayName: displayName,
+			displayName: displayName || email,
 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
 		})
 		.then(() => {

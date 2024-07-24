@@ -193,7 +193,6 @@ const dropAnimationConfig: DropAnimation = {
 
 interface Props {
 	indentationWidth?: number;
-	indicator?: boolean;
 	removable?: boolean;
 	categories: TCategory[];
 }
@@ -207,34 +206,8 @@ export interface TreeItem extends TCategory {
 	children: TreeItem[];
 }
 
-function prepareData(categories: TCategory[], parents?: TCategory[]) {
-	const root = categories.filter((c) => !c.parentId);
-
-	const current = parents ?? root;
-
-	const x: TreeItem[] = [];
-
-	current.forEach((c) => {
-		const result: TreeItem = { ...c, children: [] };
-		const children = categories
-			.filter((child) => child.parentId === c.id)
-			.map((i) => ({ ...i, children: [] }));
-		result.children = children;
-
-		x.push(result);
-	});
-
-	return x.reduce((acc, item: any) => {
-		!parents?.length && (acc as any).push(item);
-		acc.push(...prepareData(categories, item.children));
-		return acc;
-	}, []);
-}
-
-export function SortableTree({ indicator = false, indentationWidth = 50, categories = [] }: Props) {
-	const [items, setItems] = useState<Item[]>(() => {
-		return prepareData(categories);
-	});
+export function CategoryTree({ indentationWidth = 50, categories = [] }: Props) {
+	const [items, setItems] = useState<TCategory[]>(categories);
 
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [overId, setOverId] = useState<string | null>(null);
@@ -288,7 +261,6 @@ export function SortableTree({ indicator = false, indentationWidth = 50, categor
 							value={name}
 							depth={id === activeId && projected ? projected.depth : depth}
 							indentationWidth={indentationWidth}
-							indicator={indicator}
 							// collapsed={Boolean(collapsed && children.length)}
 							// onCollapse={collapsible && children.length ? () => handleCollapse(id) : undefined}
 							// onRemove={removable ? () => handleRemove(id) : undefined}
@@ -296,10 +268,7 @@ export function SortableTree({ indicator = false, indentationWidth = 50, categor
 					);
 				})}
 				{createPortal(
-					<DragOverlay
-						dropAnimation={dropAnimationConfig}
-						modifiers={indicator ? [adjustTranslate] : undefined}
-					>
+					<DragOverlay dropAnimation={dropAnimationConfig} modifiers={[adjustTranslate]}>
 						{activeId && activeItem ? (
 							<TreeItem
 								id={activeId}
@@ -348,7 +317,6 @@ export function SortableTree({ indicator = false, indentationWidth = 50, categor
 			const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
 			const newItems = buildTree(sortedItems);
 			console.log(JSON.stringify(newItems));
-			
 
 			setItems(newItems as any);
 		}

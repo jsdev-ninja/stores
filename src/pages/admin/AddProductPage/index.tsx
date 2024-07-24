@@ -1,15 +1,30 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
 import { NewProductSchema } from "src/domains";
-import type { TNewProduct, TProduct } from "src/domains";
-import { TCategory } from "src/domains/Category";
+import { TProduct } from "src/domains";
+import { CategorySchema, TCategory } from "src/domains/Category";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate } from "src/navigation";
+import { flatten } from "src/utils";
+import { FlattenedItem } from "src/widgets/Category/CategoryTree/utils";
+import { z } from "zod";
+
+const newProductFormSchema = NewProductSchema.extend({
+	categories: z.array(CategorySchema),
+}).omit({
+	"categories.lvl0": true,
+	"categories.lvl1": true,
+	"categories.lvl2": true,
+	"categories.lvl3": true,
+	"categories.lvl4": true,
+});
+
+type TNewProduct = z.infer<typeof newProductFormSchema>;
 
 export function AddProductPage() {
-	const [categories, setCategories] = useState<Array<TCategory>>([]);
+	const [categories, setCategories] = useState<Array<TCategory & FlattenedItem>>([]);
 
 	const { t } = useTranslation(["admin", "common"]);
 
@@ -19,10 +34,32 @@ export function AddProductPage() {
 
 	console.log("rootCategories", rootCategories);
 
+	function renderParent(category?: TCategory): string {
+		if (!category) return "";
+
+		const parent = category.parentId
+			? categories.find((c) => c.id === category.parentId)
+			: undefined;
+
+		const sign = parent ? " > " : "";
+
+		return `${renderParent(parent)}${sign}${category.locales[0].value}`;
+	}
+
+	function renderCategory(category: TCategory & FlattenedItem) {
+		return (
+			<Fragment key={category.id}>
+				<Form.Select.Item key={category.id} value={category}>
+					{renderParent(category)}
+				</Form.Select.Item>
+			</Fragment>
+		);
+	}
+
 	useEffect(() => {
 		FirebaseApi.firestore
-			.list(FirebaseApi.firestore.collections.categories)
-			.then((res) => setCategories(res.data ?? []));
+			.get("dhXXgvpn1wyTfqxoQfr0", FirebaseApi.firestore.collections.categories)
+			.then((res) => setCategories(flatten(res.data.categories) ?? []));
 	}, []);
 
 	const title = t("admin:productForm.add.title");
@@ -32,7 +69,7 @@ export function AddProductPage() {
 			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
 			<Form<TNewProduct>
 				className="flex flex-wrap flex-col gap-4 mx-auto mt-10  p-4 justify-center"
-				schema={NewProductSchema}
+				// schema={newProductFormSchema}
 				defaultValues={{
 					locales: [{ lang: "he" }],
 					vat: false,
@@ -43,14 +80,29 @@ export function AddProductPage() {
 					},
 					currency: "ILS",
 					images: undefined,
+					objectID: "",
 				}}
 				onSubmit={async (data) => {
 					console.log("SUBMIT", data);
 
 					const { images, ...rest } = data;
+					const categories = data.categories as unknown as (TCategory & FlattenedItem)[];
+
+					console.log("categories", categories);
+
+					const categoryProps = {
+						lvl0: categories.filter((c) => c.depth === 0).map((c) => c.locales[0].value),
+						lvl1: categories.filter((c) => c.depth === 1).map((c) => renderParent(c)),
+						lvl2: categories.filter((c) => c.depth === 2).map((c) => c.locales[0].value),
+						lvl3: categories.filter((c) => c.depth === 3).map((c) => c.locales[0].value),
+						lvl4: categories.filter((c) => c.depth === 4).map((c) => c.locales[0].value),
+					};
+
+					console.log("categoryProps", categoryProps);
 
 					const product: Partial<TProduct> = {
 						...rest,
+						hierarchicalCategories: categoryProps,
 					};
 
 					if (images) {
@@ -100,31 +152,7 @@ export function AddProductPage() {
 						name="categories"
 						placeholder={"select category"}
 					>
-						{rootCategories.map((category) => {
-							const sub = categories.filter((c) => c.parentId === category.id);
-							return (
-								<>
-									<Form.Select.Item
-										key={category.id}
-										value={{ id: category.id, tag: category.tag }}
-									>
-										{category.locales[0].value}
-									</Form.Select.Item>
-									{sub.map((subCategory) => {
-										return (
-											<>
-												<Form.Select.Item
-													key={subCategory.id}
-													value={{ id: subCategory.id, tag: subCategory.tag }}
-												>
-													({category.locales[0].value}) {subCategory.locales[0].value}
-												</Form.Select.Item>
-											</>
-										);
-									})}
-								</>
-							);
-						})}
+						{categories.map(renderCategory)}
 					</Form.Select>
 				</div>
 				<div className="my-4 flex items-center gap-2">

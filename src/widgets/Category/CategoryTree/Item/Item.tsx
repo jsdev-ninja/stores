@@ -70,7 +70,6 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "id">
 	disableSelection?: boolean;
 	ghost?: boolean;
 	handleProps?: any;
-	indicator?: boolean;
 	indentationWidth: number;
 	value: string;
 	onCollapse?(): void;
@@ -86,7 +85,6 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 		childCount,
 		clone,
 		indentationWidth,
-		indicator,
 		collapsed,
 		onCollapse,
 		onRemove,
@@ -117,7 +115,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 					styles.Wrapper,
 					clone && styles.clone,
 					isDragging && styles.ghost,
-					indicator && styles.indicator,
+					styles.indicator,
 					iOS && styles.disableSelection,
 					isSorting && styles.disableInteraction
 				)}
