@@ -334,7 +334,7 @@ export function CategoryTree({ indentationWidth = 50, categories = [], setCatego
 			console.log(JSON.stringify(newItems));
 
 			setItems(newItems as any);
-			setCategories(newItems);
+			setCategories(newItems as any);
 		}
 	}
 

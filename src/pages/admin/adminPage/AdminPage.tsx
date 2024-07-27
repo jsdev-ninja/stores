@@ -1,5 +1,5 @@
 import { List } from "src/components/List";
-import { Link, Route, navigate, routes } from "src/navigation";
+import { Route, navigate, routes } from "src/navigation";
 import { AddProductPage } from "../AddProductPage";
 import { AdminProductsPage } from "../AdminProductsPage";
 import { AdminCategoriesPages } from "../AdminCategoriesPages";

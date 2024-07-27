@@ -58,8 +58,11 @@ export function AddProductPage() {
 
 	useEffect(() => {
 		FirebaseApi.firestore
-			.get("dhXXgvpn1wyTfqxoQfr0", FirebaseApi.firestore.collections.categories)
-			.then((res) => setCategories(flatten(res.data.categories) ?? []));
+			.get<{ id: string; categories: TCategory[] }>(
+				"dhXXgvpn1wyTfqxoQfr0",
+				FirebaseApi.firestore.collections.categories
+			)
+			.then((res) => setCategories(flatten(res.data?.categories ?? [])));
 	}, []);
 
 	const title = t("admin:productForm.add.title");
@@ -69,7 +72,7 @@ export function AddProductPage() {
 			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
 			<Form<TNewProduct>
 				className="flex flex-wrap flex-col gap-4 mx-auto mt-10  p-4 justify-center"
-				// schema={newProductFormSchema}
+				schema={newProductFormSchema}
 				defaultValues={{
 					locales: [{ lang: "he" }],
 					vat: false,
@@ -102,7 +105,7 @@ export function AddProductPage() {
 
 					const product: Partial<TProduct> = {
 						...rest,
-						hierarchicalCategories: categoryProps,
+						// hierarchicalCategories: categoryProps,
 					};
 
 					if (images) {

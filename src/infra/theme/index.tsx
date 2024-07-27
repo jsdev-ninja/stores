@@ -7,4 +7,13 @@ type TTheme = {
 	};
 };
 
-export const useTheme = () => {};
+export const useTheme = (): TTheme => {
+	return {
+		colors: {
+			onPrimary: "",
+			onSecondary: "",
+			primary: "",
+			secondary: "",
+		},
+	};
+};

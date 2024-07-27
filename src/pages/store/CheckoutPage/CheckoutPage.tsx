@@ -25,7 +25,9 @@ function CheckoutPage() {
 					status: "pending",
 					storeId: store.id,
 					paymentStatus: "notPaid",
+					date: Date.now(),
 				});
+				console.log("response", response);
 			}}
 			className="flex-grow  flex flex-col  sm:container sm:mx-auto"
 		>

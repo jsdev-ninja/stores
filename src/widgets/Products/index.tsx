@@ -13,12 +13,12 @@ import type { Hit as AlgoliaHit } from "instantsearch.js";
 
 export function ProductsWidget({
 	children,
-	categories,
+	// categories,
 }: {
 	children: ReactNode;
 	categories?: string;
 }) {
-	const filter = categories ? `categories.tag:${categories}` : "";
+	// const filter = categories ? `categories.tag:${categories}` : "";
 	return (
 		<InstantSearch
 			searchClient={AlgoliaClient}

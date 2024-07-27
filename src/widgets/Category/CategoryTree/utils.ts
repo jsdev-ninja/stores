@@ -1,9 +1,10 @@
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { TCategory } from "src/domains/Category";
 
 export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
 
-export interface TreeItem {
+export interface TreeItem extends TCategory {
 	id: string;
 	children: TreeItem[];
 }
@@ -107,7 +108,7 @@ export function flattenTree(items: TreeItems): FlattenedItem[] {
 }
 
 export function buildTree(flattenedItems: FlattenedItem[]): TreeItems {
-	const root: TreeItem = { id: "root", children: [] };
+	const root: TreeItem = { id: "root", children: [] } as any;
 	const nodes: Record<string, TreeItem> = { [root.id]: root };
 	const items = flattenedItems.map((item) => ({ ...item, children: [] }));
 
@@ -116,7 +117,7 @@ export function buildTree(flattenedItems: FlattenedItem[]): TreeItems {
 		const parentId = item.parentId ?? root.id;
 		const parent = nodes[parentId] ?? findItem(items, parentId);
 
-		nodes[id] = { id, children };
+		nodes[id] = { id, children } as any;
 		parent.children.push(item);
 	}
 

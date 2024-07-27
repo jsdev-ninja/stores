@@ -33,7 +33,7 @@ export function Form<T extends FieldValues>(props: Props<T>) {
 
 	return (
 		<FormProvider<T> {...form}>
-			<form onSubmit={form.handleSubmit((data) => onSubmit(data, form))} className={className}>
+			<form onSubmit={form.handleSubmit((data) => onSubmit(data, form as any))} className={className}>
 				{children}
 			</form>
 		</FormProvider>
