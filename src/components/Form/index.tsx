@@ -10,6 +10,7 @@ import { Input } from "./Input";
 import { Submit } from "./Submit";
 import { ErrorMessage, GlobalError } from "./ErrorMessage";
 import { Field } from "./Field";
+import { Locales } from "./Locales";
 
 type Props<T extends FieldValues> = {
 	schema: ZodSchema;
@@ -33,7 +34,10 @@ export function Form<T extends FieldValues>(props: Props<T>) {
 
 	return (
 		<FormProvider<T> {...form}>
-			<form onSubmit={form.handleSubmit((data) => onSubmit(data, form as any))} className={className}>
+			<form
+				onSubmit={form.handleSubmit((data) => onSubmit(data, form as any))}
+				className={className}
+			>
 				{children}
 			</form>
 		</FormProvider>
@@ -48,3 +52,4 @@ Form.File = FileInput;
 Form.GlobalError = GlobalError;
 Form.Field = Field;
 Form.Submit = Submit;
+Form.Locales = Locales;
