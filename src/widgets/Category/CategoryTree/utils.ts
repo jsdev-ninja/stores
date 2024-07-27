@@ -14,6 +14,7 @@ export interface FlattenedItem extends TreeItem {
 	parentId: string | null;
 	depth: number;
 	index: number;
+	collapsed?: boolean;
 }
 
 function getDragDepth(offset: number, indentationWidth: number) {

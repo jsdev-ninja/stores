@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
 	DndContext,
@@ -26,6 +26,8 @@ import { TCategory } from "src/domains/Category";
 import { buildTree, flattenTree, removeChildrenOf } from "./utils";
 
 export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
+
+export type TreeItems = TreeItem[];
 
 function getDragDepth(offset: number, indentationWidth: number) {
 	return Math.round(offset / indentationWidth);
@@ -107,43 +109,23 @@ function findItem(items: TCategory[], itemId: string) {
 	return items.find(({ id }) => id === itemId);
 }
 
-// function removeItem(items: TreeItems, id: string) {
-// 	const newItems = [];
+function removeItem(items: TreeItems, id: string) {
+	const newItems = [];
 
-// 	for (const item of items) {
-// 		if (item.id === id) {
-// 			continue;
-// 		}
+	for (const item of items) {
+		if (item.id === id) {
+			continue;
+		}
 
-// 		if (item.children.length) {
-// 			item.children = removeItem(item.children, id);
-// 		}
+		if (item.children.length) {
+			item.children = removeItem(item.children, id);
+		}
 
-// 		newItems.push(item);
-// 	}
+		newItems.push(item);
+	}
 
-// 	return newItems;
-// }
-
-// function setProperty<T extends keyof TreeItem>(
-// 	items: TreeItems,
-// 	id: string,
-// 	property: T,
-// 	setter: (value: TreeItem[T]) => TreeItem[T]
-// ) {
-// 	for (const item of items) {
-// 		if (item.id === id) {
-// 			item[property] = setter(item[property]);
-// 			continue;
-// 		}
-
-// 		if (item.children.length) {
-// 			item.children = setProperty(item.children, id, property, setter);
-// 		}
-// 	}
-
-// 	return [...items];
-// }
+	return newItems;
+}
 
 export interface TreeItem {
 	id: string;
@@ -193,8 +175,8 @@ const dropAnimationConfig: DropAnimation = {
 
 interface Props {
 	indentationWidth?: number;
-	removable?: boolean;
 	categories: TCategory[];
+	setCategories: (categories: TCategory[]) => void;
 }
 
 export interface Item extends TCategory {
@@ -206,17 +188,28 @@ export interface TreeItem extends TCategory {
 	children: TreeItem[];
 }
 
-export function CategoryTree({ indentationWidth = 50, categories = [] }: Props) {
+export function CategoryTree({ indentationWidth = 50, categories = [], setCategories }: Props) {
 	const [items, setItems] = useState<TCategory[]>(categories);
+
+	useEffect(() => {
+		setItems(categories);
+	}, [categories]);
 
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [overId, setOverId] = useState<string | null>(null);
 	const [offsetLeft, setOffsetLeft] = useState(0);
 
 	const flattenedItems = useMemo(() => {
-		const flattenedTree = flattenTree(items as any);
+		const flattenedTree = flattenTree(items);
 
-		return removeChildrenOf(flattenedTree, activeId ? [activeId] : []);
+		const collapsedItems = flattenedTree.reduce<string[]>(
+			(acc, { children, collapsed, id }) => (collapsed && children.length ? [...acc, id] : acc),
+			[]
+		);
+		return removeChildrenOf(
+			flattenedTree,
+			activeId ? [activeId, ...collapsedItems] : collapsedItems
+		);
 	}, [activeId, items]);
 
 	const projected =
@@ -234,56 +227,78 @@ export function CategoryTree({ indentationWidth = 50, categories = [] }: Props) 
 		return item ? countChildren(item) : 0;
 	}
 
+	function setProperty<T extends keyof TreeItem>(
+		items: TreeItems,
+		id: string,
+		property: T,
+		setter: (value: TreeItem[T]) => TreeItem[T]
+	) {
+		for (const item of items) {
+			if (item.id === id) {
+				item[property] = setter(item[property]);
+				continue;
+			}
+
+			if (item.children.length) {
+				item.children = setProperty(item.children, id, property, setter);
+			}
+		}
+
+		return [...items];
+	}
+
 	const sensors = useSensors(useSensor(PointerSensor));
 
 	const sortedIds = useMemo(() => flattenedItems.map(({ id }) => id), [flattenedItems]);
 	const activeItem = activeId ? flattenedItems.find(({ id }) => id === activeId) : null;
 
 	return (
-		<DndContext
-			sensors={sensors}
-			collisionDetection={closestCenter}
-			measuring={measuring}
-			onDragStart={handleDragStart}
-			onDragMove={handleDragMove}
-			onDragOver={handleDragOver}
-			onDragEnd={handleDragEnd}
-			onDragCancel={handleDragCancel}
-		>
-			<SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
-				{flattenedItems.map(({ id, locales, depth }: any) => {
-					const name = locales[0].value;
+		<div className="w-full">
+			<DndContext
+				sensors={sensors}
+				collisionDetection={closestCenter}
+				measuring={measuring}
+				onDragStart={handleDragStart}
+				onDragMove={handleDragMove}
+				onDragOver={handleDragOver}
+				onDragEnd={handleDragEnd}
+				onDragCancel={handleDragCancel}
+			>
+				<SortableContext items={sortedIds} strategy={verticalListSortingStrategy}>
+					{flattenedItems.map(({ id, locales, depth, children, collapsed }) => {
+						const name = locales[0].value;
 
-					return (
-						<TreeItem
-							key={id}
-							id={id}
-							value={name}
-							depth={id === activeId && projected ? projected.depth : depth}
-							indentationWidth={indentationWidth}
-							// collapsed={Boolean(collapsed && children.length)}
-							// onCollapse={collapsible && children.length ? () => handleCollapse(id) : undefined}
-							// onRemove={removable ? () => handleRemove(id) : undefined}
-						/>
-					);
-				})}
-				{createPortal(
-					<DragOverlay dropAnimation={dropAnimationConfig} modifiers={[adjustTranslate]}>
-						{activeId && activeItem ? (
+						return (
 							<TreeItem
-								id={activeId}
-								depth={activeItem.depth}
-								clone
-								childCount={getChildCount(items, activeId) + 1}
-								value={(activeItem as any)?.locales[0].value}
+								key={id}
+								id={id}
+								value={name}
+								depth={id === activeId && projected ? projected.depth : depth}
 								indentationWidth={indentationWidth}
+								collapsed={Boolean(collapsed && children.length)}
+								onCollapse={children.length ? () => handleCollapse(id) : undefined}
+								onRemove={() => handleRemove(id)}
 							/>
-						) : null}
-					</DragOverlay>,
-					document.body
-				)}
-			</SortableContext>
-		</DndContext>
+						);
+					})}
+					{createPortal(
+						<DragOverlay dropAnimation={dropAnimationConfig} modifiers={[adjustTranslate]}>
+							{activeId && activeItem ? (
+								<TreeItem
+									id={activeId}
+									depth={activeItem.depth}
+									clone
+									childCount={getChildCount(items, activeId) + 1}
+									value={(activeItem as any)?.locales[0].value}
+									indentationWidth={indentationWidth}
+								/>
+							) : null}
+						</DragOverlay>,
+						document.body
+					)}
+				</SortableContext>
+			</DndContext>
+		</div>
 	);
 
 	function handleDragStart({ active }: DragStartEvent) {
@@ -319,6 +334,7 @@ export function CategoryTree({ indentationWidth = 50, categories = [] }: Props) 
 			console.log(JSON.stringify(newItems));
 
 			setItems(newItems as any);
+			setCategories(newItems);
 		}
 	}
 
@@ -334,17 +350,17 @@ export function CategoryTree({ indentationWidth = 50, categories = [] }: Props) 
 		document.body.style.setProperty("cursor", "");
 	}
 
-	// function handleRemove(id: string) {
-	// 	// setItems((items) => removeItem(items, id));
-	// }
+	function handleRemove(id: string) {
+		setItems((items) => removeItem(items, id));
+	}
 
-	// function handleCollapse(id: string) {
-	// 	setItems((items) =>
-	// 		setProperty(items, id, "collapsed", (value) => {
-	// 			return !value;
-	// 		})
-	// 	);
-	// }
+	function handleCollapse(id: string) {
+		setItems((items) =>
+			setProperty(items, id, "collapsed", (value) => {
+				return !value;
+			})
+		);
+	}
 }
 
 const adjustTranslate: Modifier = ({ transform }) => {

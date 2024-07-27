@@ -21,7 +21,7 @@ export type TLocale = z.infer<typeof LocaleSchema>;
 export type NestedKeys<T> = {
 	[K in keyof T]: T[K] extends Array<infer U>
 		? K extends string
-			? `${K}` | `${K}[${number}]` | `${K}[${number}].${NestedKeys<U>}`
+			? `${K}` | `${K}[${number}]` | (U extends T ? never : `${K}[${number}].${NestedKeys<U>}`)
 			: never
 		: T[K] extends object
 		? K extends string

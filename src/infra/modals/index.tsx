@@ -5,6 +5,7 @@ import { store, useAppSelector } from "../store";
 import { AddProductModal } from "src/features/product/addProduct/AddProductModal";
 import { AuthModal } from "src/features/auth";
 import { ModalsContainer } from "./Base";
+import { CategoryFormModal } from "src/features/category/CategoryFormModal";
 
 type Modal = {
 	id: string;
@@ -20,6 +21,10 @@ const modals = {
 		return <AddProductModal />;
 	},
 	authModal: () => <AuthModal />,
+
+	categoryFormModal: ({ categoryId }: { categoryId: string }) => (
+		<CategoryFormModal categoryId={categoryId} />
+	),
 };
 
 // Define the initial state using that type

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "src/components/Button/Button";
 // import { List } from "src/components/List";
 import { TCategory } from "src/domains/Category";
 import { FirebaseApi } from "src/lib/firebase";
@@ -23,19 +24,37 @@ export function AdminCategoriesPages() {
 	}, []);
 	console.log("categories", categories);
 
+	function addCategory() {
+		setCategories([
+			{
+				children: [],
+				companyId: "",
+				id: crypto.randomUUID(),
+				locales: [{ lang: "he", value: "new category" }],
+				tag: "",
+				storeId: "",
+				parentId: "",
+			},
+			...categories,
+		]);
+	}
+
+	// todo: fix ltr
 	return (
-		<div className="w-full border p-20 ltr">
-			<div className=""></div>
-			{!!categories.length && <CategoryTree categories={categories} removable />}
-			{/* <div className="w-full">
-				<List>
-					{categories.map((category) => {
-						return <List.Item key={category.id}>{category.locales[0].value}</List.Item>;
-					})}
-				</List>
+		<div className="w-full border p-20 ltr flex flex-grow  gap-5">
+			{!!categories.length && (
+				<CategoryTree setCategories={setCategories} categories={categories} />
+			)}
+			<div className="border w-80 p-4 flex flex-col sticky top-20 h-[80vh] self-start">
+				<div className="">
+					<Button fullWidth onClick={addCategory}>
+						Add Category
+					</Button>
+				</div>
+				<div className="mt-auto">
+					<Button>Save</Button>
+				</div>
 			</div>
-			<hr className="mt-16 w-full" />
-			<Link to="admin.addCategory">add category</Link> */}
 		</div>
 	);
 }

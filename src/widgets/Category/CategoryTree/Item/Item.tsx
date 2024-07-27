@@ -5,6 +5,8 @@ import styles from "./style.module.css";
 import styles2 from "./A.module.css";
 import { AnimateLayoutChanges, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Icon } from "src/components";
+import { modalApi } from "src/infra/modals";
 export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
 
 export interface AProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -35,6 +37,7 @@ export const Action = forwardRef<HTMLButtonElement, AProps>(
 		);
 	}
 );
+
 export function Remove(props: AProps) {
 	return (
 		<Action
@@ -109,6 +112,8 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 			transition,
 		};
 
+		console.log("clone", clone, childCount);
+
 		return (
 			<li
 				className={classNames(
@@ -129,19 +134,30 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 			>
 				<div className={styles.TreeItem} ref={setDraggableNodeRef} style={style}>
 					<Handle {...attributes} {...listeners} />
-					{/* {onCollapse && (
-						<Action
-							onClick={onCollapse}
-							className={classNames(styles.Collapse, collapsed && styles.collapsed)}
-						>
-							{collapseIcon}
-						</Action>
-					)} */}
-					<span className={styles.Text}>{value}</span>
-					{!clone && onRemove && <Remove onClick={onRemove} />}
-					{clone && childCount && childCount > 1 ? (
-						<span className={styles.Count}>{childCount}</span>
-					) : null}
+					<span className="mx-5">{value}</span>
+					<div className="flex items-center gap-5 ms-auto">
+						<Icon
+							size="sm"
+							name="edit"
+							onClick={() => {
+								modalApi.openModal("categoryFormModal", { categoryId: id });
+							}}
+						/>
+						{!clone && onRemove && <Remove onClick={onRemove} />}
+						{onCollapse && (
+							<Action
+								onClick={onCollapse}
+								className={classNames({
+									[styles2.collapsed]: collapsed,
+								})}
+							>
+								{collapseIcon}
+							</Action>
+						)}
+						{clone && childCount && childCount > 1 ? (
+							<span className={styles.Count}>{childCount}</span>
+						) : null}
+					</div>
 				</div>
 			</li>
 		);

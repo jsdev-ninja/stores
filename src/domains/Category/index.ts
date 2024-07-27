@@ -12,6 +12,8 @@ export const BaseCategorySchema = z.object({
 	locales: z.array(LocaleSchema),
 });
 
+BaseCategorySchema.omit;
+
 type Category = z.infer<typeof BaseCategorySchema> & {
 	children: Category[];
 };
@@ -20,7 +22,10 @@ export const CategorySchema: z.ZodType<Category> = BaseCategorySchema.extend({
 	children: z.lazy(() => CategorySchema.array()),
 });
 
-export type TCategory = z.infer<typeof CategorySchema>;
+// export type TCategory = z.infer<typeof CategorySchema>;
+export type TCategory = z.infer<typeof BaseCategorySchema> & {
+	children: TCategory[];
+};
 
 //  STORE
 type TCategoryState = {
