@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ReactNode } from "react";
-import { DefaultValues, FieldValues, FormProvider, UseFormReturn, useForm } from "react-hook-form";
+import {
+	DefaultValues,
+	FieldErrors,
+	FieldValues,
+	FormProvider,
+	UseFormReturn,
+	useForm,
+} from "react-hook-form";
 import type { ZodSchema } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Select } from "./Select";
@@ -18,10 +25,11 @@ type Props<T extends FieldValues> = {
 	onSubmit: (data: T, form: UseFormReturn) => void;
 	defaultValues?: DefaultValues<T>;
 	className?: string;
+	onError?: (errors: FieldErrors<T>) => void;
 };
 
 export function Form<T extends FieldValues>(props: Props<T>) {
-	const { children, schema, onSubmit, defaultValues, className } = props;
+	const { children, schema, defaultValues, className, onSubmit, onError } = props;
 
 	const form = useForm({
 		resolver: schema && zodResolver(schema),
@@ -35,7 +43,7 @@ export function Form<T extends FieldValues>(props: Props<T>) {
 	return (
 		<FormProvider<T> {...form}>
 			<form
-				onSubmit={form.handleSubmit((data) => onSubmit(data, form as any))}
+				onSubmit={form.handleSubmit((data) => onSubmit(data, form as any), onError)}
 				className={className}
 			>
 				{children}
