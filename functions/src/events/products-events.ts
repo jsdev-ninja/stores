@@ -7,26 +7,26 @@ export const updateProductsCategory = functions.https.onRequest(async (req, res)
 
 		const size = 500;
 
-		const categories = [
-			{
-				id: 1,
-				name: "products",
-				children: [
-					{
-						name: "fruits",
-					},
-				],
-			},
-			{
-				id: 1,
-				name: "goods",
-				children: [
-					{
-						name: "to eat",
-					},
-				],
-			},
-		];
+		// const categories = [
+		// 	{
+		// 		id: 1,
+		// 		name: "products",
+		// 		children: [
+		// 			{
+		// 				name: "fruits",
+		// 			},
+		// 		],
+		// 	},
+		// 	{
+		// 		id: 1,
+		// 		name: "goods",
+		// 		children: [
+		// 			{
+		// 				name: "to eat",
+		// 			},
+		// 		],
+		// 	},
+		// ];
 
 		const productsRef = db.collection("test");
 		const shapshot = await productsRef.count().get();
@@ -57,6 +57,7 @@ export const updateProductsCategory = functions.https.onRequest(async (req, res)
 			products.forEach((product) => {
 				const id = product.id;
 				const data = product.data();
+				console.log("data", data);
 
 				const docRef = db.collection("products").doc(id);
 				batch.update(docRef, { population: 1000000 });
