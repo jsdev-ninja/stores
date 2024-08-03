@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
-import { NewProductSchema } from "src/domains";
+import { ProductSchema } from "src/domains";
 import { TProduct } from "src/domains";
 import { CategorySchema, TCategory } from "src/domains/Category";
 import { FirebaseApi } from "src/lib/firebase";
@@ -11,17 +11,24 @@ import { flatten } from "src/utils";
 import { FlattenedItem } from "src/widgets/Category/CategoryTree/utils";
 import { z } from "zod";
 
-const newProductFormSchema = NewProductSchema.extend({
-	categories: z.array(CategorySchema),
-}).omit({
+const NewProductSchema = ProductSchema.omit({
+	id: true,
+	images: true,
 	"categories.lvl0": true,
 	"categories.lvl1": true,
 	"categories.lvl2": true,
 	"categories.lvl3": true,
 	"categories.lvl4": true,
-});
+}).merge(
+	z.object({
+		images: z.instanceof(File).optional(),
+		categories: z.array(CategorySchema),
+	})
+);
 
-type TNewProduct = z.infer<typeof newProductFormSchema>;
+export type TNewProduct = z.infer<typeof NewProductSchema>;
+
+const newProductFormSchema = NewProductSchema.extend({}).omit({});
 
 export function AddProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory & FlattenedItem>>([]);
@@ -74,16 +81,16 @@ export function AddProductPage() {
 				className="flex flex-wrap flex-col gap-4 mx-auto mt-10  p-4 justify-center"
 				schema={newProductFormSchema}
 				defaultValues={{
-					locales: [{ lang: "he" }],
+					locales: [{ lang: "he", value: "" }],
 					vat: false,
 					ingredients: [],
-					unit: {
+					priceType: {
 						type: "unit",
 						value: 1,
 					},
 					currency: "ILS",
-					images: undefined,
 					objectID: "",
+					categories: [],
 				}}
 				onSubmit={async (data) => {
 					console.log("SUBMIT", data);
@@ -105,8 +112,10 @@ export function AddProductPage() {
 
 					const product: Partial<TProduct> = {
 						...rest,
-						// hierarchicalCategories: categoryProps,
+						categories: { ...categoryProps },
 					};
+
+					console.log("product", product);
 
 					if (images) {
 						console.log("images", images, 1);
@@ -161,14 +170,14 @@ export function AddProductPage() {
 				<div className="my-4 flex items-center gap-2">
 					<label htmlFor="">unit type</label>
 					<div className="w-44">
-						<Form.Select<TNewProduct> name="unit.type" placeholder={"select unit"}>
+						<Form.Select<TNewProduct> name="priceType.type" placeholder={"select unit"}>
 							<Form.Select.Item value="unit">unit</Form.Select.Item>
 							<Form.Select.Item value="kg">kg</Form.Select.Item>
 							<Form.Select.Item value="gram">gram</Form.Select.Item>
 						</Form.Select>
 					</div>
 					<div className="w-32">
-						<Form.Input<TNewProduct> type="number" name="unit.value" />
+						<Form.Input<TNewProduct> type="number" name="priceType.value" />
 					</div>
 				</div>
 				<div className="my-4">

@@ -3,23 +3,18 @@ import { z } from "zod";
 
 const text = z.string();
 export const ProductSchema = z.object({
+	storeId: text,
+	companyId: text,
 	id: z.string(),
 	sku: text,
 	description: z.string().optional(),
 	vat: z.boolean(),
-	unit: z.object({
+	priceType: z.object({
 		type: z.enum(["unit", "kg", "gram", "liter", "ml"]),
 		value: z.number(),
 	}),
 	price: z.number(),
 	currency: z.literal("ILS"),
-	// @deprecated
-	categories: z
-		.object({
-			tag: z.string(),
-			id: z.string(),
-		})
-		.array(),
 	discount: z
 		.object({
 			type: z.enum(["number", "percent"]),
@@ -49,22 +44,13 @@ export const ProductSchema = z.object({
 
 	// algolia
 	objectID: z.string(),
-	"categories.lvl0": z.array(z.string()),
-	"categories.lvl1": z.array(z.string()),
-	"categories.lvl2": z.array(z.string()),
-	"categories.lvl3": z.array(z.string()),
-	"categories.lvl4": z.array(z.string()),
+	categories: z.object({
+		lvl0: z.array(z.string()),
+		lvl1: z.array(z.string()),
+		lvl2: z.array(z.string()),
+		lvl3: z.array(z.string()),
+		lvl4: z.array(z.string()),
+	}),
 });
 
-export const NewProductSchema = ProductSchema.omit({
-	id: true,
-	images: true,
-}).merge(
-	z.object({
-		images: z.instanceof(File).optional(),
-	})
-);
 export type TProduct = z.infer<typeof ProductSchema>;
-export type TNewProduct = z.infer<typeof NewProductSchema>;
-
-export type ProductUnitType = "unit" | "kg" | "gram" | "liter" | "ml";

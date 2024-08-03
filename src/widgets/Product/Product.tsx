@@ -7,7 +7,7 @@ import { tv } from "tailwind-variants";
 import { ProductName } from "./ProductName";
 import { ProductSku } from "./ProductSku";
 import { ProductVat } from "./ProductVat";
-import { ProductUnit } from "./ProductUnit";
+import { ProductPriceType } from "./ProductPriceType";
 import { ProductDiscount } from "./ProductDiscount";
 import { ProductVolume } from "./ProductVolume";
 import { ProductWeight } from "./ProductWeight";
@@ -66,10 +66,13 @@ Product.Price = function Price() {
 		currency: product.currency,
 	}).format(finalPrice);
 
+	console.log('product',product.discount);
+	
+
 	return (
 		<div className="flex gap-1 items-center">
 			<div className="text-secondary-main font-semibold">{finalPriceView}</div>
-			<div className="text-gray-400 line-through">{priceView}</div>
+			{!!product.discount && <div className="text-gray-400 line-through">{priceView}</div>}
 		</div>
 	);
 };
@@ -94,7 +97,7 @@ Product.CartButton = ProductCartButton;
 Product.Name = ProductName;
 Product.Sku = ProductSku;
 Product.Vat = ProductVat;
-Product.Unit = ProductUnit;
+Product.PriceType = ProductPriceType;
 Product.Discount = ProductDiscount;
 Product.Volume = ProductVolume;
 Product.Weight = ProductWeight;

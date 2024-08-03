@@ -1,23 +1,13 @@
-import {
-	Configure,
-	HierarchicalMenu,
-	InstantSearch,
-	SearchBox,
-	useHits,
-} from "react-instantsearch";
+import { Configure, InstantSearch, useInfiniteHits } from "react-instantsearch";
 import { TProduct } from "src/domains";
 import { AlgoliaClient } from "src/services";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 
 import type { Hit as AlgoliaHit } from "instantsearch.js";
+import { ProductFilter } from "./ProductFilter/ProductFilter";
+import { SearchBox } from "./SearchBox";
 
-export function ProductsWidget({
-	children,
-	// categories,
-}: {
-	children: ReactNode;
-	categories?: string;
-}) {
+export function ProductsWidget({ children }: { children: ReactNode }) {
 	// const filter = categories ? `categories.tag:${categories}` : "";
 	return (
 		<InstantSearch
@@ -32,38 +22,48 @@ export function ProductsWidget({
 				//  filters={filter}
 				attributesToHighlight={[]}
 			/>
-			<div className="min-h-32 min-w-32 border">
-				<HierarchicalMenu
-					attributes={[
-						"hierarchicalCategories.lvl0",
-						"hierarchicalCategories.lvl1",
-						"hierarchicalCategories.lvl2",
-						"hierarchicalCategories.lvl3",
-					]}
-				/>
-			</div>
 			{children}
 		</InstantSearch>
 	);
 }
 
+ProductsWidget.Filter = ProductFilter;
 ProductsWidget.Products = Products;
+ProductsWidget.SearchBox = SearchBox;
+
 
 export function Products({
 	children,
 }: {
 	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
 }) {
-	const result = useHits<TProduct>();
-	console.log("result", result.items);
+	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>();
+	console.log("useInfiniteHits", items);
 
-	return children(result.items);
-}
+	const sentinelRef = useRef(null);
 
-export function ProductsSearch() {
+	useEffect(() => {
+		if (sentinelRef.current !== null) {
+			const observer = new IntersectionObserver((entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting && !isLastPage) {
+						showMore();
+					}
+				});
+			});
+
+			observer.observe(sentinelRef.current);
+
+			return () => {
+				observer.disconnect();
+			};
+		}
+	}, [isLastPage, showMore]);
+
 	return (
-		<div className="w-full">
-			<SearchBox />
-		</div>
+		<>
+			{children(items)}
+			<div ref={sentinelRef} aria-hidden="true" />
+		</>
 	);
 }

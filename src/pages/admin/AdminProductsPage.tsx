@@ -3,16 +3,13 @@ import { Button } from "src/components/Button/Button";
 import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
-import { ProductsSearch, ProductsWidget } from "src/widgets/Products";
+import { ProductsWidget } from "src/widgets/Products";
 
 export function AdminProductsPage() {
 	return (
 		<ProductsWidget>
 			<div className="">
 				<div className="p-4 flex items-center gap-4">
-					<div className="flex-grow">
-						<ProductsSearch />
-					</div>
 					<Button onClick={() => navigate("admin.addProduct")}>Create Product</Button>
 				</div>
 
@@ -51,7 +48,7 @@ export function AdminProductsPage() {
 											<Product.Vat />
 											<div className="flex gap-1">
 												type:
-												<Product.Unit />
+												<Product.PriceType />
 											</div>
 											<div className="flex gap-1">
 												Weight:

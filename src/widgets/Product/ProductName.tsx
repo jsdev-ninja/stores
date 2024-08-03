@@ -2,7 +2,7 @@ import { VariantProps, tv } from "tailwind-variants";
 import { useProduct } from "./useProduct";
 
 const style = tv({
-	base: "text-text-primary  font-semibold",
+	base: "text-text-primary  font-semibold inline",
 	variants: {
 		size: {
 			sm: "text-sm",

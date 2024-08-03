@@ -1,12 +1,12 @@
 import { useProduct } from "./useProduct";
 
-export function ProductUnit() {
+export function ProductPriceType() {
 	const { product } = useProduct();
 	if (!product) return null;
 
 	return (
 		<div className="text-gray-400">
-			{product.unit.type} {product.unit.value}
+			{product.priceType.type} {product.priceType.value}
 		</div>
 	);
 }

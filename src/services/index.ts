@@ -11,7 +11,7 @@ export const productIndex = AlgoliaClient.initIndex("products");
 
 function init() {
 	productIndex.setSettings({
-		attributesForFaceting: ["categories"],
+		// attributesForFaceting: ["categories"],
 	});
 }
 

@@ -6,6 +6,7 @@ import { modalApi } from "src/infra/modals";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { Icon } from "src/components";
+import { ProductsWidget } from "../Products";
 
 export function AppBar() {
 	const { t } = useTranslation();
@@ -33,6 +34,9 @@ export function AppBar() {
 						navigate("store");
 					}}
 				/>
+			</div>
+			<div className="mx-4  w-full">
+				<ProductsWidget.SearchBox />
 			</div>
 			<div className="ms-auto">
 				{!!user && !user.isAnonymous ? (

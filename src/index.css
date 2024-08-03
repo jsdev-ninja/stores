@@ -16,4 +16,10 @@
 	.page-with-header {
 		height: calc(100vh - 64px);
 	}
+
+	.ellipsis {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
 }
