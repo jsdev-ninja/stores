@@ -1,4 +1,3 @@
-import { HierarchicalMenu } from "react-instantsearch";
 import { Button } from "src/components/Button/Button";
 import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
@@ -9,22 +8,16 @@ export function AdminProductsPage() {
 	return (
 		<ProductsWidget>
 			<div className="">
-				<div className="p-4 flex items-center gap-4">
-					<Button onClick={() => navigate("admin.addProduct")}>Create Product</Button>
+				<div className="flex items-center">
+					<div className="mx-4 flex-grow">
+						<ProductsWidget.SearchBox />
+					</div>
+					<div className="p-4 flex items-center gap-4">
+						<Button onClick={() => navigate("admin.addProduct")}>Create Product</Button>
+					</div>
 				</div>
 
 				<div className="flex">
-					<div className="w-96 shrink-0">
-						hi
-						<HierarchicalMenu
-							attributes={[
-								"categories.lvl0",
-								"categories.lvl1",
-								"categories.lvl2",
-								"categories.lvl3",
-							]}
-						/>
-					</div>
 					<div className="flex-grow p-4 flex flex-wrap gap-4">
 						<ProductsWidget.Products>
 							{(products) => {
@@ -60,6 +53,7 @@ export function AdminProductsPage() {
 											</div>
 											<div className="flex gap-4 justify-center my-4">
 												<Button
+													disabled
 													onClick={() =>
 														navigate("admin.editProduct", { id: product.id })
 													}
@@ -67,7 +61,9 @@ export function AdminProductsPage() {
 												>
 													Edit
 												</Button>
-												<Button fullWidth>Delete</Button>
+												<Button disabled fullWidth>
+													Delete
+												</Button>
 											</div>
 										</div>
 									</Product>

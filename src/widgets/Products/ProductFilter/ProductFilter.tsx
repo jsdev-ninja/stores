@@ -17,6 +17,7 @@ function CategoryFilter() {
 			"categories.lvl4",
 		],
 		showParentLevel: true,
+		limit: 100,
 	});
 
 	console.log("menu", menu);
