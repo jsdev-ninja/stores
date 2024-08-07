@@ -35,12 +35,6 @@ export function AddProductPage() {
 
 	const { t } = useTranslation(["admin", "common"]);
 
-	console.log("categories.categories", categories);
-
-	const rootCategories = categories.filter((c) => !c.parentId);
-
-	console.log("rootCategories", rootCategories);
-
 	function renderParent(category?: TCategory): string {
 		if (!category) return "";
 
@@ -56,9 +50,9 @@ export function AddProductPage() {
 	function renderCategory(category: TCategory & FlattenedItem) {
 		return (
 			<Fragment key={category.id}>
-				<Form.Select.Item key={category.id} value={category}>
+				<Form.CategorySelect.Item key={category.id} value={category}>
 					{renderParent(category)}
-				</Form.Select.Item>
+				</Form.CategorySelect.Item>
 			</Fragment>
 		);
 	}
@@ -158,14 +152,15 @@ export function AddProductPage() {
 					/>
 				</div>
 				<div className="my-4">
-					<Form.Select<TNewProduct>
+					<Form.CategorySelect<TNewProduct>
 						multiple
 						displayValue={(categories: any) => categories.map((c: any) => c.tag).join(", ")}
 						name="categories"
 						placeholder={"select category"}
+						categories={categories ?? []}
 					>
 						{categories.map(renderCategory)}
-					</Form.Select>
+					</Form.CategorySelect>
 				</div>
 				<div className="my-4 flex items-center gap-2">
 					<label htmlFor="">unit type</label>

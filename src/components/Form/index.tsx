@@ -18,6 +18,7 @@ import { Submit } from "./Submit";
 import { ErrorMessage, GlobalError } from "./ErrorMessage";
 import { Field } from "./Field";
 import { Locales } from "./Locales";
+import { CategorySelect } from "./CategorySelect";
 
 type Props<T extends FieldValues> = {
 	schema: ZodSchema;
@@ -52,6 +53,7 @@ export function Form<T extends FieldValues>(props: Props<T>) {
 	);
 }
 
+Form.CategorySelect = CategorySelect;
 Form.Input = Input;
 Form.ErrorMessage = ErrorMessage;
 Form.Checkbox = Checkbox;
