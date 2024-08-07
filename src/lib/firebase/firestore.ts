@@ -11,6 +11,7 @@ import {
 	query,
 	setDoc,
 	updateDoc,
+	arrayUnion,
 } from "firebase/firestore";
 import { app } from "./app";
 
@@ -33,12 +34,11 @@ async function update(id: string, item: any, coll: any) {
 		await updateDoc(doc(db, coll, id), item);
 
 		const data = { ...item };
-		console.log("update", data);
 
 		return { success: true, data };
 	} catch (error) {
 		console.error(error);
-		return { success: false };
+		return { success: false, error };
 	}
 }
 async function set(id: string, item: any) {
@@ -110,4 +110,4 @@ const collections = {
 	products: "products",
 	categories: "categories",
 };
-export const firestore = { create, list, collections, get, set, subscribeDoc, update };
+export const firestore = { arrayUnion, create, list, collections, get, set, subscribeDoc, update };

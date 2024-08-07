@@ -7,6 +7,11 @@ import { AddCategoryPage } from "../AddCategoryPage";
 import { RouteKeys } from "src/lib/router/types";
 import { EditProductPage } from "../EditProductPage/EditProductPage";
 import AdminOrdersPages from "../Orders/AdminOrdersPages";
+import { useStore } from "src/domains/Store";
+import { useEffect } from "react";
+import { CategoryService } from "src/domains/Category";
+import { Unsubscribe } from "firebase/firestore";
+import { useStoreActions } from "src/infra";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
@@ -19,6 +24,23 @@ const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any 
 ];
 
 export function AdminPage() {
+	const store = useStore();
+
+	const actions = useStoreActions();
+
+	useEffect(() => {
+		let unsubscribe: Unsubscribe;
+
+		if (store?.id) {
+			unsubscribe = CategoryService.subscribe(store.id, (res: any) => {
+				actions.dispatch(actions.category.setCategories(res.categories ?? []));
+			});
+		}
+
+		return () => {
+			unsubscribe?.();
+		};
+	}, [store?.id]);
 	return (
 		<div className="flex h-screen">
 			<div className="border w-1/4">

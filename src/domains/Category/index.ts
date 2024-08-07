@@ -12,8 +12,6 @@ export const BaseCategorySchema = z.object({
 	locales: z.array(LocaleSchema),
 });
 
-BaseCategorySchema.omit;
-
 type Category = z.infer<typeof BaseCategorySchema> & {
 	children: Category[];
 };
@@ -26,6 +24,8 @@ export const CategorySchema: z.ZodType<Category> = BaseCategorySchema.extend({
 export type TCategory = z.infer<typeof BaseCategorySchema> & {
 	children: TCategory[];
 };
+
+export type TNewCategory = Omit<TCategory, "id">;
 
 //  STORE
 type TCategoryState = {
@@ -58,7 +58,10 @@ export const CategoryService = {
 			.get("dhXXgvpn1wyTfqxoQfr0", FirebaseApi.firestore.collections.categories)
 			.then((res) => {
 				console.log("res", (res.data as any).categories);
-				return (res.data  as any).categories;
+				return (res.data as any).categories;
 			});
+	},
+	subscribe(storeId: string, callback: any) {
+		return FirebaseApi.firestore.subscribeDoc("categories", storeId, callback);
 	},
 };

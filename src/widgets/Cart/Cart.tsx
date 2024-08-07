@@ -6,7 +6,7 @@ import { Product } from "../Product";
 import EmptyCartImg from ".././../assets/empty-cart.png";
 import classNames from "classnames";
 
-export function Cart({ size = "lg" }: { size?: "sm" | "lg" }) {
+export function Cart({ size = "sm" }: { size?: "sm" | "lg" }) {
 	const cart = useAppSelector(cartSlice.selectors.selectCart);
 
 	const isEmpty = cart.length === 0;
@@ -62,12 +62,14 @@ function CartItem({
 						<Product.Weight />
 					</div>
 				</div>
-				<div className="flex items-center gap-2">
-					<span>X</span>
-					<span>{amount}</span>
-					<span>{totalPrice}</span>
-				</div>
-				<div className="ms-auto">
+				{size === "lg" && (
+					<div className="flex items-center gap-2">
+						<span>X</span>
+						<span>{amount}</span>
+						<span>{totalPrice}</span>
+					</div>
+				)}
+				<div className="ms-auto flex-shrink-0">
 					<Product.CartButton size="sm" />
 				</div>
 			</div>

@@ -8,7 +8,7 @@ export function CartPage() {
 		<div className="flex-grow  flex flex-col  sm:container sm:mx-auto">
 			<div className="w-full mx-auto flex   flex-grow">
 				<div className="w-3/5">
-					<Cart />
+					<Cart size="lg" />
 				</div>
 				<div className="w-96 mx-auto  bg-gray-50 flex flex-col">
 					<PaymentSummary />

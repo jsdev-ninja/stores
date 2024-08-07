@@ -110,7 +110,10 @@ export function flattenTree(items: TreeItems): FlattenedItem[] {
 export function buildTree(flattenedItems: FlattenedItem[]): TreeItems {
 	const root: TreeItem = { id: "root", children: [] } as any;
 	const nodes: Record<string, TreeItem> = { [root.id]: root };
-	const items = flattenedItems.map((item) => ({ ...item, children: [] }));
+	const items = flattenedItems.map(({ depth, index, collapsed, ...item }) => ({
+		...item,
+		children: [],
+	}));
 
 	for (const item of items) {
 		const { id, children } = item;

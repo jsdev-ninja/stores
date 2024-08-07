@@ -32,6 +32,6 @@ export const appInit = functions.https.onCall(async (data, context) => {
 
 	const storeDoc = stores.docs[0];
 	const store = storeDoc.data();
-	store.id = doc.id;
+	store.id = storeDoc.id;
 	return { company, store };
 });

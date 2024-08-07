@@ -1,49 +1,39 @@
 import { useEffect, useState } from "react";
 import { Button } from "src/components/Button/Button";
-// import { List } from "src/components/List";
-import { TCategory } from "src/domains/Category";
-import { FirebaseApi } from "src/lib/firebase";
-// import { Link } from "src/navigation";
+import { CategorySlice, TCategory } from "src/domains/Category";
+import { useAppSelector } from "src/infra";
+import { navigate } from "src/navigation";
 import { CategoryTree } from "src/widgets/Category/CategoryTree/CategoryTree";
-
-// import { CategoryItem } from "./AdminCategoriesPage/CategoryItem";
-// import { CategoriesTree } from "./AdminCategoriesPage/CategoriesTree";
-
+import { isEqual } from "lodash";
+import { useAppApi } from "src/appApi";
 export function AdminCategoriesPages() {
-	const [categories, setCategories] = useState<Array<TCategory>>([]);
+	const appApi = useAppApi();
+	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
+	const [categoriesToEdit, setCategoriesToEdit] = useState<TCategory[]>([]);
+
 	useEffect(() => {
-		FirebaseApi.firestore
-			.get<{ categories: TCategory[]; id: string }>(
-				"dhXXgvpn1wyTfqxoQfr0",
-				FirebaseApi.firestore.collections.categories
-			)
-			.then((res) => {
-				console.log("res", res);
-				setCategories(res.data?.categories ?? []);
-			});
-	}, []);
-	console.log("categories", categories);
+		setCategoriesToEdit(JSON.parse(JSON.stringify(categories)));
+	}, [categories]);
+
+	console.log("AdminCategoriesPages", categories);
 
 	function addCategory() {
-		setCategories([
-			{
-				children: [],
-				companyId: "",
-				id: crypto.randomUUID(),
-				locales: [{ lang: "he", value: "new category" }],
-				tag: "",
-				storeId: "",
-				parentId: "",
-			},
-			...categories,
-		]);
+		return navigate("admin.addCategory");
+	}
+
+	const noChanged = isEqual(categories, categoriesToEdit);
+	console.log("noChanged", noChanged);
+
+	async function save() {
+		console.log("saved");
+		await appApi.admin.category.update(categoriesToEdit);
 	}
 
 	// todo: fix ltr
 	return (
 		<div className="w-full border p-20 ltr flex flex-grow  gap-5">
-			{!!categories.length && (
-				<CategoryTree setCategories={setCategories} categories={categories} />
+			{!!categoriesToEdit.length && (
+				<CategoryTree setCategories={setCategoriesToEdit} categories={categoriesToEdit} />
 			)}
 			<div className="border w-80 p-4 flex flex-col sticky top-20 h-[80vh] self-start">
 				<div className="">
@@ -52,7 +42,9 @@ export function AdminCategoriesPages() {
 					</Button>
 				</div>
 				<div className="mt-auto">
-					<Button>Save</Button>
+					<Button onClick={save} disabled={noChanged}>
+						Save
+					</Button>
 				</div>
 			</div>
 		</div>

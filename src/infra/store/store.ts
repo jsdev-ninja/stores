@@ -1,10 +1,10 @@
-import { Tuple, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import { reducer } from "./reducer";
 
 export const store = configureStore({
 	reducer: reducer,
-	middleware: () => new Tuple(),
+	middleware: () => [] as any,
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

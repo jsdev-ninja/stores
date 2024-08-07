@@ -90,8 +90,10 @@ export function getProjection(
 }
 
 function getMaxDepth({ previousItem }: { previousItem: any }) {
+	let maxDepth = 4;
+
 	if (previousItem) {
-		return previousItem.depth + 1;
+		return previousItem.depth + 1 <= maxDepth ? previousItem.depth + 1 : maxDepth;
 	}
 
 	return 0;
@@ -331,6 +333,9 @@ export function CategoryTree({ indentationWidth = 50, categories = [], setCatego
 
 			const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
 			const newItems = buildTree(sortedItems);
+			console.log('newItems',newItems);
+			console.log('sortedItems',sortedItems);
+			
 			console.log(JSON.stringify(newItems));
 
 			setItems(newItems as any);
@@ -351,7 +356,8 @@ export function CategoryTree({ indentationWidth = 50, categories = [], setCatego
 	}
 
 	function handleRemove(id: string) {
-		setItems((items) => removeItem(items, id));
+		const newItems = removeItem(items, id);
+		setCategories(newItems);
 	}
 
 	function handleCollapse(id: string) {

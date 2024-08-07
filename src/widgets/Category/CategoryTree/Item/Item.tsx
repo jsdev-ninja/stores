@@ -112,8 +112,6 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 			transition,
 		};
 
-		console.log("clone", clone, childCount);
-
 		return (
 			<li
 				className={classNames(

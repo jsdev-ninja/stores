@@ -9,10 +9,11 @@ type Props = {
 	size?: "sm" | "md";
 	className?: string;
 	type?: "button" | "submit" | "reset";
+	disabled?: boolean;
 };
 
 export function Button(props: Props) {
-	const { children, fullWidth, size = "md", type, onClick } = props;
+	const { children, fullWidth, size = "md", type, onClick, disabled } = props;
 
 	const style = tv({
 		base: classNames([
@@ -25,6 +26,9 @@ export function Button(props: Props) {
 			},
 		]),
 		variants: {
+			disabled: {
+				true: "pointer-events-none bg-gray-300",
+			},
 			size: {
 				sm: "h-9",
 				md: "h-12",
@@ -34,12 +38,13 @@ export function Button(props: Props) {
 
 	return (
 		<button
+			disabled={disabled}
 			type={type}
 			onClick={(e) => {
 				e.stopPropagation();
 				onClick?.();
 			}}
-			className={style({ size })}
+			className={style({ size, disabled })}
 		>
 			{children}
 		</button>

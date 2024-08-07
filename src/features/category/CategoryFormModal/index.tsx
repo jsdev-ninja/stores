@@ -1,3 +1,4 @@
+import { useAppApi } from "src/appApi";
 import { Button } from "src/components/Button/Button";
 import { Form } from "src/components/Form";
 import { Modal } from "src/components/Modal/Modal";
@@ -5,8 +6,11 @@ import { CategorySchema, TCategory } from "src/domains/Category";
 import { useAppSelector } from "src/infra";
 import { modalApi } from "src/infra/modals";
 import { flatten } from "src/utils";
+import { buildTree } from "src/widgets/Category/CategoryTree/utils";
 
 export function CategoryFormModal({ categoryId }: { categoryId: string }) {
+	const appApi = useAppApi();
+
 	const categories = useAppSelector((state) => state.category.categories);
 
 	const flattenCategory = flatten(categories);
@@ -23,11 +27,19 @@ export function CategoryFormModal({ categoryId }: { categoryId: string }) {
 
 	return (
 		<Modal>
-			<Form<Omit<TCategory, "children">>
+			<Form<TCategory>
 				defaultValues={category}
 				schema={CategorySchema}
-				onSubmit={(data) => {
+				onSubmit={async (data: TCategory) => {
 					console.log("data", data);
+
+					const newCategories = flattenCategory.map((c) => {
+						if (c.id !== data.id) return c;
+						return data;
+					});
+					console.log("newCategories", newCategories);
+					await appApi.admin.category.update(buildTree(newCategories as any));
+					modalApi.closeModal("categoryFormModal");
 				}}
 				onError={(errors) => {
 					console.log("err", errors);
@@ -51,7 +63,7 @@ export function CategoryFormModal({ categoryId }: { categoryId: string }) {
 						</div>
 					</div>
 					<div className="flex items-center justify-between mt-8 mb-4">
-						<Button>Cancel</Button>
+						<Button onClick={() => modalApi.closeModal("categoryFormModal")}>Cancel</Button>
 						<Form.Submit>Save</Form.Submit>
 					</div>
 				</div>
