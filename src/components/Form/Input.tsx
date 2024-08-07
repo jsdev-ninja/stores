@@ -16,10 +16,11 @@ type Props<T extends object> = {
 	placeholder?: string;
 	label?: string;
 	type?: string;
+	disabled?: boolean;
 };
 
 export function Input<T extends object>(props: Props<T>) {
-	const { name, label, placeholder, type } = props;
+	const { name, label, placeholder, type, disabled } = props;
 
 	const methods = useFormContext();
 
@@ -34,6 +35,7 @@ export function Input<T extends object>(props: Props<T>) {
 		<div className="flex flex-col  gap-2">
 			<label htmlFor={name}>{label}</label>
 			<input
+				disabled={disabled}
 				id={name}
 				{...methods.register(name, {
 					valueAsNumber: type === "number",

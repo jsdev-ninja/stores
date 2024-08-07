@@ -24,6 +24,11 @@ export const CategorySchema: z.ZodType<Category> = BaseCategorySchema.extend({
 export type TCategory = z.infer<typeof BaseCategorySchema> & {
 	children: TCategory[];
 };
+export const TFlattenCategory = BaseCategorySchema.extend({
+	index: z.number(),
+	depth: z.number(),
+	collapsed: z.boolean().optional(),
+});
 
 export type TNewCategory = Omit<TCategory, "id">;
 

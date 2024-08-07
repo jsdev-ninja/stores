@@ -1,10 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+// import { useAppApi } from "src/appApi";
 import { Form } from "src/components/Form";
 import { ProductSchema } from "src/domains";
 import { TProduct } from "src/domains";
-import { CategorySchema, TCategory } from "src/domains/Category";
+import { TCategory, TFlattenCategory } from "src/domains/Category";
+import { useStore } from "src/domains/Store";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate } from "src/navigation";
 import { flatten } from "src/utils";
@@ -22,7 +24,7 @@ const NewProductSchema = ProductSchema.omit({
 }).merge(
 	z.object({
 		images: z.instanceof(File).optional(),
-		categories: z.array(CategorySchema),
+		categories: z.array(TFlattenCategory),
 	})
 );
 
@@ -32,6 +34,10 @@ const newProductFormSchema = NewProductSchema.extend({}).omit({});
 
 export function AddProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory & FlattenedItem>>([]);
+
+	// const appApi = useAppApi();
+
+	const store = useStore();
 
 	const { t } = useTranslation(["admin", "common"]);
 
@@ -57,16 +63,22 @@ export function AddProductPage() {
 		);
 	}
 
+	console.log("all", categories);
+
 	useEffect(() => {
+		if (!store?.id) return;
+
 		FirebaseApi.firestore
 			.get<{ id: string; categories: TCategory[] }>(
-				"dhXXgvpn1wyTfqxoQfr0",
+				store?.id,
 				FirebaseApi.firestore.collections.categories
 			)
 			.then((res) => setCategories(flatten(res.data?.categories ?? [])));
-	}, []);
+	}, [store?.id]);
 
 	const title = t("admin:productForm.add.title");
+
+	if (!store?.id || !store.companyId) return;
 
 	return (
 		<div className="">
@@ -85,14 +97,14 @@ export function AddProductPage() {
 					currency: "ILS",
 					objectID: "",
 					categories: [],
+					storeId: store.id,
+					companyId: store.companyId,
 				}}
 				onSubmit={async (data) => {
 					console.log("SUBMIT", data);
 
 					const { images, ...rest } = data;
 					const categories = data.categories as unknown as (TCategory & FlattenedItem)[];
-
-					console.log("categories", categories);
 
 					const categoryProps = {
 						lvl0: categories.filter((c) => c.depth === 0).map((c) => c.locales[0].value),
@@ -102,20 +114,15 @@ export function AddProductPage() {
 						lvl4: categories.filter((c) => c.depth === 4).map((c) => c.locales[0].value),
 					};
 
-					console.log("categoryProps", categoryProps);
-
 					const product: Partial<TProduct> = {
 						...rest,
 						categories: { ...categoryProps },
 					};
 
-					console.log("product", product);
-
 					if (images) {
-						console.log("images", images, 1);
-
-						const fileRef = await FirebaseApi.storage.upload("image.png", images);
-						product.images = [{ id: crypto.randomUUID(), url: fileRef.url }];
+						const id = crypto.randomUUID();
+						const fileRef = await FirebaseApi.storage.upload(id, images);
+						product.images = [{ id: id, url: fileRef.url }];
 					}
 
 					const res = await FirebaseApi.firestore.create(
@@ -230,7 +237,7 @@ function NameDetails() {
 	return (
 		<div className="">
 			<div className="flex gap-4">
-				<Form.Input<TNewProduct> name={`locales[0].lang`} label={"Lang"} />
+				<Form.Input<TNewProduct> disabled name={`locales[0].lang`} label={"Lang"} />
 				<div className="flex flex-col gap-1">
 					<Form.Input<TNewProduct>
 						name={`locales[0].value`}
