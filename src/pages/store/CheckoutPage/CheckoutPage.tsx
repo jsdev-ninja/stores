@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
 import { OrderApi } from "src/domains/Order";
 import { AddressSchema, TAddress, useAppSelector } from "src/infra";
+import { navigate } from "src/navigation";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 
 function CheckoutPage() {
@@ -28,6 +29,7 @@ function CheckoutPage() {
 					date: Date.now(),
 				});
 				console.log("response", response);
+				navigate('store')
 			}}
 			className="flex-grow  flex flex-col  sm:container sm:mx-auto"
 		>

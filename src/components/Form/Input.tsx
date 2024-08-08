@@ -33,7 +33,7 @@ export function Input<T extends object>(props: Props<T>) {
 
 	return (
 		<div className="flex flex-col  gap-2">
-			<label htmlFor={name}>{label}</label>
+			{!!label && <label htmlFor={name}>{label}</label>}
 			<input
 				disabled={disabled}
 				id={name}

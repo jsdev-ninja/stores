@@ -10,7 +10,7 @@ import classNames from "classnames";
 import clsx from "classnames";
 
 export function Select({
-	query = "",
+	label = "",
 	value,
 	onChange,
 	onInputChange,
@@ -20,16 +20,19 @@ export function Select({
 	multiple = false,
 }: any) {
 	const inputStyle = classNames([
-		"w-full   p-2",
+		"w-full h-10  p-2",
 		"shadow rounded",
 		"text-gray-500",
 		"bg-gray-100",
 	]);
 
-	console.log(query);
-
 	return (
-		<div className="w-full h-12 p-2">
+		<div className="w-full flex flex-col gap-2">
+			{!!label && (
+				<label className="" htmlFor="">
+					{label}
+				</label>
+			)}
 			<Combobox
 				multiple={multiple ?? undefined}
 				value={value}

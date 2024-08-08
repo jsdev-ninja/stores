@@ -63,8 +63,6 @@ export function AddProductPage() {
 		);
 	}
 
-	console.log("all", categories);
-
 	useEffect(() => {
 		if (!store?.id) return;
 
@@ -76,7 +74,7 @@ export function AddProductPage() {
 			.then((res) => setCategories(flatten(res.data?.categories ?? [])));
 	}, [store?.id]);
 
-	const title = t("admin:productForm.add.title");
+	const title = t("admin:addProductPage.title");
 
 	if (!store?.id || !store.companyId) return;
 
@@ -88,7 +86,7 @@ export function AddProductPage() {
 				schema={newProductFormSchema}
 				defaultValues={{
 					locales: [{ lang: "he", value: "" }],
-					vat: false,
+					vat: true,
 					ingredients: [],
 					priceType: {
 						type: "unit",
@@ -117,6 +115,7 @@ export function AddProductPage() {
 					const product: Partial<TProduct> = {
 						...rest,
 						categories: { ...categoryProps },
+						images: [],
 					};
 
 					if (images) {
@@ -139,22 +138,22 @@ export function AddProductPage() {
 					<NameDetails />
 				</div>
 				<div className="my-4">
-					<Form.Input name="sku" label="Sku" placeholder="Enter product sku" />
+					<Form.Input name="sku" label={t("common:sku")} placeholder={t("common:sku")} />
 					<Form.ErrorMessage<TNewProduct> name="sku" />
 				</div>
 				<div className="my-4">
 					<Form.Input<TNewProduct>
 						name="description"
-						label="Description"
-						placeholder="Enter product description"
+						label={t("common:description")}
+						placeholder={t("common:description")}
 					/>
 				</div>
 
 				<div className="my-4">
 					<Form.Input<TNewProduct>
 						name="price"
-						label="Price"
-						placeholder="Enter product price"
+						label={t("common:price")}
+						placeholder={t("common:price")}
 						type="number"
 					/>
 				</div>
@@ -163,19 +162,23 @@ export function AddProductPage() {
 						multiple
 						displayValue={(categories: any) => categories.map((c: any) => c.tag).join(", ")}
 						name="categories"
-						placeholder={"select category"}
+						placeholder={t("common:selectCategory")}
 						categories={categories ?? []}
+						label={t("common:category")}
 					>
 						{categories.map(renderCategory)}
 					</Form.CategorySelect>
 				</div>
 				<div className="my-4 flex items-center gap-2">
-					<label htmlFor="">unit type</label>
+					<label htmlFor="">{t("common:priceType")}</label>
 					<div className="w-44">
-						<Form.Select<TNewProduct> name="priceType.type" placeholder={"select unit"}>
-							<Form.Select.Item value="unit">unit</Form.Select.Item>
-							<Form.Select.Item value="kg">kg</Form.Select.Item>
-							<Form.Select.Item value="gram">gram</Form.Select.Item>
+						<Form.Select<TNewProduct>
+							name="priceType.type"
+							placeholder={t("common:enterPriceType")}
+						>
+							<Form.Select.Item value="unit">{t("common:unit")}</Form.Select.Item>
+							<Form.Select.Item value="kg">{t("common:kg")}</Form.Select.Item>
+							<Form.Select.Item value="gram">{t("common:gram")}</Form.Select.Item>
 						</Form.Select>
 					</div>
 					<div className="w-32">
@@ -183,29 +186,29 @@ export function AddProductPage() {
 					</div>
 				</div>
 				<div className="my-4">
-					<Form.Checkbox<TNewProduct> name="vat" label="Vat" />
+					<Form.Checkbox<TNewProduct> name="vat" label={t("common:vat")} />
 				</div>
 				<div className="my-4">
 					<Form.Input<TNewProduct>
 						name="brand"
-						label="brand"
-						placeholder="Enter product brand"
+						label={t("common:brand")}
+						placeholder={t("common:brand")}
 					/>
 					<Form.ErrorMessage<TNewProduct> name="brand" />
 				</div>
 				<div className="my-4">
 					<Form.Input<TNewProduct>
 						name="manufacturer"
-						label="manufacturer"
-						placeholder="Enter product manufacturer"
+						label={t("common:manufacturer")}
+						placeholder={t("common:manufacturer")}
 					/>
 					<Form.ErrorMessage<TNewProduct> name="manufacturer" />
 				</div>
 				<div className="my-4">
 					<Form.Input<TNewProduct>
 						name="supplier"
-						label="supplier"
-						placeholder="Enter product supplier"
+						label={t('common:supplier')}
+						placeholder={t('common:supplier')}
 					/>
 					<Form.ErrorMessage<TNewProduct> name="supplier" />
 				</div>
@@ -234,15 +237,17 @@ function ImagePreview() {
 }
 
 function NameDetails() {
+	const { t } = useTranslation(["common"]);
+
 	return (
 		<div className="">
 			<div className="flex gap-4">
-				<Form.Input<TNewProduct> disabled name={`locales[0].lang`} label={"Lang"} />
+				<Form.Input<TNewProduct> disabled name={`locales[0].lang`} label={t("lang")} />
 				<div className="flex flex-col gap-1">
 					<Form.Input<TNewProduct>
 						name={`locales[0].value`}
-						label={"Name"}
-						placeholder="Enter product name"
+						label={t("name")}
+						placeholder={t("editProductName")}
 					/>
 					<Form.ErrorMessage<TNewProduct> name="locales[0].value" />
 				</div>

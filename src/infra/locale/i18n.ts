@@ -23,6 +23,24 @@ export const resources = {
 			logout: "התנתקות",
 			city: "עיר",
 			street: "רחוב",
+			lang: "שפה",
+			name: "שם",
+			editProductName: "ערוך שם מוצר",
+			sku: 'מק"ט',
+			description: "תיאור",
+			price: "מחיר",
+			selectCategory: "בחר קטגוריה",
+			category: "קטגוריה",
+			priceType: "סוג מחיר",
+			enterPriceType: "הכנס סוג מחיר",
+			unit: "יחידה",
+			kg: "קג",
+			gram: "גרם",
+			brand: "מותג",
+			manufacturer: "יצרן",
+			supplier: "יבואן",
+			image: "תמונה",
+			vat: 'מע"מ'
 		},
 		auth: {
 			welcome: {
@@ -61,6 +79,9 @@ export const resources = {
 		},
 		store: {},
 		admin: {
+			addProductPage: {
+				title: "הוסף מוצר",
+			},
 			productForm: {
 				edit: {
 					title: "ערוך מוצר",

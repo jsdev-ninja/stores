@@ -13,11 +13,13 @@ export const CategorySelect = <T,>({
 	children,
 	name,
 	placeholder,
+	label,
 	displayValue,
 	categories,
 }: {
 	name: NestedKeys<T>;
 	placeholder?: string;
+	label?: string;
 	children: ReactNode;
 	multiple?: boolean;
 	displayValue?: any;
@@ -33,6 +35,7 @@ export const CategorySelect = <T,>({
 		<BaseSelect
 			displayValue={displayValue}
 			multiple
+			label={label}
 			onChange={(newValue: TCategory[]) => {
 				const newCategories = newValue.filter(
 					(newCategory) => !selectedCategories.find((s) => s.id === newCategory.id)

@@ -5,12 +5,14 @@ import { NestedKeys } from "src/shared/types";
 
 export const Checkbox = <T,>({ name, label }: { name: NestedKeys<T>; label?: string }) => {
 	const form = useController({ name });
+
 	return (
 		<div className="flex gap-2 items-center">
 			<label className="pl-[15px] text-[15px] leading-none" htmlFor={name}>
 				{label}
 			</label>
 			<RadixCheckbox.Root
+				checked={form.field.value}
 				onCheckedChange={form.field.onChange}
 				className="shadow-blackA4 hover:bg-violet3 flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-[4px] bg-white shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px_black]"
 				id={name}
