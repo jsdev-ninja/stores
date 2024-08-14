@@ -6,10 +6,12 @@ import { Provider } from "react-redux";
 import { store } from "./infra/index.ts";
 import { mixPanelApi } from "./lib/mixpanel/index.ts";
 import { CONFIG } from "./config/index.ts";
+import { SentryApi } from "./lib/sentry/index.ts";
 
 console.log("CONFIG", CONFIG);
 
 mixPanelApi.init({ debug: CONFIG.DEV });
+SentryApi.init();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<Provider store={store}>
