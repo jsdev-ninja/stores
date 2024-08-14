@@ -4,6 +4,7 @@ import { useAppSelector, useFullID } from "src/infra/store";
 import { cartSlice } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
 import { ProductSchema } from "src/domains";
+import { mixPanelApi } from "src/lib/mixpanel";
 
 type Props = {
 	size: "sm" | "md";
@@ -54,6 +55,10 @@ export function ProductCartButton(props: Props) {
 		];
 
 		CartService.updateCart(fullID, { items: items });
+		mixPanelApi.track("USER_ADD_ITEM_TO_CART", {
+			productId: product.id,
+			productName: product.locales[0].value, //todo get correct lang
+		});
 	}
 
 	function removeItem() {

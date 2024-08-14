@@ -10,6 +10,7 @@ import { useAppSelector, useFullID, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { TProduct } from "src/domains";
 import { useAppInit } from "./init";
+import { mixPanelApi } from "src/lib/mixpanel";
 
 function App() {
 	const { i18n } = useTranslation();
@@ -48,6 +49,9 @@ function App() {
 				FirebaseApi.auth.signInAnonymously();
 				return;
 			}
+
+			console.log("user", user);
+			mixPanelApi.identify(user);
 
 			actions.dispatch(actions.user.setUser(user));
 		});
