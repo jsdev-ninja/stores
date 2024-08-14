@@ -15,7 +15,7 @@ export function ProductPage() {
 		const state = history.state?.product;
 		if (state) {
 			// todo: clear history state
-			history.pushState({}, window.location.pathname);
+			history.replaceState({}, window.location.pathname);
 		}
 		return state ?? null;
 	});

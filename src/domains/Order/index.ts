@@ -25,7 +25,6 @@ export const OrderApi = {
 		console.log("newOrder", newOrder);
 
 		const response = await FirebaseApi.firestore.create(newOrder, "orders");
-		console.log("response", response);
 		return response;
 	},
 };

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { Route } from "src/navigation";
 import { ModalProvider } from "src/infra/modals";
-import { AdminPage } from "src/pages";
+import { AdminLayout } from "src/pages";
 import { StoreLayout } from "src/pages/store/StoreLayout";
 import { CategoryService } from "src/domains/Category";
 import { useAppSelector, useFullID, useStoreActions } from "src/infra";
@@ -50,7 +50,6 @@ function App() {
 				return;
 			}
 
-			console.log("user", user);
 			mixPanelApi.identify(user);
 
 			actions.dispatch(actions.user.setUser(user));
@@ -93,7 +92,7 @@ function App() {
 				<StoreLayout />
 			</Route>
 			<Route name="admin">
-				<AdminPage />
+				<AdminLayout />
 			</Route>
 		</>
 	);

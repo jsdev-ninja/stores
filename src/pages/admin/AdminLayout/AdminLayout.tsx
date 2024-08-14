@@ -23,7 +23,7 @@ const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any 
 	{ name: "Orders", path: "admin.orders" },
 ];
 
-export function AdminPage() {
+export function AdminLayout() {
 	const store = useStore();
 
 	const actions = useStoreActions();

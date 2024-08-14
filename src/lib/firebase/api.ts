@@ -8,7 +8,6 @@ async function init() {
 		const func = httpsCallable(functions, "appInit");
 
 		const response = await func();
-		console.log("response", response);
 		return { success: true, data: response.data };
 	} catch (error: any) {
 		const code = error.code;

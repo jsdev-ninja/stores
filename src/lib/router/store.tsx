@@ -66,7 +66,6 @@ export function createStore(routes: Routes) {
 		};
 
 		emitChange();
-		console.log("history.pushState", state, path);
 	};
 	const getSnapshot = () => routerState;
 
