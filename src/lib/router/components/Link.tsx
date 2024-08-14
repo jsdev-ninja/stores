@@ -25,11 +25,7 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 	type TTo = RouteKeys<typeof routes>;
 
 	async function _navigate({ path, state }: { path: string; state?: any }) {
-		if (!document.startViewTransition) return store.navigate({ path, state });
-
-		document.startViewTransition?.(async () => {
-			store.navigate({ path, state }); // todo type
-		});
+		store.navigate({ path, state }); // todo type
 	}
 
 	function Link<K extends TTo>(

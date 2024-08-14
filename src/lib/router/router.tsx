@@ -112,7 +112,6 @@ export function createRouter<T extends Routes>(routes: T) {
 		const route = getRouteData(name, routes);
 
 		if (!route) {
-			console.warn("useParams: route not exists", name);
 			return {} as Result;
 		}
 

@@ -15,7 +15,7 @@ export function ProductsWidget({ children }: { children: ReactNode }) {
 			indexName={"products"}
 			future={{
 				preserveSharedStateOnUnmount: false,
-				// persistHierarchicalRootCount: true,
+				persistHierarchicalRootCount: false,
 			}}
 		>
 			<Configure

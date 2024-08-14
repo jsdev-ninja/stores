@@ -47,6 +47,9 @@ export const routes = {
 			},
 		},
 	},
+	superAdmin: {
+		path: "/superAdmin",
+	},
 } as const;
 
 export const Router = createRouter(routes);

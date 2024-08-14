@@ -61,11 +61,11 @@ export function AdminProductsPage() {
 											</div>
 											<div className="flex gap-4 justify-center my-4">
 												<Button
-													disabled
 													onClick={() =>
 														navigate({
 															to: "admin.editProduct",
 															params: { id: product.id },
+															state: { product },
 														})
 													}
 													fullWidth

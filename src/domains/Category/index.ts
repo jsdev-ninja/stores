@@ -62,7 +62,6 @@ export const CategoryService = {
 		return FirebaseApi.firestore
 			.get("dhXXgvpn1wyTfqxoQfr0", FirebaseApi.firestore.collections.categories)
 			.then((res) => {
-				console.log("res", (res.data as any).categories);
 				return (res.data as any).categories;
 			});
 	},

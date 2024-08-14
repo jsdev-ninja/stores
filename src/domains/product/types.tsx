@@ -1,5 +1,6 @@
 import { LocaleSchema } from "src/shared/types";
 import { z } from "zod";
+import { CategorySchema } from "../Category";
 
 const text = z.string();
 export const ProductSchema = z.object({
@@ -51,6 +52,7 @@ export const ProductSchema = z.object({
 		lvl3: z.array(z.string()),
 		lvl4: z.array(z.string()),
 	}),
+	categoryList: z.array(CategorySchema),
 });
 
 export type TProduct = z.infer<typeof ProductSchema>;

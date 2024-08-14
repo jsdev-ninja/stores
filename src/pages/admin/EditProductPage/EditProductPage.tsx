@@ -3,10 +3,12 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
 import { ProductSchema, TProduct } from "src/domains";
-import { TCategory } from "src/domains/Category";
+import { CategoryService, TCategory } from "src/domains/Category";
 import { ProductService } from "src/domains/product/productService";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate, useParams } from "src/navigation";
+import { flatten } from "src/utils/flatten";
+import { FlattenedItem } from "src/widgets/Category/CategoryTree/utils";
 import { z } from "zod";
 
 export const NewProductSchema = ProductSchema.omit({}).merge(
@@ -18,7 +20,7 @@ export const NewProductSchema = ProductSchema.omit({}).merge(
 type TNewProduct = z.infer<typeof NewProductSchema>;
 
 export function EditProductPage() {
-	const [categories, setCategories] = useState<Array<TCategory>>([]);
+	const [categories, setCategories] = useState<Array<TCategory & FlattenedItem>>([]);
 
 	const { t } = useTranslation(["admin", "common"]);
 
@@ -37,10 +39,28 @@ export function EditProductPage() {
 	}, [params.id]);
 
 	useEffect(() => {
-		FirebaseApi.firestore
-			.list(FirebaseApi.firestore.collections.categories)
-			.then((res) => setCategories(res.data ?? []));
+		CategoryService.list().then((items) => setCategories(flatten(items)));
 	}, []);
+
+	function renderParent(category?: TCategory): string {
+		if (!category) return "";
+
+		const parent = category.parentId
+			? categories.find((c) => c.id === category.parentId)
+			: undefined;
+
+		const sign = parent ? " > " : "";
+
+		return `${renderParent(parent)}${sign}${category.locales[0].value}`;
+	}
+
+	function renderCategory(category: TCategory & FlattenedItem) {
+		return (
+			<Form.CategorySelect.Item key={category.id} value={category}>
+				{renderParent(category)}
+			</Form.CategorySelect.Item>
+		);
+	}
 
 	if (!product) return;
 
@@ -102,21 +122,18 @@ export function EditProductPage() {
 					/>
 				</div>
 				<div className="my-4">
-					<Form.Select<TNewProduct>
+					<Form.CategorySelect<TNewProduct>
 						multiple
-						displayValue={(categories: any[]) => categories.map((c: any) => c.tag).join(", ")}
-						name="categories"
-						placeholder={"select category"}
+						displayValue={(categories: any) => {
+							return categories.map((c: any) => c.locales[0].value).join(", ");
+						}}
+						name="categoryList"
+						placeholder={t("common:selectCategory")}
+						categories={categories ?? []}
+						label={t("common:category")}
 					>
-						{categories.map((category) => (
-							<Form.Select.Item
-								key={category.id}
-								value={{ id: category.id, tag: category.tag }}
-							>
-								{category.locales[0].value}
-							</Form.Select.Item>
-						))}
-					</Form.Select>
+						{categories.map(renderCategory)}
+					</Form.CategorySelect>
 				</div>
 				<div className="my-4">
 					<Form.Select name="unit.type" placeholder={"select unit"}>
@@ -130,7 +147,7 @@ export function EditProductPage() {
 				</div>
 				<div className="my-4 flex flex-col gap-4">
 					<Form.File<TNewProduct> name="newImage" label="Product image" />
-					<ImagePreview productImage={product.images[0]} />
+					<ImagePreview productImage={product.images?.[0]} />
 				</div>
 				<div className="my-8">
 					<Form.Submit>Add product</Form.Submit>

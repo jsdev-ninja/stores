@@ -95,22 +95,24 @@ export function AddProductPage() {
 					categories: [],
 					storeId: store?.id,
 					companyId: store?.companyId,
+					categoryList: [],
 				}}
 				onSubmit={async (data) => {
 					const { images, ...rest } = data;
 					const categories = data.categories as unknown as (TCategory & FlattenedItem)[];
 
 					const categoryProps = {
-						lvl0: categories.filter((c) => c.depth === 0).map((c) => c.locales[0].value),
+						lvl0: categories.filter((c) => c.depth === 0).map((c) => renderParent(c)),
 						lvl1: categories.filter((c) => c.depth === 1).map((c) => renderParent(c)),
-						lvl2: categories.filter((c) => c.depth === 2).map((c) => c.locales[0].value),
-						lvl3: categories.filter((c) => c.depth === 3).map((c) => c.locales[0].value),
-						lvl4: categories.filter((c) => c.depth === 4).map((c) => c.locales[0].value),
+						lvl2: categories.filter((c) => c.depth === 2).map((c) => renderParent(c)),
+						lvl3: categories.filter((c) => c.depth === 3).map((c) => renderParent(c)),
+						lvl4: categories.filter((c) => c.depth === 4).map((c) => renderParent(c)),
 					};
 
 					const product: Partial<TProduct> = {
 						...rest,
 						categories: { ...categoryProps },
+						categoryList: categories,
 						images: [],
 					};
 
@@ -156,8 +158,10 @@ export function AddProductPage() {
 				<div className="my-4">
 					<Form.CategorySelect<TNewProduct>
 						multiple
-						displayValue={(categories: any) => categories.map((c: any) => c.tag).join(", ")}
-						name="categories"
+						displayValue={(categories: any) =>
+							categories.map((c: any) => c.locales[0].value).join(", ")
+						}
+						name="categoryList"
 						placeholder={t("common:selectCategory")}
 						categories={categories ?? []}
 						label={t("common:category")}

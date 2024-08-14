@@ -45,7 +45,6 @@ export function createStore(routes: Routes) {
 	let routerState = {
 		currentRoute: getRouteFromPath(routes, window.location.pathname),
 		pathname: window.location.pathname,
-
 		activeRoutes: resolveActiveRoutes(routes, window.location.pathname),
 	};
 
@@ -65,21 +64,18 @@ export function createStore(routes: Routes) {
 			activeRoutes: resolveActiveRoutes(routes, window.location.pathname),
 		};
 
-		emitChange();
+		update();
 	};
 	const getSnapshot = () => routerState;
 
-	// Function to handle popstate event
-	window.addEventListener("popstate", function (event) {
-		console.log("back button clicked", event);
+	window.addEventListener("popstate", function () {
 		const path = window.location.pathname;
-		document.startViewTransition?.(() => {});
 		routerState = {
 			pathname: path,
 			currentRoute: getRouteFromPath(routes, path),
 			activeRoutes: resolveActiveRoutes(routes, window.location.pathname),
 		};
-		emitChange();
+		update();
 	});
 
 	return {
@@ -89,6 +85,14 @@ export function createStore(routes: Routes) {
 		navigate,
 		useRouterStore: () => useSyncExternalStore(subscribe, getSnapshot),
 	};
+}
+
+function update() {
+	if (!document.startViewTransition) return emitChange();
+	document.startViewTransition?.(async () => {
+		// todo: forward button not works with page view transition
+		emitChange();
+	});
 }
 
 function getRouteFromPath(routes: Routes, path: string) {

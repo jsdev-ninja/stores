@@ -11,6 +11,7 @@ import { FirebaseApi } from "src/lib/firebase";
 import { TProduct } from "src/domains";
 import { useAppInit } from "./init";
 import { mixPanelApi } from "src/lib/mixpanel";
+import SuperAdminLayout from "src/pages/superAdmin";
 
 function App() {
 	const { i18n } = useTranslation();
@@ -93,6 +94,9 @@ function App() {
 			</Route>
 			<Route name="admin">
 				<AdminLayout />
+			</Route>
+			<Route name="superAdmin">
+				<SuperAdminLayout />
 			</Route>
 		</>
 	);
