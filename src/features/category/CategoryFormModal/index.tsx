@@ -17,8 +17,6 @@ export function CategoryFormModal({ categoryId }: { categoryId: string }) {
 
 	const category = flattenCategory.find((c) => c.id === categoryId);
 
-	console.log("category", category);
-
 	if (!category) {
 		return null;
 	}
@@ -31,13 +29,10 @@ export function CategoryFormModal({ categoryId }: { categoryId: string }) {
 				defaultValues={category}
 				schema={CategorySchema}
 				onSubmit={async (data: TCategory) => {
-					console.log("data", data);
-
 					const newCategories = flattenCategory.map((c) => {
 						if (c.id !== data.id) return c;
 						return data;
 					});
-					console.log("newCategories", newCategories);
 					await appApi.admin.category.update(buildTree(newCategories as any));
 					modalApi.closeModal("categoryFormModal");
 				}}

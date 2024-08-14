@@ -42,7 +42,7 @@ function resolveActiveRoutes(routes: Routes, path: string, prefix = "") {
 }
 
 export function createStore(routes: Routes) {
-	let state = {
+	let routerState = {
 		currentRoute: getRouteFromPath(routes, window.location.pathname),
 		pathname: window.location.pathname,
 
@@ -56,25 +56,26 @@ export function createStore(routes: Routes) {
 		};
 	};
 
-	const navigate = (path: string) => {
-		history.pushState({}, "", path);
+	const navigate = ({ path, state }: { path: string; state?: any }) => {
+		history.pushState(state ?? {}, "", path);
 
-		state = {
+		routerState = {
 			pathname: path,
 			currentRoute: getRouteFromPath(routes, path),
 			activeRoutes: resolveActiveRoutes(routes, window.location.pathname),
 		};
 
 		emitChange();
+		console.log("history.pushState", state, path);
 	};
-	const getSnapshot = () => state;
+	const getSnapshot = () => routerState;
 
 	// Function to handle popstate event
 	window.addEventListener("popstate", function (event) {
 		console.log("back button clicked", event);
 		const path = window.location.pathname;
 		document.startViewTransition?.(() => {});
-		state = {
+		routerState = {
 			pathname: path,
 			currentRoute: getRouteFromPath(routes, path),
 			activeRoutes: resolveActiveRoutes(routes, window.location.pathname),
@@ -83,7 +84,7 @@ export function createStore(routes: Routes) {
 	});
 
 	return {
-		state,
+		state: routerState,
 		subscribe,
 		getSnapshot,
 		navigate,

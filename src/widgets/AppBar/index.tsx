@@ -21,7 +21,9 @@ export function AppBar() {
 			: () => modalApi.openModal("authModal");
 
 	function navigateToProfile() {
-		navigate("store.profile");
+		navigate({
+			to: "store.profile",
+		});
 	}
 
 	return (
@@ -31,7 +33,9 @@ export function AppBar() {
 					src={AcmeLogo}
 					alt=""
 					onClick={() => {
-						navigate("store");
+						navigate({
+							to: "store",
+						});
 					}}
 				/>
 			</div>

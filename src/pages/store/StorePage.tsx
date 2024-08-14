@@ -82,9 +82,12 @@ export function StorePage() {
 												background: getColorFromString(category.tag),
 											}}
 											onClick={() => {
-												navigate("store.category", {
-													rootCategory: category.tag,
-													subCategory: subCategory.tag,
+												navigate({
+													to: "store.category",
+													params: {
+														rootCategory: category.tag,
+														subCategory: subCategory.tag,
+													},
 												});
 											}}
 										>

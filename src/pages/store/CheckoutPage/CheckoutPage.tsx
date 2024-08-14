@@ -8,6 +8,8 @@ import { PaymentSummary } from "src/widgets/PaymentSummary";
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout"]);
 
+	const user = useAppSelector((state) => state.user.user);
+
 	const cart = useAppSelector((state) => state.cart.cart);
 	const store = useAppSelector((state) => state.store.data);
 
@@ -18,9 +20,11 @@ function CheckoutPage() {
 	return (
 		<Form<TAddress>
 			schema={AddressSchema}
-			onSubmit={async (data) => {
-				console.log("data", data);
-				const response = await OrderApi.createOrder({
+			onSubmit={async () => {
+				if (!user) return;
+				await OrderApi.createOrder({
+					type: "order",
+					userId: user.uid,
 					cart: cart.items,
 					companyId: store.companyId,
 					status: "pending",
@@ -28,8 +32,9 @@ function CheckoutPage() {
 					paymentStatus: "notPaid",
 					date: Date.now(),
 				});
-				console.log("response", response);
-				navigate('store')
+				navigate({
+					to: "store",
+				});
 			}}
 			className="flex-grow  flex flex-col  sm:container sm:mx-auto"
 		>

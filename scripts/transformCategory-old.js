@@ -50,5 +50,4 @@ async function main() {
 
 	// Commit the batch
 	await batch.commit();
-	console.log("success");
 }

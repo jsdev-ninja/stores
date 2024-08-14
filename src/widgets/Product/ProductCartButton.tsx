@@ -27,7 +27,6 @@ export function ProductCartButton(props: Props) {
 
 		const result = ProductSchema.safeParse(product);
 
-		console.log("WOKR", result, product);
 		if (!result.success) {
 			console.log(result.error.errors);
 

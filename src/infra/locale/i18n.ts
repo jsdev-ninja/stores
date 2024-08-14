@@ -40,7 +40,7 @@ export const resources = {
 			manufacturer: "יצרן",
 			supplier: "יבואן",
 			image: "תמונה",
-			vat: 'מע"מ'
+			vat: 'מע"מ',
 		},
 		auth: {
 			welcome: {

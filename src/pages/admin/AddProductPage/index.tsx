@@ -76,8 +76,6 @@ export function AddProductPage() {
 
 	const title = t("admin:addProductPage.title");
 
-	if (!store?.id || !store.companyId) return;
-
 	return (
 		<div className="">
 			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
@@ -95,12 +93,10 @@ export function AddProductPage() {
 					currency: "ILS",
 					objectID: "",
 					categories: [],
-					storeId: store.id,
-					companyId: store.companyId,
+					storeId: store?.id,
+					companyId: store?.companyId,
 				}}
 				onSubmit={async (data) => {
-					console.log("SUBMIT", data);
-
 					const { images, ...rest } = data;
 					const categories = data.categories as unknown as (TCategory & FlattenedItem)[];
 
@@ -124,14 +120,14 @@ export function AddProductPage() {
 						product.images = [{ id: id, url: fileRef.url }];
 					}
 
-					const res = await FirebaseApi.firestore.create(
+					await FirebaseApi.firestore.create(
 						product,
 						FirebaseApi.firestore.collections.products
 					);
 
-					console.log("res", res);
-
-					navigate("admin.products");
+					navigate({
+						to: "admin.products",
+					});
 				}}
 			>
 				<div className="my-4">
@@ -207,8 +203,8 @@ export function AddProductPage() {
 				<div className="my-4">
 					<Form.Input<TNewProduct>
 						name="supplier"
-						label={t('common:supplier')}
-						placeholder={t('common:supplier')}
+						label={t("common:supplier")}
+						placeholder={t("common:supplier")}
 					/>
 					<Form.ErrorMessage<TNewProduct> name="supplier" />
 				</div>
@@ -228,10 +224,7 @@ function ImagePreview() {
 	const form = useFormContext();
 	const images = form.watch("images");
 
-	console.log("images.images", images);
-
 	const url = images ? URL.createObjectURL(images) : null;
-	console.log("url", url);
 
 	return <div className="h-40 w-40">{url && <img src={url} className="" alt="" />}</div>;
 }

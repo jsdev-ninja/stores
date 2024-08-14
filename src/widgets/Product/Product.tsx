@@ -11,6 +11,9 @@ import { ProductPriceType } from "./ProductPriceType";
 import { ProductDiscount } from "./ProductDiscount";
 import { ProductVolume } from "./ProductVolume";
 import { ProductWeight } from "./ProductWeight";
+import { ProductBrand } from "./ProductBrand";
+import { ProductManufacturer } from "./ProductManufacturer";
+import { ProductSupplier } from "./ProductSupplier";
 
 export type ProductProps = {
 	product: TProduct;
@@ -36,12 +39,22 @@ const style = tv({
 	base: "h-full w-full rounded object-contain  group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
 });
 
-Product.Image = function Image() {
+Product.Image = function Image({ prefix }: { prefix?: string }) {
 	const { product } = useProduct();
 
 	const src = product?.images?.[0]?.url || "/No-Image-Placeholder.png";
 
-	return <img className={style({ className: "" })} src={src} />;
+	if (!product?.id) return null;
+
+	return (
+		<img
+			style={{
+				viewTransitionName: prefix ? `${prefix ?? ""}-product-image-${product.id}` : undefined,
+			}}
+			className={style({ className: "" })}
+			src={src}
+		/>
+	);
 };
 
 Product.Description = function Description() {
@@ -65,9 +78,6 @@ Product.Price = function Price() {
 		style: "currency",
 		currency: product.currency,
 	}).format(finalPrice);
-
-	console.log('product',product.discount);
-	
 
 	return (
 		<div className="flex gap-1 items-center">
@@ -101,6 +111,9 @@ Product.PriceType = ProductPriceType;
 Product.Discount = ProductDiscount;
 Product.Volume = ProductVolume;
 Product.Weight = ProductWeight;
+Product.ProductBrand = ProductBrand;
+Product.ProductManufacturer = ProductManufacturer;
+Product.Supplier = ProductSupplier;
 
 function getPriceAfterDiscount(product: TProduct) {
 	if (product.discount?.type === "percent") {

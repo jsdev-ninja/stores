@@ -6,6 +6,7 @@ import { navigate } from "src/navigation";
 import { CategoryTree } from "src/widgets/Category/CategoryTree/CategoryTree";
 import { isEqual } from "lodash";
 import { useAppApi } from "src/appApi";
+
 export function AdminCategoriesPages() {
 	const appApi = useAppApi();
 	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
@@ -15,17 +16,15 @@ export function AdminCategoriesPages() {
 		setCategoriesToEdit(JSON.parse(JSON.stringify(categories)));
 	}, [categories]);
 
-	console.log("AdminCategoriesPages", categories);
-
 	function addCategory() {
-		return navigate("admin.addCategory");
+		return navigate({
+			to: "admin.addCategory",
+		});
 	}
 
 	const noChanged = isEqual(categories, categoriesToEdit);
-	console.log("noChanged", noChanged);
 
 	async function save() {
-		console.log("saved");
 		await appApi.admin.category.update(categoriesToEdit);
 	}
 

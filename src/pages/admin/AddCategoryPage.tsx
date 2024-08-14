@@ -22,8 +22,6 @@ export function AddCategoryPage() {
 					onSubmit={async (data: any) => {
 						if (!store?.id || !store.companyId) return;
 
-						console.log("data", data);
-
 						const newCategory: TCategory = {
 							children: [],
 							companyId: store.companyId,
@@ -34,11 +32,11 @@ export function AddCategoryPage() {
 							parentId: "",
 						};
 
-						console.log("newCategory", newCategory);
-
 						const res = await appApi.admin.category.create(newCategory);
 						console.log("AddCategoryPage", res);
-						navigate("admin.categories");
+						navigate({
+							to: "admin.categories",
+						});
 					}}
 					defaultValues={{}}
 				>

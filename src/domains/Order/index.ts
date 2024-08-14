@@ -2,9 +2,11 @@ import { FirebaseApi } from "src/lib/firebase";
 import { z } from "zod";
 
 export const OrderSchema = z.object({
+	type: z.literal("order"),
 	id: z.string(),
 	companyId: z.string(),
 	storeId: z.string(),
+	userId: z.string(),
 	status: z.enum(["pending", "inProgress", "delivered", "canceled", "completed"]),
 	paymentStatus: z.enum(["paid", "notPaid"]),
 	cart: z.array(z.object({})), // todo

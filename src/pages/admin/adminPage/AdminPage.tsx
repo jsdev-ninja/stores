@@ -51,7 +51,7 @@ export function AdminPage() {
 								<List.Item
 									key={item.name}
 									onClick={() => {
-										navigate(item.path, item.params);
+										navigate({ to: item.path, params: item.params });
 									}}
 								>
 									{item.name}

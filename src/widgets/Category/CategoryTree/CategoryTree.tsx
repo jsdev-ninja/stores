@@ -333,10 +333,6 @@ export function CategoryTree({ indentationWidth = 50, categories = [], setCatego
 
 			const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
 			const newItems = buildTree(sortedItems);
-			console.log('newItems',newItems);
-			console.log('sortedItems',sortedItems);
-			
-			console.log(JSON.stringify(newItems));
 
 			setItems(newItems as any);
 			setCategories(newItems as any);

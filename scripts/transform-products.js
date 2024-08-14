@@ -157,13 +157,11 @@ async function downloadImage(product) {
 			timeout: 10000,
 		});
 
-		console.log("here 1");
 
 		const res = await storageApi.uploadFile({
 			file: response.data,
 			name: `products/${storeId}/${product.SKU ?? product.ProductSKU}/` + image,
 		});
-		console.log("here 2");
 
 		return res;
 	} catch (error) {

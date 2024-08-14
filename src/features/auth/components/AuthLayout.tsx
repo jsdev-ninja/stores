@@ -9,8 +9,6 @@ export const AuthLayout = () => {
 	const dir = i18n.dir();
 	const [isLoginForm, setIsLoginForm] = useState(true);
 
-	console.log("dir", dir);
-
 	const title = isLoginForm ? t("auth:welcome.login.title") : t("welcome.signup.title");
 	const button = isLoginForm ? t("auth:welcome.login.button") : t("welcome.signup.button");
 	const description = isLoginForm

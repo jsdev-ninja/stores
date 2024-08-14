@@ -13,7 +13,14 @@ export function CartPage() {
 				<div className="w-96 mx-auto  bg-gray-50 flex flex-col">
 					<PaymentSummary />
 					<div className="p-4">
-						<Button fullWidth onClick={() => navigate("store.checkout")}>
+						<Button
+							fullWidth
+							onClick={() =>
+								navigate({
+									to: "store.checkout",
+								})
+							}
+						>
 							Go to checkout
 						</Button>
 					</div>

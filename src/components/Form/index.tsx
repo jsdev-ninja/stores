@@ -37,10 +37,6 @@ export function Form<T extends FieldValues>(props: Props<T>) {
 		defaultValues,
 	});
 
-	console.log("form", form.getValues());
-
-	console.log("error", form.formState.errors);
-
 	return (
 		<FormProvider<T> {...form}>
 			<form

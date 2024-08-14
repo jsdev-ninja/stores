@@ -39,8 +39,6 @@ export const Select = <T,>({
 			displayValue={displayValue}
 			multiple={multiple}
 			onChange={(newValue: any) => {
-				console.log("newValue", newValue);
-
 				if (multiple && Array.isArray(newValue)) {
 					return form.setValue(name, newValue.flat() as any);
 				}

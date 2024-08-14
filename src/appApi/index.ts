@@ -3,6 +3,7 @@ import { TCategory } from "src/domains/Category";
 import { useCompany } from "src/domains/Company";
 import { OrderApi } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
+import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 
 // should be ready before use
@@ -12,11 +13,9 @@ import { FirebaseApi } from "src/lib/firebase";
 export const useAppApi = () => {
 	const company = useCompany();
 	const store = useStore();
-	console.log("useAppApi", store);
+	const user = useAppSelector((state) => state.user.user);
 
-	// orders
-
-	const isValid = !!company?.id && store?.id;
+	const isValid = !!company?.id && store?.id && !!user?.uid;
 
 	const api = useMemo(() => {
 		const orders = {
@@ -34,6 +33,8 @@ export const useAppApi = () => {
 					status: "pending",
 					paymentStatus: "notPaid",
 					date: Date.now(),
+					type: "order",
+					userId: user.uid,
 				});
 			},
 		};

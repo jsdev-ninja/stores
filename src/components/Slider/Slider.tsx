@@ -7,7 +7,6 @@ export const Slider = ({
 	onChange?: ({ value }: { value: Array<number> }) => void;
 }) => {
 	const [_value, _setValue] = useState([0, 100]);
-	console.log("_value", _value);
 
 	return (
 		<Root

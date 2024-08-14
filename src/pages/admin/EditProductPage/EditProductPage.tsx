@@ -42,7 +42,6 @@ export function EditProductPage() {
 			.then((res) => setCategories(res.data ?? []));
 	}, []);
 
-	console.log("product", product);
 	if (!product) return;
 
 	const title = t("admin:productForm.edit.title");
@@ -55,8 +54,6 @@ export function EditProductPage() {
 				schema={NewProductSchema}
 				defaultValues={product ?? undefined}
 				onSubmit={async (data) => {
-					console.log("SUBMIT", data);
-
 					const { categories: formCategories, images, newImage, ...rest } = data;
 
 					const product: Partial<TProduct> = {
@@ -65,25 +62,21 @@ export function EditProductPage() {
 
 					if (newImage) {
 						const fileRef = await FirebaseApi.storage.upload("image.png", newImage);
-						console.log(fileRef);
 
 						if (images?.[0]) {
 							await FirebaseApi.storage.remove(images?.[0].url);
-							console.log("removed");
 						}
 						product.images = [{ id: crypto.randomUUID(), url: fileRef.url }];
 					}
 					// product = { ...product, ...data };
 
-					const res = await FirebaseApi.firestore.update(
+					await FirebaseApi.firestore.update(
 						product.id ?? "",
 						product,
 						FirebaseApi.firestore.collections.products
 					);
 
-					console.log("res", res);
-
-					navigate("admin.products");
+					navigate({ to: "admin.products" });
 				}}
 			>
 				<div className="my-4">
@@ -151,10 +144,8 @@ function ImagePreview({ productImage }: { productImage: any }) {
 	const form = useFormContext();
 	const newImage = form.watch("newImage");
 
-	console.log("newImage", newImage);
 	// newImage ? URL.createObjectURL(images) :
 	const url = newImage ? URL.createObjectURL(newImage) : productImage ? productImage.url : null;
-	console.log("url", url);
 
 	return <div className="h-40 w-40">{url && <img src={url} className="" alt="" />}</div>;
 }

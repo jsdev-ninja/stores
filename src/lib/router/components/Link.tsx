@@ -24,11 +24,11 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 
 	type TTo = RouteKeys<typeof routes>;
 
-	function _navigate(path: string) {
-		store.navigate(path);
+	async function _navigate({ path, state }: { path: string; state?: any }) {
+		if (!document.startViewTransition) return store.navigate({ path, state });
 
-		document.startViewTransition?.(() => {
-			console.log("_navigate", path);
+		document.startViewTransition?.(async () => {
+			store.navigate({ path, state }); // todo type
 		});
 	}
 
@@ -38,12 +38,14 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 					to: K;
 					children: ReactNode;
 					className?: string;
+					state?: any;
 			  }
 			: {
 					to: K;
 					children: ReactNode;
 					params: RouteParams<RoutePath<K, typeof routes>>;
 					className?: string;
+					state?: any;
 			  }
 	) {
 		const routeConfig = getRouteData(props.to, routes);
@@ -56,7 +58,7 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 			<a
 				onClick={(e) => {
 					e.preventDefault();
-					_navigate(path);
+					_navigate({ path, state: props.state });
 				}}
 			>
 				{props.children}
@@ -64,17 +66,19 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 		);
 	}
 
-	function navigate<K extends TTo>(
-		to: K,
-		...[params]: RouteParams<RoutePath<K, typeof routes>> extends never
-			? [] // todo fix parmas type
-			: [RouteParams<RoutePath<K, typeof routes>>]
-	) {
+	async function navigate<K extends TTo>(props: {
+		to: K;
+		state?: any;
+		params?: RouteParams<RoutePath<K, typeof routes>> extends never
+			? undefined // todo fix parmas type
+			: RouteParams<RoutePath<K, typeof routes>>;
+	}) {
+		const { params, state, to } = props;
 		const routeConfig = getRouteData(to, routes);
 
 		const path = replaceParamsInPath(routeConfig?.fullPath ?? "", params); //todo fix type
 
-		_navigate(path);
+		return await _navigate({ path, state });
 	}
 
 	return { Link, navigate };

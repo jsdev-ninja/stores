@@ -20,8 +20,6 @@ function CategoryFilter() {
 		limit: 100,
 	});
 
-	console.log("menu", menu);
-
 	return (
 		<div className="flex flex-col gap-2">
 			{menu.items.map((menuItem) => {
@@ -76,7 +74,6 @@ function RangeFilter(props: { attribute: NestedKeys<TProduct> & string; label: s
 		max: 1000,
 		min: 0,
 	});
-	console.log("price refinement", refinement);
 
 	const {} = refinement;
 	return (
@@ -84,8 +81,6 @@ function RangeFilter(props: { attribute: NestedKeys<TProduct> & string; label: s
 			<div className="font-semibold my-2">{props.label}</div>
 			<Slider
 				onChange={(change) => {
-					console.log("change", change);
-
 					refinement.refine(change.value as RangeBoundaries);
 				}}
 			/>
@@ -107,7 +102,6 @@ function RefinementFilter(props: { attribute: NestedKeys<TProduct> & string; lab
 	const refinement = useRefinementList({
 		attribute: props.attribute,
 	});
-	console.log("brand refinement", refinement);
 
 	const { items, refine } = refinement;
 

@@ -31,14 +31,12 @@ ProductsWidget.Filter = ProductFilter;
 ProductsWidget.Products = Products;
 ProductsWidget.SearchBox = SearchBox;
 
-
 export function Products({
 	children,
 }: {
 	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
 }) {
 	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>();
-	console.log("useInfiniteHits", items);
 
 	const sentinelRef = useRef(null);
 

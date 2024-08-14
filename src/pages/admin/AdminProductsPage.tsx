@@ -13,7 +13,15 @@ export function AdminProductsPage() {
 						<ProductsWidget.SearchBox />
 					</div>
 					<div className="p-4 flex items-center gap-4">
-						<Button onClick={() => navigate("admin.addProduct")}>Create Product</Button>
+						<Button
+							onClick={() =>
+								navigate({
+									to: "admin.addProduct",
+								})
+							}
+						>
+							Create Product
+						</Button>
 					</div>
 				</div>
 
@@ -55,7 +63,10 @@ export function AdminProductsPage() {
 												<Button
 													disabled
 													onClick={() =>
-														navigate("admin.editProduct", { id: product.id })
+														navigate({
+															to: "admin.editProduct",
+															params: { id: product.id },
+														})
 													}
 													fullWidth
 												>

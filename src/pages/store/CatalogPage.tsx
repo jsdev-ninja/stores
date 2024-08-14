@@ -1,4 +1,3 @@
-// import { HierarchicalMenu } from "react-instantsearch";
 import { Button } from "src/components/Button/Button";
 import { navigate } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
@@ -19,13 +18,17 @@ export function CatalogPage() {
 							return products.map((product) => (
 								<Product key={product.id} product={product}>
 									<div
-										className="shadow p-4 w-64 h-80 flex flex-col"
-										onClick={() => {
-											navigate("store.product", { id: product.id });
+										className="shadow p-4 w-64 h-80 flex flex-col bg-gray-50 rounded-2xl"
+										onClick={async () => {
+											navigate({
+												to: "store.product",
+												params: { id: product.id },
+												state: { product },
+											});
 										}}
 									>
 										<div className="w-32 h-32 mx-auto">
-											<Product.Image />
+											<Product.Image prefix="productCard" />
 										</div>
 										<div className="flex flex-col gap-1 mt-4">
 											<Product.Name />
@@ -52,7 +55,14 @@ export function CatalogPage() {
 					<Cart />
 				</div>
 				<div className="p-4 flex-shrink-0 mt-auto">
-					<Button fullWidth onClick={() => navigate("store.cart")}>
+					<Button
+						fullWidth
+						onClick={() =>
+							navigate({
+								to: "store.cart",
+							})
+						}
+					>
 						Go to cart
 					</Button>
 				</div>
