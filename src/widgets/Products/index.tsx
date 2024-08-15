@@ -6,9 +6,14 @@ import { ReactNode, useEffect, useRef } from "react";
 import type { Hit as AlgoliaHit } from "instantsearch.js";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
 import { SearchBox } from "./SearchBox";
+import { useStore } from "src/domains/Store";
 
 export function ProductsWidget({ children }: { children: ReactNode }) {
-	// const filter = categories ? `categories.tag:${categories}` : "";
+	const store = useStore();
+
+	if (!store?.companyId || !store.id) return null;
+
+	const filters = `companyId:${store.companyId}`;
 	return (
 		<InstantSearch
 			searchClient={AlgoliaClient}
@@ -18,10 +23,7 @@ export function ProductsWidget({ children }: { children: ReactNode }) {
 				persistHierarchicalRootCount: false,
 			}}
 		>
-			<Configure
-				//  filters={filter}
-				attributesToHighlight={[]}
-			/>
+			<Configure filters={filters} attributesToHighlight={[]} />
 			{children}
 		</InstantSearch>
 	);

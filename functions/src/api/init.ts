@@ -25,7 +25,7 @@ export const appInit = functions.https.onCall(async (data, context) => {
 	const storesRef = db
 		.collection("stores")
 		.where("companyId", "==", doc.id)
-		.where("url", "==", origin);
+		.where("urls", "array-contains", origin);
 	const stores = await storesRef.get();
 
 	console.log("init found stores:", stores.size);
