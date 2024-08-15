@@ -7,6 +7,9 @@
 			"hosting": {
 				"opal-market": [
 					"opal-market"
+				],
+				"tester": [
+					"jsdev-stores-prod"
 				]
 			}
 		}
