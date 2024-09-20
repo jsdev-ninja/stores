@@ -1,0 +1,19 @@
+{
+	"projects": {
+		"default": "jsdev-stores-prod"
+	},
+	"targets": {
+		"jsdev-stores-prod": {
+			"hosting": {
+				"opal-market": [
+					"opal-market"
+				],
+				"tester": [
+					"jsdev-stores-prod"
+				]
+			}
+		}
+	},
+	"etags": {},
+	"dataconnectEmulatorConfig": {}
+}

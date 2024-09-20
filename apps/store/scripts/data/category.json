@@ -1,0 +1,1380 @@
+[
+	{
+		"id": 11807,
+		"name": "פירות וירקות",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 3,
+		"shopId": 58,
+		"category": {
+			"name": "פירות וירקות",
+			"nameTranslations": null
+		},
+		"tag": "FruitsVegetables"
+	},
+	{
+		"id": 11806,
+		"name": "קפואים",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "קפואים",
+			"nameTranslations": null
+		},
+		"tag": "Frozen"
+	},
+	{
+		"id": 11812,
+		"name": "לחמים ומוצרי מאפה",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 6,
+		"shopId": 58,
+		"category": {
+			"name": "לחמים ומוצרי מאפה",
+			"nameTranslations": null
+		},
+		"tag": "BreadsBakery"
+	},
+	{
+		"id": 11811,
+		"name": "מוצרי חלב וביצים",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 7,
+		"shopId": 58,
+		"category": {
+			"name": "מוצרי חלב וביצים",
+			"nameTranslations": null
+		},
+		"tag": "DairyProductsEggs"
+	},
+	{
+		"id": 11810,
+		"name": "מעדניה",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 8,
+		"shopId": 58,
+		"category": {
+			"name": "מעדניה",
+			"nameTranslations": null
+		},
+		"tag": "Deli"
+	},
+	{
+		"id": 11809,
+		"name": "משקאות ויין",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 9,
+		"shopId": 58,
+		"category": {
+			"name": "משקאות ויין",
+			"nameTranslations": null
+		},
+		"tag": "DrinkWine"
+	},
+	{
+		"id": 11816,
+		"name": "דברי מכולת",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 10,
+		"shopId": 58,
+		"category": {
+			"name": "דברי מכולת",
+			"nameTranslations": null
+		},
+		"tag": "Groceries"
+	},
+	{
+		"id": 11814,
+		"name": "חטיפים וממתקים",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 11,
+		"shopId": 58,
+		"category": {
+			"name": "חטיפים וממתקים",
+			"nameTranslations": null
+		},
+		"tag": "SnacksSweets"
+	},
+	{
+		"id": 11808,
+		"name": "פארם, היגיינה ותינוקות",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 12,
+		"shopId": 58,
+		"category": {
+			"name": "פארם, היגיינה ותינוקות",
+			"nameTranslations": null
+		},
+		"tag": "PharmHygieneInfants"
+	},
+	{
+		"id": 11815,
+		"name": "חומרי ניקוי",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 13,
+		"shopId": 58,
+		"category": {
+			"name": "חומרי ניקוי",
+			"nameTranslations": null
+		},
+		"tag": "Cleaners"
+	},
+	{
+		"id": 11813,
+		"name": "כלי בית  וג'אדג'טים",
+		"parentCategoryInShopID": null,
+		"imagePath": null,
+		"displayOrder": 14,
+		"shopId": 58,
+		"category": {
+			"name": "כלי בית  וג'אדג'טים",
+			"nameTranslations": null
+		},
+		"tag": "HousewaresGadgets"
+	},
+	{
+		"id": 11900,
+		"name": "בירות",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 0,
+		"shopId": 58,
+		"category": {
+			"name": "בירות",
+			"nameTranslations": null
+		},
+		"tag": "Beers"
+	},
+	{
+		"id": 11958,
+		"name": "מסטיקים וסוכריות",
+		"parentCategoryInShopID": 11814,
+		"imagePath": null,
+		"displayOrder": 0,
+		"shopId": 58,
+		"category": {
+			"name": "מסטיקים וסוכריות",
+			"nameTranslations": null
+		},
+		"tag": "ChewingGumCandies"
+	},
+	{
+		"id": 11948,
+		"name": "שטיפת כלים",
+		"parentCategoryInShopID": 11815,
+		"imagePath": null,
+		"displayOrder": 0,
+		"shopId": 58,
+		"category": {
+			"name": "שטיפת כלים",
+			"nameTranslations": null
+		},
+		"tag": "Dishwashing"
+	},
+	{
+		"id": 11923,
+		"name": "פירות טריים",
+		"parentCategoryInShopID": 11807,
+		"imagePath": null,
+		"displayOrder": 0,
+		"shopId": 58,
+		"category": {
+			"name": "פירות טריים",
+			"nameTranslations": null
+		},
+		"tag": "FreshFruits"
+	},
+	{
+		"id": 11941,
+		"name": "שלגונים",
+		"parentCategoryInShopID": 11806,
+		"imagePath": null,
+		"displayOrder": 0,
+		"shopId": 58,
+		"category": {
+			"name": "שלגונים",
+			"nameTranslations": null
+		},
+		"tag": "Glaciers"
+	},
+	{
+		"id": 11893,
+		"name": "גבינות עיזים וכבשים",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "גבינות עיזים וכבשים",
+			"nameTranslations": null
+		},
+		"tag": "GoatCheeseSheep"
+	},
+	{
+		"id": 11854,
+		"name": "ירקות טריים",
+		"parentCategoryInShopID": 11807,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "ירקות טריים",
+			"nameTranslations": null
+		},
+		"tag": "FreshVegetables"
+	},
+	{
+		"id": 11932,
+		"name": "תכשירי טיפוח ונקיון",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "תכשירי טיפוח ונקיון",
+			"nameTranslations": null
+		},
+		"tag": "HygieneCleaning"
+	},
+	{
+		"id": 11889,
+		"name": "גלידות",
+		"parentCategoryInShopID": 11806,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "גלידות",
+			"nameTranslations": null
+		},
+		"tag": "IceCreams"
+	},
+	{
+		"id": 11935,
+		"name": "תוספים למרק/סלט",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "תוספים למרק/סלט",
+			"nameTranslations": null
+		},
+		"tag": "IngredientsSoupSalad"
+	},
+	{
+		"id": 11820,
+		"name": "טבלאות שוקולד",
+		"parentCategoryInShopID": 11814,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "טבלאות שוקולד",
+			"nameTranslations": null
+		},
+		"tag": "ChocolateTables"
+	},
+	{
+		"id": 11988,
+		"name": "ניקוי הבית",
+		"parentCategoryInShopID": 11815,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "ניקוי הבית",
+			"nameTranslations": null
+		},
+		"tag": "CleaningHouse"
+	},
+	{
+		"id": 11844,
+		"name": "לחמים ומאפים",
+		"parentCategoryInShopID": 11812,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "לחמים ומאפים",
+			"nameTranslations": null
+		},
+		"tag": "BreadsPastries"
+	},
+	{
+		"id": 11856,
+		"name": "יינות",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 1,
+		"shopId": 58,
+		"category": {
+			"name": "יינות",
+			"nameTranslations": null
+		},
+		"tag": "Wines"
+	},
+	{
+		"id": 11855,
+		"name": "ירק, עשבי תיבול ונבטים",
+		"parentCategoryInShopID": 11807,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "ירק, עשבי תיבול ונבטים",
+			"nameTranslations": null
+		},
+		"tag": "VegetableHerbsSprouts"
+	},
+	{
+		"id": 11827,
+		"name": "חטיפים מתוקים",
+		"parentCategoryInShopID": 11814,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "חטיפים מתוקים",
+			"nameTranslations": null
+		},
+		"tag": "SweetsSnacks"
+	},
+	{
+		"id": 11936,
+		"name": "תה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "תה",
+			"nameTranslations": null
+		},
+		"tag": "Tea"
+	},
+	{
+		"id": 11904,
+		"name": "אשל/לבן/שמנת",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "אשל/לבן/שמנת",
+			"nameTranslations": null
+		},
+		"tag": "YogurtWhiteCream"
+	},
+	{
+		"id": 11963,
+		"name": "מטהרי אויר וקוטל חרקים",
+		"parentCategoryInShopID": 11815,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "מטהרי אויר וקוטל חרקים",
+			"nameTranslations": null
+		},
+		"tag": "AirFreshenersInsecticide"
+	},
+	{
+		"id": 11961,
+		"name": "מים מינרלים/ בטעמים",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "מים מינרלים/ בטעמים",
+			"nameTranslations": null
+		},
+		"tag": "MineralFlavors"
+	},
+	{
+		"id": 11916,
+		"name": "פסטרמה ונקניקים",
+		"parentCategoryInShopID": 11810,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "פסטרמה ונקניקים",
+			"nameTranslations": null
+		},
+		"tag": "PastramiColdCuts"
+	},
+	{
+		"id": 11843,
+		"name": "לחמניות",
+		"parentCategoryInShopID": 11812,
+		"imagePath": null,
+		"displayOrder": 2,
+		"shopId": 58,
+		"category": {
+			"name": "לחמניות",
+			"nameTranslations": null
+		},
+		"tag": "Rolls"
+	},
+	{
+		"id": 11829,
+		"name": "חטיפים מלוחים",
+		"parentCategoryInShopID": 11814,
+		"imagePath": null,
+		"displayOrder": 3,
+		"shopId": 58,
+		"category": {
+			"name": "חטיפים מלוחים",
+			"nameTranslations": null
+		},
+		"tag": "SaltySnacks"
+	},
+	{
+		"id": 11985,
+		"name": "נקניקיות",
+		"parentCategoryInShopID": 11810,
+		"imagePath": null,
+		"displayOrder": 3,
+		"shopId": 58,
+		"category": {
+			"name": "נקניקיות",
+			"nameTranslations": null
+		},
+		"tag": "HotDogs"
+	},
+	{
+		"id": 11975,
+		"name": "משקאות אנרגיה",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 3,
+		"shopId": 58,
+		"category": {
+			"name": "משקאות אנרגיה",
+			"nameTranslations": null
+		},
+		"tag": "EnergyDrinks"
+	},
+	{
+		"id": 11922,
+		"name": "פירות יבשים",
+		"parentCategoryInShopID": 11807,
+		"imagePath": null,
+		"displayOrder": 3,
+		"shopId": 58,
+		"category": {
+			"name": "פירות יבשים",
+			"nameTranslations": null
+		},
+		"tag": "DriedFruit"
+	},
+	{
+		"id": 11984,
+		"name": "נקניקים יבשים",
+		"parentCategoryInShopID": 11810,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "נקניקים יבשים",
+			"nameTranslations": null
+		},
+		"tag": "DriedSausages"
+	},
+	{
+		"id": 11871,
+		"name": "אביזרי ניקוי",
+		"parentCategoryInShopID": 11815,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "אביזרי ניקוי",
+			"nameTranslations": null
+		},
+		"tag": "CleaningAccessories"
+	},
+	{
+		"id": 11974,
+		"name": "משקאות אלכוהוליים בטעמים",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "משקאות אלכוהוליים בטעמים",
+			"nameTranslations": null
+		},
+		"tag": "AlcoholicBeveragesFlavor"
+	},
+	{
+		"id": 11925,
+		"name": "פיצוחים",
+		"parentCategoryInShopID": 11807,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "פיצוחים",
+			"nameTranslations": null
+		},
+		"tag": "Nuts"
+	},
+	{
+		"id": 11894,
+		"name": "גבינות לבנות ושמנת",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "גבינות לבנות ושמנת",
+			"nameTranslations": null
+		},
+		"tag": "WhiteCheesesCream"
+	},
+	{
+		"id": 11858,
+		"name": "טקסטיל לבית",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "טקסטיל לבית",
+			"nameTranslations": null
+		},
+		"tag": "TextileHome"
+	},
+	{
+		"id": 11982,
+		"name": "סבונים/תכשירי רחצה",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "סבונים/תכשירי רחצה",
+			"nameTranslations": null
+		},
+		"tag": "SoapsBath"
+	},
+	{
+		"id": 11830,
+		"name": "וופלים ובסקוויטים",
+		"parentCategoryInShopID": 11814,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "וופלים ובסקוויטים",
+			"nameTranslations": null
+		},
+		"tag": "WafersBiscuits"
+	},
+	{
+		"id": 11938,
+		"name": "תבלינים",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 4,
+		"shopId": 58,
+		"category": {
+			"name": "תבלינים",
+			"nameTranslations": null
+		},
+		"tag": "Spices"
+	},
+	{
+		"id": 11992,
+		"name": "משקאות מוגזים",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "משקאות מוגזים",
+			"nameTranslations": null
+		},
+		"tag": "Sodas"
+	},
+	{
+		"id": 11891,
+		"name": "גבינות רכות ומלוחות",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "גבינות רכות ומלוחות",
+			"nameTranslations": null
+		},
+		"tag": "SoftSaltedCheeses"
+	},
+	{
+		"id": 11989,
+		"name": "נייר טואלט/טישו",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "נייר טואלט/טישו",
+			"nameTranslations": null
+		},
+		"tag": "ToiletPaperTissue"
+	},
+	{
+		"id": 11940,
+		"name": "שמנים וחומץ",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "שמנים וחומץ",
+			"nameTranslations": null
+		},
+		"tag": "OilsVinegar"
+	},
+	{
+		"id": 11977,
+		"name": "סלטים",
+		"parentCategoryInShopID": 11810,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "סלטים",
+			"nameTranslations": null
+		},
+		"tag": "Salads"
+	},
+	{
+		"id": 11903,
+		"name": "בונבוניירות",
+		"parentCategoryInShopID": 11814,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "בונבוניירות",
+			"nameTranslations": null
+		},
+		"tag": "Bonbonniere"
+	},
+	{
+		"id": 11953,
+		"name": "עוגות ועוגיות",
+		"parentCategoryInShopID": 11812,
+		"imagePath": null,
+		"displayOrder": 5,
+		"shopId": 58,
+		"category": {
+			"name": "עוגות ועוגיות",
+			"nameTranslations": null
+		},
+		"tag": "CakesCookies"
+	},
+	{
+		"id": 11910,
+		"name": "קינוחים",
+		"parentCategoryInShopID": 11810,
+		"imagePath": null,
+		"displayOrder": 6,
+		"shopId": 58,
+		"category": {
+			"name": "קינוחים",
+			"nameTranslations": null
+		},
+		"tag": "Desserts"
+	},
+	{
+		"id": 11927,
+		"name": "פיתות",
+		"parentCategoryInShopID": 11812,
+		"imagePath": null,
+		"displayOrder": 6,
+		"shopId": 58,
+		"category": {
+			"name": "פיתות",
+			"nameTranslations": null
+		},
+		"tag": "PitaBread"
+	},
+	{
+		"id": 11824,
+		"name": "חלווה מרציפן ולוקום",
+		"parentCategoryInShopID": 11814,
+		"imagePath": null,
+		"displayOrder": 6,
+		"shopId": 58,
+		"category": {
+			"name": "חלווה מרציפן ולוקום",
+			"nameTranslations": null
+		},
+		"tag": "HalvaMarzipanLocom"
+	},
+	{
+		"id": 11991,
+		"name": "משקאות קלים",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 6,
+		"shopId": 58,
+		"category": {
+			"name": "משקאות קלים",
+			"nameTranslations": null
+		},
+		"tag": "SoftDrinks"
+	},
+	{
+		"id": 11849,
+		"name": "כלי איחסון",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 6,
+		"shopId": 58,
+		"category": {
+			"name": "כלי איחסון",
+			"nameTranslations": null
+		},
+		"tag": "StorageTools"
+	},
+	{
+		"id": 11892,
+		"name": "גבינות צהובות וקשות",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 6,
+		"shopId": 58,
+		"category": {
+			"name": "גבינות צהובות וקשות",
+			"nameTranslations": null
+		},
+		"tag": "YellowHardCheeses"
+	},
+	{
+		"id": 11960,
+		"name": "מיצים ונקטרים",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 7,
+		"shopId": 58,
+		"category": {
+			"name": "מיצים ונקטרים",
+			"nameTranslations": null
+		},
+		"tag": "JuicesNectar"
+	},
+	{
+		"id": 11825,
+		"name": "חלב טרי",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 7,
+		"shopId": 58,
+		"category": {
+			"name": "חלב טרי",
+			"nameTranslations": null
+		},
+		"tag": "FreshMilk"
+	},
+	{
+		"id": 11848,
+		"name": "כלים חד פעמים",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 7,
+		"shopId": 58,
+		"category": {
+			"name": "כלים חד פעמים",
+			"nameTranslations": null
+		},
+		"tag": "DisposableDishes"
+	},
+	{
+		"id": 11930,
+		"name": "קרקרים ופרכיות",
+		"parentCategoryInShopID": 11812,
+		"imagePath": null,
+		"displayOrder": 7,
+		"shopId": 58,
+		"category": {
+			"name": "קרקרים ופרכיות",
+			"nameTranslations": null
+		},
+		"tag": "Crackers"
+	},
+	{
+		"id": 11819,
+		"name": "תרכיזי שתיה",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 8,
+		"shopId": 58,
+		"category": {
+			"name": "תרכיזי שתיה",
+			"nameTranslations": null
+		},
+		"tag": "ConcentrationsDrinking"
+	},
+	{
+		"id": 11944,
+		"name": "שימורי ירקות",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 8,
+		"shopId": 58,
+		"category": {
+			"name": "שימורי ירקות",
+			"nameTranslations": null
+		},
+		"tag": "CannedVegetables"
+	},
+	{
+		"id": 11924,
+		"name": "פירורי לחם",
+		"parentCategoryInShopID": 11812,
+		"imagePath": null,
+		"displayOrder": 8,
+		"shopId": 58,
+		"category": {
+			"name": "פירורי לחם",
+			"nameTranslations": null
+		},
+		"tag": "Breadcrumbs"
+	},
+	{
+		"id": 11822,
+		"name": "חמאה ומרגרינה",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 8,
+		"shopId": 58,
+		"category": {
+			"name": "חמאה ומרגרינה",
+			"nameTranslations": null
+		},
+		"tag": "ButterMargarine"
+	},
+	{
+		"id": 11993,
+		"name": "משקאות חריפים",
+		"parentCategoryInShopID": 11809,
+		"imagePath": null,
+		"displayOrder": 9,
+		"shopId": 58,
+		"category": {
+			"name": "משקאות חריפים",
+			"nameTranslations": null
+		},
+		"tag": "AlcoholicBeverages"
+	},
+	{
+		"id": 11945,
+		"name": "שימורי חמוצים",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 9,
+		"shopId": 58,
+		"category": {
+			"name": "שימורי חמוצים",
+			"nameTranslations": null
+		},
+		"tag": "CannedPickleVegetables"
+	},
+	{
+		"id": 11965,
+		"name": "מוצרי נייר",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 9,
+		"shopId": 58,
+		"category": {
+			"name": "מוצרי נייר",
+			"nameTranslations": null
+		},
+		"tag": "Paper"
+	},
+	{
+		"id": 11857,
+		"name": "יוגורט",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 9,
+		"shopId": 58,
+		"category": {
+			"name": "יוגורט",
+			"nameTranslations": null
+		},
+		"tag": "Yogurt"
+	},
+	{
+		"id": 11905,
+		"name": "מגבונים לחים",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 10,
+		"shopId": 58,
+		"category": {
+			"name": "מגבונים לחים",
+			"nameTranslations": null
+		},
+		"tag": "WetWipes"
+	},
+	{
+		"id": 11981,
+		"name": "סוללות",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 10,
+		"shopId": 58,
+		"category": {
+			"name": "סוללות",
+			"nameTranslations": null
+		},
+		"tag": "Batteries"
+	},
+	{
+		"id": 11946,
+		"name": "שימורי דגים וטונה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 10,
+		"shopId": 58,
+		"category": {
+			"name": "שימורי דגים וטונה",
+			"nameTranslations": null
+		},
+		"tag": "CannedFishTuna"
+	},
+	{
+		"id": 11956,
+		"name": "מעדנים",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 10,
+		"shopId": 58,
+		"category": {
+			"name": "מעדנים",
+			"nameTranslations": null
+		},
+		"tag": "Delicacies"
+	},
+	{
+		"id": 11990,
+		"name": "ניילון נצמד/אלומיניום",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 11,
+		"shopId": 58,
+		"category": {
+			"name": "ניילון נצמד/אלומיניום",
+			"nameTranslations": null
+		},
+		"tag": "NylonClingAluminum"
+	},
+	{
+		"id": 11994,
+		"name": "משקאות חלב",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 11,
+		"shopId": 58,
+		"category": {
+			"name": "משקאות חלב",
+			"nameTranslations": null
+		},
+		"tag": "MilkDrinks"
+	},
+	{
+		"id": 11949,
+		"name": "רטבים ורסקים",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 12,
+		"shopId": 58,
+		"category": {
+			"name": "רטבים ורסקים",
+			"nameTranslations": null
+		},
+		"tag": "Sauces"
+	},
+	{
+		"id": 11859,
+		"name": "טיפוח שיניים",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 12,
+		"shopId": 58,
+		"category": {
+			"name": "טיפוח שיניים",
+			"nameTranslations": null
+		},
+		"tag": "DentalCare"
+	},
+	{
+		"id": 11912,
+		"name": "קוטג׳",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 12,
+		"shopId": 58,
+		"category": {
+			"name": "קוטג׳",
+			"nameTranslations": null
+		},
+		"tag": "Cottage"
+	},
+	{
+		"id": 11983,
+		"name": "נרות וגפרורים",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 12,
+		"shopId": 58,
+		"category": {
+			"name": "נרות וגפרורים",
+			"nameTranslations": null
+		},
+		"tag": "CandlesMatches"
+	},
+	{
+		"id": 11928,
+		"name": "קצפות",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 13,
+		"shopId": 58,
+		"category": {
+			"name": "קצפות",
+			"nameTranslations": null
+		},
+		"tag": "WhippedCream"
+	},
+	{
+		"id": 11917,
+		"name": "קפה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 14,
+		"shopId": 58,
+		"category": {
+			"name": "קפה",
+			"nameTranslations": null
+		},
+		"tag": "Coffee"
+	},
+	{
+		"id": 11934,
+		"name": "תחליפי חלב",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 14,
+		"shopId": 58,
+		"category": {
+			"name": "תחליפי חלב",
+			"nameTranslations": null
+		},
+		"tag": "MilkSubstitutes"
+	},
+	{
+		"id": 11909,
+		"name": "קמח, סוכר ומלח",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 15,
+		"shopId": 58,
+		"category": {
+			"name": "קמח, סוכר ומלח",
+			"nameTranslations": null
+		},
+		"tag": "FlourSugarSalt"
+	},
+	{
+		"id": 11939,
+		"name": "שקיות פלסטיק",
+		"parentCategoryInShopID": 11813,
+		"imagePath": null,
+		"displayOrder": 15,
+		"shopId": 58,
+		"category": {
+			"name": "שקיות פלסטיק",
+			"nameTranslations": null
+		},
+		"tag": "PlasticBags"
+	},
+	{
+		"id": 11840,
+		"name": "טיפוח והגיינה",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 15,
+		"shopId": 58,
+		"category": {
+			"name": "טיפוח והגיינה",
+			"nameTranslations": null
+		},
+		"tag": "CultivationHygiene"
+	},
+	{
+		"id": 11951,
+		"name": "תחליפי גבינה",
+		"parentCategoryInShopID": 11811,
+		"imagePath": null,
+		"displayOrder": 15,
+		"shopId": 58,
+		"category": {
+			"name": "תחליפי גבינה",
+			"nameTranslations": null
+		},
+		"tag": "Cheesesubstitutes"
+	},
+	{
+		"id": 11911,
+		"name": "קטניות",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 16,
+		"shopId": 58,
+		"category": {
+			"name": "קטניות",
+			"nameTranslations": null
+		},
+		"tag": "Legumes"
+	},
+	{
+		"id": 11918,
+		"name": "פסטה/פתיתים/קוסקוס",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 17,
+		"shopId": 58,
+		"category": {
+			"name": "פסטה/פתיתים/קוסקוס",
+			"nameTranslations": null
+		},
+		"tag": "PastaFlakesCouscous"
+	},
+	{
+		"id": 11834,
+		"name": "הגיינת הפה",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 19,
+		"shopId": 58,
+		"category": {
+			"name": "הגיינת הפה",
+			"nameTranslations": null
+		},
+		"tag": "OralHygiene"
+	},
+	{
+		"id": 11835,
+		"name": "הגיינה נשית",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 20,
+		"shopId": 58,
+		"category": {
+			"name": "הגיינה נשית",
+			"nameTranslations": null
+		},
+		"tag": "FeminineHygiene"
+	},
+	{
+		"id": 11886,
+		"name": "דאודורנט לנשים",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 21,
+		"shopId": 58,
+		"category": {
+			"name": "דאודורנט לנשים",
+			"nameTranslations": null
+		},
+		"tag": "DeodorantWomen"
+	},
+	{
+		"id": 11954,
+		"name": "מרקים ומזון מהיר להכנה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 21,
+		"shopId": 58,
+		"category": {
+			"name": "מרקים ומזון מהיר להכנה",
+			"nameTranslations": null
+		},
+		"tag": "SoupsFastFood"
+	},
+	{
+		"id": 11887,
+		"name": "דאודורנט לגברים",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 22,
+		"shopId": 58,
+		"category": {
+			"name": "דאודורנט לגברים",
+			"nameTranslations": null
+		},
+		"tag": "DeodorantMen"
+	},
+	{
+		"id": 11959,
+		"name": "ממתיקים מלאכותיים",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 22,
+		"shopId": 58,
+		"category": {
+			"name": "ממתיקים מלאכותיים",
+			"nameTranslations": null
+		},
+		"tag": "ArtificialSweeteners"
+	},
+	{
+		"id": 11964,
+		"name": "מוצרי סויה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 23,
+		"shopId": 58,
+		"category": {
+			"name": "מוצרי סויה",
+			"nameTranslations": null
+		},
+		"tag": "Soy"
+	},
+	{
+		"id": 11971,
+		"name": "מוצרי אפייה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 25,
+		"shopId": 58,
+		"category": {
+			"name": "מוצרי אפייה",
+			"nameTranslations": null
+		},
+		"tag": "Baking"
+	},
+	{
+		"id": 11874,
+		"name": "אביזרי טיפוח וריענון",
+		"parentCategoryInShopID": 11808,
+		"imagePath": null,
+		"displayOrder": 26,
+		"shopId": 58,
+		"category": {
+			"name": "אביזרי טיפוח וריענון",
+			"nameTranslations": null
+		},
+		"tag": "CareRefreshment"
+	},
+	{
+		"id": 11838,
+		"name": "חטיפי בריאות",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 27,
+		"shopId": 58,
+		"category": {
+			"name": "חטיפי בריאות",
+			"nameTranslations": null
+		},
+		"tag": "SnacksHealth"
+	},
+	{
+		"id": 11836,
+		"name": "דגנים/שיבולת שועל",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 28,
+		"shopId": 58,
+		"category": {
+			"name": "דגנים/שיבולת שועל",
+			"nameTranslations": null
+		},
+		"tag": "CerealsOatmeal"
+	},
+	{
+		"id": 11837,
+		"name": "דגני בוקר",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 29,
+		"shopId": 58,
+		"category": {
+			"name": "דגני בוקר",
+			"nameTranslations": null
+		},
+		"tag": "Cereal"
+	},
+	{
+		"id": 11863,
+		"name": "דבש/ריבה/ממרחים",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 30,
+		"shopId": 58,
+		"category": {
+			"name": "דבש/ריבה/ממרחים",
+			"nameTranslations": null
+		},
+		"tag": "HoneyJamspreads"
+	},
+	{
+		"id": 11888,
+		"name": "גרנולה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 31,
+		"shopId": 58,
+		"category": {
+			"name": "גרנולה",
+			"nameTranslations": null
+		},
+		"tag": "Granola"
+	},
+	{
+		"id": 11883,
+		"name": "אורז",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 33,
+		"shopId": 58,
+		"category": {
+			"name": "אורז",
+			"nameTranslations": null
+		},
+		"tag": "Rice"
+	},
+	{
+		"id": 11865,
+		"name": "אבקות שתיה",
+		"parentCategoryInShopID": 11816,
+		"imagePath": null,
+		"displayOrder": 35,
+		"shopId": 58,
+		"category": {
+			"name": "אבקות שתיה",
+			"nameTranslations": null
+		},
+		"tag": "PowdersDrinking"
+	}
+]

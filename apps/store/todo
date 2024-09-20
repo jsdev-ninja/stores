@@ -1,0 +1,57 @@
+1. sort orders by date created
+
+cart page  V
+checkout page V
+catalog page
+
+entities
+
+company ->
+shop ->
+category ->
+product ->
+cart ->
+order ->
+payment ->
+user -> shop admin | shop member | client
+
+product brand
+
+ADMIN ACTIONS
+
+product - create edit delete
+category - create edit delete
+order - decline accept complete
+
+USER ACTIONS
+
+-  add item to cart
+-  remove item from cart
+-  clear cart
+-  order
+-  create order from cart history
+-  register, login, logout, reset password, forgot password
+
+EMAILS
+
+1. order create - send email to admin and client
+2. order stutus changed - send email to client and admin
+
+client create order
+client pay order
+store accept order
+store deliver order
+
+todo:
+
+-  react lazy loading pages
+-  on user delete -> remove cart
+
+remove category - find all children and clean all products
+move category - find all children and update all products
+
+firestore doc size - 1 MiB - 89 bytes (1,048,487 bytes)
+
+features
+
+-  auth anonymous
