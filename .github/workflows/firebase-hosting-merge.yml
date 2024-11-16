@@ -15,10 +15,7 @@ jobs:
          - name: enter store folder
            run: |
               cd apps/store
-              pwd
-              ls
-
-         - run: yarn && yarn build
+              yarn && yarn build
 
          - uses: FirebaseExtended/action-hosting-deploy@v0
            with:
@@ -26,5 +23,6 @@ jobs:
               firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSDEV_STORES_PROD }}
               channelId: live
               projectId: jsdev-stores-prod
+              entryPoint: apps/store/dist
            env:
               FIREBASE_CLI_EXPERIMENTS: webframeworks
