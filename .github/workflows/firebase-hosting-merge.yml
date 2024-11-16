@@ -23,6 +23,6 @@ jobs:
               firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSDEV_STORES_PROD }}
               channelId: live
               projectId: jsdev-stores-prod
-              entryPoint: apps/store/dist
+              entryPoint: apps/store
            env:
               FIREBASE_CLI_EXPERIMENTS: webframeworks
