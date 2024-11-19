@@ -8,5 +8,7 @@
 		"packages/*",
 		"apps/*"
 	],
-	"scripts": {}
+	"scripts": {
+		"dev-store": "cd apps/store && yarn dev"
+	}
 }
