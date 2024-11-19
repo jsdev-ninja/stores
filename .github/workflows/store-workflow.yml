@@ -6,15 +6,16 @@ on:
    push:
       branches:
          - main
+      paths:
+         - "apps/store/**"
 jobs:
-   build_and_deploy:
+   store_job:
       runs-on: ubuntu-latest
       steps:
          - uses: actions/checkout@v4
 
          - name: enter store folder
            run: |
-              cd apps/store
               yarn && yarn build
 
          - uses: FirebaseExtended/action-hosting-deploy@v0

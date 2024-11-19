@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 // 5. Cart Schema
 export const CartSchema = z.object({
 	id: z.string().uuid(),

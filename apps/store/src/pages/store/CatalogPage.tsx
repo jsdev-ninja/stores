@@ -55,12 +55,13 @@ export function CatalogPage() {
 					</ProductsWidget.Products>
 				</div>
 			</div>
-			<div className="w-[300px] flex flex-col flex-shrink-0">
+			<div className="w-[300px] flex flex-col flex-shrink-0 border sticky top-0 h-[calc(100vh-64px)]">
 				<div className="flex-grow overflow-hidden">
 					<Cart />
 				</div>
 				<div className="p-4 flex-shrink-0 mt-auto">
 					<Button
+						fullWidth
 						onClick={() =>
 							navigate({
 								to: "store.cart",
