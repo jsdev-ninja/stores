@@ -13,9 +13,6 @@ defaults:
       working-directory: packages/core # Set the global working directory
 jobs:
    build_and_publish:
-      defaults:
-         run:
-            working-directory: apps/core
       runs-on: ubuntu-latest
       steps:
          - name: Checkout
