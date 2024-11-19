@@ -8,6 +8,9 @@ on:
          - main
       paths:
          - "apps/store/**"
+defaults:
+   run:
+      working-directory: apps/store # Set the global working directory
 jobs:
    store_job:
       runs-on: ubuntu-latest
@@ -16,6 +19,7 @@ jobs:
 
          - name: enter store folder
            run: |
+              pwd
               yarn && yarn build
 
          - uses: FirebaseExtended/action-hosting-deploy@v0
