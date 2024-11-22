@@ -54,7 +54,7 @@
 		"tailwind-variants": "^0.2.0",
 		"tailwindcss-animate": "^1.0.7",
 		"zod": "^3.22.4",
-		"@jsdev_ninja/core": "0.0.8"
+		"@jsdev_ninja/core": "0.0.9"
 	},
 	"devDependencies": {
 		"@chromatic-com/storybook": "^1.7.0",
