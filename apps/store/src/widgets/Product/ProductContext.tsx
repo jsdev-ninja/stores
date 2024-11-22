@@ -1,5 +1,5 @@
+import { TProduct } from "@jsdev_ninja/core";
 import { createContext } from "react";
-import { TProduct } from "src/domains";
 
 export type ProductContextType = {
 	product: TProduct | null;

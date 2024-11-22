@@ -25,6 +25,6 @@ export function ProductName(props: Props) {
 	const { product } = useProduct();
 	if (!product) return null;
 
-	const name = product?.locales?.[0]?.value;
+	const name = product?.name?.[0]?.value;
 	return <div className={style(props)}>{name}</div>;
 }

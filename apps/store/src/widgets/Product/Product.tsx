@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { TProduct } from "src/domains";
 import { ProductContext, ProductContextType } from "./ProductContext";
 import { useProduct } from "./useProduct";
 import { ProductCartButton } from "./ProductCartButton";
@@ -14,6 +13,7 @@ import { ProductWeight } from "./ProductWeight";
 import { ProductBrand } from "./ProductBrand";
 import { ProductManufacturer } from "./ProductManufacturer";
 import { ProductSupplier } from "./ProductSupplier";
+import { TProduct } from "@jsdev_ninja/core";
 
 export type ProductProps = {
 	product: TProduct;
@@ -52,7 +52,9 @@ Product.Image = function Image({ prefix }: { prefix?: string }) {
 
 Product.Description = function Description() {
 	const { product } = useProduct();
-	return <div className="text-gray-400">{product?.description}</div>;
+	const description = product?.description?.[0]?.value;
+
+	return <div className="text-gray-400">{description}</div>;
 };
 
 Product.Price = function Price() {

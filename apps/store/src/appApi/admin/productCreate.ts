@@ -1,10 +1,12 @@
-import { ProductSchema, TNewProduct, TProduct } from "src/domains";
 import { TCategory } from "src/domains/Category";
 import { FirebaseApi } from "src/lib/firebase";
 import { SentryApi } from "src/lib/sentry";
+import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
 
 export async function productCreate(newProduct: TNewProduct) {
 	const { image, ...rest } = newProduct;
+
+	console.log("newProduct", newProduct);
 
 	const categories = newProduct.categoryList;
 
@@ -37,12 +39,15 @@ export async function productCreate(newProduct: TNewProduct) {
 
 			product.images = [{ id: id, url: fileRef.url }];
 		} catch (error) {
+			console.error(error);
 			SentryApi.captureException(error);
 			return { success: false };
 		}
 	}
 
 	const validation = ProductSchema.safeParse(product);
+
+	console.log("validation", validation);
 
 	if (validation.success) {
 		return await FirebaseApi.firestore.createV2({

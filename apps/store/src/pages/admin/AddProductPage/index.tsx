@@ -1,10 +1,11 @@
+import { NewProductSchema, TNewProduct } from "@jsdev_ninja/core";
 import { Fragment, useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Flex } from "src/components/Flex";
 import { Form } from "src/components/Form";
-import { NewProductSchema, TNewProduct } from "src/domains";
+// import { NewProductSchema, TNewProduct } from "src/domains";
 import { TCategory } from "src/domains/Category";
 import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
@@ -116,7 +117,7 @@ export function AddProductPage() {
 					type: "Product",
 					storeId: store.id,
 					companyId: store.companyId,
-					locales: [{ lang: "he", value: "" }],
+					name: [{ lang: "he", value: "" }],
 					vat: true,
 					ingredients: [],
 					priceType: {
@@ -129,7 +130,7 @@ export function AddProductPage() {
 					},
 					volume: { unit: "none", value: 0 },
 					discount: { type: "none", value: 0 },
-					description: "",
+					description: [{ lang: "he", value: "" }],
 					manufacturer: "",
 					importer: "",
 					brand: "",
@@ -140,6 +141,9 @@ export function AddProductPage() {
 					profitPercentage: 0,
 					purchasePrice: 0,
 					price: 0,
+					created_at: Date.now(),
+					updated_at: Date.now(),
+					isPublished: true,
 				}}
 				onError={(errors) => {
 					console.error(errors);
@@ -159,7 +163,7 @@ export function AddProductPage() {
 
 				<Flex>
 					<Form.TextArea<TNewProduct>
-						name="description"
+						name={`description[0].value`}
 						label={t("common:description")}
 						placeholder={t("common:description")}
 					/>
@@ -293,7 +297,7 @@ function NameDetails() {
 		<Flex wrap gap={"4"} align={"start"}>
 			<Flex.Item>
 				<Form.Input<TNewProduct>
-					name={`locales[0].value`}
+					name={`name[0].value`}
 					label={t("name")}
 					placeholder={t("editProductName")}
 				/>

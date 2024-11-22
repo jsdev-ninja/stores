@@ -20,6 +20,8 @@ export const ProductSchema = z.object({
 		value: z.number(),
 	}),
 	price: z.number().positive(),
+	purchasePrice: z.number().optional(),
+	profitPercentage: z.number().optional(),
 	currency: z.literal("ILS"),
 	discount: z.object({
 		type: z.enum(["number", "percent", "none"]),
@@ -60,13 +62,9 @@ export const NewProductSchema = ProductSchema.omit({
 	images: true,
 }).extend({
 	image: z.instanceof(File).optional(),
-	purchasePrice: z.number().optional(),
-	profitPercentage: z.number().optional(),
 });
 export const EditProductSchema = ProductSchema.extend({
 	image: z.instanceof(File).optional(),
-	purchasePrice: z.number().optional(),
-	profitPercentage: z.number().optional(),
 });
 
 export type TNewProduct = z.infer<typeof NewProductSchema>;
