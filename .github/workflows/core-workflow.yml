@@ -21,7 +21,10 @@ jobs:
       runs-on: ubuntu-latest
       steps:
          - name: Checkout code
-           uses: actions/checkout@v4
+           uses:
+              actions/checkout@v4
+              # Setup .npmrc file to publish to npm
+         - uses: actions/setup-node@v4
 
          - name: Configure npm for authentication
            run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
