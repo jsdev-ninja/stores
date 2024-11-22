@@ -15,17 +15,21 @@ jobs:
    build_and_publish:
       runs-on: ubuntu-latest
       steps:
-         - name: Checkout
+         - name: Checkout code
            uses: actions/checkout@v4
 
-         - name: Debug NPM_TOKEN
-           run: echo "NPM_TOKEN=${NPM_TOKEN}"
+         - name: Configure npm for authentication
+           run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
            env:
               NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-         - name: build
+         - name: Install dependencies
+           run: yarn install --frozen-lockfile
+
+         - name: Build the package
            run: yarn build
-         - name: publish
-           run: yarn publish_core
+
+         - name: Publish to npm
+           run: yarn publish --non-interactive
            env:
               NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
