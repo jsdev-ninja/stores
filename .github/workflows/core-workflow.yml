@@ -18,27 +18,14 @@ jobs:
          - name: Checkout
            uses: actions/checkout@v4
 
-         - name: List all files
-           run: ls -R
-
-
-         - name: Debug .npmrc
-           run: |
-            if [ -f .npmrc ]; then
-            echo ".npmrc exists in the working directory:"
-            cat .npmrc
-            else
-            echo ".npmrc does not exist in the working directory!"
-            fi
-
          - name: Debug NPM_TOKEN
            run: echo "NPM_TOKEN=${NPM_TOKEN}"
            env:
-            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-               
+              NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
          - name: build
            run: yarn build
          - name: publish
-           run: echo "hello"
+           run: yarn publish_core
            env:
-            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+              NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
