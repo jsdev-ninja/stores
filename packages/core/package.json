@@ -1,6 +1,6 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.5.91",
+	"version": "0.5.911",
 	"type": "module",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
