@@ -17,6 +17,12 @@ jobs:
       steps:
          - name: Checkout
            uses: actions/checkout@v4
+
+         - name: Debug NPM_TOKEN
+           run: echo "NPM_TOKEN=${NPM_TOKEN}"
+           env:
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+               
          - name: build
            run: yarn build
          - name: publish
