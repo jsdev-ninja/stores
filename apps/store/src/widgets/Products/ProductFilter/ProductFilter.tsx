@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { HierarchicalMenuItem } from "instantsearch.js/es/connectors/hierarchical-menu/connectHierarchicalMenu";
 import { RangeBoundaries } from "instantsearch.js/es/connectors/range/connectRange";
 import { useHierarchicalMenu, useRange, useRefinementList } from "react-instantsearch";
+import { Checkbox } from "src/components/Checkbox/Checkbox";
 import { Slider } from "src/components/Slider/Slider";
 import { TProduct } from "src/domains";
 import { NestedKeys } from "src/shared/types";
@@ -109,13 +110,14 @@ function RefinementFilter(props: { attribute: NestedKeys<TProduct> & string; lab
 			<div className="font-semibold">{props.label}</div>
 			{items.map((item) => {
 				return (
-					<input
-						type="checkbox"
-						onChange={() => refine(item.value)}
-						checked={item.isRefined}
-						// label={item.label}
-						name={item.value}
-					/>
+					<>
+						<label htmlFor="">{item.label}</label>
+						<Checkbox
+							onChange={() => refine(item.value)}
+							checked={item.isRefined}
+							name={item.value}
+						/>
+					</>
 				);
 			})}
 		</div>
