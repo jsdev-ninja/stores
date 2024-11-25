@@ -5,10 +5,12 @@ import { modalApi } from "src/infra/modals";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { Icon } from "src/components";
-import { ProductsWidget } from "../Products";
 import { Dropdown } from "src/components/Dropdown";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
+// import { cn } from "src/lib/utils";
+
+// import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 
 export function AppBar() {
 	const { t } = useTranslation();
@@ -34,9 +36,6 @@ export function AppBar() {
 		<div className="shadow px-4 py-2 flex items-center h-16">
 			<div className="h-[40px] w-[80px]">
 				<WebsiteLogo />
-			</div>
-			<div className="mx-4  w-full">
-				<ProductsWidget.SearchBox />
 			</div>
 			<div className="ms-auto">
 				{!!user && !user.isAnonymous ? (
@@ -74,6 +73,14 @@ export function AppBar() {
 					<Button onClick={onClick}>{text}</Button>
 				)}
 			</div>
+			{/* <Dropdown>
+				<Dropdown.Trigger>
+					<HamburgerMenuIcon />
+				</Dropdown.Trigger>
+				<Dropdown.Content>
+					<Dropdown.Item>hi</Dropdown.Item>
+				</Dropdown.Content>
+			</Dropdown> */}
 		</div>
 	);
 }

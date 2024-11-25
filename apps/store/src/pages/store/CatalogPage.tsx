@@ -12,6 +12,10 @@ export function CatalogPage() {
 				<SideNavigator />
 			</div>
 			<div className="flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
+				<div className="mx-4  w-full">
+					<ProductsWidget.SearchBox />
+					catalgog
+				</div>
 				<div className="flex gap-4 flex-wrap justify-center">
 					<ProductsWidget.Products>
 						{(products) => {
