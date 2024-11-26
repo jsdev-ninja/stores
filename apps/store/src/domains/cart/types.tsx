@@ -1,4 +1,4 @@
-import { TProduct } from "..";
+import { TProduct } from "@jsdev_ninja/core";
 
 export type TCart = {
 	type: "Cart";

@@ -1,11 +1,12 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import type { TProduct } from "../product";
 import { CONFIG } from "src/config";
 import { useAppSelector } from "src/infra";
 import { TCart } from "./types";
+import { TProduct } from "@jsdev_ninja/core";
 
-const initialState: { cart: TCart | null } = {
-	cart: null,
+const initialState: { currentCart: TCart | null; carts: TCart[] } = {
+	currentCart: null,
+	carts: [],
 };
 
 export const cartSlice = createSlice({
@@ -13,62 +14,68 @@ export const cartSlice = createSlice({
 	initialState: initialState,
 	reducers: {
 		setCart: (state, action: PayloadAction<TCart | null>) => {
-			state.cart = action.payload;
+			state.currentCart = action.payload;
 		},
 		addItem: (state, action: PayloadAction<TProduct>) => {
-			if (!state.cart) return;
+			if (!state.currentCart) return;
 			const product = action.payload;
-			const productIndex = state.cart.items.findIndex(
+			const productIndex = state.currentCart.items.findIndex(
 				(cartItem) => cartItem.product.id === product.id
 			);
 			const productInCart = productIndex !== -1;
 			if (productInCart) {
-				state.cart.items[productIndex].amount += 1;
+				state.currentCart.items[productIndex].amount += 1;
 				return;
 			}
-			state.cart.items.push({
+			state.currentCart.items.push({
 				amount: 1,
 				product,
 			});
 		},
 		removeItem: (state, action) => {
-			if (!state.cart) return;
+			if (!state.currentCart) return;
 
 			const product = action.payload;
-			const productIndex = state.cart.items.findIndex(
+			const productIndex = state.currentCart.items.findIndex(
 				(cartItem) => cartItem.product.id === product.id
 			);
 			const productInCart = productIndex !== -1;
 			if (!productInCart) return;
 
-			if (state.cart.items[productIndex].amount > 1) {
-				state.cart.items[productIndex].amount -= 1;
+			if (state.currentCart.items[productIndex].amount > 1) {
+				state.currentCart.items[productIndex].amount -= 1;
 				return;
 			}
-			state.cart.items.splice(productIndex, 1);
+			state.currentCart.items.splice(productIndex, 1);
 		},
 		clear: (state) => {
-			if (!state.cart) return;
+			if (!state.currentCart) return;
 
-			state.cart.items = [];
+			state.currentCart.items = [];
 		},
 	},
 	selectors: {
 		selectCart: (state) => {
-			return state.cart?.items;
+			return state.currentCart?.items;
+		},
+		selectCurrentCart: (state) => {
+			return state.currentCart;
 		},
 		selectProduct: (state, productId?: string) => {
-			return state.cart?.items?.find((item) => item.product.id === productId);
+			return state.currentCart?.items?.find((item) => item.product.id === productId);
+		},
+		selectProductInCart: (state, productId?: string) => {
+			return !!state.currentCart?.items?.find((item) => item.product.id === productId);
 		},
 		selectCost: (state) => {
-			if (!state.cart?.items)
+			if (!state.currentCart?.items)
 				return {
 					discount: 0,
 					cost: 0,
 					finalCost: 0,
 					vat: 0,
 				};
-			return state.cart?.items.reduce(
+			return state.currentCart?.items.reduce(
 				(acc, item) => {
 					const { product, amount } = item;
 					const productPrice = getPriceAfterDiscount(product);
@@ -99,7 +106,7 @@ export const cartSlice = createSlice({
 	},
 });
 
-export const useCart = () => useAppSelector((state) => state.cart.cart);
+export const useCart = () => useAppSelector((state) => state.cart.currentCart);
 
 function calculateDiscount(product: TProduct) {
 	if (product.discount?.type === "percent") {

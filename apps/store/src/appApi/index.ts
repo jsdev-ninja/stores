@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { TNewProduct, TProduct } from "src/domains";
 import { TCategory } from "src/domains/Category";
 import { useCompany } from "src/domains/Company";
 import { OrderApi, TOrder } from "src/domains/Order";
@@ -15,16 +14,25 @@ import { SubNestedKeys } from "src/shared/types";
 import { TProfile, TNewCompany, TStoreStats } from "src/types";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 import { productCreate } from "./admin";
+import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
+import { TCart } from "src/domains/cart";
+import { CartService } from "src/domains/cart/CartService";
 
 // should be ready before use
 // store
 // firebase
 
+// todo move to folder
+function productInCart(cart: TCart | null, product: TProduct) {
+	return !!cart?.items?.find((item) => item.product.id === product.id);
+}
+
 export const useAppApi = () => {
 	const company = useCompany();
 	const store = useStore();
 	const user = useAppSelector((state) => state.user.user);
-	const cart = useAppSelector((state) => state.cart.cart);
+	const cart = useAppSelector((state) => state.cart.currentCart);
+	const cartId = cart?.id ?? FirebaseApi.firestore.generateDocId("cart");
 
 	const [loading, setLoading] = useState<
 		Partial<Record<SubNestedKeys<typeof api>, boolean | undefined>>
@@ -145,6 +153,91 @@ export const useAppApi = () => {
 		};
 
 		const userApi = {
+			async addItemToCart({ product }: { product: TProduct }) {
+				if (!product || !user || !store) return;
+
+				const actualCart: Omit<TCart, "id"> = cart ?? {
+					companyId: store.companyId ?? "",
+					storeId: store.id,
+					userId: user.uid,
+					items: [],
+					type: "Cart",
+					status: "active",
+				};
+
+				const cartItems = cart?.items ?? [];
+
+				const validation = ProductSchema.safeParse(product);
+				if (!validation.success) {
+					// todo handle schema error
+					console.log(validation.error);
+					return;
+				}
+				const safeProduct = validation.data;
+
+				const isProductInCart = productInCart(cart, safeProduct);
+
+				if (isProductInCart) {
+					const items = structuredClone(cartItems ?? []);
+					const productIndex = (cartItems ?? []).findIndex(
+						(cartItem) => cartItem.product.id === product?.id
+					);
+					items[productIndex].amount += 1;
+					CartService.updateCart(cartId, {
+						...actualCart,
+						items,
+					});
+				} else {
+					const items = [
+						...cartItems,
+						{
+							amount: 1,
+							product: safeProduct,
+						},
+					];
+
+					CartService.updateCart(cartId, {
+						...actualCart,
+						items,
+					});
+				}
+				mixPanelApi.track("USER_ADD_ITEM_TO_CART", {
+					productId: product.id,
+					productName: product.name[0].value, //todo get correct lang
+				});
+			},
+			async removeItemFromCart({ product }: { product: TProduct }) {
+				if (!product || !user || !store || !cart) return;
+				const cartItems = cart?.items ?? [];
+
+				const productIndex = cartItems.findIndex(
+					(cartItem) => cartItem.product.id === product.id
+				);
+				const productInCart = productIndex !== -1;
+				if (!productInCart) return;
+
+				const items = structuredClone(cartItems);
+
+				if (items[productIndex].amount > 1) {
+					items[productIndex].amount -= 1;
+					CartService.updateCart(cartId, {
+						...cart,
+						items,
+					});
+
+					return;
+				}
+				items.splice(productIndex, 1);
+
+				CartService.updateCart(cartId, {
+					...cart,
+					items,
+				});
+				mixPanelApi.track("USER_REMOVE_ITEM_FROM_CART", {
+					productId: product.id,
+					productName: product.name[0].value, //todo get correct lang
+				});
+			},
 			signup: async (newUser: { email: string; password: string; fullName: string }) => {
 				if (!isValid) return;
 
@@ -298,7 +391,7 @@ export const useAppApi = () => {
 		};
 
 		return { orders, admin, system, user: userApi };
-	}, [store]);
+	}, [store, cart, user]);
 
 	return api;
 };
