@@ -15,6 +15,7 @@ import { CategoryService } from "src/domains/Category";
 import { TProfile } from "src/types";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
+import { NextUIProvider } from "@nextui-org/react";
 
 function App() {
 	const { i18n } = useTranslation();
@@ -137,7 +138,7 @@ function App() {
 	}
 
 	return (
-		<>
+		<NextUIProvider>
 			<ModalProvider />
 			<Route name="store">
 				<StoreLayout />
@@ -154,7 +155,7 @@ function App() {
 			<Route name="superAdmin">
 				<SuperAdminLayout />
 			</Route>
-		</>
+		</NextUIProvider>
 	);
 }
 

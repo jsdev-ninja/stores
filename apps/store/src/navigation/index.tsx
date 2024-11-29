@@ -22,6 +22,9 @@ export const routes = {
 			orders: {
 				path: "/orders",
 			},
+			orderPage: {
+				path: "/orders/:id",
+			},
 			orderSuccess: {
 				path: "/orderSuccess/:orderId",
 			},

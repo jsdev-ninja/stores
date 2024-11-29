@@ -153,6 +153,25 @@ export const useAppApi = () => {
 		};
 
 		const userApi = {
+			permissions: {
+				canCancelOrder({ order }: { order: TOrder }) {
+					if (order.status === "pending") return true;
+					return false;
+				},
+			},
+			async cancelOrder({ order }: { order: TOrder }) {
+				if (!user || !store || !order) return;
+				// mixPanelApi.track("ADMIN_ORDER_ACCEPT", {
+				// 	order,
+				// });
+				return FirebaseApi.firestore.update<TOrder>(
+					order.id,
+					{
+						status: "canceled",
+					},
+					"orders"
+				);
+			},
 			async addItemToCart({ product }: { product: TProduct }) {
 				if (!product || !user || !store) return;
 

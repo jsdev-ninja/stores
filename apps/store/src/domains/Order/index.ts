@@ -9,6 +9,10 @@ import { AddressSchema, ProfileSchema } from "src/types";
 // canceled - order canceled by user/admin
 // completed - order paid by admin
 
+type PaymentStatus = "pending" | "completed" | "failed" | "refunded" | "partially_refunded";
+
+type PaymentMethod = "credit_card" | "paypal" | "bank_transfer" | "cash_on_delivery";
+
 export const OrderSchema = z.object({
 	type: z.literal("Order"),
 	id: z.string(),

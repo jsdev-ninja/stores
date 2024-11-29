@@ -65,6 +65,14 @@ export const resources = {
 			amount: "כמות",
 			addToFavorite: "הוסף למועדפים",
 			remove: "הסר",
+			orderStatutes: {
+				pending: "בהמתנה",
+				processing: "בהכנה",
+				delivered: "הגיע",
+				canceled: "בוטל",
+				completed: "הסתיים בהצלחה",
+				refunded: "הוחזר",
+			},
 		},
 		auth: {
 			welcome: {
@@ -110,6 +118,20 @@ export const resources = {
 			backToShop: "חזרה לחנות",
 		},
 
+		ordersPage: {
+			title: "הזמנות שלי",
+			columns: {
+				orderId: "מזהה הזמנה",
+				date: "תאריך",
+				sum: "סכום",
+				status: "סטטוס",
+			},
+			actions: {
+				cancelOrder: "בטל הזמנה",
+				viewOrder: "צפה בהזמנה",
+			},
+		},
+
 		orderSuccessPage: {
 			actionButton: "מעבר לחנות",
 			title: "ההזמנה שלך התקבלה בהצלחה! תודה רבה על הרכישה שלך.",
@@ -121,7 +143,7 @@ export const resources = {
 		},
 		checkout: {
 			title: "פרטי ההזמנה",
-			order: 'הזמן'
+			order: "הזמן",
 		},
 		store: {},
 		admin: {

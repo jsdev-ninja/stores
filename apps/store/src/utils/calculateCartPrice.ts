@@ -1,5 +1,5 @@
+import { TProduct } from "@jsdev_ninja/core";
 import { CONFIG } from "src/config";
-import { TProduct } from "src/domains";
 import { TCart } from "src/domains/cart";
 
 function calculateDiscount(product: TProduct) {
