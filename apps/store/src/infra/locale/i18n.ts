@@ -125,10 +125,15 @@ export const resources = {
 				date: "תאריך",
 				sum: "סכום",
 				status: "סטטוס",
+				client: "שם לקוח",
+				address: "כתובת",
 			},
 			actions: {
 				cancelOrder: "בטל הזמנה",
 				viewOrder: "צפה בהזמנה",
+				acceptOrder: "אישור הזמנה",
+				deliveredOrder: "הזמנה הגיע",
+				paidOrder: "הזמנה שולמה",
 			},
 		},
 

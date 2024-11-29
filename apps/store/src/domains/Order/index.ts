@@ -1,7 +1,7 @@
 import { FirebaseApi } from "src/lib/firebase";
 import { z } from "zod";
-import { ProductSchema } from "..";
 import { AddressSchema, ProfileSchema } from "src/types";
+import { ProductSchema } from "@jsdev_ninja/core";
 
 // pending - order created / by user
 // processing order accepted by store by admin

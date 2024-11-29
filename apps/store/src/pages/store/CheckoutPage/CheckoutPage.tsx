@@ -20,7 +20,7 @@ function CheckoutPage() {
 
 	const appApi = useAppApi();
 
-	const cart = useAppSelector((state) => state.cart.cart);
+	const cart = useAppSelector((state) => state.cart.currentCart);
 	const store = useAppSelector((state) => state.store.data);
 
 	if (!store || !user || !cart) {
