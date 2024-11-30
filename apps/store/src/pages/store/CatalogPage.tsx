@@ -1,3 +1,5 @@
+import { Divider } from "@nextui-org/react";
+import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { navigate } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
@@ -6,6 +8,7 @@ import { ProductsWidget } from "src/widgets/Products";
 import { SideNavigator } from "src/widgets/SideNavigator";
 
 export function CatalogPage() {
+	const { t } = useTranslation(["common"]);
 	return (
 		<div className="flex w-full h-full">
 			<div className="flex-shrink-0 w-80  overflow-auto  sticky top-0 h-[calc(100vh-64px)]">
@@ -14,7 +17,6 @@ export function CatalogPage() {
 			<div className="flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
 				<div className="mx-4  w-full">
 					<ProductsWidget.SearchBox />
-					catalgog
 				</div>
 				<div className="flex gap-4 flex-wrap justify-center">
 					<ProductsWidget.Products>
@@ -40,15 +42,13 @@ export function CatalogPage() {
 												<Product.Price />
 											</div>
 
-											<div className="">
+											<div className="flex items-center gap-2">
 												<Product.Weight />
+												<Divider orientation="vertical" />
+												<Product.ProductBrand />
 											</div>
 										</div>
-										<div className="flex items-center gap-2 my-4">
-											<Product.ProductBrand />
-											<Product.ProductManufacturer />
-											<Product.Supplier />
-										</div>
+										<div className="flex items-center gap-2 my-4"></div>
 										<div className="w-full mt-auto">
 											<Product.CartButton size="md" />
 										</div>
@@ -72,7 +72,7 @@ export function CatalogPage() {
 							})
 						}
 					>
-						Go to cart
+						{t("common:goToCart")}
 					</Button>
 				</div>
 			</div>

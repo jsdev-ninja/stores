@@ -6,6 +6,7 @@ import { Product } from "../Product";
 import EmptyCartImg from ".././../assets/empty-cart.png";
 import classNames from "classnames";
 import { Icon } from "src/components";
+import { useTranslation } from "react-i18next";
 
 export function Badge({ children }: any) {
 	return (
@@ -19,13 +20,15 @@ export function Badge({ children }: any) {
 export function Cart({ size = "sm" }: { size?: "sm" | "lg" }) {
 	const cart = useAppSelector(cartSlice.selectors.selectCart);
 
+	const { t } = useTranslation(["cart", "common"]);
+
 	const isEmpty = !cart?.length;
 
 	return (
 		<div data-name="Cart" className="flex flex-col h-full p-4 shadow">
 			<div className="flex items-center justify-between">
-					<Icon name="cart" size="lg" />
-				<div className="p-4 text-3xl font-bold">Cart</div>
+				<Icon name="cart" size="lg" />
+				<div className="p-4 text-3xl font-bold">{t('cart:shoppingCart')}</div>
 			</div>
 
 			{isEmpty && (

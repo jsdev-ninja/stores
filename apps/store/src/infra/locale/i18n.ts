@@ -19,6 +19,7 @@ export const resources = {
 			positive: "ערך חייב להיות גדול מ 0",
 		},
 		common: {
+			goToCart: "מעבר לעגלה",
 			login: "התחברות",
 			logout: "התנתקות",
 			city: "עיר",

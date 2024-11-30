@@ -2,9 +2,8 @@ import { Button } from "src/components/button";
 import { useProduct } from "./useProduct";
 import { useAppSelector } from "src/infra/store";
 import { cartSlice } from "src/domains/cart";
-
-import classNames from "classnames";
 import { useAppApi } from "src/appApi";
+import { ButtonGroup } from "@nextui-org/react";
 
 type Props = {
 	size: "sm" | "md";
@@ -25,7 +24,7 @@ export function ProductCartButton(props: Props) {
 
 	if (!cartProduct?.amount) {
 		return (
-			<Button fullWidth onClick={() => appApi.user.addItemToCart({ product })}>
+			<Button color="primary" fullWidth onClick={() => appApi.user.addItemToCart({ product })}>
 				Add to cart
 			</Button>
 		);
@@ -48,32 +47,27 @@ export function InputButton(props: {
 	onChange: (value: number, type: "increase" | "decrease") => void;
 	size?: "sm" | "md";
 }) {
-	const { onChange, value } = props;
+	const { onChange, value, size } = props;
 
 	return (
-		<div className="flex w-full items-center">
+		<ButtonGroup size={size} color="primary" className="mx-auto w-full">
 			<Button
 				className="rounded-none rounded-s-lg"
 				onClick={() => onChange(value - 1, "decrease")}
-				size={"icon"}
+				isIconOnly
 			>
 				-
 			</Button>
-			<div
-				className={classNames([
-					"flex-grow text-white bg size-9 flex items-center justify-center bg-primary",
-				])}
-				onClick={(e) => e.stopPropagation()}
-			>
+			<Button fullWidth onClick={(e) => e.stopPropagation()} disableRipple disabled>
 				{value}
-			</div>
+			</Button>
 			<Button
 				className=" rounded-none rounded-e-lg"
 				onClick={() => onChange(value + 1, "increase")}
-				size={"icon"}
+				isIconOnly
 			>
 				+
 			</Button>
-		</div>
+		</ButtonGroup>
 	);
 }

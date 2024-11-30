@@ -4,9 +4,9 @@ const storeId = "opal-market-store";
 const tenantId = "opal-market-tenant-ia9ux";
 
 const user = {
-	email: "opalmarket3@gmail.com",
+	email: "testet@example.com",
 	emailVerified: true,
-	password: "david987!",
+	password: "123123!",
 	displayName: "David",
 	disabled: false,
 };

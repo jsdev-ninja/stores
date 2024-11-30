@@ -1,0 +1,11 @@
+{
+	"functions": [
+		{
+			"runtime": "nodejs16",
+			"source": ".",
+			"codebase": "default",
+			"ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log"],
+			"predeploy": ["npm run lint", "npm run build"]
+		}
+	]
+}
