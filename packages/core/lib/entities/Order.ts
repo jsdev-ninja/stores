@@ -1,15 +1,36 @@
 import { z } from "zod";
+import { AddressSchema } from "./Address";
+import { ProfileSchema } from "./Profile";
+import { ProductSchema } from "./Product";
 
-// 4. Order Schema
+// pending - order created / by user
+// processing order accepted by store by admin
+// delivered - order delivered by admin
+// canceled - order canceled by user/admin
+// completed - order paid by admin
+
+// type PaymentStatus = "pending" | "completed" | "failed" | "refunded" | "partially_refunded";
+
+// type PaymentMethod = "credit_card" | "paypal" | "bank_transfer" | "cash_on_delivery";
+
 export const OrderSchema = z.object({
-	id: z.string().uuid(),
-	userId: z.string().uuid(), // Reference to User ID
-	productIds: z.array(z.string().uuid()), // References to Product IDs
-	totalAmount: z.number().positive({ message: "Total amount must be a positive number." }),
-	status: z
-		.enum(["pending", "processing", "shipped", "delivered", "cancelled"])
-		.default("pending"),
-	paymentId: z.string().uuid().optional(), // Reference to Payment ID
-	createdAt: z.date().default(new Date()),
-	updatedAt: z.date().optional(),
+	type: z.literal("Order"),
+	id: z.string(),
+	companyId: z.string(),
+	storeId: z.string(),
+	userId: z.string(),
+	status: z.enum(["pending", "processing", "delivered", "canceled", "completed", "refunded"]),
+	cart: z.object({
+		id: z.string(),
+		items: z.array(z.object({ product: ProductSchema, amount: z.number() })),
+		cartTotal: z.number(),
+		cartDiscount: z.number(),
+		cartVat: z.number(),
+	}),
+	date: z.number(),
+	deliveryDate: z.number().optional(),
+	client: ProfileSchema,
+	address: AddressSchema,
 });
+
+export type TOrder = z.infer<typeof OrderSchema>;

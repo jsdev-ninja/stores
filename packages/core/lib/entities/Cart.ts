@@ -1,14 +1,19 @@
 import { z } from "zod";
-// 5. Cart Schema
+import { ProductSchema } from "./Product";
+
 export const CartSchema = z.object({
+	type: z.literal("Cart"),
 	id: z.string().uuid(),
-	userId: z.string().uuid(), // Reference to User ID
+	companyId: z.string().uuid(),
+	storeId: z.string().uuid(),
+	userId: z.string().uuid(),
+	status: z.enum(["active", "draft", "completed"]),
 	items: z.array(
 		z.object({
-			productId: z.string().uuid(), // Reference to Product ID
-			quantity: z.number().int().positive({ message: "Quantity must be a positive integer." }),
+			product: ProductSchema,
+			amount: z.number().int().positive({ message: "Quantity must be a positive integer." }),
 		})
 	),
-	createdAt: z.date().default(new Date()),
-	updatedAt: z.date().optional(),
 });
+
+export type TCart = z.infer<typeof CartSchema>;

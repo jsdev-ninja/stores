@@ -7,17 +7,16 @@
 		"serve": "npm run build && firebase emulators:start --only functions",
 		"shell": "npm run build && firebase functions:shell",
 		"start": "npm run shell",
-		"start:email": "email dev --dir ./src/emails",
 		"deploy": "firebase deploy --only functions --force",
 		"logs": "firebase functions:log",
-		"cli:login": "firebase login --reauth"
-	},
-	"engines": {
-		"node": "18"
+		"cli:login": "firebase login --reauth",
+		"email:dev": "email dev --dir ./src/emails",
+		"email:build": "email build --dir ./src/emails"
 	},
 	"main": "lib/index.js",
 	"dependencies": {
 		"@getbrevo/brevo": "^2.2.0",
+		"@jsdev_ninja/core": "^0.6.2",
 		"@react-email/components": "0.0.25",
 		"algoliasearch": "^4.23.3",
 		"axios": "^1.7.5",

@@ -29,12 +29,12 @@ function CheckoutPage() {
 
 	const emptyAddress: TAddress = {
 		country: "israel",
-		city: "",
-		street: "",
-		streetNumber: "",
-		apartmentEnterNumber: "",
-		apartmentNumber: "",
-		floor: "",
+		city: profile?.address.city ?? "",
+		street: profile?.address.street ?? "",
+		streetNumber: profile?.address.streetNumber ?? "",
+		apartmentEnterNumber: profile?.address.apartmentEnterNumber ?? "",
+		apartmentNumber: profile?.address.apartmentNumber ?? "",
+		floor: profile?.address.floor ?? "",
 	};
 
 	const _profile: TProfile = {
@@ -46,7 +46,7 @@ function CheckoutPage() {
 		storeId: profile?.storeId ?? store.id,
 		tenantId: profile?.tenantId ?? store.tenantId,
 		email: profile?.email ?? user.email ?? "",
-		fullName: profile?.fullName ?? user.displayName ?? user.email ?? "",
+		displayName: profile?.displayName ?? user.displayName ?? user.email ?? "",
 		phoneNumber: {
 			code: profile?.phoneNumber?.code ?? "",
 			number: profile?.phoneNumber?.number ?? "",
@@ -67,7 +67,7 @@ function CheckoutPage() {
 					companyId: store.companyId,
 					storeId: store.id,
 					status: "pending",
-					client: _profile,
+					client: profile ?? _profile,
 					address: profile?.address ?? emptyAddress,
 					cart: {
 						id: cart.id,
