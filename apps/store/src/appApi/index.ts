@@ -159,6 +159,12 @@ export const useAppApi = () => {
 					return false;
 				},
 			},
+			async profileUpdate({ profile }: { profile: TProfile }) {
+				if (!user || !store || !profile) return;
+
+				const response = await FirebaseApi.firestore.update(profile.id, profile, "profiles");
+				console.log("response", response);
+			},
 			async cancelOrder({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
 				// mixPanelApi.track("ADMIN_ORDER_ACCEPT", {
@@ -267,11 +273,11 @@ export const useAppApi = () => {
 					storeId: store.id,
 					tenantId: store.tenantId,
 					clientType: "user",
-					fullName: newUser.fullName,
+					displayName: newUser.fullName,
 					email: newUser.email,
-					phoneNumber: { code: "", number: "" },
+					phoneNumber: { code: "+972", number: "" },
 					address: {
-						country: "",
+						country: "israel",
 						city: "",
 						street: "",
 						streetNumber: "",

@@ -41,7 +41,7 @@ export const ProfileSchema = z.object({
 	storeId: z.string(),
 	tenantId: z.string(),
 	clientType: z.enum(["user", "company"]),
-	fullName: z.string().min(1),
+	displayName: z.string().min(1),
 	email: z.string().email(),
 	phoneNumber: z.object({
 		code: z.string(),

@@ -8,9 +8,6 @@ import { Icon } from "src/components";
 import { Dropdown } from "src/components/Dropdown";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
-// import { cn } from "src/lib/utils";
-
-// import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 
 export function AppBar() {
 	const { t } = useTranslation();
@@ -57,6 +54,15 @@ export function AppBar() {
 									admin
 								</Dropdown.Item>
 							)}
+								<Dropdown.Item
+								onSelect={() =>
+									navigate({
+										to: "store.profile",
+									})
+								}
+							>
+								profile
+							</Dropdown.Item>
 							<Dropdown.Item
 								onSelect={() =>
 									navigate({

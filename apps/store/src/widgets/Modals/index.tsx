@@ -6,12 +6,15 @@ import { AnimatePresence } from "framer-motion";
 import { ReactNode, cloneElement } from "react";
 import { useAppSelector } from "src/infra";
 import { AdminCompanyCreateModal } from "./modals/AdminCompanyCreateModal";
+import { ProfileEditModal } from "./ProfileEditModal";
+import { TProfile } from "src/types";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
 	return <AnimatePresence>{children}</AnimatePresence>;
 };
 
 export const modals = {
+	profileEdit: ({ profile }: { profile: TProfile }) => <ProfileEditModal profile={profile} />,
 	authModal: () => <AuthModal />,
 	AdminCompanyCreateModal: () => <AdminCompanyCreateModal />,
 	categoryFormModal: ({ categoryId }: { categoryId: string }) => (

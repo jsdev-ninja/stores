@@ -23,6 +23,8 @@ export const resources = {
 			login: "התחברות",
 			logout: "התנתקות",
 			city: "עיר",
+			close: "סגירה",
+			save: "שמור",
 			street: "רחוב",
 			streetNumber: "מס רחוב",
 			lang: "שפה",
@@ -40,6 +42,7 @@ export const resources = {
 			kg: "קג",
 			gram: "גרם",
 			brand: "מותג",
+			country: "מדינה",
 			manufacturer: "יצרן",
 			supplier: "יבואן",
 			image: "תמונה",
@@ -51,8 +54,10 @@ export const resources = {
 			ml: "מל",
 			fullName: "שם מלא",
 			email: "אימייל",
+			address: "כתובת",
 			phone: "טלפון",
 			floor: "קומה",
+			apartmentEnterNumber: "כניסה",
 			apartmentNumber: "מס דירה",
 			password: "סיסמא",
 			profitPercentage: "אחוז רווח",
@@ -112,6 +117,10 @@ export const resources = {
 			totalCost: "מחיר סופי",
 		},
 		// dynamic
+
+		profilePage: {
+			title: "חשבון משתמש",
+		},
 
 		cart: {
 			shoppingCart: "סל קניות",

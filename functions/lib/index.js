@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onUserCreate = exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderCreate = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
+exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderCreate = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const functions = __importStar(require("firebase-functions/v1"));
 const react_1 = __importDefault(require("react"));
@@ -80,31 +80,31 @@ exports.onProductUpdate = functions.firestore
     console.log("update ", productId, after, before);
     return await index.saveObject(Object.assign({ objectID: productId, id: productId }, after));
 });
-exports.onUserCreate = functions.auth.user().onCreate((user) => {
-    console.info("user created", user.uid, user.displayName, user.email);
-    const email = user.email; // The email of the user.
-    const displayName = user.displayName; // The display name of the user.
-    const uid = user.uid; // The UID of the user.
-    const isAnonymous = user.providerData.length === 0;
-    if (isAnonymous) {
-        return;
-    }
-    // todo
-    // Example: Add the user to Firestore
-    const db = firebase_admin_1.default.firestore();
-    return db
-        .collection("profiles")
-        .doc(uid)
-        .set({
-        email: email,
-        displayName: displayName || email,
-        createdAt: firebase_admin_1.default.firestore.FieldValue.serverTimestamp(),
-    })
-        .then(() => {
-        console.log("User document created in Firestore");
-    })
-        .catch((error) => {
-        console.error("Error creating user document in Firestore", error);
-    });
-});
+// export const onUserCreate = functions.auth.user().onCreate((user) => {
+// 	console.info("user created", user.uid, user.displayName, user.email);
+// 	const email = user.email; // The email of the user.
+// 	const displayName = user.displayName; // The display name of the user.
+// 	const uid = user.uid; // The UID of the user.
+// 	const isAnonymous = user.providerData.length === 0;
+// 	if (isAnonymous) {
+// 		return;
+// 	}
+// 	// todo
+// 	// Example: Add the user to Firestore
+// 	const db = admin.firestore();
+// 	return db
+// 		.collection("profiles")
+// 		.doc(uid)
+// 		.set({
+// 			email: email,
+// 			displayName: displayName || email,
+// 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
+// 		})
+// 		.then(() => {
+// 			console.log("User document created in Firestore");
+// 		})
+// 		.catch((error) => {
+// 			console.error("Error creating user document in Firestore", error);
+// 		});
+// });
 //# sourceMappingURL=index.js.map
