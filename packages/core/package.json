@@ -13,6 +13,7 @@
 		"build": "vite build && tsc -b",
 		"lint": "eslint .",
 		"preview": "vite preview",
+		"prepublishOnly": "yarn build",
 		"publish_core": "yarn publish --non-interactive"
 	},
 	"dependencies": {

@@ -1,45 +1,51 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrderCreated = void 0;
 const components_1 = require("@react-email/components");
-const react_1 = __importDefault(require("react"));
-function OrderCreated() {
-    return (react_1.default.createElement(components_1.Section, { className: "py-[16px] text-center" },
-        react_1.default.createElement(components_1.Heading, { as: "h1", className: "mb-0 text-[30px] font-semibold leading-[36px]" }, "You left something in your cart"),
-        react_1.default.createElement(components_1.Section, { className: "my-[16px] rounded-[8px] border border-solid border-gray-200 p-[16px] pt-0" },
-            react_1.default.createElement("table", { className: "mb-[16px]", width: "100%" },
-                react_1.default.createElement("tr", null,
-                    react_1.default.createElement("th", { className: "border-0 border-b border-solid border-gray-200 py-[8px]" }, "\u00A0"),
-                    react_1.default.createElement("th", { align: "left", className: "border-0 border-b border-solid border-gray-200 py-[8px] text-gray-500", colSpan: 6 },
-                        react_1.default.createElement(components_1.Text, { className: "font-semibold" }, "Product")),
-                    react_1.default.createElement("th", { align: "center", className: "border-0 border-b border-solid border-gray-200 py-[8px] text-gray-500" },
-                        react_1.default.createElement(components_1.Text, { className: "font-semibold" }, "Quantity")),
-                    react_1.default.createElement("th", { align: "center", className: "border-0 border-b border-solid border-gray-200 py-[8px] text-gray-500" },
-                        react_1.default.createElement(components_1.Text, { className: "font-semibold" }, "Price"))),
-                react_1.default.createElement("tr", null,
-                    react_1.default.createElement("td", { className: "border-0 border-b border-solid border-gray-200 py-[8px]" },
-                        react_1.default.createElement(components_1.Img, { alt: "Braun Classic Watch", className: "rounded-[8px] object-cover", height: 110, src: "https://react.email/static/braun-classic-watch.jpg" })),
-                    react_1.default.createElement("td", { align: "left", className: "border-0 border-b border-solid border-gray-200 py-[8px]", colSpan: 6 },
-                        react_1.default.createElement(components_1.Text, null, "Classic Watch")),
-                    react_1.default.createElement("td", { align: "center", className: "border-0 border-b border-solid border-gray-200 py-[8px]" },
-                        react_1.default.createElement(components_1.Text, null, "1")),
-                    react_1.default.createElement("td", { align: "center", className: "border-0 border-b border-solid border-gray-200 py-[8px]" },
-                        react_1.default.createElement(components_1.Text, null, "$210.00"))),
-                react_1.default.createElement("tr", null,
-                    react_1.default.createElement("td", { className: "border-0 border-b border-solid border-gray-200 py-[8px]" },
-                        react_1.default.createElement(components_1.Img, { alt: "Braun Analogue Clock", className: "rounded-[8px] object-cover", height: 110, src: "https://react.email/static/braun-analogue-clock.jpg" })),
-                    react_1.default.createElement("td", { align: "left", className: "border-0 border-b border-solid border-gray-200 py-[8px]", colSpan: 6 },
-                        react_1.default.createElement(components_1.Text, null, "Analogue Clock")),
-                    react_1.default.createElement("td", { align: "center", className: "border-0 border-b border-solid border-gray-200 py-[8px]" },
-                        react_1.default.createElement(components_1.Text, null, "1")),
-                    react_1.default.createElement("td", { align: "center", className: "border-0 border-b border-solid border-gray-200 py-[8px]" },
-                        react_1.default.createElement(components_1.Text, null, "$40.00")))),
-            react_1.default.createElement(components_1.Row, null,
-                react_1.default.createElement(components_1.Column, { align: "center" },
-                    react_1.default.createElement(components_1.Button, { className: "box-border w-full rounded-[8px] bg-indigo-600 px-[12px] py-[12px] text-center font-semibold text-white", href: "https://react.email" }, "Checkout"))))));
+const React = __importStar(require("react"));
+const content = {
+    title_client: "הזמנה שלך התקבלה בהצלחה",
+};
+function OrderCreated({ order }) {
+    if (!order)
+        return null;
+    return (React.createElement(components_1.Html, { dir: "rtl", lang: "he" },
+        React.createElement(components_1.Container, null,
+            React.createElement(components_1.Text, { style: { textAlign: "center" } }, content.title_client),
+            order.cart.items.map((item, i) => {
+                var _a, _b, _c;
+                return (React.createElement(components_1.Row, { key: i },
+                    React.createElement(components_1.Column, null,
+                        React.createElement(components_1.Img, { src: (_c = (_b = (_a = item.product.images) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.url) !== null && _c !== void 0 ? _c : "", alt: "product", width: "50", height: "50" })),
+                    React.createElement(components_1.Column, null, item.product.name[0].value),
+                    React.createElement(components_1.Column, null,
+                        item.product.price,
+                        " * ",
+                        item.amount),
+                    React.createElement(components_1.Column, null, Number(item.product.price * item.amount).toFixed(2))));
+            }))));
 }
-exports.OrderCreated = OrderCreated;
+exports.default = OrderCreated;
 //# sourceMappingURL=OrderCreated.js.map

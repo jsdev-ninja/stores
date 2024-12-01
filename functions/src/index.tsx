@@ -4,7 +4,8 @@ import React from "react";
 import algoliasearch from "algoliasearch";
 import { emailService } from "./services/email";
 import { render } from "@react-email/render";
-import { NewOrderEmail } from "./emails";
+import OrderCreated from "./emails/OrderCreated";
+import { TOrder } from "@jsdev_ninja/core";
 
 const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 
@@ -19,11 +20,11 @@ export { createCompanyClient } from "./api/createCompany";
 export const onOrderCreate = functions.firestore
 	.document("/orders/{orderId}")
 	.onCreate(async (snap) => {
-		const order: any = { ...snap.data(), id: snap.id };
+		const order = { ...snap.data(), id: snap.id } as TOrder;
 
-		const cardId = order.cartId;
+		const cardId = order.cart.id;
 
-		const html = await render(<NewOrderEmail />);
+		const html = await render(<OrderCreated order={order} />);
 
 		await emailService.sendEmail({
 			html,

@@ -33,7 +33,7 @@ const react_1 = __importDefault(require("react"));
 const algoliasearch_1 = __importDefault(require("algoliasearch"));
 const email_1 = require("./services/email");
 const render_1 = require("@react-email/render");
-const emails_1 = require("./emails");
+const OrderCreated_1 = __importDefault(require("./emails/OrderCreated"));
 const algolia = (0, algoliasearch_1.default)("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 const index = algolia.initIndex("products");
 firebase_admin_1.default.initializeApp({});
@@ -47,8 +47,8 @@ exports.onOrderCreate = functions.firestore
     .document("/orders/{orderId}")
     .onCreate(async (snap) => {
     const order = Object.assign(Object.assign({}, snap.data()), { id: snap.id });
-    const cardId = order.cartId;
-    const html = await (0, render_1.render)(react_1.default.createElement(emails_1.NewOrderEmail, null));
+    const cardId = order.cart.id;
+    const html = await (0, render_1.render)(react_1.default.createElement(OrderCreated_1.default, { order: order }));
     await email_1.emailService.sendEmail({
         html,
     });
