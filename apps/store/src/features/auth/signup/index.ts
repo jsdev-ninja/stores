@@ -7,7 +7,13 @@ type TNewUser = {
 	password: string;
 	fullName: string;
 };
-export async function signup({ newUser, newProfile }: { newUser: TNewUser; newProfile: TProfile }) {
+export async function signup({
+	newUser,
+	newProfile,
+}: {
+	newUser: TNewUser;
+	newProfile: Partial<TProfile>;
+}) {
 	try {
 		const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);
 		if (!res.success) {
@@ -15,7 +21,7 @@ export async function signup({ newUser, newProfile }: { newUser: TNewUser; newPr
 			return res;
 		}
 
-		const profile = await FirebaseApi.firestore.setV2<TProfile>({
+		const profile = await FirebaseApi.firestore.setV2<Partial<TProfile>>({
 			collection: "profiles",
 			doc: newProfile,
 		});

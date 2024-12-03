@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderCreate = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
+exports.onUserDelete = exports.onUserCreate = exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderCreate = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const functions = __importStar(require("firebase-functions/v1"));
 const react_1 = __importDefault(require("react"));
@@ -34,6 +34,7 @@ const algoliasearch_1 = __importDefault(require("algoliasearch"));
 const email_1 = require("./services/email");
 const render_1 = require("@react-email/render");
 const OrderCreated_1 = __importDefault(require("./emails/OrderCreated"));
+const core_1 = require("@jsdev_ninja/core");
 const algolia = (0, algoliasearch_1.default)("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 const index = algolia.initIndex("products");
 firebase_admin_1.default.initializeApp({});
@@ -66,45 +67,55 @@ exports.onProductCreate = functions.firestore
 });
 exports.onProductDelete = functions.firestore
     .document("/products/{productId}")
-    .onDelete(async (snap, context) => {
-    console.log(snap.data(), snap.id, snap.createTime);
-    console.log(context);
+    .onDelete(async (snap) => {
     return await index.deleteObject(snap.id);
 });
 exports.onProductUpdate = functions.firestore
     .document("/products/{productId}")
     .onUpdate(async (snap, context) => {
-    const before = snap.before.data();
     const after = snap.after.data();
     const { productId } = context.params;
-    console.log("update ", productId, after, before);
     return await index.saveObject(Object.assign({ objectID: productId, id: productId }, after));
 });
-// export const onUserCreate = functions.auth.user().onCreate((user) => {
-// 	console.info("user created", user.uid, user.displayName, user.email);
-// 	const email = user.email; // The email of the user.
-// 	const displayName = user.displayName; // The display name of the user.
-// 	const uid = user.uid; // The UID of the user.
-// 	const isAnonymous = user.providerData.length === 0;
-// 	if (isAnonymous) {
-// 		return;
-// 	}
-// 	// todo
-// 	// Example: Add the user to Firestore
-// 	const db = admin.firestore();
-// 	return db
-// 		.collection("profiles")
-// 		.doc(uid)
-// 		.set({
-// 			email: email,
-// 			displayName: displayName || email,
-// 			createdAt: admin.firestore.FieldValue.serverTimestamp(),
-// 		})
-// 		.then(() => {
-// 			console.log("User document created in Firestore");
-// 		})
-// 		.catch((error) => {
-// 			console.error("Error creating user document in Firestore", error);
-// 		});
-// });
+exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
+    console.info("user created", user.uid, user.displayName, user.email);
+    const email = user.email; // The email of the user.
+    const displayName = user.displayName; // The display name of the user.
+    const uid = user.uid; // The UID of the user.
+    const isAnonymous = user.providerData.length === 0;
+    const profile = (0, core_1.createEmptyProfile)();
+    profile.id = uid;
+    profile.email = email !== null && email !== void 0 ? email : "";
+    profile.displayName = displayName !== null && displayName !== void 0 ? displayName : "";
+    profile.createdDate = Date.now();
+    profile.isAnonymous = isAnonymous;
+    // todo
+    // Example: Add the user to Firestore
+    const db = firebase_admin_1.default.firestore();
+    return db
+        .collection("profiles")
+        .doc(uid)
+        .set(profile)
+        .then(() => {
+        console.log("User document created in Firestore");
+    })
+        .catch((error) => {
+        console.error("Error creating user document in Firestore", error);
+    });
+});
+exports.onUserDelete = functions.auth.user().onDelete((user) => {
+    console.info("user deleted", user.uid, user.displayName, user.email);
+    const uid = user.uid; // The UID of the user.
+    const db = firebase_admin_1.default.firestore();
+    return db
+        .collection("profiles")
+        .doc(uid)
+        .delete()
+        .then(() => {
+        console.log("User document deleted in Firestore");
+    })
+        .catch((error) => {
+        console.error("Error deleting user document in Firestore", error);
+    });
+});
 //# sourceMappingURL=index.js.map

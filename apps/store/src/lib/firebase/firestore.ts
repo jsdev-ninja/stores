@@ -34,8 +34,9 @@ async function remove({ id, collectionName }: { id: string; collectionName: stri
 	}
 }
 
-async function setV2<T extends { id: string }>(data: { collection: string; doc: T }) {
+async function setV2<T extends { id?: string }>(data: { collection: string; doc: T }) {
 	try {
+		if (!data.doc.id) return { success: false };
 		await setDoc(doc(db, data.collection, data.doc.id), data.doc, { merge: true });
 		const result = { ...data.doc, id: data.doc.id };
 

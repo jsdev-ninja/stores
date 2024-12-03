@@ -11,15 +11,12 @@ import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
 import { SentryApi } from "src/lib/sentry";
 import { SubNestedKeys } from "src/shared/types";
-import { TProfile, TNewCompany, TStoreStats } from "src/types";
+import { TNewCompany, TStoreStats } from "src/types";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 import { productCreate } from "./admin";
-import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
+import { ProductSchema, TNewProduct, TProduct, TProfile } from "@jsdev_ninja/core";
 import { TCart } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
-import { createEmptyProfile } from "@jsdev_ninja/core";
-
-console.log("createEmptyProfile", createEmptyProfile);
 
 // should be ready before use
 // store
@@ -269,25 +266,14 @@ export const useAppApi = () => {
 			signup: async (newUser: { email: string; password: string; fullName: string }) => {
 				if (!isValid) return;
 
-				const profile: TProfile = {
-					type: "Profile",
+				const profile: Partial<TProfile> = {
 					id: user.uid,
 					companyId: store.companyId,
 					storeId: store.id,
 					tenantId: store.tenantId,
-					clientType: "user",
 					displayName: newUser.fullName,
 					email: newUser.email,
 					phoneNumber: { code: "+972", number: "" },
-					address: {
-						country: "israel",
-						city: "",
-						street: "",
-						streetNumber: "",
-						floor: "",
-						apartmentEnterNumber: "",
-						apartmentNumber: "",
-					},
 				};
 
 				return await signup({ newUser, newProfile: profile });
