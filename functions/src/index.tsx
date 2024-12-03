@@ -75,7 +75,7 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
 	const uid = user.uid; // The UID of the user.
 	const isAnonymous = user.providerData.length === 0;
 
-	const profile: TProfile = {};
+	const profile: TProfile = createEmptyProfile();
 
 	// todo
 	// Example: Add the user to Firestore

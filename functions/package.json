@@ -15,8 +15,8 @@
 	},
 	"main": "lib/index.js",
 	"dependencies": {
-		"@getbrevo/brevo": "^2.2.0",
-		"@jsdev_ninja/core": "^0.6.4",
+		"@getbrevo/brevo": "^1.0.1",
+		"@jsdev_ninja/core": "^0.6.5",
 		"@react-email/components": "0.0.25",
 		"algoliasearch": "^4.23.3",
 		"axios": "^1.7.5",
@@ -33,7 +33,7 @@
 		"eslint-config-google": "^0.14.0",
 		"eslint-plugin-import": "^2.25.4",
 		"firebase-functions-test": "^0.2.0",
-		"react-email": "3.0.1",
+		"react-email": "^3.0.3",
 		"typescript": "^4.5.4"
 	},
 	"private": true
