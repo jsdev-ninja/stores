@@ -5,7 +5,7 @@ import algoliasearch from "algoliasearch";
 import { emailService } from "./services/email";
 import { render } from "@react-email/render";
 import OrderCreated from "./emails/OrderCreated";
-import { TOrder } from "@jsdev_ninja/core";
+import { TOrder, TProfile } from "@jsdev_ninja/core";
 
 const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 
@@ -74,6 +74,8 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
 	const displayName = user.displayName; // The display name of the user.
 	const uid = user.uid; // The UID of the user.
 	const isAnonymous = user.providerData.length === 0;
+
+	const profile: TProfile = {};
 
 	// todo
 	// Example: Add the user to Firestore

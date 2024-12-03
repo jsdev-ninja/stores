@@ -19,4 +19,31 @@ export const ProfileSchema = z.object({
 	createdDate: z.number(),
 	lastActivityDate: z.number(),
 });
+
 export type TProfile = z.infer<typeof ProfileSchema>;
+
+export function createEmptyProfile(): TProfile {
+	return {
+		type: "Profile",
+		id: "",
+		companyId: "",
+		storeId: "",
+		tenantId: "",
+		clientType: "user",
+		displayName: "",
+		email: "",
+		phoneNumber: { code: "+972", number: "" },
+		address: {
+			country: "",
+			city: "",
+			street: "",
+			streetNumber: "",
+			floor: "",
+			apartmentEnterNumber: "",
+			apartmentNumber: "",
+		},
+		createdDate: 0,
+		lastActivityDate: 0,
+		isAnonymous: true,
+	};
+}
