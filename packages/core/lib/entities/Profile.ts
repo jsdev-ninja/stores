@@ -15,5 +15,8 @@ export const ProfileSchema = z.object({
 		number: z.string(),
 	}),
 	address: AddressSchema,
+	isAnonymous: z.boolean(),
+	createdDate: z.number(),
+	lastActivityDate: z.number(),
 });
 export type TProfile = z.infer<typeof ProfileSchema>;

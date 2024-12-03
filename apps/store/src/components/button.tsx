@@ -1,8 +1,12 @@
 import { Button as UiButton, ButtonProps } from "@nextui-org/button";
+import { forwardRef } from "react";
 
 export interface IButtonProps extends ButtonProps {}
 
-export function Button(props: IButtonProps) {
-	return <UiButton {...props} />;
-}
+export const Button = forwardRef<HTMLButtonElement | null, IButtonProps>(function Button(
+	props,
+	ref
+) {
+	return <UiButton {...props} ref={ref} />;
+});
 Button.displayName = "Button";

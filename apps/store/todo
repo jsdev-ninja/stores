@@ -1,8 +1,13 @@
 1. sort orders by date created
 
 cart page  
-checkout page 
+checkout page
 catalog page
+
+1. handle product update/delete by admin when product already in cart
+2. allow edit order items by admin and client
+3. make sure products in cart and order price are final.
+4. handle function deploy from ci cd, fix deploy fail.
 
 entities
 

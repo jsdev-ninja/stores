@@ -1,18 +1,19 @@
-import { admin } from "../utils/app.js";
+import { admin } from "./utils/app";
 
-const storeId = "opal-market-store";
-const tenantId = "opal-market-tenant-ia9ux";
+const storeId = "tester-store"; // "opal-market-store"
+const testerTenantId = "tester-tenant-2vcku";
+const tenantId = testerTenantId ?? "opal-market-tenant-ia9ux";
 
 const user = {
-	email: "testet@example.com",
+	email: "admin@example.com",
 	emailVerified: true,
-	password: "123123!",
-	displayName: "David",
+	password: "philbro324!",
+	displayName: "jsdev",
 	disabled: false,
 };
 
 // getClaims("z6TC8WEYpRN7GU7NmN7ezaBDbqo1");
-async function getClaims(id) {
+async function getClaims(id: any) {
 	const auth = admin.auth().tenantManager().authForTenant(tenantId);
 
 	const userRecord2 = await auth.getUser(id);
@@ -27,12 +28,12 @@ async function createAdmin() {
 	const store = storeRef.data();
 	const token = {
 		admin: true,
-		tenantId: store.tenantId,
+		tenantId: store?.tenantId,
 		storeId: storeRef.id,
 	};
 	console.log("store", store);
 
-	const auth = admin.auth().tenantManager().authForTenant(store.tenantId);
+	const auth = admin.auth().tenantManager().authForTenant(store?.tenantId);
 	const userRecord = await auth.createUser(user);
 	await auth.setCustomUserClaims(userRecord.uid, token);
 	const userRecord2 = await auth.getUser(userRecord.uid);

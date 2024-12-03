@@ -120,6 +120,14 @@ export const resources = {
 
 		profilePage: {
 			title: "חשבון משתמש",
+			columns: {
+				client: "לקוח",
+				address: "כתובת",
+				phone: "מספר טלפון",
+				clientType: "סוג לקוח",
+				clientAuth: "לקוח רשום",
+				actions: "פעולות",
+			},
 		},
 
 		cart: {
@@ -162,6 +170,10 @@ export const resources = {
 		},
 		store: {},
 		admin: {
+			clientsPage: {
+				title: "לקוחות",
+				addClient: "הוסף לקוח",
+			},
 			addProductPage: {
 				title: "הוסף מוצר",
 			},
