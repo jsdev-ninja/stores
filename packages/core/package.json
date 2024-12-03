@@ -1,6 +1,6 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"type": "module",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
@@ -13,7 +13,6 @@
 		"build": "vite build && tsc -b",
 		"lint": "eslint .",
 		"preview": "vite preview",
-		"prepublishOnly": "yarn build",
 		"publish_core": "yarn publish --non-interactive"
 	},
 	"dependencies": {

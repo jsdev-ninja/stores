@@ -17,6 +17,9 @@ import { productCreate } from "./admin";
 import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
 import { TCart } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
+import { createEmptyProfile } from "@jsdev_ninja/core";
+
+console.log("createEmptyProfile", createEmptyProfile);
 
 // should be ready before use
 // store
