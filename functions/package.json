@@ -13,6 +13,9 @@
 		"email:dev": "email dev --dir ./src/emails-preview",
 		"email:build": "email build --dir ./src/emails"
 	},
+	"engines": {
+		"node": "20.x"
+	},
 	"main": "lib/index.js",
 	"dependencies": {
 		"@getbrevo/brevo": "^1.0.1",
