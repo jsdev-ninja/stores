@@ -1,16 +1,12 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.7.61",
+	"version": "0.7.62",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
 	"types": "dist/index.d.ts",
 	"publishConfig": {
 		"access": "public"
 	},
-	"files": [
-		"dir",
-		"lib"
-	],
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build && tsc -b",
