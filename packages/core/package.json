@@ -8,10 +8,6 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"files": [
-		"dist",
-		"lib"
-	],
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build && tsc -b",
