@@ -274,7 +274,9 @@ export const useAppApi = () => {
 					displayName: newUser.fullName,
 					email: newUser.email,
 					phoneNumber: { code: "+972", number: "" },
+					isAnonymous: false,
 				};
+				console.log("profile.profile", profile);
 
 				return await signup({ newUser, newProfile: profile });
 			},

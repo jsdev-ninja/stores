@@ -19,7 +19,7 @@
     "@headlessui/react": "^2.1.1",
     "@heroicons/react": "^2.1.4",
     "@hookform/resolvers": "^3.3.4",
-    "@jsdev_ninja/core": "0.7.1",
+    "@jsdev_ninja/core": "0.7.62",
     "@nextui-org/react": "^2.4.8",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-accordion": "^1.1.2",
