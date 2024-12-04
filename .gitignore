@@ -9,7 +9,7 @@ lerna-debug.log*
 
 node_modules
 _secrets
-dist
+apps/*/dist
 dist-ssr
 *.local
 
