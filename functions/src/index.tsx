@@ -88,7 +88,7 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
 	return db
 		.collection("profiles")
 		.doc(uid)
-		.set(profile)
+		.set(profile,{merge: true})
 		.then(() => {
 			console.log("User document created in Firestore");
 		})

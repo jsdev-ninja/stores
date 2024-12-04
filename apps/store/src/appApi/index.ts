@@ -123,6 +123,16 @@ export const useAppApi = () => {
 				});
 			},
 
+			async getStoreCategories() {
+				if (!isValid) return;
+
+				const res = await FirebaseApi.firestore.getV2({
+					collection: "categories",
+					id: store.id,
+				});
+				console.log("res", res);
+			},
+
 			auth: {
 				logout: async () => {
 					if (!isValid) return;

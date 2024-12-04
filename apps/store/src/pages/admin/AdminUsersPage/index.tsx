@@ -37,13 +37,10 @@ const statusColorMap = {
 const INITIAL_VISIBLE_COLUMNS = ["name", "address", "status", "actions"];
 
 const columns = [
-	{ name: "ID", uid: "id", sortable: true },
 	{ name: "NAME", uid: "name", sortable: true },
-	{ name: "AGE", uid: "age", sortable: true },
 	{ name: "address", uid: "address", sortable: true },
-	{ name: "TEAM", uid: "team" },
-	{ name: "EMAIL", uid: "email" },
-	{ name: "STATUS", uid: "status", sortable: true },
+	{ name: "phone", uid: "phone" },
+	{ name: "clientType", uid: "clientType" },
 	{ name: "ACTIONS", uid: "actions" },
 ];
 
@@ -75,6 +72,7 @@ function AdminUsersPage() {
 	const hasSearchFilter = Boolean(filterValue);
 
 	const headerColumns = React.useMemo(() => {
+		return columns;
 		if (visibleColumns === "all") return columns;
 
 		return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
@@ -197,7 +195,8 @@ function AdminUsersPage() {
 												{t("apartmentNumber")} {user.address.apartmentNumber},{" "}
 												{t("common:floor")} {user.address.floor}
 											</TableCell>
-											<TableCell>type</TableCell>
+											<TableCell>{user.phoneNumber.number}</TableCell>
+											<TableCell>{user.clientType}</TableCell>
 											<TableCell>
 												<div className="relative flex justify-end items-center gap-2">
 													<Dropdown>

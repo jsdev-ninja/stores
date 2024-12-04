@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { TProduct } from "src/domains";
 import { navigate } from "src/navigation";
+import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
 import { Product } from "src/widgets/Product";
 
 import { ProductsWidget } from "src/widgets/Products";
@@ -13,8 +15,12 @@ export function AdminProductsPage() {
 		appApi.admin.productDelete({ product });
 	}
 
+	const [category, setCategory] = useState<string>("");
+
+	const filter = `categoryNames:"${decodeURIComponent(category)}"`;
+
 	return (
-		<ProductsWidget>
+		<ProductsWidget filter={category ? filter : ""}>
 			<div className="">
 				<div className="flex items-center">
 					<div className="mx-4 flex-grow">
@@ -35,14 +41,17 @@ export function AdminProductsPage() {
 
 				<div className="flex">
 					<div id="SideNavigator" className="w-[240px] flex-shrink-0 max-h-full">
-						<ProductsWidget.Filter />
+						{/* <ProductsWidget.Filter /> */}
+						<CategoryMenu onSelect={setCategory} selected={category} />
 					</div>
 					<div className="flex-grow p-4 flex flex-wrap gap-4">
 						<ProductsWidget.Products>
 							{(products) => {
+								console.log("products", products);
+
 								return products.map((product) => (
 									<Product key={product.id} product={product}>
-										<div className="w-80 shadow p-4 flex flex-col ">
+										<div className="w-80 shadow p-4 flex flex-col h-fit ">
 											<div className="h-40 w-40 mx-auto">
 												<Product.Image />
 											</div>
