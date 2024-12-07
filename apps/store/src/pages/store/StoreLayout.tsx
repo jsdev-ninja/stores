@@ -11,14 +11,21 @@ import CartPage from "./CartPage/CartPage";
 import { useEffect } from "react";
 import { useAppApi } from "src/appApi";
 import { useUser } from "src/domains/user";
+import { useStoreActions } from "src/infra";
 
 export function StoreLayout() {
 	const appApi = useAppApi();
 
 	const user = useUser();
 
+	const actions = useStoreActions();
+
 	useEffect(() => {
-		const unsubscribe = appApi.user.subscriptions.favoriteProductsSubscribe();
+		const unsubscribe = appApi.user.subscriptions.favoriteProductsSubscribe(
+			(favoriteProducts) => {
+				actions.dispatch(actions.favoriteProducts.setFavoriteProducts(favoriteProducts));
+			}
+		);
 		return () => unsubscribe?.();
 	}, [user]);
 

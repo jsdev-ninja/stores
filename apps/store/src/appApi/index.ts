@@ -14,7 +14,13 @@ import { SubNestedKeys } from "src/shared/types";
 import { TNewCompany, TStoreStats } from "src/types";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 import { productCreate } from "./admin";
-import { ProductSchema, TNewProduct, TProduct, TProfile } from "@jsdev_ninja/core";
+import {
+	ProductSchema,
+	TFavoriteProduct,
+	TNewProduct,
+	TProduct,
+	TProfile,
+} from "@jsdev_ninja/core";
 import { TCart } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
 
@@ -170,13 +176,13 @@ export const useAppApi = () => {
 				},
 			},
 			subscriptions: {
-				favoriteProductsSubscribe: () => {
+				favoriteProductsSubscribe: (
+					callback: (favoriteProducts: TFavoriteProduct[]) => void
+				) => {
 					if (!user || !company || !store || user.isAnonymous) return;
 
 					return FirebaseApi.firestore.subscribeList({
-						callback(data) {
-							console.log("favorite-products", data);
-						},
+						callback,
 						collection: "favorite-products",
 						where: [
 							{ name: "userId", operator: "==", value: user.uid },
@@ -189,13 +195,24 @@ export const useAppApi = () => {
 			async addProductToFavorite({ product }: { product: TProduct }) {
 				if (!product || !user || !company || !store || user.isAnonymous) return;
 
-				const response = await FirebaseApi.firestore.setV2<any>({
+				return await FirebaseApi.firestore.setV2<any>({
 					collection: "favorite-products",
-					doc: { id: product.id, userId: user.uid, storeId: store.id, companyId: company.id },
+					doc: {
+						productId: product.id,
+						userId: user.uid,
+						storeId: store.id,
+						companyId: company.id,
+					},
 				});
-				console.log("response", response);
 			},
-			async removeProductToFavorite() {},
+			async removeProductToFavorite({ id }: { id: string }) {
+				if (!id || !user || !company || !store || user.isAnonymous) return;
+
+				return await FirebaseApi.firestore.remove({
+					collectionName: "favorite-products",
+					id: id,
+				});
+			},
 			async profileUpdate({ profile }: { profile: TProfile }) {
 				if (!user || !store || !profile) return;
 
