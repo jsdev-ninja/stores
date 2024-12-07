@@ -20,21 +20,21 @@ export declare const OrderSchema: z.ZodObject<{
                     lang: z.ZodString;
                     value: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }, {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }>, "many">;
                 description: z.ZodArray<z.ZodObject<{
                     lang: z.ZodString;
                     value: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }, {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }>, "many">;
                 isPublished: z.ZodBoolean;
                 vat: z.ZodBoolean;
@@ -42,11 +42,11 @@ export declare const OrderSchema: z.ZodObject<{
                     type: z.ZodEnum<["unit", "kg", "gram", "liter", "ml"]>;
                     value: z.ZodNumber;
                 }, "strip", z.ZodTypeAny, {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 }, {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 }>;
                 price: z.ZodNumber;
                 purchasePrice: z.ZodOptional<z.ZodNumber>;
@@ -56,11 +56,11 @@ export declare const OrderSchema: z.ZodObject<{
                     type: z.ZodEnum<["number", "percent", "none"]>;
                     value: z.ZodNumber;
                 }, "strip", z.ZodTypeAny, {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 }, {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 }>;
                 weight: z.ZodObject<{
                     value: z.ZodNumber;
@@ -100,11 +100,11 @@ export declare const OrderSchema: z.ZodObject<{
                     lang: z.ZodString;
                     value: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }, {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }>, "many">;
                 created_at: z.ZodNumber;
                 updated_at: z.ZodNumber;
@@ -114,8 +114,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -126,20 +126,20 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 }, z.ZodTypeDef, {
                     id: string;
                     companyId: string;
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -150,12 +150,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 }>, "many">;
                 categories: z.ZodObject<{
                     lvl0: z.ZodArray<z.ZodString, "many">;
@@ -185,24 +185,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -221,8 +221,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -232,8 +232,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -244,12 +244,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];
@@ -269,24 +269,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -305,8 +305,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -316,8 +316,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -328,12 +328,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];
@@ -356,24 +356,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -392,8 +392,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -403,8 +403,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -415,12 +415,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];
@@ -443,24 +443,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -479,8 +479,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -490,8 +490,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -502,12 +502,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];
@@ -536,24 +536,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -572,8 +572,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -583,8 +583,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -595,12 +595,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];
@@ -629,24 +629,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -665,8 +665,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -676,8 +676,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -688,12 +688,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];
@@ -840,10 +840,10 @@ export declare const OrderSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     type: "Order";
     status: "pending" | "processing" | "delivered" | "canceled" | "completed" | "refunded";
+    date: number;
     id: string;
     companyId: string;
     storeId: string;
-    date: number;
     address: {
         country: string;
         city: string;
@@ -865,24 +865,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -901,8 +901,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -912,8 +912,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -924,12 +924,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];
@@ -978,10 +978,10 @@ export declare const OrderSchema: z.ZodObject<{
 }, {
     type: "Order";
     status: "pending" | "processing" | "delivered" | "canceled" | "completed" | "refunded";
+    date: number;
     id: string;
     companyId: string;
     storeId: string;
-    date: number;
     address: {
         country: string;
         city: string;
@@ -1003,24 +1003,24 @@ export declare const OrderSchema: z.ZodObject<{
                 objectID: string;
                 sku: string;
                 name: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 description: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    value: number;
                     type: "unit" | "kg" | "gram" | "liter" | "ml";
+                    value: number;
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    value: number;
                     type: "number" | "percent" | "none";
+                    value: number;
                 };
                 weight: {
                     value: number;
@@ -1039,8 +1039,8 @@ export declare const OrderSchema: z.ZodObject<{
                 importer: string;
                 supplier: string;
                 ingredients: {
-                    lang: string;
                     value: string;
+                    lang: string;
                 }[];
                 created_at: number;
                 updated_at: number;
@@ -1050,8 +1050,8 @@ export declare const OrderSchema: z.ZodObject<{
                     storeId: string;
                     tag: string;
                     locales: {
-                        lang: string;
                         value: string;
+                        lang: string;
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -1062,12 +1062,12 @@ export declare const OrderSchema: z.ZodObject<{
                         storeId: string;
                         tag: string;
                         locales: {
-                            lang: string;
                             value: string;
+                            lang: string;
                         }[];
                         depth: number;
                         parentId?: string | null | undefined;
-                    } & any)[];
+                    } & /*elided*/ any)[];
                 })[];
                 categories: {
                     lvl0: string[];

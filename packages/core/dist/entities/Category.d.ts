@@ -9,11 +9,11 @@ export declare const BaseCategorySchema: z.ZodObject<{
         lang: z.ZodString;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        lang: string;
         value: string;
+        lang: string;
     }, {
-        lang: string;
         value: string;
+        lang: string;
     }>, "many">;
     depth: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
@@ -22,8 +22,8 @@ export declare const BaseCategorySchema: z.ZodObject<{
     storeId: string;
     tag: string;
     locales: {
-        lang: string;
         value: string;
+        lang: string;
     }[];
     depth: number;
     parentId?: string | null | undefined;
@@ -33,8 +33,8 @@ export declare const BaseCategorySchema: z.ZodObject<{
     storeId: string;
     tag: string;
     locales: {
-        lang: string;
         value: string;
+        lang: string;
     }[];
     depth: number;
     parentId?: string | null | undefined;
@@ -56,11 +56,11 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
         lang: z.ZodString;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        lang: string;
         value: string;
+        lang: string;
     }, {
-        lang: string;
         value: string;
+        lang: string;
     }>, "many">;
     depth: z.ZodNumber;
 }, {
@@ -74,8 +74,8 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     storeId: string;
     tag: string;
     locales: {
-        lang: string;
         value: string;
+        lang: string;
     }[];
     depth: number;
     children: Category[];
@@ -88,8 +88,8 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     storeId: string;
     tag: string;
     locales: {
-        lang: string;
         value: string;
+        lang: string;
     }[];
     depth: number;
     children: Category[];

@@ -318,7 +318,7 @@ var m;
   r.errToObj = (e) => typeof e == "string" ? { message: e } : e || {}, r.toString = (e) => typeof e == "string" ? e : e == null ? void 0 : e.message;
 })(m || (m = {}));
 var H, G;
-class O {
+class I {
   constructor(e, t, n, s) {
     this._cachedPath = [], this.parent = e, this.data = t, this._path = n, this._key = s;
   }
@@ -326,7 +326,7 @@ class O {
     return this._cachedPath.length || (this._key instanceof Array ? this._cachedPath.push(...this._path, ...this._key) : this._cachedPath.push(...this._path, this._key)), this._cachedPath;
   }
 }
-const Ie = (r, e) => {
+const Oe = (r, e) => {
   if (Q(e))
     return { success: !0, data: e.value };
   if (!r.common.issues.length)
@@ -416,7 +416,7 @@ class _ {
       data: e,
       parsedType: A(e)
     }, a = this._parseSync({ data: e, path: s.path, parent: s });
-    return Ie(s, a);
+    return Oe(s, a);
   }
   async parseAsync(e, t) {
     const n = await this.safeParseAsync(e, t);
@@ -437,7 +437,7 @@ class _ {
       data: e,
       parsedType: A(e)
     }, s = this._parse({ data: e, path: n.path, parent: n }), a = await (X(s) ? s : Promise.resolve(s));
-    return Ie(n, a);
+    return Oe(n, a);
   }
   refine(e, t) {
     const n = (s) => typeof t == "string" || typeof t > "u" ? { message: t } : typeof t == "function" ? t(s) : t;
@@ -1454,8 +1454,8 @@ class N extends _ {
       exact: !1,
       message: s.maxLength.message
     }), n.dirty()), t.common.async)
-      return Promise.all([...t.data].map((i, o) => s.type._parseAsync(new O(t, i, t.path, o)))).then((i) => k.mergeArray(n, i));
-    const a = [...t.data].map((i, o) => s.type._parseSync(new O(t, i, t.path, o)));
+      return Promise.all([...t.data].map((i, o) => s.type._parseAsync(new I(t, i, t.path, o)))).then((i) => k.mergeArray(n, i));
+    const a = [...t.data].map((i, o) => s.type._parseSync(new I(t, i, t.path, o)));
     return k.mergeArray(n, a);
   }
   get element() {
@@ -1505,7 +1505,7 @@ function U(r) {
   } else return r instanceof N ? new N({
     ...r._def,
     type: U(r.element)
-  }) : r instanceof E ? E.create(U(r.unwrap())) : r instanceof V ? V.create(U(r.unwrap())) : r instanceof I ? I.create(r.items.map((e) => U(e))) : r;
+  }) : r instanceof E ? E.create(U(r.unwrap())) : r instanceof V ? V.create(U(r.unwrap())) : r instanceof O ? O.create(r.items.map((e) => U(e))) : r;
 }
 class b extends _ {
   constructor() {
@@ -1535,7 +1535,7 @@ class b extends _ {
       const g = a[u], Z = s.data[u];
       f.push({
         key: { status: "valid", value: u },
-        value: g._parse(new O(s, Z, s.path, u)),
+        value: g._parse(new I(s, Z, s.path, u)),
         alwaysSet: u in s.data
       });
     }
@@ -1560,7 +1560,7 @@ class b extends _ {
         f.push({
           key: { status: "valid", value: g },
           value: u._parse(
-            new O(s, Z, s.path, g)
+            new I(s, Z, s.path, g)
             //, ctx.child(key), value, getParsedType(value)
           ),
           alwaysSet: g in s.data
@@ -1570,10 +1570,10 @@ class b extends _ {
     return s.common.async ? Promise.resolve().then(async () => {
       const u = [];
       for (const g of f) {
-        const Z = await g.key, Oe = await g.value;
+        const Z = await g.key, Ie = await g.value;
         u.push({
           key: Z,
-          value: Oe,
+          value: Ie,
           alwaysSet: g.alwaysSet
         });
       }
@@ -1994,7 +1994,7 @@ re.create = (r, e, t) => new re({
   typeName: p.ZodIntersection,
   ...v(t)
 });
-class I extends _ {
+class O extends _ {
   _parse(e) {
     const { status: t, ctx: n } = this._processInputParams(e);
     if (n.parsedType !== h.array)
@@ -2020,7 +2020,7 @@ class I extends _ {
     }), t.dirty());
     const a = [...n.data].map((i, o) => {
       const f = this._def.items[o] || this._def.rest;
-      return f ? f._parse(new O(n, i, n.path, o)) : null;
+      return f ? f._parse(new I(n, i, n.path, o)) : null;
     }).filter((i) => !!i);
     return n.common.async ? Promise.all(a).then((i) => k.mergeArray(t, i)) : k.mergeArray(t, a);
   }
@@ -2028,16 +2028,16 @@ class I extends _ {
     return this._def.items;
   }
   rest(e) {
-    return new I({
+    return new O({
       ...this._def,
       rest: e
     });
   }
 }
-I.create = (r, e) => {
+O.create = (r, e) => {
   if (!Array.isArray(r))
     throw new Error("You must pass an array of schemas to z.tuple([ ... ])");
-  return new I({
+  return new O({
     items: r,
     typeName: p.ZodTuple,
     rest: null,
@@ -2062,8 +2062,8 @@ class ne extends _ {
     const s = [], a = this._def.keyType, i = this._def.valueType;
     for (const o in n.data)
       s.push({
-        key: a._parse(new O(n, o, n.path, o)),
-        value: i._parse(new O(n, n.data[o], n.path, o)),
+        key: a._parse(new I(n, o, n.path, o)),
+        value: i._parse(new I(n, n.data[o], n.path, o)),
         alwaysSet: o in n.data
       });
     return n.common.async ? k.mergeObjectAsync(t, s) : k.mergeObjectSync(t, s);
@@ -2101,8 +2101,8 @@ class ge extends _ {
         received: n.parsedType
       }), y;
     const s = this._def.keyType, a = this._def.valueType, i = [...n.data.entries()].map(([o, f], u) => ({
-      key: s._parse(new O(n, o, n.path, [u, "key"])),
-      value: a._parse(new O(n, f, n.path, [u, "value"]))
+      key: s._parse(new I(n, o, n.path, [u, "key"])),
+      value: a._parse(new I(n, f, n.path, [u, "value"]))
     }));
     if (n.common.async) {
       const o = /* @__PURE__ */ new Map();
@@ -2168,7 +2168,7 @@ class z extends _ {
       }
       return { status: t.value, value: u };
     }
-    const o = [...n.data.values()].map((f, u) => a._parse(new O(n, f, n.path, u)));
+    const o = [...n.data.values()].map((f, u) => a._parse(new I(n, f, n.path, u)));
     return n.common.async ? Promise.all(o).then((f) => i(f)) : i(o);
   }
   min(e, t) {
@@ -2274,7 +2274,7 @@ class W extends _ {
   args(...e) {
     return new W({
       ...this._def,
-      args: I.create(e).rest(D.create())
+      args: O.create(e).rest(D.create())
     });
   }
   returns(e) {
@@ -2291,7 +2291,7 @@ class W extends _ {
   }
   static create(e, t, n) {
     return new W({
-      args: e || I.create([]).rest(D.create()),
+      args: e || O.create([]).rest(D.create()),
       returns: t || D.create(),
       typeName: p.ZodFunction,
       ...v(n)
@@ -2738,7 +2738,7 @@ var p;
 })(p || (p = {}));
 const lt = (r, e = {
   message: `Input not instance of ${r.name}`
-}) => De((t) => t instanceof r, e), Le = S.create, ze = P.create, ft = ve.create, ht = M.create, Ue = K.create, mt = L.create, pt = pe.create, yt = F.create, gt = ee.create, vt = Y.create, _t = D.create, xt = R.create, bt = ye.create, kt = N.create, wt = b.create, Tt = b.strictCreate, Zt = te.create, St = _e.create, Nt = re.create, Ct = I.create, Et = ne.create, Ot = ge.create, It = z.create, jt = W.create, Rt = se.create, At = ae.create, Pt = $.create, Mt = ie.create, $t = J.create, je = C.create, Vt = E.create, Dt = V.create, Lt = C.createWithPreprocess, zt = ue.create, Ut = () => Le().optional(), Bt = () => ze().optional(), Wt = () => Ue().optional(), qt = {
+}) => De((t) => t instanceof r, e), Le = S.create, ze = P.create, ft = ve.create, ht = M.create, Ue = K.create, mt = L.create, pt = pe.create, yt = F.create, gt = ee.create, vt = Y.create, _t = D.create, xt = R.create, bt = ye.create, kt = N.create, wt = b.create, Tt = b.strictCreate, Zt = te.create, St = _e.create, Nt = re.create, Ct = O.create, Et = ne.create, It = ge.create, Ot = z.create, jt = W.create, Rt = se.create, At = ae.create, Pt = $.create, Mt = ie.create, $t = J.create, je = C.create, Vt = E.create, Dt = V.create, Lt = C.createWithPreprocess, zt = ue.create, Ut = () => Le().optional(), Bt = () => ze().optional(), Wt = () => Ue().optional(), qt = {
   string: (r) => S.create({ ...r, coerce: !0 }),
   number: (r) => P.create({ ...r, coerce: !0 }),
   boolean: (r) => K.create({
@@ -2791,7 +2791,7 @@ var d = /* @__PURE__ */ Object.freeze({
   ZodUnion: te,
   ZodDiscriminatedUnion: _e,
   ZodIntersection: re,
-  ZodTuple: I,
+  ZodTuple: O,
   ZodRecord: ne,
   ZodMap: ge,
   ZodSet: z,
@@ -2833,7 +2833,7 @@ var d = /* @__PURE__ */ Object.freeze({
   intersection: Nt,
   lazy: Rt,
   literal: At,
-  map: Ot,
+  map: It,
   nan: ft,
   nativeEnum: Mt,
   never: xt,
@@ -2849,7 +2849,7 @@ var d = /* @__PURE__ */ Object.freeze({
   preprocess: Lt,
   promise: $t,
   record: Et,
-  set: It,
+  set: Ot,
   strictObject: Tt,
   string: Le,
   symbol: pt,
@@ -2864,10 +2864,61 @@ var d = /* @__PURE__ */ Object.freeze({
   quotelessJson: qe,
   ZodError: T
 });
+const Be = d.object({
+  country: d.string(),
+  city: d.string(),
+  street: d.string(),
+  streetNumber: d.string(),
+  floor: d.string(),
+  apartmentEnterNumber: d.string(),
+  apartmentNumber: d.string()
+}), Jt = d.object({
+  type: d.literal("Profile"),
+  id: d.string(),
+  companyId: d.string(),
+  storeId: d.string(),
+  tenantId: d.string(),
+  clientType: d.enum(["user", "company"]),
+  displayName: d.string().min(1),
+  email: d.string().email(),
+  phoneNumber: d.object({
+    code: d.string(),
+    number: d.string()
+  }),
+  address: Be,
+  isAnonymous: d.boolean(),
+  createdDate: d.number(),
+  lastActivityDate: d.number()
+});
+function Ht() {
+  return {
+    type: "Profile",
+    id: "",
+    companyId: "",
+    storeId: "",
+    tenantId: "",
+    clientType: "user",
+    displayName: "",
+    email: "",
+    phoneNumber: { code: "+972", number: "" },
+    address: {
+      country: "",
+      city: "",
+      street: "",
+      streetNumber: "",
+      floor: "",
+      apartmentEnterNumber: "",
+      apartmentNumber: ""
+    },
+    createdDate: 0,
+    lastActivityDate: 0,
+    isAnonymous: !0
+  };
+}
 const le = d.object({
   lang: d.string().min(1),
   value: d.string().min(1)
-}), Be = d.object({
+}), We = d.object({
   id: d.string().min(1),
   companyId: d.string().min(1),
   storeId: d.string().min(1),
@@ -2875,9 +2926,9 @@ const le = d.object({
   tag: d.string().min(1),
   locales: d.array(le),
   depth: d.number()
-}), Ee = Be.extend({
+}), Ee = We.extend({
   children: d.lazy(() => Ee.array())
-}), Ht = Be.extend({
+}), Gt = We.extend({
   index: d.number(),
   depth: d.number(),
   collapsed: d.boolean().optional(),
@@ -2931,66 +2982,15 @@ const le = d.object({
     lvl4: d.array(d.string())
   }),
   categoryNames: d.array(d.string())
-}), Gt = xe.omit({
+}), Qt = xe.omit({
   id: !0,
   categories: !0,
   images: !0
 }).extend({
   image: d.instanceof(File).optional()
-}), Qt = xe.extend({
+}), Xt = xe.extend({
   image: d.instanceof(File).optional()
-}), We = d.object({
-  country: d.string(),
-  city: d.string(),
-  street: d.string(),
-  streetNumber: d.string(),
-  floor: d.string(),
-  apartmentEnterNumber: d.string(),
-  apartmentNumber: d.string()
-}), Jt = d.object({
-  type: d.literal("Profile"),
-  id: d.string(),
-  companyId: d.string(),
-  storeId: d.string(),
-  tenantId: d.string(),
-  clientType: d.enum(["user", "company"]),
-  displayName: d.string().min(1),
-  email: d.string().email(),
-  phoneNumber: d.object({
-    code: d.string(),
-    number: d.string()
-  }),
-  address: We,
-  isAnonymous: d.boolean(),
-  createdDate: d.number(),
-  lastActivityDate: d.number()
-});
-function Xt() {
-  return {
-    type: "Profile",
-    id: "",
-    companyId: "",
-    storeId: "",
-    tenantId: "",
-    clientType: "user",
-    displayName: "",
-    email: "",
-    phoneNumber: { code: "+972", number: "" },
-    address: {
-      country: "",
-      city: "",
-      street: "",
-      streetNumber: "",
-      floor: "",
-      apartmentEnterNumber: "",
-      apartmentNumber: ""
-    },
-    createdDate: 0,
-    lastActivityDate: 0,
-    isAnonymous: !0
-  };
-}
-const Kt = d.object({
+}), Kt = d.object({
   type: d.literal("Order"),
   id: d.string(),
   companyId: d.string(),
@@ -3007,8 +3007,15 @@ const Kt = d.object({
   date: d.number(),
   deliveryDate: d.number().optional(),
   client: Jt,
-  address: We
+  address: Be
 }), Ft = d.object({
+  type: d.literal("FavoriteProduct"),
+  id: d.string().uuid(),
+  companyId: d.string().uuid(),
+  storeId: d.string().uuid(),
+  userId: d.string().uuid(),
+  productId: d.string().uuid()
+}), er = d.object({
   type: d.literal("Cart"),
   id: d.string().uuid(),
   companyId: d.string().uuid(),
@@ -3023,15 +3030,16 @@ const Kt = d.object({
   )
 });
 export {
-  Be as BaseCategorySchema,
-  Ft as CartSchema,
+  We as BaseCategorySchema,
+  er as CartSchema,
   Ee as CategorySchema,
-  Qt as EditProductSchema,
-  Gt as NewProductSchema,
+  Xt as EditProductSchema,
+  Ft as FavoriteProductSchema,
+  Qt as NewProductSchema,
   Kt as OrderSchema,
   xe as ProductSchema,
   Jt as ProfileSchema,
-  Ht as TFlattenCategorySchema,
-  Xt as createEmptyProfile
+  Gt as TFlattenCategorySchema,
+  Ht as createEmptyProfile
 };
 //# sourceMappingURL=core.es.js.map

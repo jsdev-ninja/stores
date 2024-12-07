@@ -1,6 +1,7 @@
-export * from "./Product";
+export * from "./Profile";
 export * from "./Category";
 export * from "./Order";
-export * from "./Profile";
+export * from "./Product";
+export * from "./FavoriteProduct";
 export * from "./Cart";
 //# sourceMappingURL=index.d.ts.map
