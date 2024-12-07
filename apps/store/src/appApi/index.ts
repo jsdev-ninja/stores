@@ -169,6 +169,33 @@ export const useAppApi = () => {
 					return false;
 				},
 			},
+			subscriptions: {
+				favoriteProductsSubscribe: () => {
+					if (!user || !company || !store || user.isAnonymous) return;
+
+					return FirebaseApi.firestore.subscribeList({
+						callback(data) {
+							console.log("favorite-products", data);
+						},
+						collection: "favorite-products",
+						where: [
+							{ name: "userId", operator: "==", value: user.uid },
+							{ name: "storeId", operator: "==", value: store.id },
+							{ name: "companyId", operator: "==", value: company.id },
+						],
+					});
+				},
+			},
+			async addProductToFavorite({ product }: { product: TProduct }) {
+				if (!product || !user || !company || !store || user.isAnonymous) return;
+
+				const response = await FirebaseApi.firestore.setV2<any>({
+					collection: "favorite-products",
+					doc: { id: product.id, userId: user.uid, storeId: store.id, companyId: company.id },
+				});
+				console.log("response", response);
+			},
+			async removeProductToFavorite() {},
 			async profileUpdate({ profile }: { profile: TProfile }) {
 				if (!user || !store || !profile) return;
 

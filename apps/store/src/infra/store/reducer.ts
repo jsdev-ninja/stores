@@ -6,6 +6,7 @@ import { CategorySlice } from "src/domains/Category";
 import { userSlice } from "src/domains/user";
 import { uiSlice } from "src/domains/ui";
 import { profileSlice } from "src/domains/profile";
+import { favoriteProductsSlice } from "src/domains/favoriteProducts";
 
 export const reducer = {
 	[uiSlice.name]: uiSlice.reducer,
@@ -14,6 +15,7 @@ export const reducer = {
 	[CompanySlice.name]: CompanySlice.reducer,
 	[StoreSlice.name]: StoreSlice.reducer,
 	[CategorySlice.name]: CategorySlice.reducer,
+	[favoriteProductsSlice.name]: favoriteProductsSlice.reducer,
 	cart: cartSlice.reducer,
 	modals: modalsSlice.reducer,
 };

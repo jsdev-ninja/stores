@@ -9,10 +9,37 @@ import { Dropdown } from "src/components/Dropdown";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
 
+import {
+	Navbar,
+	NavbarBrand,
+	NavbarContent,
+	NavbarItem,
+	Link,
+	NavbarMenu,
+	NavbarMenuItem,
+	NavbarMenuToggle,
+} from "@nextui-org/react";
+import { useState } from "react";
+
 export function AppBar() {
 	const { t } = useTranslation();
 
 	const appApi = useAppApi();
+
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+	const menuItems = [
+		"Profile",
+		"Dashboard",
+		"Activity",
+		"Analytics",
+		"System",
+		"Deployments",
+		"My Settings",
+		"Team Settings",
+		"Help & Feedback",
+		"Log Out",
+	];
 
 	const user = useAppSelector((state) => state.user.user);
 
@@ -30,63 +57,101 @@ export function AppBar() {
 	}
 
 	return (
-		<div className="shadow px-4 py-2 flex items-center h-16">
-			<div className="h-[40px] w-[80px]">
-				<WebsiteLogo />
-			</div>
-			<div className="ms-auto">
-				{!!user && !user.isAnonymous ? (
-					<Dropdown>
-						<Dropdown.Trigger>
-							<div className="">
-								<Icon onClick={navigateToProfile} name="userCircle" size="lg" />
-							</div>
-						</Dropdown.Trigger>
-						<Dropdown.Content>
-							{!!user.admin && (
+		<Navbar onMenuOpenChange={setIsMenuOpen}>
+			<NavbarMenu>
+				{menuItems.map((item, index) => (
+					<NavbarMenuItem key={`${item}-${index}`}>
+						<Link
+							color={
+								index === 2
+									? "primary"
+									: index === menuItems.length - 1
+									? "danger"
+									: "foreground"
+							}
+							className="w-full"
+							href="#"
+							size="lg"
+						>
+							{item}
+						</Link>
+					</NavbarMenuItem>
+				))}
+			</NavbarMenu>
+			<NavbarMenuToggle
+				aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+				className="sm:hidden"
+			/>
+			<NavbarBrand>
+				<div className="h-[40px] w-[80px]">
+					<WebsiteLogo />
+				</div>
+				<p className="font-bold text-inherit">ACME</p>
+			</NavbarBrand>
+			<NavbarContent className="hidden sm:flex gap-4" justify="center">
+				<NavbarItem>
+					<Link color="foreground" href="#">
+						Features
+					</Link>
+				</NavbarItem>
+				<NavbarItem isActive>
+					<Link href="#" aria-current="page">
+						Customers
+					</Link>
+				</NavbarItem>
+				<NavbarItem>
+					<Link color="foreground" href="#">
+						Integrations
+					</Link>
+				</NavbarItem>
+			</NavbarContent>
+			<NavbarContent justify="end">
+				<NavbarItem>
+					{!!user && !user.isAnonymous ? (
+						<Dropdown>
+							<Dropdown.Trigger>
+								<div className="">
+									<Icon onClick={navigateToProfile} name="userCircle" size="lg" />
+								</div>
+							</Dropdown.Trigger>
+							<Dropdown.Content>
+								{!!user.admin && (
+									<Dropdown.Item
+										onSelect={() =>
+											navigate({
+												to: "admin",
+											})
+										}
+									>
+										admin
+									</Dropdown.Item>
+								)}
 								<Dropdown.Item
 									onSelect={() =>
 										navigate({
-											to: "admin",
+											to: "store.profile",
 										})
 									}
 								>
-									admin
+									profile
 								</Dropdown.Item>
-							)}
 								<Dropdown.Item
-								onSelect={() =>
-									navigate({
-										to: "store.profile",
-									})
-								}
-							>
-								profile
-							</Dropdown.Item>
-							<Dropdown.Item
-								onSelect={() =>
-									navigate({
-										to: "store.orders",
-									})
-								}
-							>
-								orders
-							</Dropdown.Item>
-							<Dropdown.Item onSelect={appApi.system.auth.logout}>logout</Dropdown.Item>
-						</Dropdown.Content>
-					</Dropdown>
-				) : (
-					<Button onClick={onClick}>{text}</Button>
-				)}
-			</div>
-			{/* <Dropdown>
-				<Dropdown.Trigger>
-					<HamburgerMenuIcon />
-				</Dropdown.Trigger>
-				<Dropdown.Content>
-					<Dropdown.Item>hi</Dropdown.Item>
-				</Dropdown.Content>
-			</Dropdown> */}
-		</div>
+									onSelect={() =>
+										navigate({
+											to: "store.orders",
+										})
+									}
+								>
+									orders
+								</Dropdown.Item>
+								<Dropdown.Item onSelect={appApi.system.auth.logout}>logout</Dropdown.Item>
+							</Dropdown.Content>
+						</Dropdown>
+					) : (
+						<Button onClick={onClick}>{text}</Button>
+					)}
+				</NavbarItem>
+			</NavbarContent>
+		</Navbar>
 	);
 }

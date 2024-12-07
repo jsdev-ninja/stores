@@ -1,3 +1,30 @@
+
+
+
+features
+
+1) products
+- product listing and filter
+- product details
+
+2) cart
+- view cart
+- update cart
+- multiple cart
+
+
+3) checkout 
+
+4) user account
+- login logout register
+- manage profile
+
+5) orders
+- create order
+- track order
+- manage order
+
+
 1. sort orders by date created
 
 cart page  

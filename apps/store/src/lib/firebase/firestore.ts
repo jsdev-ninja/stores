@@ -197,6 +197,32 @@ function subscribeDocV2<T>(data: {
 		data.callback({ ...result.data(), id: result.id } as T);
 	});
 }
+function subscribeList<T>(data: {
+	callback: (data: T[]) => void;
+	collection: string;
+	where?: Array<{
+		name: keyof T & string;
+		value: any;
+		operator: WhereFilterOp;
+	}>;
+}) {
+	const colRef = collection(db, data.collection);
+	const filters = data.where ?? [];
+	const wheres = filters.map((filter) => where(filter.name, filter.operator, filter.value));
+	const q = query(colRef, ...wheres);
+
+	return onSnapshot(q, (querySnapshot) => {
+		const result: T[] = [];
+		if (querySnapshot.empty) return data.callback([]);
+		querySnapshot.forEach((doc) => {
+			result.push({
+				...(doc.data() as T),
+				id: doc.id,
+			});
+		});
+		data.callback(result);
+	});
+}
 
 function subscribeDoc(col: string, id: string, callback: any) {
 	return onSnapshot(doc(db, col, id), (querySnapshot) => {
@@ -269,6 +295,7 @@ export const firestore = {
 	set,
 	subscribeDoc,
 	subscribeDocV2,
+	subscribeList,
 	createV2,
 	setV2,
 	listV2,

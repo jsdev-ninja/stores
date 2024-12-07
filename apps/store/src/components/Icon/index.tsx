@@ -71,15 +71,25 @@ const icons = {
 			d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
 		/>
 	),
+	heart: (
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+		/>
+	),
 };
 
 const style = tv({
-	base: "cursor-pointer",
+	base: "cursor-pointer transition-all duration-1000",
 	variants: {
 		size: {
 			sm: "size-4",
 			md: "size-6",
 			lg: "size-8",
+		},
+		fill: {
+			true: "fill-current",
 		},
 	},
 	defaultVariants: {

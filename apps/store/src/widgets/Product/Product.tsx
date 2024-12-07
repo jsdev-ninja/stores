@@ -14,6 +14,7 @@ import { ProductBrand } from "./ProductBrand";
 import { ProductManufacturer } from "./ProductManufacturer";
 import { ProductSupplier } from "./ProductSupplier";
 import { TProduct } from "@jsdev_ninja/core";
+import { ProductAddToFavorite } from "./ProductAddToFavorite";
 
 export type ProductProps = {
 	product: TProduct;
@@ -31,6 +32,8 @@ export function Product(props: ProductProps) {
 const style = tv({
 	base: "h-full w-full rounded object-contain  group-hover:scale-125 group-hover:rotate-6 transition duration-500 ",
 });
+
+Product.ProductAddToFavorite = ProductAddToFavorite;
 
 Product.Image = function Image({ prefix }: { prefix?: string }) {
 	const { product } = useProduct();
@@ -69,7 +72,9 @@ Product.Price = function Price() {
 		currency: product.currency,
 	}).format(finalPrice);
 
-	return <div className="text-base font-bold text-primary-500 dark:text-white">{finalPriceView}</div>;
+	return (
+		<div className="text-base font-bold text-primary-500 dark:text-white">{finalPriceView}</div>
+	);
 };
 Product.Currency = function Currency() {
 	const { product } = useProduct();
