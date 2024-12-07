@@ -138,6 +138,15 @@ export function AppBar() {
 								<Dropdown.Item
 									onSelect={() =>
 										navigate({
+											to: "store.favoritesProducts",
+										})
+									}
+								>
+									favorites
+								</Dropdown.Item>
+								<Dropdown.Item
+									onSelect={() =>
+										navigate({
 											to: "store.orders",
 										})
 									}

@@ -31,6 +31,9 @@ export const routes = {
 			profile: {
 				path: "/profile",
 			},
+			favoritesProducts: {
+				path: "/favorites-products",
+			},
 		},
 	},
 	admin: {

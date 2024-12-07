@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useAppApi } from "src/appApi";
 import { useUser } from "src/domains/user";
 import { useStoreActions } from "src/infra";
+import FavoritesProductsPage from "./FavoritesProductsPage/FavoritesProductsPage";
 
 export function StoreLayout() {
 	const appApi = useAppApi();
@@ -62,6 +63,9 @@ export function StoreLayout() {
 
 				<Route name="store.profile">
 					<ProfilePage />
+				</Route>
+				<Route name="store.favoritesProducts">
+					<FavoritesProductsPage />
 				</Route>
 			</main>
 		</div>
