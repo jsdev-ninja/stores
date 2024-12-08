@@ -109,6 +109,14 @@ export const useAppApi = () => {
 		};
 
 		const system = {
+			getProductById: async ({ id }: { id: TProduct["id"] }) => {
+				if (!isValid) return;
+
+				return FirebaseApi.firestore.getV2<TProduct>({
+					collection: "products",
+					id,
+				});
+			},
 			getUserOrders: async () => {
 				if (!isValid) return;
 

@@ -41,6 +41,13 @@ export function AppBar() {
 		"Log Out",
 	];
 
+	const navLinks: [{ name: string; to: string }] = [
+		{
+			name: "favorites",
+			to: "store.favoriteProducts",
+		},
+	] as const;
+
 	const user = useAppSelector((state) => state.user.user);
 
 	const text = user && !user.isAnonymous ? t("logout") : t("login");
@@ -59,7 +66,7 @@ export function AppBar() {
 	return (
 		<Navbar onMenuOpenChange={setIsMenuOpen}>
 			<NavbarMenu>
-				{menuItems.map((item, index) => (
+				{navLinks.map((item, index) => (
 					<NavbarMenuItem key={`${item}-${index}`}>
 						<Link
 							color={
@@ -73,15 +80,11 @@ export function AppBar() {
 							href="#"
 							size="lg"
 						>
-							{item}
+							{item.name}
 						</Link>
 					</NavbarMenuItem>
 				))}
 			</NavbarMenu>
-			<NavbarMenuToggle
-				aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-				className="sm:hidden"
-			/>
 			<NavbarBrand>
 				<div className="h-[40px] w-[80px]">
 					<WebsiteLogo />
@@ -89,23 +92,21 @@ export function AppBar() {
 				<p className="font-bold text-inherit">ACME</p>
 			</NavbarBrand>
 			<NavbarContent className="hidden sm:flex gap-4" justify="center">
-				<NavbarItem>
-					<Link color="foreground" href="#">
-						Features
-					</Link>
-				</NavbarItem>
-				<NavbarItem isActive>
-					<Link href="#" aria-current="page">
-						Customers
-					</Link>
-				</NavbarItem>
-				<NavbarItem>
-					<Link color="foreground" href="#">
-						Integrations
-					</Link>
-				</NavbarItem>
+				{navLinks.map((link) => {
+					return (
+						<NavbarItem>
+							<Link color="foreground" href={link.to}>
+								{link.name}
+							</Link>
+						</NavbarItem>
+					);
+				})}
 			</NavbarContent>
 			<NavbarContent justify="end">
+				<NavbarMenuToggle
+					aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+					className="sm:hidden"
+				/>
 				<NavbarItem>
 					{!!user && !user.isAnonymous ? (
 						<Dropdown>
