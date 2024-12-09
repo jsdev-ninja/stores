@@ -27,14 +27,17 @@ function CheckoutPage() {
 		return null; // todo
 	}
 
+	console.log(profile);
+	
+
 	const emptyAddress: TAddress = {
 		country: "israel",
-		city: profile?.address.city ?? "",
-		street: profile?.address.street ?? "",
-		streetNumber: profile?.address.streetNumber ?? "",
-		apartmentEnterNumber: profile?.address.apartmentEnterNumber ?? "",
-		apartmentNumber: profile?.address.apartmentNumber ?? "",
-		floor: profile?.address.floor ?? "",
+		city: profile?.address?.city ?? "",
+		street: profile?.address?.street ?? "",
+		streetNumber: profile?.address?.streetNumber ?? "",
+		apartmentEnterNumber: profile?.address?.apartmentEnterNumber ?? "",
+		apartmentNumber: profile?.address?.apartmentNumber ?? "",
+		floor: profile?.address?.floor ?? "",
 	};
 
 	const _profile: TProfile = {
