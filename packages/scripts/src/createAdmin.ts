@@ -5,7 +5,7 @@ const testerTenantId = "tester-tenant-2vcku";
 const tenantId = testerTenantId ?? "opal-market-tenant-ia9ux";
 
 const user = {
-	email: "admin@example.com",
+	email: "admin46@example.com",
 	emailVerified: true,
 	password: "philbro324!",
 	displayName: "jsdev",

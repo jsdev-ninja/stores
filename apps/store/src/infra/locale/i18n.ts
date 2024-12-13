@@ -79,6 +79,9 @@ export const resources = {
 				completed: "הסתיים בהצלחה",
 				refunded: "הוחזר",
 			},
+			navLinks: {
+				saved: "שמורים",
+			},
 		},
 		auth: {
 			welcome: {
@@ -117,6 +120,31 @@ export const resources = {
 			totalCost: "מחיר סופי",
 		},
 		// dynamic
+
+		homePage: {
+			title: "כל מה שמשרד שלך צריך",
+			description: "על איכות במשרד לא מתפשרים",
+			action: "מעבר לחנות",
+
+			services: {
+				shipping: {
+					title: "משלוח חינם",
+					description: "כל הזמנות ללא עלות משלוח",
+				},
+				support: {
+					title: "שרות לקוחות 24/7",
+					description: "צור קשר מתי שאתה צריך",
+				},
+				payment: {
+					title: "תשלום מאובטח",
+					description: "שהכסף שלך בטוח",
+				},
+				moneyBack: {
+					title: "החזר כספי",
+					description: "החזר מלא על כל בעיה במוצר",
+				},
+			},
+		},
 
 		profilePage: {
 			title: "חשבון משתמש",

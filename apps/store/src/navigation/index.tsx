@@ -4,7 +4,7 @@ export const routes = {
 	store: {
 		path: "/",
 		children: {
-			category: {
+			catalog: {
 				path: "/category/:rootCategory/:subCategory",
 				exact: false,
 			},

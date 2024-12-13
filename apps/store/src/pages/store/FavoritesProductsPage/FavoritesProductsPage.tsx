@@ -44,7 +44,11 @@ function FavoritesProduct({ favoriteProduct }: { favoriteProduct: TFavoriteProdu
 					<Product.Name />
 					<Product.Price />
 				</div>
+
 				<div className="flex gap-2 ms-auto">
+					<div className="">
+						<Product.CartButton size="md" />
+					</div>
 					<Button>view</Button>
 					<Button>remove</Button>
 				</div>

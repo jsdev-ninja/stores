@@ -43,7 +43,7 @@ export function AppBar() {
 
 	const navLinks: [{ name: string; to: string }] = [
 		{
-			name: "favorites",
+			name: t("navLinks.saved"),
 			to: "store.favoriteProducts",
 		},
 	] as const;
@@ -64,7 +64,7 @@ export function AppBar() {
 	}
 
 	return (
-		<Navbar onMenuOpenChange={setIsMenuOpen}>
+		<Navbar onMenuOpenChange={setIsMenuOpen} isBordered>
 			<NavbarMenu>
 				{navLinks.map((item, index) => (
 					<NavbarMenuItem key={`${item}-${index}`}>

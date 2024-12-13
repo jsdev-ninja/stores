@@ -21,7 +21,7 @@ export const AuthLayout = () => {
 
 	return (
 		<div
-			className={`container w-3/4 mx-auto ${!isLoginForm && "right-panel-active"}`}
+			className={`container2 w-3/4 mx-auto ${!isLoginForm && "right-panel-active"}`}
 			id="container"
 		>
 			<div className="form-container sign-up-container">

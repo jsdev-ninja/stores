@@ -1,29 +1,30 @@
-
-
+every store choose his benefits/services
 
 features
 
-1) products
-- product listing and filter
-- product details
+1. products
 
-2) cart
-- view cart
-- update cart
-- multiple cart
+-  product listing and filter
+-  product details
 
+2. cart
 
-3) checkout 
+-  view cart
+-  update cart
+-  multiple cart
 
-4) user account
-- login logout register
-- manage profile
+3. checkout
 
-5) orders
-- create order
-- track order
-- manage order
+4. user account
 
+-  login logout register
+-  manage profile
+
+5. orders
+
+-  create order
+-  track order
+-  manage order
 
 1. sort orders by date created
 

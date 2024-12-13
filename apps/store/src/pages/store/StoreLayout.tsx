@@ -13,6 +13,7 @@ import { useAppApi } from "src/appApi";
 import { useUser } from "src/domains/user";
 import { useStoreActions } from "src/infra";
 import FavoritesProductsPage from "./FavoritesProductsPage/FavoritesProductsPage";
+import HomePage from "./HomePage/HomePage";
 
 export function StoreLayout() {
 	const appApi = useAppApi();
@@ -35,9 +36,10 @@ export function StoreLayout() {
 			<AppBar />
 			<main className="page-with-header flex flex-col">
 				<Route name="store" index>
-					<CatalogPage />
+					<HomePage />
+					{/* <CatalogPage /> */}
 				</Route>
-				<Route name="store.category">
+				<Route name="store.catalog">
 					<CatalogPage />
 				</Route>
 
