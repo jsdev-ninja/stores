@@ -180,6 +180,7 @@ export const resources = {
 				acceptOrder: "אישור הזמנה",
 				deliveredOrder: "הזמנה הגיע",
 				paidOrder: "הזמנה שולמה",
+				duplicateOrder: "הזמן שוב",
 			},
 		},
 

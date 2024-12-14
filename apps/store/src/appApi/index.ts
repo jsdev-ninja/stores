@@ -23,6 +23,7 @@ import {
 } from "@jsdev_ninja/core";
 import { TCart } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
+import { navigate } from "src/navigation";
 
 // should be ready before use
 // store
@@ -240,6 +241,28 @@ export const useAppApi = () => {
 					"orders"
 				);
 			},
+			async createCartFromOrder({ order }: { order: TOrder }) {
+				if (!user || !store || !order || !company) return;
+
+				// mark currentCart as draft
+				if (cart?.id) {
+					await CartService.updateCart(cart.id, {
+						status: "draft",
+					});
+				}
+				await CartService.createCart({
+					status: "active",
+					items: order.cart.items,
+					companyId: company.id,
+					storeId: store.id,
+					type: "Cart",
+					userId: user.uid,
+				});
+				navigate({
+					to: "store.catalog",
+				});
+			},
+
 			async addItemToCart({ product }: { product: TProduct }) {
 				if (!product || !user || !store) return;
 

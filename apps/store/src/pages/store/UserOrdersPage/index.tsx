@@ -112,16 +112,29 @@ function OrderItem({ order }: { order: TOrder }) {
 					>
 						{t("ordersPage:actions.viewOrder")}
 					</Button>
-					<Button
-						variant="solid"
-						color="danger"
-						isDisabled={!appApi.user.permissions.canCancelOrder({ order })}
-						onClick={() => {
-							appApi.user.cancelOrder({ order });
-						}}
-					>
-						{t("ordersPage:actions.cancelOrder")}
-					</Button>
+					{order.status !== "completed" && (
+						<Button
+							variant="solid"
+							color="danger"
+							isDisabled={!appApi.user.permissions.canCancelOrder({ order })}
+							onClick={() => {
+								appApi.user.cancelOrder({ order });
+							}}
+						>
+							{t("ordersPage:actions.cancelOrder")}
+						</Button>
+					)}
+					{true && (
+						<Button
+							variant="solid"
+							color="danger"
+							onClick={() => {
+								appApi.user.createCartFromOrder({ order });
+							}}
+						>
+							{t("ordersPage:actions.duplicateOrder")}
+						</Button>
+					)}
 				</div>
 			)}
 		</div>

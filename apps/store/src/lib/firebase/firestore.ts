@@ -102,7 +102,7 @@ async function update<T extends object = any>(id: string, item: UpdateData<T>, c
 }
 async function set(id: string, item: any) {
 	try {
-		await setDoc(doc(db, id), item);
+		await setDoc(doc(db, id), item, { merge: true });
 
 		const data = { ...item, id: id };
 

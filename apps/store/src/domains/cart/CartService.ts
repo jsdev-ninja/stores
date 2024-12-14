@@ -2,7 +2,13 @@ import { FirebaseApi } from "src/lib/firebase";
 
 import type { TCart } from "./types";
 export const CartService = {
-	updateCart(id: string, cart: Omit<TCart, "id">) {
-		FirebaseApi.firestore.set(`cart/${id}`, cart);
+	async updateCart(id: string, cart: Partial<Omit<TCart, "id">>) {
+		return await FirebaseApi.firestore.set(`cart/${id}`, cart);
+	},
+	async createCart(cart: Omit<TCart, "id">) {
+		return await FirebaseApi.firestore.set(
+			"cart/" + FirebaseApi.firestore.generateDocId("cart"),
+			cart
+		);
 	},
 };
