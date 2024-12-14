@@ -71,7 +71,10 @@ function HomePage() {
 			<Card className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
 				{services.map((service) => {
 					return (
-						<div key={service.title} className="flex-grow gap-5 p-5 flex items-center justify-center">
+						<div
+							key={service.title}
+							className="flex-grow gap-5 p-5 flex items-center justify-center"
+						>
 							<img src={service.icon} className="size-10" alt="service" />
 							<div className="">
 								<div className="font-semibold text-lg">{service.title}</div>

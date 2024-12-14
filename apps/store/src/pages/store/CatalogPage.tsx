@@ -1,71 +1,111 @@
-import { Divider } from "@nextui-org/react";
+import { Divider, Selection } from "@nextui-org/react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
+import { CategorySlice } from "src/domains/Category";
+import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
+import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
 import { Product } from "src/widgets/Product";
 import { ProductsWidget } from "src/widgets/Products";
-import { SideNavigator } from "src/widgets/SideNavigator";
 
 export function CatalogPage() {
 	const { t } = useTranslation(["common"]);
+
+	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
+
+	console.log("categories", categories);
+
+	const [selectedCategory, setSelectedCategory] = useState<{
+		0: string;
+		1: string;
+		2: string;
+		3: string;
+		4: string;
+	}>({
+		0: "",
+		1: "",
+		2: "",
+		3: "",
+		4: "",
+	});
+
+	console.log("selectedKeys", selectedCategory);
+
+	const isEmpty = !selectedCategory["0"];
+
+	const filter = !isEmpty
+		? Object.entries(selectedCategory)
+				.map(([depth, name]) => {
+					return name ? `categoryNames:"${decodeURIComponent(name)}"` : "";
+				})
+				.filter(Boolean)
+				.join(" OR ")
+		: "";
+
+	console.log("filter", filter);
+
 	return (
-		<ProductsWidget>
+		<ProductsWidget filter={filter}>
 			<div className="flex w-full h-full">
 				<div className="flex-shrink-0 w-80  overflow-auto  sticky top-0 h-[calc(100vh-64px)]">
-					<SideNavigator />
+					{/* <SideNavigator /> */}
+					<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 				</div>
-				<div className="flex-grow p-6 flex flex-wrap justify-center items-start gap-4">
+				<div className="flex-grow p-6 flex flex-col justify-start items-start gap-4">
 					<div className="mx-4  w-full">
 						<ProductsWidget.SearchBox />
 					</div>
-					<div className="flex gap-4 flex-wrap justify-center">
-						<ProductsWidget.Products>
-							{(products) => {
-								return products.map((product) => {
-									return <ProductRender key={product.id} product={product} />;
-									return (
-										<Product key={product.id} product={product}>
-											<div
-												className="shadow p-4 w-64 h-96 flex flex-col bg-gray-50 rounded-2xl relative"
-												onClick={async () => {
-													navigate({
-														to: "store.product",
-														params: { id: product.id },
-														state: { product },
+					<div className="flex flex-col gap-6">
+						{!isEmpty &&
+							categories.map((category) => {
+								return (
+									<div className="flex flex-col gap-4" key={category.id}>
+										<div className="font-semibold text-2xl">
+											{category.locales[0].value}
+										</div>
+										<div className="flex gap-4 flex-wrap flex-grow">
+											<ProductsWidget.Products>
+												{(products) => {
+													return products.map((product) => {
+														return (
+															<ProductRender key={product.id} product={product} />
+														);
 													});
 												}}
-											>
-												<div className="absolute top-0 end-0">
-													<Product.ProductAddToFavorite />
-												</div>
-												<div className="w-32 h-32 mx-auto">
-													<Product.Image prefix="productCard" />
-												</div>
-												<div className="flex flex-col gap-1 mt-4">
-													<Product.Name />
-													<div className="flex gap-1">
-														<Product.Price />
+											</ProductsWidget.Products>
+										</div>
+										<div className="flex flex-wrap gap-4">
+											{category.children.map((category) => {
+												return (
+													<div
+														className="flex-grow border py-10 rounded-lg px-6 gap-4"
+														key={category.id}
+													>
+														<div className="font-semibold text-2xl">
+															{category.locales[0].value}
+														</div>
 													</div>
-
-													<div className="flex items-center gap-2">
-														<Product.Weight />
-														<Divider orientation="vertical" />
-														<Product.ProductBrand />
-													</div>
-												</div>
-												<div className="flex items-center gap-2 my-4"></div>
-												<div className="w-full mt-auto">
-													<Product.CartButton size="md" />
-												</div>
-											</div>
-										</Product>
-									);
-								});
-							}}
-						</ProductsWidget.Products>
+												);
+											})}
+										</div>
+									</div>
+								);
+							})}
 					</div>
+					{!!isEmpty && (
+						<div className="flex gap-4 flex-wrap flex-grow">
+							<ProductsWidget.Products>
+								{(products) => {
+									return products.map((product) => {
+										return <ProductRender key={product.id} product={product} />;
+									});
+								}}
+							</ProductsWidget.Products>
+						</div>
+					)}
 				</div>
 				<div className="w-[300px] flex flex-col flex-shrink-0 sticky top-0 h-[calc(100vh-64px)]">
 					<div className="flex-grow overflow-hidden">

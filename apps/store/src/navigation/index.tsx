@@ -5,7 +5,7 @@ export const routes = {
 		path: "/",
 		children: {
 			catalog: {
-				path: "/category/:rootCategory/:subCategory",
+				path: "/catalog",
 				exact: false,
 			},
 

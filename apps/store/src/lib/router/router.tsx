@@ -76,6 +76,7 @@ export function createRouter<T extends Routes>(routes: T) {
 		if (!routeData) return null;
 
 		const isRouteMatch = matchRoute(routeData, state.pathname);
+		console.log("isRouteMatch", isRouteMatch, routeData.path);
 
 		if (!isRouteMatch.match) {
 			return null;
@@ -109,18 +110,18 @@ export function createRouter<T extends Routes>(routes: T) {
 			? T[key]["path"]
 			: never
 		: key extends `${infer S}.${infer B}`
-			? S extends keyof T
-				? T[S] extends Route
-					? B extends keyof T[S]["children"]
-						? T[S] extends undefined
-							? never
-							: T[S]["children"] extends Routes
-								? RoutePath<B, T[S]["children"]>
-								: never
+		? S extends keyof T
+			? T[S] extends Route
+				? B extends keyof T[S]["children"]
+					? T[S] extends undefined
+						? never
+						: T[S]["children"] extends Routes
+						? RoutePath<B, T[S]["children"]>
 						: never
 					: never
 				: never
-			: never;
+			: never
+		: never;
 
 	type TTo = RouteKeys<typeof routes>;
 
@@ -131,10 +132,9 @@ export function createRouter<T extends Routes>(routes: T) {
 		: RouteParams<RoutePath<K, typeof routes>> {
 		const { pathname } = store.useRouterStore();
 
-		type Result =
-			RouteParams<RoutePath<K, typeof routes>> extends never
-				? Record<string, never>
-				: RouteParams<RoutePath<K, typeof routes>>;
+		type Result = RouteParams<RoutePath<K, typeof routes>> extends never
+			? Record<string, never>
+			: RouteParams<RoutePath<K, typeof routes>>;
 
 		const route = getRouteData(name, routes);
 

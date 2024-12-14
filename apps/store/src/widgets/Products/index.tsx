@@ -1,5 +1,4 @@
 import { Configure, InstantSearch, useInfiniteHits } from "react-instantsearch";
-import { TProduct } from "src/domains";
 import { AlgoliaClient } from "src/services";
 import { ReactNode, useEffect, useRef } from "react";
 
@@ -7,6 +6,7 @@ import type { Hit as AlgoliaHit } from "instantsearch.js";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
 import { SearchBox } from "./SearchBox";
 import { useStore } from "src/domains/Store";
+import { TProduct } from "@jsdev_ninja/core";
 
 export function ProductsWidget({
 	children,

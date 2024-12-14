@@ -2,34 +2,25 @@ import { useAppApi } from "src/appApi";
 import { CategorySlice } from "src/domains/Category";
 import { useAppSelector } from "src/infra";
 
-import { Accordion, AccordionItem } from "@nextui-org/react";
+import * as Accordion from "@radix-ui/react-accordion";
 import { Button } from "src/components/button";
-
-export default function App() {
-	const defaultContent =
-		"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-
-	return (
-		<Accordion variant="splitted">
-			<AccordionItem key="1" aria-label="Accordion 1" title="Accordion 1">
-				{defaultContent}
-			</AccordionItem>
-			<AccordionItem key="2" aria-label="Accordion 2" title="Accordion 2">
-				{defaultContent}
-			</AccordionItem>
-			<AccordionItem key="3" aria-label="Accordion 3" title="Accordion 3">
-				{defaultContent}
-			</AccordionItem>
-		</Accordion>
-	);
-}
+import { TCategory } from "@jsdev_ninja/core";
+import { useEffect, useState } from "react";
 
 export function CategoryMenu({
-	onSelect,
-	selected,
+	value,
+	onValueChange,
 }: {
-	onSelect?: (category: string) => void;
-	selected?: string;
+	value: {
+		0: string;
+		1: string;
+		2: string;
+		3: string;
+		4: string;
+	};
+	onValueChange:
+		| ((value: { 0: string; 1: string; 2: string; 3: string; 4: string }) => void)
+		| undefined;
 }) {
 	const appApi = useAppApi();
 
@@ -37,39 +28,48 @@ export function CategoryMenu({
 
 	console.log("categories", categories);
 
+	function onChange(name: string, depth: number) {
+		console.log(name, depth);
+		onValueChange?.({
+			...value,
+			[depth]: name,
+		});
+	}
+
 	return (
-		<Accordion showDivider={false} isCompact variant="splitted">
-			{categories.map((category) => {
-				return (
-					<AccordionItem
-						// className="shadow-none"
-						hideIndicator={!category.children.length}
-						title={category.locales[0].value}
+		<div className="">
+			<Accordion.Root
+				onValueChange={(value) => {
+					onChange(value, 0);
+				}}
+				type="single"
+			>
+				{categories.map((category) => {
+					return <Category onChange={onChange} category={category} />;
+				})}
+			</Accordion.Root>
+		</div>
+	);
+}
+
+function Category({ category, onChange }: { category: TCategory }) {
+	return (
+		<Accordion.Item key={category.tag} className="ps-4" value={category.locales[0].value}>
+			<Accordion.Trigger>{category.locales[0].value}</Accordion.Trigger>
+			<Accordion.Content>
+				<div className="flex flex-col gap-2">
+					<Accordion.Root
+						onValueChange={(value) => {
+							onChange(value, category.depth + 1);
+						}}
+						type="single"
 					>
-						<div className="flex flex-col gap-2">
-							{category.children.map((childCategory) => {
-								return (
-									<Button
-										onPress={() => {
-											onSelect?.(
-												selected === childCategory.locales[0].value
-													? ""
-													: childCategory.locales[0].value
-											);
-										}}
-										color="secondary"
-										variant={
-											selected === childCategory.locales[0].value ? "solid" : "light"
-										}
-									>
-										{childCategory.locales[0].value}
-									</Button>
-								);
-							})}
-						</div>
-					</AccordionItem>
-				);
-			})}
-		</Accordion>
+						{category.children.map((childCategory) => {
+							return <Category category={childCategory} key={childCategory.id} />;
+						})}
+					</Accordion.Root>
+				</div>
+			</Accordion.Content>
+		</Accordion.Item>
 	);
 }
