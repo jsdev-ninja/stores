@@ -76,7 +76,6 @@ export function createRouter<T extends Routes>(routes: T) {
 		if (!routeData) return null;
 
 		const isRouteMatch = matchRoute(routeData, state.pathname);
-		console.log("isRouteMatch", isRouteMatch, routeData.path);
 
 		if (!isRouteMatch.match) {
 			return null;

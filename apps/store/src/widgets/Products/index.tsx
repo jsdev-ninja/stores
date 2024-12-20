@@ -24,6 +24,7 @@ export function ProductsWidget({
 
 	const filters = `(companyId:${store.companyId} AND storeId:${store.id}) ${_filter}`;
 	// const filters = ``;
+	console.log("filters", filters);
 
 	return (
 		<InstantSearch

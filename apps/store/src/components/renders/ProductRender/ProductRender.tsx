@@ -5,6 +5,7 @@ import { RENDER_CONFIG } from "src/websites/config";
 
 const TesterProduct = lazy(() => import("../../../websites/tester/index"));
 const DefaultProductCard = lazy(() => import("../../../websites/default/DefaultProductCard"));
+const OpalMarketProductCart = lazy(() => import("../../../websites/opal-market/index"));
 
 export function ProductRender({ product }: { product: TProduct }) {
 	const store = useStore();
@@ -16,7 +17,7 @@ export function ProductRender({ product }: { product: TProduct }) {
 			{!!RENDER_CONFIG[store.id].productCard ? (
 				<TesterProduct />
 			) : (
-				<DefaultProductCard product={product} />
+				<OpalMarketProductCart product={product} />
 			)}
 		</Suspense>
 	);

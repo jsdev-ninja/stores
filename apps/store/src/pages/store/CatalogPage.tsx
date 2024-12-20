@@ -1,6 +1,7 @@
 import { Divider, Selection } from "@nextui-org/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CategoryCard } from "src/components/CategoryCard/CategoryCard";
 import { Button } from "src/components/button";
 import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
 import { CategorySlice } from "src/domains/Category";
@@ -45,12 +46,10 @@ export function CatalogPage() {
 				.join(" OR ")
 		: "";
 
-	console.log("filter", filter);
-
 	return (
 		<ProductsWidget filter={filter}>
 			<div className="flex w-full h-full">
-				<div className="flex-shrink-0 w-80  overflow-auto  sticky top-0 h-[calc(100vh-64px)]">
+				<div className="flex-shrink-0 w-80  overflow-auto p-4 sticky top-0 h-[calc(100vh-64px)]">
 					{/* <SideNavigator /> */}
 					<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 				</div>
@@ -59,51 +58,34 @@ export function CatalogPage() {
 						<ProductsWidget.SearchBox />
 					</div>
 					<div className="flex flex-col gap-6">
-						{!isEmpty &&
-							categories.map((category) => {
+						{!isEmpty && (
+							<div className="flex gap-4 flex-wrap flex-grow">
+								<ProductsWidget.Products>
+									{(products) => {
+										return products.map((product) => {
+											console.log(product);
+											
+											return <ProductRender key={product.id} product={product} />;
+										});
+									}}
+								</ProductsWidget.Products>
+							</div>
+						)}
+					</div>
+					{!!isEmpty && (
+						<div className="flex flex-col gap-8 flex-grow">
+							{categories.map((category) => {
 								return (
-									<div className="flex flex-col gap-4" key={category.id}>
-										<div className="font-semibold text-2xl">
-											{category.locales[0].value}
-										</div>
-										<div className="flex gap-4 flex-wrap flex-grow">
-											<ProductsWidget.Products>
-												{(products) => {
-													return products.map((product) => {
-														return (
-															<ProductRender key={product.id} product={product} />
-														);
-													});
-												}}
-											</ProductsWidget.Products>
-										</div>
-										<div className="flex flex-wrap gap-4">
+									<div className="flex flex-col gap-4">
+										<div className="">{category.locales[0].value}</div>
+										<div className="flex gap-4 flex-wrap">
 											{category.children.map((category) => {
-												return (
-													<div
-														className="flex-grow border py-10 rounded-lg px-6 gap-4"
-														key={category.id}
-													>
-														<div className="font-semibold text-2xl">
-															{category.locales[0].value}
-														</div>
-													</div>
-												);
+												return <CategoryCard category={category} key={category.id} />;
 											})}
 										</div>
 									</div>
 								);
 							})}
-					</div>
-					{!!isEmpty && (
-						<div className="flex gap-4 flex-wrap flex-grow">
-							<ProductsWidget.Products>
-								{(products) => {
-									return products.map((product) => {
-										return <ProductRender key={product.id} product={product} />;
-									});
-								}}
-							</ProductsWidget.Products>
 						</div>
 					)}
 				</div>
