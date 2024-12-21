@@ -47,8 +47,6 @@ export async function productCreate(newProduct: TNewProduct) {
 
 	const validation = ProductSchema.safeParse(product);
 
-	console.log("validation", validation);
-
 	if (validation.success) {
 		return await FirebaseApi.firestore.createV2({
 			collection: "products",

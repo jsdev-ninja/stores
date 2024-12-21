@@ -65,6 +65,8 @@ function PriceSection() {
 
 export function AddProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
+	console.log('categories',categories);
+	
 
 	const store = useStore();
 
@@ -72,24 +74,25 @@ export function AddProductPage() {
 
 	const { t } = useTranslation(["admin", "common"]);
 
-	function renderParent(category: TCategory, parent?: TCategory): string {
+	function renderParent(category: TCategory, prefix?: string): string {
 		if (!category) return "";
 
-		const sign = parent ? " > " : "";
+		if (!prefix) return `${category.locales[0].value}`;
 
-		if (!parent) return `${category.locales[0].value}`;
-
-		return `${parent.locales[0].value}${sign}${category.locales[0].value}`;
+		return `${prefix}${category.locales[0].value}`;
 	}
 
-	function renderCategory(categories: TCategory[], parent?: TCategory) {
+	function renderCategory(categories: TCategory[], prefix?: string) {
 		return categories.map((category) => {
+			const sign = prefix ? `${prefix} > ` : "";
+
 			return (
 				<Fragment key={category.id}>
 					<Form.CategorySelect.Item key={category.id} value={category}>
-						{renderParent(category, parent)}
+						{renderParent(category, sign)}
 					</Form.CategorySelect.Item>
-					{!!category.children?.length && renderCategory(category.children, category)}
+					{!!category.children?.length &&
+						renderCategory(category.children, sign + category.locales[0].value)}
 				</Fragment>
 			);
 		});

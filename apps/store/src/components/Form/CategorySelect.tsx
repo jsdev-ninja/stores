@@ -8,6 +8,7 @@ import { NestedKeys } from "src/shared/types";
 
 import { Select as BaseSelect } from "../Select/Select";
 import { TCategory } from "src/domains/Category";
+import { flattenTree } from "src/widgets/Category/CategoryTree/utils";
 
 export const CategorySelect = <T,>({
 	children,
@@ -29,6 +30,8 @@ export const CategorySelect = <T,>({
 
 	const form = useFormContext();
 
+	const _categories = flattenTree(categories);
+
 	const selectedCategories = control.field.value as TCategory[];
 
 	return (
@@ -37,28 +40,51 @@ export const CategorySelect = <T,>({
 			multiple
 			label={label}
 			onChange={(newValue: TCategory[]) => {
-				const newCategories = newValue.filter(
-					(newCategory) => !selectedCategories.find((s) => s.id === newCategory.id)
-				);
+				function removeDuplicatesById(arr: any) {
+					const seen = new Set();
+					return arr.filter((item: any) => {
+						if (seen.has(item.id)) {
+							return false;
+						}
+						seen.add(item.id);
+						return true;
+					});
+				}
+
+				function findAllParents(category?: TCategory, prev: TCategory[] = []) {
+					const parent = _categories.find((c) => c.id === category?.parentId);
+
+					if (!parent) return prev;
+					return findAllParents(parent, prev.concat([parent]));
+				}
+				function findAllChildren(category?: TCategory, prev: TCategory[] = []): TCategory[] {
+					if (!category?.children.length) return prev;
+					return category.children
+						.map((c) => findAllChildren(c, prev.concat(category.children)))
+						.flat();
+				}
 
 				const removedCategories = selectedCategories.filter(
 					(newCategory) => !newValue.find((s) => s.id === newCategory.id)
 				);
 
-				const childToRemove = selectedCategories.filter((c) =>
-					removedCategories.find((cat) => cat.id === c.parentId)
+				const newCategories = newValue.filter(
+					(newCategory) => !selectedCategories.find((s) => s.id === newCategory.id)
 				);
 
-				const parents = categories.filter((cat) => {
-					return (
-						newCategories.find((c) => c.parentId === cat.id) &&
-						!selectedCategories.find((c) => c.id === cat.id)
-					);
-				});
+				const allParents = removeDuplicatesById(
+					newCategories.map((c) => findAllParents(c, [])).flat()
+				);
 
-				const result = newValue.concat(parents).filter((c) =>
+				console.log("allParents", allParents);
+
+				const childToRemove = removeDuplicatesById(
+					removedCategories.map((c) => findAllChildren(c, [])).flat()
+				);
+
+				const result = newValue.concat(allParents).filter((c) =>
 					childToRemove.length
-						? !childToRemove.find((cat) => {
+						? !childToRemove.find((cat: TCategory) => {
 								if (cat.id === c.id) {
 									return true;
 								}
@@ -67,7 +93,7 @@ export const CategorySelect = <T,>({
 						: true
 				);
 
-				return form.setValue(name, result as any);
+				return form.setValue(name, removeDuplicatesById(result) as any);
 			}}
 			placeholder={placeholder}
 			value={control.field.value}

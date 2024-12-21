@@ -15,12 +15,33 @@ export function AdminProductsPage() {
 		appApi.admin.productDelete({ product });
 	}
 
-	const [category, setCategory] = useState<string>("");
+	const [selectedCategory, setSelectedCategory] = useState<{
+		0: string;
+		1: string;
+		2: string;
+		3: string;
+		4: string;
+	}>({
+		0: "",
+		1: "",
+		2: "",
+		3: "",
+		4: "",
+	});
 
-	const filter = `categoryNames:"${decodeURIComponent(category)}"`;
+	const isEmpty = !selectedCategory["0"];
+
+	const filter = !isEmpty
+		? Object.entries(selectedCategory)
+				.map(([depth, name]) => {
+					return name ? `categoryNames:"${decodeURIComponent(name)}"` : "";
+				})
+				.filter(Boolean)
+				.join(" OR ")
+		: "";
 
 	return (
-		<ProductsWidget filter={category ? filter : ""}>
+		<ProductsWidget filter={filter}>
 			<div className="">
 				<div className="flex items-center">
 					<div className="mx-4 flex-grow">
@@ -42,7 +63,7 @@ export function AdminProductsPage() {
 				<div className="flex">
 					<div id="SideNavigator" className="w-[240px] flex-shrink-0 max-h-full">
 						{/* <ProductsWidget.Filter /> */}
-						<CategoryMenu onSelect={setCategory} selected={category} />
+						<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 					</div>
 					<div className="flex-grow p-4 flex flex-wrap gap-4">
 						<ProductsWidget.Products>
