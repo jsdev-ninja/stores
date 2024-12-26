@@ -1,4 +1,5 @@
 import { createRouter } from "src/lib/router";
+import type { LinkTo } from "src/lib/router";
 
 export const routes = {
 	store: {
@@ -75,6 +76,8 @@ export const routes = {
 		path: "/superAdmin",
 	},
 } as const;
+
+export type TLinkTo = LinkTo<typeof routes>;
 
 export const Router = createRouter(routes);
 

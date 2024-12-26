@@ -36,6 +36,8 @@ function checkChildMatch(
 	return Object.values(route?.children).some((r) => checkChildMatch(r, pathname, route));
 }
 
+export type LinkTo<T extends Routes> = RouteKeys<T>;
+
 export function createRouter<T extends Routes>(routes: T) {
 	const store = createStore(routes);
 

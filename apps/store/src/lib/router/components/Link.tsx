@@ -28,23 +28,23 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 		store.navigate({ path, state }); // todo type
 	}
 
-	function Link<K extends TTo>(
-		props: RouteParams<RoutePath<K, typeof routes>> extends never
-			? {
-					to: K;
-					children: ReactNode;
-					className?: string;
-					state?: any;
-			  }
-			: {
-					to: K;
-					children: ReactNode;
-					params: RouteParams<RoutePath<K, typeof routes>>;
-					className?: string;
-					state?: any;
-			  }
-	) {
-		const routeConfig = getRouteData(props.to, routes);
+	type Props<K extends string> = RouteParams<RoutePath<K, typeof routes>> extends never
+		? {
+				to: K;
+				children: ReactNode;
+				className?: string;
+				state?: any;
+		  }
+		: {
+				to: K;
+				children: ReactNode;
+				params: RouteParams<RoutePath<K, typeof routes>>;
+				className?: string;
+				state?: any;
+		  };
+
+	function Link<K extends TTo>(props: Props<K>) {
+		const routeConfig = getRouteData(props.to ?? "", routes);
 
 		const p = "params" in props ? props.params : {};
 

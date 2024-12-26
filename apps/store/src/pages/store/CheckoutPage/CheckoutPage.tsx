@@ -27,9 +27,6 @@ function CheckoutPage() {
 		return null; // todo
 	}
 
-	console.log(profile);
-	
-
 	const emptyAddress: TAddress = {
 		country: "israel",
 		city: profile?.address?.city ?? "",

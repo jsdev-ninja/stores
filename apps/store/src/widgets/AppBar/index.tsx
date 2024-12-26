@@ -1,5 +1,5 @@
 import { Button } from "src/components/button";
-import { navigate } from "src/navigation";
+import { TLinkTo, navigate } from "src/navigation";
 import { useTranslation } from "react-i18next";
 import { modalApi } from "src/infra/modals";
 import { useAppSelector } from "src/infra";
@@ -14,12 +14,12 @@ import {
 	NavbarBrand,
 	NavbarContent,
 	NavbarItem,
-	Link,
 	NavbarMenu,
 	NavbarMenuItem,
 	NavbarMenuToggle,
 } from "@nextui-org/react";
 import { useState } from "react";
+import { Link } from "src/ui";
 
 export function AppBar() {
 	const { t } = useTranslation();
@@ -41,10 +41,10 @@ export function AppBar() {
 		"Log Out",
 	];
 
-	const navLinks: [{ name: string; to: string }] = [
+	const navLinks: [{ name: string; to: TLinkTo }] = [
 		{
 			name: t("navLinks.saved"),
-			to: "store.favoriteProducts",
+			to: "store.favoritesProducts",
 		},
 	] as const;
 
@@ -79,6 +79,7 @@ export function AppBar() {
 							className="w-full"
 							href="#"
 							size="lg"
+							to={item.to}
 						>
 							{item.name}
 						</Link>
