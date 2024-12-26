@@ -1,4 +1,4 @@
-import { Configure, InstantSearch, useInfiniteHits } from "react-instantsearch";
+import { Configure, InstantSearch, useInfiniteHits, useInstantSearch } from "react-instantsearch";
 import { AlgoliaClient } from "src/services";
 import { ReactNode, useEffect, useRef } from "react";
 
@@ -51,6 +51,7 @@ export function Products({
 	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
 }) {
 	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>();
+	const { status } = useInstantSearch();
 
 	const sentinelRef = useRef(null);
 
@@ -71,6 +72,8 @@ export function Products({
 			};
 		}
 	}, [isLastPage, showMore]);
+
+	if (status === "loading") return null; //todo
 
 	return (
 		<>
