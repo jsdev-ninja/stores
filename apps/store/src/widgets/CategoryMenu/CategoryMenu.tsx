@@ -23,10 +23,12 @@ export function CategoryMenu({
 	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
 
 	function onChange(name: string, depth: number) {
-		console.log(name, depth);
+		const isSelected = (value as any)[depth] === name;
+		console.log(name, depth, isSelected);
+
 		onValueChange?.({
 			...value,
-			[depth]: name,
+			[depth]: isSelected ? "" : name,
 		});
 	}
 
@@ -37,6 +39,7 @@ export function CategoryMenu({
 			}}
 			type="single"
 			className="flex flex-col gap-2"
+			collapsible
 		>
 			{categories.map((category) => {
 				return <Category value={value} onChange={onChange} category={category} />;
@@ -80,6 +83,7 @@ function Category({
 								onChange(value, category.depth + 1);
 							}}
 							type="single"
+							collapsible
 							className="flex flex-col gap-2 ps-4"
 						>
 							{category.children.map((childCategory) => {

@@ -144,6 +144,8 @@ export const resources = {
 					description: "החזר מלא על כל בעיה במוצר",
 				},
 			},
+
+			popularCategories: "קטגוריות פופולאריות",
 		},
 
 		profilePage: {

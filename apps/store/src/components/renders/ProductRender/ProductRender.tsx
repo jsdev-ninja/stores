@@ -6,10 +6,10 @@ import { TStore } from "src/domains/Store";
 
 export const RENDER_CONFIG: Record<
 	TStore["id"],
-	{ productCard: LazyExoticComponent<ComponentType<{ product: TProduct }>> }
+	{ productCard?: LazyExoticComponent<ComponentType<{ product: TProduct }>> }
 > = {
 	"tester-store": {
-		productCard: lazy(() => import("../../../websites/tester/index")),
+		// productCard: lazy(() => import("../../../websites/tester/index")),
 	},
 	"opal-market-store": {
 		productCard: lazy(() => import("../../../websites/opal-market/index")),
@@ -22,7 +22,7 @@ export function ProductRender({ product }: { product: TProduct }) {
 	const store = useStore();
 
 	if (!store) return null;
-	const Component = RENDER_CONFIG[store.id].productCard;
+	const Component = RENDER_CONFIG[store.id]?.productCard;
 
 	return (
 		<Suspense fallback="loading">

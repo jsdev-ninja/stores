@@ -1,6 +1,7 @@
 import { Card } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
+import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
 
 function HomePage() {
@@ -28,6 +29,10 @@ function HomePage() {
 			icon: "/package.svg",
 		},
 	] as const;
+
+	const categories = useAppSelector((state) => state.category.categories);
+
+	const popularCategories = categories.slice(0, 4);
 
 	return (
 		<div className="container my-4 flex flex-col gap-6">
@@ -85,14 +90,13 @@ function HomePage() {
 				})}
 			</Card>
 
-			<div className="">
-				<div className="title">title</div>
+			<div className="flex flex-col gap-4">
+				<div className="text-2xl font-semibold">{t("homePage:popularCategories")}</div>
 				<div className="flex flex-wrap gap-4 justify-center">
-					{services.map((service) => {
+					{popularCategories.map((category) => {
 						return (
-							<div className="w-52 flex flex-col gap-4 justify-center items-center border rounded">
-								<img src={service.icon} className="w-full h-auto" alt="" />
-								<div className="">category</div>
+							<div className="w-52 h-36 flex flex-col gap-4 justify-center items-center border rounded">
+								<div className="">{category.locales[0].value}</div>
 							</div>
 						);
 					})}
