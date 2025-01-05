@@ -28,27 +28,16 @@ export function AppBar() {
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-	const menuItems = [
-		"Profile",
-		"Dashboard",
-		"Activity",
-		"Analytics",
-		"System",
-		"Deployments",
-		"My Settings",
-		"Team Settings",
-		"Help & Feedback",
-		"Log Out",
-	];
+	const user = useAppSelector((state) => state.user.user);
 
-	const navLinks: [{ name: string; to: TLinkTo }] = [
-		{
+	const navLinks: { name: string; to: TLinkTo }[] = [];
+
+	if (!user?.isAnonymous) {
+		navLinks.push({
 			name: t("navLinks.saved"),
 			to: "store.favoritesProducts",
-		},
-	] as const;
-
-	const user = useAppSelector((state) => state.user.user);
+		});
+	}
 
 	const text = user && !user.isAnonymous ? t("logout") : t("login");
 
@@ -69,13 +58,7 @@ export function AppBar() {
 				{navLinks.map((item, index) => (
 					<NavbarMenuItem key={`${item}-${index}`}>
 						<Link
-							color={
-								index === 2
-									? "primary"
-									: index === menuItems.length - 1
-									? "danger"
-									: "foreground"
-							}
+							color={index === 2 ? "primary" : index === -1 ? "danger" : "foreground"}
 							className="w-full"
 							href="#"
 							size="lg"
@@ -96,7 +79,7 @@ export function AppBar() {
 				{navLinks.map((link) => {
 					return (
 						<NavbarItem>
-							<Link color="foreground" href={link.to}>
+							<Link color="foreground" to={link.to}>
 								{link.name}
 							</Link>
 						</NavbarItem>
@@ -159,7 +142,9 @@ export function AppBar() {
 							</Dropdown.Content>
 						</Dropdown>
 					) : (
-						<Button onClick={onClick}>{text}</Button>
+						<Button size="sm" onClick={onClick}>
+							{text}
+						</Button>
 					)}
 				</NavbarItem>
 			</NavbarContent>
