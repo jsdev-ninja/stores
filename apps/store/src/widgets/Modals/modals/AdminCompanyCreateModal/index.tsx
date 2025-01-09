@@ -8,8 +8,10 @@ import { Modal } from "src/components/Modal/Modal";
 import { useStore } from "src/domains/Store";
 import { modalApi } from "src/infra/modals";
 // import { SentryApi } from "src/lib/sentry";
-import { ProfileSchema, passwordSchema } from "src/types";
+import { ProfileSchema } from "@jsdev_ninja/core";
 import { z } from "zod";
+import { passwordSchema } from "src/types";
+import { FirebaseApi } from "src/lib/firebase";
 
 const NewCompanySchema = ProfileSchema.extend({
 	password: passwordSchema,
@@ -40,7 +42,7 @@ export function AdminCompanyCreateModal() {
 							storeId: store.id,
 							tenantId: store.tenantId,
 							clientType: "company",
-							fullName: "",
+							displayName: "",
 							email: "",
 							password: "",
 							phoneNumber: { code: "+972", number: "" },
@@ -55,9 +57,14 @@ export function AdminCompanyCreateModal() {
 							},
 						}}
 						className="p-4"
-						onSubmit={async (formData) => {
+						onSubmit={async (formData: any) => {
 							console.log("formData", formData);
-							await appApi.admin.companyCreate(formData);
+
+							// todo
+							await appApi.admin.companyCreate({
+								...formData,
+								id: FirebaseApi.firestore.generateDocId("companies"),
+							});
 							// tood update profiles
 							modalApi.closeModal("AdminCompanyCreateModal");
 						}}
@@ -68,7 +75,7 @@ export function AdminCompanyCreateModal() {
 						<div className="flex flex-col gap-4">
 							<div className="">
 								<Input<TNewCompany>
-									name="fullName"
+									name="displayName"
 									label={t("common:fullName")}
 									placeholder={t("common:fullName")}
 								/>

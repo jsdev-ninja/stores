@@ -2,12 +2,10 @@ import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
-import { OrderSchema, TOrder } from "src/domains/Order";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
-import { navigate } from "src/navigation";
-import { TAddress, TProfile } from "src/types";
+import { OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 
@@ -27,7 +25,7 @@ function CheckoutPage() {
 		return null; // todo
 	}
 
-	const emptyAddress: TAddress = {
+	const emptyAddress: TProfile["address"] = {
 		country: "israel",
 		city: profile?.address?.city ?? "",
 		street: profile?.address?.street ?? "",
@@ -51,6 +49,9 @@ function CheckoutPage() {
 			code: profile?.phoneNumber?.code ?? "",
 			number: profile?.phoneNumber?.number ?? "",
 		},
+		createdDate: Date.now(),
+		isAnonymous: profile?.isAnonymous ?? true,
+		lastActivityDate: Date.now(),
 	};
 
 	const cartCost = calculateCartPrice(cart.items);
@@ -87,14 +88,19 @@ function CheckoutPage() {
 					if (!user || !cart) return;
 					const order = await appApi.orders.order();
 					console.log("order", order);
+					if (!order?.success) return null; //todo
+					const paymnet: any = await FirebaseApi.api.createPayment({ order: order.data });
+					console.log("paymnet", paymnet.data.paymentLink);
 
-					if (order?.success) {
-						navigate({
-							to: "store.orderSuccess",
-							params: { orderId: order.data.id },
-						});
-						// todo: clean cart
-					}
+					window.location.href = paymnet.data.paymentLink;
+
+					// if (order?.success) {
+					// 	navigate({
+					// 		to: "store.orderSuccess",
+					// 		params: { orderId: order.data.id },
+					// 	});
+					// 	// todo: clean cart
+					// }
 				}}
 			>
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
@@ -106,7 +112,7 @@ function CheckoutPage() {
 							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 								<Form.Input<TOrder>
 									placeholder={t("fullName")}
-									name="client.fullName"
+									name="client.displayName"
 									label={t("fullName")}
 								/>
 								<Form.Input<TOrder>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { TCategory } from "src/domains/Category";
-import { useCompany } from "src/domains/Company";
+import { TCompany, useCompany } from "src/domains/Company";
 import { OrderApi, TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
 import { productDelete } from "src/features/admin/productDelete";
@@ -11,7 +11,6 @@ import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
 import { SentryApi } from "src/lib/sentry";
 import { SubNestedKeys } from "src/shared/types";
-import { TNewCompany, TStoreStats } from "src/types";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 import { productCreate } from "./admin";
 import {
@@ -24,6 +23,7 @@ import {
 import { TCart } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
 import { navigate } from "src/navigation";
+import { TStoreStats } from "src/types";
 
 // should be ready before use
 // store
@@ -87,7 +87,7 @@ export const useAppApi = () => {
 						clientType: "user",
 						companyId: "",
 						email: "",
-						fullName: "",
+						displayName: "",
 						id: "",
 						phoneNumber: { code: "", number: "" },
 						storeId: "",
@@ -102,6 +102,9 @@ export const useAppApi = () => {
 							street: "",
 							streetNumber: "",
 						},
+						createdDate: Date.now(),
+						isAnonymous: true,
+						lastActivityDate: Date.now(),
 					},
 					status: "pending",
 					date: Date.now(),
@@ -351,6 +354,8 @@ export const useAppApi = () => {
 			signup: async (newUser: { email: string; password: string; fullName: string }) => {
 				if (!isValid) return;
 
+				console.log("newUser", newUser);
+
 				const profile: Partial<TProfile> = {
 					id: user.uid,
 					companyId: store.companyId,
@@ -404,7 +409,7 @@ export const useAppApi = () => {
 					logo,
 				});
 			},
-			async companyCreate(newCompany: TNewCompany) {
+			async companyCreate(newCompany: TCompany) {
 				if (!isValidAdmin) return;
 
 				try {

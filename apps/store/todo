@@ -83,8 +83,11 @@ todo:
 remove category - find all children and clean all products
 move category - find all children and update all products
 
-firestore doc size - 1 MiB - 89 bytes (1,048,487 bytes)
 
-features
+discount ->
 
--  auth anonymous
+discount type - per product | per category | per store | special
+isActive
+minOrder
+expirationDate
+

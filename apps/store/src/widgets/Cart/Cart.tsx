@@ -1,4 +1,3 @@
-import { TProduct } from "src/domains";
 import { cartSlice } from "src/domains/cart";
 import { useAppSelector } from "src/infra/store";
 import { Product } from "../Product";
@@ -7,6 +6,7 @@ import EmptyCartImg from ".././../assets/empty-cart.png";
 import classNames from "classnames";
 import { Icon } from "src/components";
 import { useTranslation } from "react-i18next";
+import { TProduct } from "@jsdev_ninja/core";
 
 export function Badge({ children }: any) {
 	return (
@@ -28,7 +28,7 @@ export function Cart({ size = "sm" }: { size?: "sm" | "lg" }) {
 		<div data-name="Cart" className="flex flex-col h-full p-4 shadow">
 			<div className="flex items-center justify-between">
 				<Icon name="cart" size="lg" />
-				<div className="p-4 text-3xl font-bold">{t('cart:shoppingCart')}</div>
+				<div className="p-4 text-3xl font-bold">{t("cart:shoppingCart")}</div>
 			</div>
 
 			{isEmpty && (

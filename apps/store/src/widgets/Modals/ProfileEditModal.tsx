@@ -1,10 +1,10 @@
+import { ProfileSchema, TProfile } from "@jsdev_ninja/core";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Form } from "src/components/Form";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
-import { ProfileSchema, TProfile } from "src/types";
 
 const schema = ProfileSchema.optional();
 

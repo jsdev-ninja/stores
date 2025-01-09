@@ -5,7 +5,6 @@ import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
-import { useUser } from "src/domains/user";
 import { navigate } from "src/navigation";
 import { ChipProps, Chip } from "@nextui-org/react";
 
@@ -150,7 +149,7 @@ function OrderRow({
 				</dt>
 				<dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">
 					<a href="#" className="hover:underline">
-						{order.client.fullName}
+						{order.client.displayName}
 						<br />({order.client.phoneNumber.number})
 					</a>
 				</dd>

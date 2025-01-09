@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { useAppSelector } from "src/infra";
-import { TProfile } from "src/types";
+import { TProfile } from "@jsdev_ninja/core";
 
 const initialState: { data: TProfile | null } = {
 	data: null,

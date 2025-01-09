@@ -22,50 +22,6 @@ export const passwordSchema = z
 		"Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character."
 	);
 
-export const AddressSchema = z.object({
-	country: z.string(),
-	city: z.string(),
-	street: z.string(),
-	streetNumber: z.string(),
-	floor: z.string(),
-	apartmentEnterNumber: z.string(),
-	apartmentNumber: z.string(),
-});
-
-export type TAddress = z.infer<typeof AddressSchema>;
-
-export const ProfileSchema = z.object({
-	type: z.literal("Profile"),
-	id: z.string(),
-	companyId: z.string(),
-	storeId: z.string(),
-	tenantId: z.string(),
-	clientType: z.enum(["user", "company"]),
-	displayName: z.string().min(1),
-	email: z.string().email(),
-	phoneNumber: z.object({
-		code: z.string(),
-		number: z.string(),
-	}),
-	address: z.object({
-		country: z.string(),
-		city: z.string(),
-		street: z.string(),
-		streetNumber: z.string(),
-		floor: z.string(),
-		apartmentEnterNumber: z.string(),
-		apartmentNumber: z.string(),
-	}),
-});
-export type TProfile = z.infer<typeof ProfileSchema>;
-export type TNewProfile = Omit<TProfile, "id">;
-
-export const NewCompanySchema = ProfileSchema.extend({
-	password: passwordSchema,
-}).omit({ id: true });
-
-export type TNewCompany = z.infer<typeof NewCompanySchema>;
-
 // custom.d.ts
 declare global {
 	interface Document {

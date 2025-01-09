@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useProduct } from "./useProduct";
-import { TProduct } from "src/domains";
 import { LOCALES_MAP } from "src/config";
+import { TProduct } from "@jsdev_ninja/core";
 
 export function ProductWeight() {
 	const { product } = useProduct();

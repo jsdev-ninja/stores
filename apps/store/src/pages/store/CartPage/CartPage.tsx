@@ -1,6 +1,6 @@
+import { TProduct } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
-import { TProduct } from "src/domains";
 import { cartSlice } from "src/domains/cart";
 import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";

@@ -1,5 +1,5 @@
+import { TProduct } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
-import { TProduct } from ".";
 
 export const ProductService = {
 	get(id: string) {

@@ -12,7 +12,7 @@ import { ProtectedRoute } from "src/features/auth";
 import { TCart } from "src/domains/cart";
 import { useStore } from "src/domains/Store";
 import { CategoryService } from "src/domains/Category";
-import { TProfile } from "src/types";
+import { TProfile } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
 import { NextUIProvider } from "@nextui-org/react";

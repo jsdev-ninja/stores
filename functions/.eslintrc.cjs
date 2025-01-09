@@ -30,5 +30,6 @@ module.exports = {
 		"max-len": ["error", { code: 100 }],
 		"quote-props": ["error", "as-needed"],
 		"require-jsdoc": "off",
+		"spaced-comment": "off",
 	},
 };

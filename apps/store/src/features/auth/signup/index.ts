@@ -1,6 +1,6 @@
 import { FirebaseApi } from "src/lib/firebase";
 import { SentryApi } from "src/lib/sentry";
-import { TProfile } from "src/types";
+import { TProfile } from "@jsdev_ninja/core";
 
 type TNewUser = {
 	email: string;

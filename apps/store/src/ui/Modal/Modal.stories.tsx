@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta } from "@storybook/react";
 
 import { Modal } from "./Modal";
 
@@ -20,7 +20,9 @@ const meta = {
 } satisfies Meta<typeof Modal>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+// type Story = StoryObj<typeof meta>;
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const primary: Story = {};
+// // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+// export const primary: Story = {
+// 	render: () => <Modal>dasdas</Modal>,
+// };

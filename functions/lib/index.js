@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onUserDelete = exports.onUserCreate = exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderCreate = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
+exports.onUserDelete = exports.onUserCreate = exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderCreate = exports.createPayment = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const functions = __importStar(require("firebase-functions/v1"));
 const react_1 = __importDefault(require("react"));
@@ -44,6 +44,8 @@ var mixpanel_ts_1 = require("./api/mixpanel-ts");
 Object.defineProperty(exports, "getMixpanelData", { enumerable: true, get: function () { return mixpanel_ts_1.getMixpanelData; } });
 var createCompany_1 = require("./api/createCompany");
 Object.defineProperty(exports, "createCompanyClient", { enumerable: true, get: function () { return createCompany_1.createCompanyClient; } });
+var createPayment_1 = require("./api/createPayment");
+Object.defineProperty(exports, "createPayment", { enumerable: true, get: function () { return createPayment_1.createPayment; } });
 exports.onOrderCreate = functions.firestore
     .document("/orders/{orderId}")
     .onCreate(async (snap) => {
@@ -95,7 +97,7 @@ exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
     return db
         .collection("profiles")
         .doc(uid)
-        .set(profile)
+        .set(profile, { merge: true })
         .then(() => {
         console.log("User document created in Firestore");
     })

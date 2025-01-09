@@ -16,6 +16,7 @@ admin.initializeApp({});
 export { appInit } from "./api/init";
 export { getMixpanelData } from "./api/mixpanel-ts";
 export { createCompanyClient } from "./api/createCompany";
+export { createPayment } from "./api/createPayment";
 
 export const onOrderCreate = functions.firestore
 	.document("/orders/{orderId}")
@@ -88,7 +89,7 @@ export const onUserCreate = functions.auth.user().onCreate(async (user) => {
 	return db
 		.collection("profiles")
 		.doc(uid)
-		.set(profile,{merge: true})
+		.set(profile, { merge: true })
 		.then(() => {
 			console.log("User document created in Firestore");
 		})

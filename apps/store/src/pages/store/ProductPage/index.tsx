@@ -1,6 +1,6 @@
+import { TProduct } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TProduct } from "src/domains";
 import { ProductService } from "src/domains/product/productService";
 import { useParams } from "src/navigation";
 import { Product } from "src/widgets/Product";

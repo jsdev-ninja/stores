@@ -1,8 +1,9 @@
+import { TOrder } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { Price } from "src/components/Price";
-import { OrderApi, TOrder } from "src/domains/Order";
+import { OrderApi } from "src/domains/Order";
 import { useAppSelector } from "src/infra";
 import { navigate, useParams } from "src/navigation";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
@@ -18,7 +19,6 @@ export function OrderSuccessPage() {
 
 	useEffect(() => {
 		OrderApi.getOrder(params.orderId).then((res) => {
-			console.log("res", res);
 			if (res.success) {
 				setOrder(res.data);
 			} else {

@@ -4,10 +4,10 @@ import { useAppApi } from "src/appApi";
 import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
-import { TOrder } from "src/domains/Order";
 import { Chip, ChipProps } from "@nextui-org/react";
 import { navigate } from "src/navigation";
 import { useUser } from "src/domains/user";
+import { TOrder } from "@jsdev_ninja/core";
 
 function UserOrdersPage() {
 	const appApi = useAppApi();
@@ -20,7 +20,7 @@ function UserOrdersPage() {
 		appApi.system.getUserOrders().then((res) => {
 			console.log("res", res);
 			if (res?.success) {
-				setOrders(res.data);
+				setOrders(res.data as any); // todo
 			}
 		});
 	}, []);
@@ -107,7 +107,7 @@ function OrderItem({ order }: { order: TOrder }) {
 					<Button
 						color="primary"
 						onClick={() => {
-							navigate({ to: "store.orderPage", params: { id: order.id } });
+							navigate({ to: "store.orderPage", params: { id: order.id ?? "" } });
 						}}
 					>
 						{t("ordersPage:actions.viewOrder")}

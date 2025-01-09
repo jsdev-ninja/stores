@@ -1,8 +1,9 @@
+// @ts-nocheck
 import React, { useEffect, useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
-import { TProfile } from "src/types";
+import { TProfile } from "@jsdev_ninja/core";
 
 import {
 	Table,
@@ -11,28 +12,18 @@ import {
 	TableBody,
 	TableRow,
 	TableCell,
-	Input,
 	DropdownTrigger,
 	Dropdown,
 	DropdownMenu,
 	DropdownItem,
-	Chip,
 	User,
-	Pagination,
 } from "@nextui-org/react";
-import { Profile } from "src/widgets";
 import { useTranslation } from "react-i18next";
 
 export function capitalize(str?: string) {
 	if (!str) return "";
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
-const statusColorMap = {
-	active: "success",
-	paused: "danger",
-	vacation: "warning",
-};
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "address", "status", "actions"];
 
@@ -80,23 +71,23 @@ function AdminUsersPage() {
 
 	const filteredItems = React.useMemo(() => {
 		return clients;
-		let filteredUsers = [...clients];
+		// let filteredUsers = [...clients];
 
-		if (hasSearchFilter) {
-			filteredUsers = filteredUsers.filter((user) =>
-				user.name.toLowerCase().includes(filterValue.toLowerCase())
-			);
-		}
-		if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-			filteredUsers = filteredUsers.filter((user) =>
-				Array.from(statusFilter).includes(user.status)
-			);
-		}
+		// if (hasSearchFilter) {
+		// 	filteredUsers = filteredUsers.filter((user) =>
+		// 		user.name.toLowerCase().includes(filterValue.toLowerCase())
+		// 	);
+		// }
+		// if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+		// 	filteredUsers = filteredUsers.filter((user) =>
+		// 		Array.from(statusFilter).includes(user.status)
+		// 	);
+		// }
 
-		return filteredUsers;
+		// return filteredUsers;
 	}, [clients, filterValue, statusFilter]);
 
-	const pages = Math.ceil(filteredItems.length / rowsPerPage);
+	// const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
 	const items = React.useMemo(() => {
 		const start = (page - 1) * rowsPerPage;
@@ -108,13 +99,13 @@ function AdminUsersPage() {
 	const sortedItems = React.useMemo(() => {
 		return items;
 
-		return [...items].sort((a, b) => {
-			const first = a[sortDescriptor.column];
-			const second = b[sortDescriptor.column];
-			const cmp = first < second ? -1 : first > second ? 1 : 0;
+		// return [...items].sort((a, b) => {
+		// 	const first = a[sortDescriptor.column];
+		// 	const second = b[sortDescriptor.column];
+		// 	const cmp = first < second ? -1 : first > second ? 1 : 0;
 
-			return sortDescriptor.direction === "descending" ? -cmp : cmp;
-		});
+		// 	return sortDescriptor.direction === "descending" ? -cmp : cmp;
+		// });
 	}, [sortDescriptor, items]);
 
 	useEffect(() => {

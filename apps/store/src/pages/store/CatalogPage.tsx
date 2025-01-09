@@ -1,4 +1,3 @@
-import { Divider, Selection } from "@nextui-org/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CategoryCard } from "src/components/CategoryCard/CategoryCard";
@@ -9,7 +8,6 @@ import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
-import { Product } from "src/widgets/Product";
 import { ProductsWidget } from "src/widgets/Products";
 
 export function CatalogPage() {
@@ -39,7 +37,7 @@ export function CatalogPage() {
 
 	const filter = !isEmpty
 		? Object.entries(selectedCategory)
-				.map(([depth, name]) => {
+				.map(([, name]) => {
 					return name ? `categoryNames:"${decodeURIComponent(name)}"` : "";
 				})
 				.filter(Boolean)

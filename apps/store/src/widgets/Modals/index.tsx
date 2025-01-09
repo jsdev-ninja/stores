@@ -7,7 +7,7 @@ import { ReactNode, cloneElement } from "react";
 import { useAppSelector } from "src/infra";
 import { AdminCompanyCreateModal } from "./modals/AdminCompanyCreateModal";
 import { ProfileEditModal } from "./ProfileEditModal";
-import { TProfile } from "src/types";
+import { TProfile } from "@jsdev_ninja/core";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
 	return <AnimatePresence>{children}</AnimatePresence>;

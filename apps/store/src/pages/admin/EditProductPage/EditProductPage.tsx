@@ -1,9 +1,9 @@
+import { EditProductSchema, ProductSchema, TEditProduct, TProduct } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Flex } from "src/components/Flex";
 import { Form } from "src/components/Form";
-import { EditProductSchema, ProductSchema, TEditProduct, TProduct } from "src/domains";
 import { CategoryService, TCategory, TFlattenCategory } from "src/domains/Category";
 import { useStore } from "src/domains/Store";
 import { ProductService } from "src/domains/product/productService";
@@ -330,7 +330,7 @@ function NameDetails() {
 		<Flex wrap gap={"4"} align={"start"}>
 			<Flex.Item>
 				<Form.Input<TEditProduct>
-					name={`locales[0].value`}
+					name={`name[0].value`}
 					label={t("name")}
 					placeholder={t("editProductName")}
 				/>

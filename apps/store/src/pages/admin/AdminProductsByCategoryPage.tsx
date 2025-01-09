@@ -1,6 +1,6 @@
+import { TProduct } from "@jsdev_ninja/core";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
-import { TProduct } from "src/domains";
 import { navigate, useParams } from "src/navigation";
 import { Product } from "src/widgets/Product";
 

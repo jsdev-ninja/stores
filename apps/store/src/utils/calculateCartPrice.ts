@@ -41,7 +41,7 @@ export function calculateCartPrice(items: TCart["items"]) {
 			}
 			acc.cost += amount * product.price;
 			acc.discount += discount ? amount * discount : discount;
-			acc.finalCost += amount * (productPrice + productVatValue);
+			acc.finalCost += amount * productPrice + productVatValue;
 
 			return acc;
 		},

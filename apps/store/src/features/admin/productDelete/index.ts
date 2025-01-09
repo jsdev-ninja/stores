@@ -1,4 +1,4 @@
-import { TProduct } from "src/domains";
+import { TProduct } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
 import { SentryApi } from "src/lib/sentry";
 

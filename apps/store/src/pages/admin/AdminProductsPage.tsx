@@ -1,7 +1,7 @@
+import { TProduct } from "@jsdev_ninja/core";
 import { useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
-import { TProduct } from "src/domains";
 import { navigate } from "src/navigation";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
 import { Product } from "src/widgets/Product";
@@ -33,7 +33,7 @@ export function AdminProductsPage() {
 
 	const filter = !isEmpty
 		? Object.entries(selectedCategory)
-				.map(([depth, name]) => {
+				.map(([, name]) => {
 					return name ? `categoryNames:"${decodeURIComponent(name)}"` : "";
 				})
 				.filter(Boolean)

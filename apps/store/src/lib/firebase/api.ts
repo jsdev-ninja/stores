@@ -1,6 +1,7 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "./app";
-import { TNewCompany } from "src/types";
+import { TOrder } from "@jsdev_ninja/core";
+import { TCompany } from "src/domains/Company";
 
 const functions = getFunctions(app);
 
@@ -19,7 +20,22 @@ async function init() {
 	}
 }
 
-async function createCompanyClient(company: TNewCompany) {
+async function createPayment({ order }: { order: TOrder }) {
+	try {
+		const func = httpsCallable(functions, "createPayment");
+
+		const response = await func({ order });
+		return { success: true, data: response.data };
+	} catch (error: any) {
+		const code = error.code;
+		const message = error.message;
+		const details = error.details;
+		console.log(code, message, details);
+		return { success: false, data: null };
+	}
+}
+
+async function createCompanyClient(company: TCompany) {
 	try {
 		const func = httpsCallable(functions, "createCompanyClient");
 
@@ -34,4 +50,4 @@ async function createCompanyClient(company: TNewCompany) {
 	}
 }
 
-export const api = { init, createCompanyClient };
+export const api = { init, createCompanyClient, createPayment };

@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import mixpanel from "mixpanel-browser";
 import { CONFIG } from "src/config";
 import { TStore } from "src/domains/Store";
-import { TProfile } from "src/types";
+import { TProfile } from "@jsdev_ninja/core";
 
 type events =
 	| "USER_ADD_ITEM_TO_CART"

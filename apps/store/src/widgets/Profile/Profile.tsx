@@ -14,8 +14,7 @@ Profile.Address = function () {
 
 	if (!profile) return null;
 
-	const { apartmentEnterNumber, apartmentNumber, city, country, floor, street, streetNumber } =
-		profile.address;
+	const { city } = profile.address;
 
 	return <div className="">{city}</div>;
 };
