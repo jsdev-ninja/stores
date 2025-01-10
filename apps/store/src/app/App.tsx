@@ -114,7 +114,7 @@ function App() {
 		return () => {};
 	}, [actions, appReady]);
 
-	if (!appReady) {
+	if (!appReady || !user) {
 		return (
 			<div className="w-screen h-screen flex justify-center items-center">
 				<svg

@@ -31,18 +31,43 @@ function objectToQueryParams(obj) {
         .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
         .join("&");
 }
+const getProductFinalPrice = (product) => {
+    if (!product)
+        return 0;
+    const hasDiscount = product.discount.type !== "none";
+    const discount = hasDiscount
+        ? product.discount.type === "number"
+            ? product.discount.value
+            : (product.price * product.discount.value) / 100
+        : 0;
+    console.log("discount", discount);
+    let price = 0;
+    price = product.price - discount;
+    if (product.vat) {
+        const productVatValue = (product.price * 18) / 100;
+        console.log("productVatValue", productVatValue, price);
+        price += productVatValue;
+    }
+    return parseFloat(price.toFixed(2));
+};
+// 5326105300985614
+// 12/25
+// 125
+// 890108566
 exports.createPayment = functions.https.onCall(async (data, context) => {
     try {
         console.log("createPayment", context.rawRequest.headers.origin);
         console.log("create payment data", JSON.stringify(data));
         const { order } = data;
+        getProductFinalPrice;
+        const items = order.cart.items.map((item) => `[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${getProductFinalPrice(item.product)}]`);
         const params = {
             PassP: "hyp1234",
             KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",
             Masof: "0010302921",
             action: "APISign",
             What: "SIGN",
-            Order: "12345678910",
+            Order: order.id,
             Info: "test-api",
             Amount: order.cart.cartTotal,
             UTF8: "True",
@@ -65,7 +90,7 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
             MoreData: "True",
             sendemail: "True",
             SendHesh: "True",
-            heshDesc: "[0~Item 1~1~8][0~Item 2~2~1]",
+            heshDesc: items.join(""),
             Pritim: "True",
             PageLang: "HEB",
             tmp: "1",

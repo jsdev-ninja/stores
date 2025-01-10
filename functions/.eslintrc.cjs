@@ -31,5 +31,6 @@ module.exports = {
 		"quote-props": ["error", "as-needed"],
 		"require-jsdoc": "off",
 		"spaced-comment": "off",
+		"operator-linebreak": "off",
 	},
 };

@@ -27,7 +27,7 @@ export const routes = {
 				path: "/orders/:id",
 			},
 			orderSuccess: {
-				path: "/orderSuccess/:orderId",
+				path: "/orderSuccess",
 			},
 			profile: {
 				path: "/profile",

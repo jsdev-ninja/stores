@@ -93,14 +93,6 @@ function CheckoutPage() {
 					console.log("paymnet", paymnet.data.paymentLink);
 
 					window.location.href = paymnet.data.paymentLink;
-
-					// if (order?.success) {
-					// 	navigate({
-					// 		to: "store.orderSuccess",
-					// 		params: { orderId: order.data.id },
-					// 	});
-					// 	// todo: clean cart
-					// }
 				}}
 			>
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">

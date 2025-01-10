@@ -1,12 +1,40 @@
-import { TOrder } from "@jsdev_ninja/core";
+import { TOrder, TProduct } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 // import admin from "firebase-admin";
-
 function objectToQueryParams(obj: any) {
 	return Object.keys(obj)
 		.map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
 		.join("&");
 }
+
+const getProductFinalPrice = (product: TProduct) => {
+	if (!product) return 0;
+	const hasDiscount = product.discount.type !== "none";
+
+	const discount = hasDiscount
+		? product.discount.type === "number"
+			? product.discount.value
+			: (product.price * product.discount.value) / 100
+		: 0;
+
+	console.log("discount", discount);
+
+	let price = 0;
+
+	price = product.price - discount;
+
+	if (product.vat) {
+		const productVatValue = (product.price * 18) / 100;
+		console.log("productVatValue", productVatValue, price);
+
+		price += productVatValue;
+	}
+	return parseFloat(price.toFixed(2));
+};
+
+
+// HYP BUGS
+// 1) success pay twice on same order
 
 // 5326105300985614
 // 12/25
@@ -18,10 +46,12 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		console.log("create payment data", JSON.stringify(data));
 
 		const { order } = data;
-		// getProductFinalPrice
+		getProductFinalPrice;
 		const items = order.cart.items.map(
 			(item) =>
-				`[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${item.product.price}]`
+				`[${item.product.sku}~${item.product.name[0].value}~${
+					item.amount
+				}~${getProductFinalPrice(item.product)}]`
 		);
 
 		const params = {

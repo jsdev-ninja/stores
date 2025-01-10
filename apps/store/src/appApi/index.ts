@@ -178,6 +178,16 @@ export const useAppApi = () => {
 					return res?.data?.categories ?? [];
 				},
 			},
+			async createPayment(payment: any) {
+				if (!isValid) {
+					console.warn("EEEE", isValid);
+					return;
+				}
+				FirebaseApi.firestore.setV2({
+					collection: "payments",
+					doc: payment,
+				});
+			},
 		};
 
 		const userApi = {

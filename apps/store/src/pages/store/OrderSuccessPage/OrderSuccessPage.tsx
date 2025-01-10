@@ -1,6 +1,7 @@
 import { TOrder } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Price } from "src/components/Price";
 import { OrderApi } from "src/domains/Order";
@@ -8,17 +9,35 @@ import { useAppSelector } from "src/infra";
 import { navigate, useParams } from "src/navigation";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 
-export function OrderSuccessPage() {
-	const params = useParams("store.orderSuccess");
+function getQueryParams(url: string): Record<string, string> {
+	const queryParams: Record<string, string> = {};
+	const urlObj = new URL(url);
+	const params = new URLSearchParams(urlObj.search);
 
+	params.forEach((value, key) => {
+		queryParams[key] = value;
+	});
+
+	return queryParams;
+}
+
+export function OrderSuccessPage() {
 	const { t } = useTranslation(["orderSuccessPage"]);
+
+	const appApi = useAppApi();
 
 	const [order, setOrder] = useState<TOrder | null>(null);
 
 	const user = useAppSelector((state) => state.user.user);
 
+	const queryParams = getQueryParams(window.location.href);
+	console.log("queryParams", queryParams);
 	useEffect(() => {
-		OrderApi.getOrder(params.orderId).then((res) => {
+		appApi.system.createPayment(queryParams);
+	}, [window.location.href]);
+
+	useEffect(() => {
+		OrderApi.getOrder(queryParams.Order).then((res) => {
 			if (res.success) {
 				setOrder(res.data);
 			} else {
@@ -27,7 +46,7 @@ export function OrderSuccessPage() {
 				});
 			}
 		});
-	}, [params.orderId]);
+	}, [queryParams.Order]);
 
 	const orderCost = calculateCartPrice(order?.cart.items ?? []);
 
