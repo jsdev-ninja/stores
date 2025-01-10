@@ -78,7 +78,7 @@ export function AppBar() {
 			<NavbarContent className="hidden sm:flex gap-4" justify="center">
 				{navLinks.map((link) => {
 					return (
-						<NavbarItem>
+						<NavbarItem key={link.name}>
 							<Link color="foreground" to={link.to}>
 								{link.name}
 							</Link>

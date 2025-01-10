@@ -1,12 +1,10 @@
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Price } from "src/components/Price";
-import { cartSlice } from "src/domains/cart";
-import { useAppSelector } from "src/infra/store";
+import { useCartCost } from "src/domains/cart";
 
 export function PaymentSummary({ children }: { children?: ReactNode }) {
-	const cartCost = useAppSelector(cartSlice.selectors.selectCost);
-
+	const cartCost = useCartCost();
 	const { t } = useTranslation(["common", "paymentSummary"]);
 
 	return (

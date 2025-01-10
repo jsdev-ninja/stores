@@ -1,6 +1,6 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { CONFIG } from "src/config";
-import { useAppSelector } from "src/infra";
+import { RootState, useAppSelector } from "src/infra";
 import { TCart } from "./types";
 import { TProduct } from "@jsdev_ninja/core";
 
@@ -107,6 +107,45 @@ export const cartSlice = createSlice({
 });
 
 export const useCart = () => useAppSelector((state) => state.cart.currentCart);
+export const useCartCost = () =>
+	useAppSelector(
+		createSelector(cartSlice.selectors.selectCart, (items) => {
+			if (!items?.length) {
+				return {
+					discount: 0,
+					cost: 0,
+					finalCost: 0,
+					vat: 0,
+				};
+			}
+			return items.reduce(
+				(acc, item) => {
+					const { product, amount } = item;
+					const productPrice = getPriceAfterDiscount(product);
+					const discount = calculateDiscount(product);
+
+					let productVatValue: number = 0;
+					if (product.vat) {
+						productVatValue = (product.price * CONFIG.VAT) / 100;
+						productVatValue = productVatValue * amount;
+
+						acc.vat += +productVatValue.toFixed(2);
+					}
+					acc.cost += amount * product.price;
+					acc.discount += discount ? amount * discount : discount;
+					acc.finalCost += amount * productPrice + productVatValue;
+
+					return acc;
+				},
+				{
+					discount: 0,
+					cost: 0,
+					finalCost: 0,
+					vat: 0,
+				}
+			);
+		})
+	);
 
 function calculateDiscount(product: TProduct) {
 	if (product.discount?.type === "percent") {
