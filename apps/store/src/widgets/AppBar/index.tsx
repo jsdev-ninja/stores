@@ -5,7 +5,6 @@ import { modalApi } from "src/infra/modals";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { Icon } from "src/components";
-import { Dropdown } from "src/components/Dropdown";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
 
@@ -20,6 +19,8 @@ import {
 } from "@nextui-org/react";
 import { useState } from "react";
 import { Link } from "src/ui";
+
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
 
 export function AppBar() {
 	const { t } = useTranslation();
@@ -36,6 +37,49 @@ export function AppBar() {
 		navLinks.push({
 			name: t("navLinks.saved"),
 			to: "store.favoritesProducts",
+		});
+	}
+
+	const dropdownItems = [
+		{
+			key: "profile",
+			label: "profile",
+			action: () =>
+				navigate({
+					to: "store.profile",
+				}),
+		},
+		{
+			key: "favorites",
+			label: "favorites",
+			action: () =>
+				navigate({
+					to: "store.favoritesProducts",
+				}),
+		},
+		{
+			key: "orders",
+			label: "orders",
+			action: () =>
+				navigate({
+					to: "store.orders",
+				}),
+		},
+		{
+			key: "logout",
+			label: "logout",
+			action: () => appApi.system.auth.logout(),
+		},
+	];
+
+	if (user?.admin) {
+		dropdownItems.unshift({
+			key: "admin",
+			label: "admin",
+			action: () =>
+				navigate({
+					to: "admin",
+				}),
 		});
 	}
 
@@ -94,52 +138,20 @@ export function AppBar() {
 				<NavbarItem>
 					{!!user && !user.isAnonymous ? (
 						<Dropdown>
-							<Dropdown.Trigger>
+							<DropdownTrigger>
 								<div className="">
 									<Icon onClick={navigateToProfile} name="userCircle" size="lg" />
 								</div>
-							</Dropdown.Trigger>
-							<Dropdown.Content>
-								{!!user.admin && (
-									<Dropdown.Item
-										onSelect={() =>
-											navigate({
-												to: "admin",
-											})
-										}
-									>
-										admin
-									</Dropdown.Item>
-								)}
-								<Dropdown.Item
-									onSelect={() =>
-										navigate({
-											to: "store.profile",
-										})
-									}
-								>
-									profile
-								</Dropdown.Item>
-								<Dropdown.Item
-									onSelect={() =>
-										navigate({
-											to: "store.favoritesProducts",
-										})
-									}
-								>
-									favorites
-								</Dropdown.Item>
-								<Dropdown.Item
-									onSelect={() =>
-										navigate({
-											to: "store.orders",
-										})
-									}
-								>
-									orders
-								</Dropdown.Item>
-								<Dropdown.Item onSelect={appApi.system.auth.logout}>logout</Dropdown.Item>
-							</Dropdown.Content>
+							</DropdownTrigger>
+							<DropdownMenu
+								onAction={(key) => {
+									const item = dropdownItems.find((item) => item.key === key);
+									item?.action();
+								}}
+								items={dropdownItems}
+							>
+								{(item) => <DropdownItem key={item.key}>{item.label}</DropdownItem>}
+							</DropdownMenu>
 						</Dropdown>
 					) : (
 						<Button size="sm" onClick={onClick}>
