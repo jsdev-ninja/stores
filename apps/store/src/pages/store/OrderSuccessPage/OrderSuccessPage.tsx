@@ -6,7 +6,7 @@ import { Button } from "src/components/button";
 import { Price } from "src/components/Price";
 import { OrderApi } from "src/domains/Order";
 import { useAppSelector } from "src/infra";
-import { navigate, useParams } from "src/navigation";
+import { navigate } from "src/navigation";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 
 function getQueryParams(url: string): Record<string, string> {

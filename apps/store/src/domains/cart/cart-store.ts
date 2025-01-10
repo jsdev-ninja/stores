@@ -1,6 +1,6 @@
 import { PayloadAction, createSelector, createSlice } from "@reduxjs/toolkit";
 import { CONFIG } from "src/config";
-import { RootState, useAppSelector } from "src/infra";
+import { useAppSelector } from "src/infra";
 import { TCart } from "./types";
 import { TProduct } from "@jsdev_ninja/core";
 
