@@ -8,7 +8,6 @@ function objectToQueryParams(obj: any) {
 		.join("&");
 }
 
-
 // 5326105300985614
 // 12/25
 // 125
@@ -19,6 +18,11 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		console.log("create payment data", JSON.stringify(data));
 
 		const { order } = data;
+		// getProductFinalPrice
+		const items = order.cart.items.map(
+			(item) =>
+				`[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${item.product.price}]`
+		);
 
 		const params = {
 			PassP: "hyp1234",
@@ -26,7 +30,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			Masof: "0010302921",
 			action: "APISign",
 			What: "SIGN",
-			Order: "12345678910", //?
+			Order: order.id, //?
 			Info: "test-api", //?
 			Amount: order.cart.cartTotal,
 			UTF8: "True",
@@ -48,9 +52,11 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			J5: "False",
 			MoreData: "True",
 			sendemail: "True",
+
 			SendHesh: "True",
-			heshDesc: "[0~Item 1~1~8][0~Item 2~2~1]",
+			heshDesc: items.join(""),
 			Pritim: "True",
+
 			PageLang: "HEB",
 			tmp: "1",
 			Sign: "True",

@@ -1,6 +1,6 @@
 import { cartSlice } from "src/domains/cart";
 import { useAppSelector } from "src/infra/store";
-import { Product } from "../Product";
+import { Product, getProductFinalPrice } from "../Product";
 
 import EmptyCartImg from ".././../assets/empty-cart.png";
 import classNames from "classnames";
@@ -55,7 +55,7 @@ function CartItem({
 }) {
 	const { product, amount } = cartItem;
 
-	const totalPrice = Number(product.price * amount).toFixed(2);
+	const totalPrice = Number((getProductFinalPrice(product) * amount).toFixed(2));
 
 	return (
 		<Product product={product}>
