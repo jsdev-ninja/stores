@@ -3,7 +3,7 @@ import { useAppSelector } from "src/infra";
 
 import * as Accordion from "@radix-ui/react-accordion";
 import { TCategory } from "@jsdev_ninja/core";
-import classNames from "classnames";
+import classNames, { Value } from "classnames";
 
 export function CategoryMenu({
 	value,
@@ -24,10 +24,15 @@ export function CategoryMenu({
 
 	function onChange(name: string, depth: number) {
 		const isSelected = (value as any)[depth] === name;
-		console.log(name, depth, isSelected);
+
+		let newValue = { ...value };
+
+		for (let i = depth + 1; i < 4; i++) {
+			newValue[i as keyof typeof value] = "";
+		}
 
 		onValueChange?.({
-			...value,
+			...newValue,
 			[depth]: isSelected ? "" : name,
 		});
 	}
