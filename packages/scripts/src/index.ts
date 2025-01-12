@@ -23,6 +23,6 @@ async function deleteAllUsers(nextPageToken: any) {
 }
 
 // Start the deletion process
-deleteAllUsers("").catch((error) => {
-	console.error("Error deleting users:", error);
-});
+// deleteAllUsers("").catch((error) => {
+// 	console.error("Error deleting users:", error);
+// });

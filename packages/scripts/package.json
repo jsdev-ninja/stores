@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"dev": "npx ts-node src/index.ts"
+		"dev": "npx ts-node src/index.ts",
+		"create-admin": "npx ts-node src/createAdmin.ts"
 	},
 	"keywords": [],
 	"author": "",
