@@ -53,7 +53,11 @@ function FavoritesProduct({ favoriteProduct }: { favoriteProduct: TFavoriteProdu
 						<Product.CartButton size="md" />
 					</div>
 					<Button color="secondary">{t("viewProduct")}</Button>
-					<Button variant="bordered" color="danger">
+					<Button
+						onClick={() => appApi.user.removeProductToFavorite({ id: favoriteProduct.id })}
+						variant="bordered"
+						color="danger"
+					>
 						{t("favorites:remove")}
 					</Button>
 				</div>

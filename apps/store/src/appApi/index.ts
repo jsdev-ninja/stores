@@ -229,6 +229,7 @@ export const useAppApi = () => {
 			},
 			async removeProductToFavorite({ id }: { id: string }) {
 				if (!id || !user || !company || !store || user.isAnonymous) return;
+				console.log("remove", id);
 
 				return await FirebaseApi.firestore.remove({
 					collectionName: "favorite-products",

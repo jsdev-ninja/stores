@@ -70,7 +70,6 @@ export const resources = {
 			users: "לקוחות",
 			products: "מוצרים",
 			categories: "קטגוריות",
-			orders: "הזמנות",
 			settings: "הגדרות",
 			amount: "כמות",
 			addToFavorite: "הוסף למועדפים",
