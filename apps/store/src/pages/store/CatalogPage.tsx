@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
-import { CategorySlice } from "src/domains/Category";
-import { useAppSelector } from "src/infra";
+
 import { navigate } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";

@@ -3,7 +3,7 @@ import { useAppSelector } from "src/infra";
 
 import * as Accordion from "@radix-ui/react-accordion";
 import { TCategory } from "@jsdev_ninja/core";
-import classNames, { Value } from "classnames";
+import classNames from "classnames";
 
 export function CategoryMenu({
 	value,
