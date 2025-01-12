@@ -23,7 +23,7 @@ import { Link } from "src/ui";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
 
 export function AppBar() {
-	const { t } = useTranslation();
+	const { t } = useTranslation(["common"]);
 
 	const appApi = useAppApi();
 
@@ -43,7 +43,7 @@ export function AppBar() {
 	const dropdownItems = [
 		{
 			key: "profile",
-			label: "profile",
+			label: t("profile"),
 			action: () =>
 				navigate({
 					to: "store.profile",
@@ -51,7 +51,7 @@ export function AppBar() {
 		},
 		{
 			key: "favorites",
-			label: "favorites",
+			label: t("favorites"),
 			action: () =>
 				navigate({
 					to: "store.favoritesProducts",
@@ -59,7 +59,7 @@ export function AppBar() {
 		},
 		{
 			key: "orders",
-			label: "orders",
+			label: t("orders"),
 			action: () =>
 				navigate({
 					to: "store.orders",
@@ -67,7 +67,7 @@ export function AppBar() {
 		},
 		{
 			key: "logout",
-			label: "logout",
+			label: t("logout"),
 			action: () => appApi.system.auth.logout(),
 		},
 	];
@@ -89,12 +89,6 @@ export function AppBar() {
 		user && !user.isAnonymous
 			? () => FirebaseApi.auth.logout()
 			: () => modalApi.openModal("authModal");
-
-	function navigateToProfile() {
-		navigate({
-			to: "store.profile",
-		});
-	}
 
 	return (
 		<Navbar onMenuOpenChange={setIsMenuOpen} isBordered>
@@ -140,11 +134,13 @@ export function AppBar() {
 						<Dropdown>
 							<DropdownTrigger>
 								<div className="">
-									<Icon onClick={navigateToProfile} name="userCircle" size="lg" />
+									<Icon name="userCircle" size="lg" />
 								</div>
 							</DropdownTrigger>
 							<DropdownMenu
 								onAction={(key) => {
+									console.log("key", key);
+
 									const item = dropdownItems.find((item) => item.key === key);
 									item?.action();
 								}}

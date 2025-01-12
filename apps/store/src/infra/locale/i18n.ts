@@ -19,9 +19,13 @@ export const resources = {
 			positive: "ערך חייב להיות גדול מ 0",
 		},
 		common: {
+			addToCart: "הוסף לעגלה",
+			favorites: "שמורים",
+			orders: "הזמנות",
+			profile: "חשבון",
+			logout: "התנתק",
 			goToCart: "מעבר לעגלה",
 			login: "התחברות",
-			logout: "התנתקות",
 			city: "עיר",
 			close: "סגירה",
 			save: "שמור",
@@ -146,6 +150,11 @@ export const resources = {
 			},
 
 			popularCategories: "קטגוריות פופולאריות",
+		},
+
+		favorites: {
+			viewProduct: "צפה במוצר",
+			remove: "הסר",
 		},
 
 		profilePage: {

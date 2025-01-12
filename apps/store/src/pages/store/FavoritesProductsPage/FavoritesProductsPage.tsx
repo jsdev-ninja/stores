@@ -1,5 +1,6 @@
 import { TFavoriteProduct, TProduct } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { useFavoriteProducts } from "src/domains/favoriteProducts";
@@ -23,6 +24,8 @@ function FavoritesProduct({ favoriteProduct }: { favoriteProduct: TFavoriteProdu
 	const [product, setProduct] = useState<TProduct | null>(null);
 
 	const appApi = useAppApi();
+
+	const { t } = useTranslation(["favorites"]);
 
 	useEffect(() => {
 		appApi.system.getProductById({ id: favoriteProduct.productId }).then((res) => {
@@ -49,8 +52,10 @@ function FavoritesProduct({ favoriteProduct }: { favoriteProduct: TFavoriteProdu
 					<div className="">
 						<Product.CartButton size="md" />
 					</div>
-					<Button>view</Button>
-					<Button>remove</Button>
+					<Button color="secondary">{t("viewProduct")}</Button>
+					<Button variant="bordered" color="danger">
+						{t("favorites:remove")}
+					</Button>
 				</div>
 			</div>
 		</Product>

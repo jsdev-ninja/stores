@@ -4,11 +4,14 @@ import { useAppSelector } from "src/infra/store";
 import { cartSlice } from "src/domains/cart";
 import { useAppApi } from "src/appApi";
 import { ButtonGroup, ButtonProps } from "@nextui-org/react";
+import { useTranslation } from "react-i18next";
 
 type Props = {} & Omit<ButtonProps, "value" | "onChange">;
 
 export function ProductCartButton(props: Props) {
 	const { product } = useProduct();
+
+	const { t } = useTranslation(["common"]);
 
 	const appApi = useAppApi();
 
@@ -20,8 +23,13 @@ export function ProductCartButton(props: Props) {
 
 	if (!cartProduct?.amount) {
 		return (
-			<Button fullWidth onClick={() => appApi.user.addItemToCart({ product })} {...props}>
-				Add to cart
+			<Button
+				color="primary"
+				fullWidth
+				onClick={() => appApi.user.addItemToCart({ product })}
+				{...props}
+			>
+				{t("addToCart")}
 			</Button>
 		);
 	}
