@@ -39,29 +39,27 @@ export function CatalogPage() {
 	return (
 		<ProductsWidget filter={filter}>
 			<div className="flex w-full h-full">
-				<div className="flex-shrink-0 w-80  overflow-auto p-4 sticky top-0 h-[calc(100vh-64px)]">
+				<div className="hidden md:block flex-shrink-0 max-w-80 flex-grow  overflow-auto p-4 sticky top-0 h-[calc(100vh-64px)]">
 					<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 				</div>
-				<div className="flex-grow p-6 flex flex-col justify-start items-start gap-4">
-					<div className="mx-4  w-full">
+				<div className="flex-grow p-6 flex flex-col justify-start items-start gap-4  ">
+					<div className="mx-auto  w-full">
 						<ProductsWidget.SearchBox />
 					</div>
-					<div className="flex flex-col gap-6">
-						<div className="flex gap-4 flex-wrap flex-grow">
-							<ProductsWidget.Products>
-								{(products) => {
-									return products.map((product) => {
-										console.log(product);
+					<div className="flex gap-4 w-full flex-wrap justify-center flex-grow">
+						<ProductsWidget.Products>
+							{(products) => {
+								return products.map((product) => {
+									console.log(product);
 
-										return <ProductRender key={product.id} product={product} />;
-									});
-								}}
-							</ProductsWidget.Products>
-						</div>
+									return <ProductRender key={product.id} product={product} />;
+								});
+							}}
+						</ProductsWidget.Products>
 					</div>
 				</div>
-				<div className="w-[300px] flex flex-col flex-shrink-0 sticky top-0 h-[calc(100vh-64px)]">
-					<div className="flex-grow overflow-hidden">
+				<div className="hidden  md:flex min-w-[280px] flex-grow max-w-[300px] flex-col sticky top-0 h-[calc(100vh-64px)]">
+					<div className="flex-grow">
 						<Cart />
 					</div>
 					<div className="p-4 flex-shrink-0 mt-auto border-t">

@@ -95,28 +95,13 @@ export function AppBar() {
 
 	return (
 		<Navbar onMenuOpenChange={setIsMenuOpen} isBordered>
-			<NavbarMenu>
-				{navLinks.map((item, index) => (
-					<NavbarMenuItem key={`${item}-${index}`}>
-						<Link
-							color={index === 2 ? "primary" : index === -1 ? "danger" : "foreground"}
-							className="w-full"
-							href="#"
-							size="lg"
-							to={item.to}
-						>
-							{item.name}
-						</Link>
-					</NavbarMenuItem>
-				))}
-			</NavbarMenu>
 			<NavbarBrand>
-				<div className="h-[40px] w-[80px]">
+				<div className="size-11">
 					<WebsiteLogo />
 				</div>
 				<p className="font-bold text-inherit">{store.name}</p>
 			</NavbarBrand>
-			<NavbarContent className="hidden sm:flex gap-4" justify="center">
+			<NavbarContent className="hidden md:flex gap-4" justify="center">
 				{navLinks.map((link) => {
 					return (
 						<NavbarItem key={link.name}>
@@ -128,10 +113,6 @@ export function AppBar() {
 				})}
 			</NavbarContent>
 			<NavbarContent justify="end">
-				<NavbarMenuToggle
-					aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-					className="sm:hidden"
-				/>
 				<NavbarItem>
 					{!!user && !user.isAnonymous ? (
 						<Dropdown>
