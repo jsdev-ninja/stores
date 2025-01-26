@@ -69,35 +69,6 @@ export const onProductUpdate = functions.firestore
 		});
 	});
 
-export const onUserCreate = functions.auth.user().onCreate(async (user) => {
-	console.info("user created", user.uid, user.displayName, user.email);
-	const email = user.email; // The email of the user.
-	const displayName = user.displayName; // The display name of the user.
-	const uid = user.uid; // The UID of the user.
-	const isAnonymous = user.providerData.length === 0;
-
-	const profile: TProfile = createEmptyProfile();
-	profile.id = uid;
-	profile.email = email ?? "";
-	profile.displayName = displayName ?? "";
-	profile.createdDate = Date.now();
-	profile.isAnonymous = isAnonymous;
-
-	// todo
-	// Example: Add the user to Firestore
-	const db = admin.firestore();
-	return db
-		.collection("profiles")
-		.doc(uid)
-		.set(profile, { merge: true })
-		.then(() => {
-			console.log("User document created in Firestore");
-		})
-		.catch((error) => {
-			console.error("Error creating user document in Firestore", error);
-		});
-});
-
 export const onUserDelete = functions.auth.user().onDelete((user) => {
 	console.info("user deleted", user.uid, user.displayName, user.email);
 	const uid = user.uid; // The UID of the user.

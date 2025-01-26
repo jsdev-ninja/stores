@@ -104,6 +104,8 @@ function App() {
 				return;
 			}
 
+			console.log("onUser", user);
+
 			actions.dispatch(actions.user.setUser(user));
 		});
 

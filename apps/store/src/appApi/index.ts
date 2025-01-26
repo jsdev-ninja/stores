@@ -162,8 +162,10 @@ export const useAppApi = () => {
 						userEmail: user.email,
 						tenantId: store.tenantId,
 					});
-					return await FirebaseApi.auth.logout();
-					// todo: navigate to store
+					await FirebaseApi.auth.logout();
+					navigate({
+						to: "store",
+					});
 					// todo: clear state
 				},
 			},
