@@ -21,6 +21,7 @@ import { useState } from "react";
 import { Link } from "src/ui";
 
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
+import { useStore } from "src/domains/Store";
 
 export function AppBar() {
 	const { t } = useTranslation(["common"]);
@@ -28,6 +29,8 @@ export function AppBar() {
 	const appApi = useAppApi();
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+	const store = useStore();
 
 	const user = useAppSelector((state) => state.user.user);
 
@@ -111,7 +114,7 @@ export function AppBar() {
 				<div className="h-[40px] w-[80px]">
 					<WebsiteLogo />
 				</div>
-				<p className="font-bold text-inherit">ACME</p>
+				<p className="font-bold text-inherit">{store.name}</p>
 			</NavbarBrand>
 			<NavbarContent className="hidden sm:flex gap-4" justify="center">
 				{navLinks.map((link) => {

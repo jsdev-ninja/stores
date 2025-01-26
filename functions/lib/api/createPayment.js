@@ -50,6 +50,8 @@ const getProductFinalPrice = (product) => {
     }
     return parseFloat(price.toFixed(2));
 };
+// HYP BUGS
+// 1) success pay twice on same order
 // 5326105300985614
 // 12/25
 // 125

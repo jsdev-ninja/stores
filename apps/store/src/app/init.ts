@@ -8,6 +8,7 @@ type Data = {
 	company: TCompany;
 	store: TStore;
 };
+
 export async function useAppInit() {
 	const actions = useStoreActions();
 	const appReady = useAppSelector((state) => state.ui.appReady);

@@ -27,12 +27,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.appInit = void 0;
-const functions = __importStar(require("firebase-functions/v1"));
+const functionsV2 = __importStar(require("firebase-functions/v2"));
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
-exports.appInit = functions.https.onCall(async (data, context) => {
-    console.log("init", context.rawRequest.headers.origin);
+// functionsV2.https.onRequest
+exports.appInit = functionsV2.https.onCall(async (request) => {
+    console.log("init", request.rawRequest.headers.origin);
     // http://localhost:5173
-    const origin = context.rawRequest.headers.origin;
+    const origin = request.rawRequest.headers.origin;
     const db = firebase_admin_1.default.firestore();
     const companiesRef = db
         .collection("companies")

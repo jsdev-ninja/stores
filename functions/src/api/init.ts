@@ -1,10 +1,11 @@
-import * as functions from "firebase-functions/v1";
+import * as functionsV2 from "firebase-functions/v2";
 import admin from "firebase-admin";
 
-export const appInit = functions.https.onCall(async (data, context) => {
-	console.log("init", context.rawRequest.headers.origin);
+// functionsV2.https.onRequest
+export const appInit = functionsV2.https.onCall(async (request) => {
+	console.log("init", request.rawRequest.headers.origin);
 	// http://localhost:5173
-	const origin = context.rawRequest.headers.origin;
+	const origin = request.rawRequest.headers.origin;
 
 	const db = admin.firestore();
 
