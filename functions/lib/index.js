@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.onUserDelete = exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderCreate = exports.createPayment = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
+exports.onUserDelete = exports.onProductUpdate = exports.onProductDelete = exports.onProductCreate = exports.onOrderUpdate = exports.createPayment = exports.createCompanyClient = exports.getMixpanelData = exports.appInit = void 0;
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const functions = __importStar(require("firebase-functions/v1"));
 const react_1 = __importDefault(require("react"));
@@ -45,18 +45,24 @@ var createCompany_1 = require("./api/createCompany");
 Object.defineProperty(exports, "createCompanyClient", { enumerable: true, get: function () { return createCompany_1.createCompanyClient; } });
 var createPayment_1 = require("./api/createPayment");
 Object.defineProperty(exports, "createPayment", { enumerable: true, get: function () { return createPayment_1.createPayment; } });
-exports.onOrderCreate = functions.firestore
+exports.onOrderUpdate = functions.firestore
     .document("/orders/{orderId}")
-    .onCreate(async (snap) => {
-    const order = Object.assign(Object.assign({}, snap.data()), { id: snap.id });
-    const cardId = order.cart.id;
-    const html = await (0, render_1.render)(react_1.default.createElement(OrderCreated_1.default, { order: order }));
-    await email_1.emailService.sendEmail({
-        html,
-    });
-    return firebase_admin_1.default.firestore().collection("cart").doc(cardId).update({
-        status: "completed",
-    });
+    .onUpdate(async (snap, context) => {
+    const { orderId } = context.params;
+    const after = snap.after.data();
+    const before = snap.before.data();
+    const orderIsPaid = after.paymentStatus === "completed" && before.paymentStatus === "pending";
+    if (orderIsPaid) {
+        console.log("order paid", orderId);
+        const html = await (0, render_1.render)(react_1.default.createElement(OrderCreated_1.default, { order: after }));
+        await email_1.emailService.sendEmail({
+            html,
+        });
+        return firebase_admin_1.default.firestore().collection("cart").doc(after.cart.id).update({
+            status: "completed",
+        });
+    }
+    return;
 });
 exports.onProductCreate = functions.firestore
     .document("/products/{productId}")

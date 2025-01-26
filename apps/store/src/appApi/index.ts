@@ -65,6 +65,7 @@ export const useAppApi = () => {
 				return await OrderApi.createOrder({
 					type: "Order",
 					userId: user.uid,
+					paymentStatus: "pending",
 					companyId: store.companyId,
 					storeId: store.id,
 					cart: {
@@ -180,15 +181,32 @@ export const useAppApi = () => {
 					return res?.data?.categories ?? [];
 				},
 			},
-			async createPayment(payment: any) {
+			async onOrderPaid(payment: any) {
 				if (!isValid) {
 					console.warn("EEEE", isValid);
 					return;
 				}
-				FirebaseApi.firestore.setV2({
+
+				await FirebaseApi.firestore.update<TOrder>(
+					payment.Order,
+					{
+						paymentStatus: "completed",
+					},
+					"orders"
+				);
+				const res = await FirebaseApi.firestore.createV2({
 					collection: "payments",
-					doc: payment,
+					id: payment.Order,
+					doc: {
+						payment,
+						date: Date.now(),
+						storeId: store.id,
+						companyId: company.id,
+						userId: user.uid,
+					},
 				});
+				// todo handle refresh
+				console.log("res", res);
 			},
 		};
 
@@ -369,7 +387,7 @@ export const useAppApi = () => {
 
 				console.log("newUser", newUser);
 
-				const profile: Partial<TProfile> = {
+				const profile: TProfile = {
 					id: user.uid,
 					companyId: store.companyId,
 					storeId: store.id,
@@ -378,6 +396,19 @@ export const useAppApi = () => {
 					email: newUser.email,
 					phoneNumber: { code: "+972", number: "" },
 					isAnonymous: false,
+					address: {
+						apartmentEnterNumber: "",
+						apartmentNumber: "",
+						city: "",
+						country: "",
+						floor: "",
+						street: "",
+						streetNumber: "",
+					},
+					clientType: "user",
+					createdDate: Date.now(),
+					lastActivityDate: Date.now(),
+					type: "Profile",
 				};
 				console.log("profile.profile", profile);
 

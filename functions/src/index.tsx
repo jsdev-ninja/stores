@@ -18,22 +18,29 @@ export { getMixpanelData } from "./api/mixpanel-ts";
 export { createCompanyClient } from "./api/createCompany";
 export { createPayment } from "./api/createPayment";
 
-export const onOrderCreate = functions.firestore
+export const onOrderUpdate = functions.firestore
 	.document("/orders/{orderId}")
-	.onCreate(async (snap) => {
-		const order = { ...snap.data(), id: snap.id } as TOrder;
+	.onUpdate(async (snap, context) => {
+		const { orderId } = context.params;
+		const after = snap.after.data() as TOrder;
+		const before = snap.before.data() as TOrder;
 
-		const cardId = order.cart.id;
+		const orderIsPaid = after.paymentStatus === "completed" && before.paymentStatus === "pending";
 
-		const html = await render(<OrderCreated order={order} />);
+		if (orderIsPaid) {
+			console.log("order paid", orderId);
+			const html = await render(<OrderCreated order={after} />);
 
-		await emailService.sendEmail({
-			html,
-		});
+			await emailService.sendEmail({
+				html,
+			});
 
-		return admin.firestore().collection("cart").doc(cardId).update({
-			status: "completed",
-		});
+			return admin.firestore().collection("cart").doc(after.cart.id).update({
+				status: "completed",
+			});
+		}
+
+		return;
 	});
 
 export const onProductCreate = functions.firestore

@@ -2997,6 +2997,7 @@ const le = d.object({
   storeId: d.string(),
   userId: d.string(),
   status: d.enum(["pending", "processing", "delivered", "canceled", "completed", "refunded"]),
+  paymentStatus: d.enum(["pending", "completed", "failed", "refunded"]),
   cart: d.object({
     id: d.string(),
     items: d.array(d.object({ product: xe, amount: d.number() })),

@@ -7,7 +7,6 @@ import { ProductSchema } from "./Product";
 // delivered - order delivered by admin
 // canceled - order canceled by user/admin
 // completed - order paid by admin
-// type PaymentStatus = "pending" | "completed" | "failed" | "refunded" | "partially_refunded";
 // type PaymentMethod = "credit_card" | "paypal" | "bank_transfer" | "cash_on_delivery";
 export const OrderSchema = z.object({
     type: z.literal("Order"),
@@ -16,6 +15,7 @@ export const OrderSchema = z.object({
     storeId: z.string(),
     userId: z.string(),
     status: z.enum(["pending", "processing", "delivered", "canceled", "completed", "refunded"]),
+    paymentStatus: z.enum(["pending", "completed", "failed", "refunded"]),
     cart: z.object({
         id: z.string(),
         items: z.array(z.object({ product: ProductSchema, amount: z.number() })),

@@ -33,7 +33,7 @@ export function OrderSuccessPage() {
 	const queryParams = getQueryParams(window.location.href);
 	console.log("queryParams", queryParams);
 	useEffect(() => {
-		appApi.system.createPayment(queryParams);
+		appApi.system.onOrderPaid(queryParams);
 	}, [window.location.href]);
 
 	useEffect(() => {

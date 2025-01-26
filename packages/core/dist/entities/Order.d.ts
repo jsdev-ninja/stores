@@ -6,6 +6,7 @@ export declare const OrderSchema: z.ZodObject<{
     storeId: z.ZodString;
     userId: z.ZodString;
     status: z.ZodEnum<["pending", "processing", "delivered", "canceled", "completed", "refunded"]>;
+    paymentStatus: z.ZodEnum<["pending", "completed", "failed", "refunded"]>;
     cart: z.ZodObject<{
         id: z.ZodString;
         items: z.ZodArray<z.ZodObject<{
@@ -854,6 +855,7 @@ export declare const OrderSchema: z.ZodObject<{
         apartmentNumber: string;
     };
     userId: string;
+    paymentStatus: "pending" | "completed" | "refunded" | "failed";
     cart: {
         id: string;
         items: {
@@ -992,6 +994,7 @@ export declare const OrderSchema: z.ZodObject<{
         apartmentNumber: string;
     };
     userId: string;
+    paymentStatus: "pending" | "completed" | "refunded" | "failed";
     cart: {
         id: string;
         items: {

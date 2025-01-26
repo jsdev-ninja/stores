@@ -56,6 +56,9 @@ function CheckoutPage() {
 
 	const cartCost = calculateCartPrice(cart.items);
 
+	console.log("profile", profile);
+	console.log("_profile", _profile);
+
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16 px-4">
 			<Form<TOrder>
@@ -68,6 +71,7 @@ function CheckoutPage() {
 					companyId: store.companyId,
 					storeId: store.id,
 					status: "pending",
+					paymentStatus: "pending",
 					client: profile ?? _profile,
 					address: profile?.address ?? emptyAddress,
 					cart: {
@@ -89,6 +93,7 @@ function CheckoutPage() {
 					const order = await appApi.orders.order();
 					console.log("order", order);
 					if (!order?.success) return null; //todo
+
 					const paymnet: any = await FirebaseApi.api.createPayment({ order: order.data });
 					console.log("paymnet", paymnet.data.paymentLink);
 

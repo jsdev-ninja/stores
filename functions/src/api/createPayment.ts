@@ -32,7 +32,6 @@ const getProductFinalPrice = (product: TProduct) => {
 	return parseFloat(price.toFixed(2));
 };
 
-
 // HYP BUGS
 // 1) success pay twice on same order
 
@@ -46,7 +45,6 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		console.log("create payment data", JSON.stringify(data));
 
 		const { order } = data;
-		getProductFinalPrice;
 		const items = order.cart.items.map(
 			(item) =>
 				`[${item.product.sku}~${item.product.name[0].value}~${

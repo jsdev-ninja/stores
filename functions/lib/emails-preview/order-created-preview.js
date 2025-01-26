@@ -38,6 +38,7 @@ const testOrder = {
         street: "הראה",
         streetNumber: "58",
     },
+    paymentStatus: "completed",
     cart: {
         cartDiscount: 100,
         cartTotal: 200,
