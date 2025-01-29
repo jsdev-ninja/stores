@@ -37,7 +37,9 @@ const testOrder: TOrder = {
 			},
 		],
 	},
-	client: {} as any,
+	client: {
+		displayName: "יוסי חיים",
+	} as any,
 	companyId: "",
 	date: Date.now(),
 	id: "",

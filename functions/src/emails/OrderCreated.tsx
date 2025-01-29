@@ -1,9 +1,9 @@
-import { Img, Html, Container, Text, Row, Column } from "@react-email/components";
+import { Img, Html, Container, Text, Row, Column, Head, Section } from "@react-email/components";
 import * as React from "react";
 import { TOrder } from "@jsdev_ninja/core";
 
 const content = {
-	title_client: "הזמנה שלך התקבלה בהצלחה",
+	title_client: "התקבלה הזמנה חדשה",
 } as const;
 
 type Props = {
@@ -12,10 +12,19 @@ type Props = {
 
 function OrderCreated({ order }: Props) {
 	if (!order) return null;
+
+	const { apartmentNumber, city, floor, street, streetNumber } = order.address;
+
+	const fullAdress = `${city}, ${street} ${streetNumber} קומה ${floor}, דירה ${apartmentNumber}`;
 	return (
-		<Html dir="rtl" lang="he">
-			<Container>
-				<Text style={{ textAlign: "center" }}>{content.title_client}</Text>
+		<Html dir="rtl" lang="he" style={{ textAlign: "right" }}>
+			<Head>
+				<title>{content.title_client}</title>
+			</Head>
+			<Container dir="rtl">
+				<Text style={{ textAlign: "center", fontSize: 24, fontWeight: "bold" }}>
+					{content.title_client}
+				</Text>
 				{order.cart.items.map((item, i) => {
 					return (
 						<Row key={i}>
@@ -35,6 +44,17 @@ function OrderCreated({ order }: Props) {
 						</Row>
 					);
 				})}
+
+				<Row style={{ marginBlock: 40 }}>
+					<Column>שם: {order.client.displayName}</Column>
+					<Column>כתובת: {fullAdress}</Column>
+				</Row>
+
+				<Row style={{ marginBlock: 40 }}>
+					<Column> סהכ {order.cart.cartTotal}</Column>
+					<Column> מעם {order.cart.cartVat}</Column>
+					<Column> הנחה {order.cart.cartDiscount}</Column>
+				</Row>
 			</Container>
 		</Html>
 	);
