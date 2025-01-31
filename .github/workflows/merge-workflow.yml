@@ -21,17 +21,29 @@ jobs:
               fetch-depth: 2;
 
          - name: check if core package changed
-           id: folder-check
+           id: core-check
            run: |
               if git diff --quiet HEAD~1 HEAD -- packages/core/; then
-              echo "CORE_CHANGE=false" >> $GITHUB_ENV
+              echo "CORE_CHANGE=false" >> $GITHUB_OUTPUT
               else
-              echo "CORE_CHANGE=true" >> $GITHUB_ENV
+              echo "CORE_CHANGE=true" >> $GITHUB_OUTPUT
               fi
 
-         - name: Run step only if folder changed
-           if: env.CORE_CHANGE == 'true'
-           run: echo "Folder 'packages/core/' has changed, executing this step!"
+         - name: publich core package
+           if: steps.core-check.outputs.CORE_CHANGE == 'true'
+           uses: actions/setup-node@v4
+           with:
+              node-version: "20.x"
+              registry-url: "https://registry.npmjs.org"
+              # Defaults to the user or organization that owns the workflow file
+              scope: "@octocat"
+            run: |
+               echo "install"
+               yarn
+               echo "publish"
+               yarn publish
+            env:
+               NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
    store_job:
       runs-on: ubuntu-latest
