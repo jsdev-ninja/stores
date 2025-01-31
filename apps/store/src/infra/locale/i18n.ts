@@ -28,6 +28,7 @@ export const resources = {
 		},
 		common: {
 			admin: "מערכת ניהול",
+			searchProducts: "חפש מוצרים לפי טקסט חופשי",
 			addToCart: "הוסף לעגלה",
 			favorites: "שמורים",
 			orders: "הזמנות",

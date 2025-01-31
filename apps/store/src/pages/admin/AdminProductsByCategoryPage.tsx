@@ -39,7 +39,11 @@ export function AdminProductsByCategoryPage() {
 
 				<div className="flex">
 					<div className="flex-grow p-4 flex flex-wrap gap-4">
-						<ProductsWidget.Products>
+						<ProductsWidget.Products
+							emptyStateAction={() => {
+								// todo
+							}}
+						>
 							{(products) => {
 								return products.map((product) => (
 									<Product key={product.id} product={product}>
