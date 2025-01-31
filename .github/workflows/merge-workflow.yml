@@ -51,7 +51,7 @@ jobs:
 
          - name: build store
            run: |
-              echo "STORE_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+              STORE_VERSION=$(jq -r .version package.json)
               echo "The package version is $STORE_VERSION"
               cd apps/store && ls && yarn && yarn build
 
