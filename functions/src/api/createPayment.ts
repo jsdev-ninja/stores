@@ -34,6 +34,7 @@ const getProductFinalPrice = (product: TProduct) => {
 
 // HYP BUGS
 // 1) success pay twice on same order
+// 2) F5 not works
 
 // 5326105300985614
 // 12/25
@@ -51,6 +52,11 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 					item.amount
 				}~${getProductFinalPrice(item.product)}]`
 		);
+
+		const systemParams = {};
+		const storeParams = {};
+		const clientParams = {};
+		const unknowParams = {};
 
 		const params = {
 			PassP: "hyp1234",
@@ -77,7 +83,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			ShowEngTashText: "False",
 			Coin: "1", //?
 			Postpone: "False",
-			J5: "False",
+			J5: "False", // False
 			MoreData: "True",
 			sendemail: "True",
 

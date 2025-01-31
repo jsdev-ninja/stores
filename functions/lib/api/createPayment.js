@@ -62,6 +62,10 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
         console.log("create payment data", JSON.stringify(data));
         const { order } = data;
         const items = order.cart.items.map((item) => `[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${getProductFinalPrice(item.product)}]`);
+        const systemParams = {};
+        const storeParams = {};
+        const clientParams = {};
+        const unknowParams = {};
         const params = {
             PassP: "hyp1234",
             KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",

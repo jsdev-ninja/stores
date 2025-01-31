@@ -26,14 +26,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const components_1 = require("@react-email/components");
 const React = __importStar(require("react"));
 const content = {
-    title_client: "הזמנה שלך התקבלה בהצלחה",
+    title_client: "התקבלה הזמנה חדשה",
 };
 function OrderCreated({ order }) {
     if (!order)
         return null;
-    return (React.createElement(components_1.Html, { dir: "rtl", lang: "he" },
-        React.createElement(components_1.Container, null,
-            React.createElement(components_1.Text, { style: { textAlign: "center" } }, content.title_client),
+    const { apartmentNumber, city, floor, street, streetNumber } = order.address;
+    const fullAdress = `${city}, ${street} ${streetNumber} קומה ${floor}, דירה ${apartmentNumber}`;
+    return (React.createElement(components_1.Html, { dir: "rtl", lang: "he", style: { textAlign: "right" } },
+        React.createElement(components_1.Head, null,
+            React.createElement("title", null, content.title_client)),
+        React.createElement(components_1.Container, { dir: "rtl" },
+            React.createElement(components_1.Text, { style: { textAlign: "center", fontSize: 24, fontWeight: "bold" } }, content.title_client),
             order.cart.items.map((item, i) => {
                 var _a, _b, _c;
                 return (React.createElement(components_1.Row, { key: i },
@@ -45,7 +49,24 @@ function OrderCreated({ order }) {
                         " * ",
                         item.amount),
                     React.createElement(components_1.Column, null, Number(item.product.price * item.amount).toFixed(2))));
-            }))));
+            }),
+            React.createElement(components_1.Row, { style: { marginBlock: 40 } },
+                React.createElement(components_1.Column, null,
+                    "\u05E9\u05DD: ",
+                    order.client.displayName),
+                React.createElement(components_1.Column, null,
+                    "\u05DB\u05EA\u05D5\u05D1\u05EA: ",
+                    fullAdress)),
+            React.createElement(components_1.Row, { style: { marginBlock: 40 } },
+                React.createElement(components_1.Column, null,
+                    " \u05E1\u05D4\u05DB ",
+                    order.cart.cartTotal),
+                React.createElement(components_1.Column, null,
+                    " \u05DE\u05E2\u05DD ",
+                    order.cart.cartVat),
+                React.createElement(components_1.Column, null,
+                    " \u05D4\u05E0\u05D7\u05D4 ",
+                    order.cart.cartDiscount)))));
 }
 exports.default = OrderCreated;
 //# sourceMappingURL=OrderCreated.js.map

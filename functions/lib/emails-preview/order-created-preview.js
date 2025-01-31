@@ -63,7 +63,9 @@ const testOrder = {
             },
         ],
     },
-    client: {},
+    client: {
+        displayName: "יוסי חיים",
+    },
     companyId: "",
     date: Date.now(),
     id: "",

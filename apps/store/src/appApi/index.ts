@@ -25,9 +25,14 @@ import { CartService } from "src/domains/cart/CartService";
 import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
 
-// should be ready before use
-// store
-// firebase
+// client -> login, logout, register
+// client -> add product to cart, remove product from cart, add product to favorites
+// client -> pay order
+// client -> edit profile
+// admin ->
+// admin ->
+// admin ->
+// admin ->
 
 // todo move to folder
 function productInCart(cart: TCart | null, product: TProduct) {
