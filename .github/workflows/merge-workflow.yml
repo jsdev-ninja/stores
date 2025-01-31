@@ -6,12 +6,33 @@ on:
    push:
       branches:
          - main
-      paths:
-         - "apps/store/**"
-defaults:
-   run:
-      working-directory: apps/store # Set the global working directory
+
+env:
+   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
+   on_merge_master:
+      runs-on: ubuntu-latest
+      steps:
+         - name: checkout
+           uses: actions/checkout@v4
+           with:
+              fetch-depth: 2;
+
+         - name: check if core package changed
+           id: folder-check
+           run: |
+              if git diff --quiet HEAD~1 HEAD -- packages/core/; then
+              echo "CORE_CHANGE=false" >> $GITHUB_ENV
+              else
+              echo "CORE_CHANGE=true" >> $GITHUB_ENV
+              fi
+
+         - name: Run step only if folder changed
+           if: env.CORE_CHANGE == 'true'
+           run: echo "Folder 'packages/core/' has changed, executing this step!"
+
    store_job:
       runs-on: ubuntu-latest
       steps:
