@@ -3,6 +3,7 @@ export const CONFIG = {
 	PROD: import.meta.env.PROD,
 	DEV: import.meta.env.DEV,
 	BASE_URL: import.meta.env.BASE_URL,
+	VERSION: import.meta.env.VITE_STORE_VERSION,
 	VAT: 18,
 };
 

@@ -8,9 +8,6 @@ import { mixPanelApi } from "./lib/mixpanel/index.ts";
 import { SentryApi } from "./lib/sentry/index.ts";
 import "./index.css";
 
-console.log("STORE_VERSION", process.env.VITE_STORE_VERSION);
-console.log("STORE_VERSION2", import.meta.env.VITE_STORE_VERSION);
-
 console.log("CONFIG", CONFIG);
 
 mixPanelApi.init({ debug: CONFIG.DEV });
