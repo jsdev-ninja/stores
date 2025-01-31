@@ -28,6 +28,13 @@ jobs:
               # Defaults to the user or organization that owns the workflow file
               scope: "@octocat"
               cache: "yarn"
+         - name: Cache Yarn Dependencies
+           uses: actions/cache@v4
+           with:
+              path: ~/.yarn-cache # Yarn's global cache directory
+              key: yarn-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+              restore-keys: |
+                 yarn-${{ runner.os }}-
 
          - name: check if core package changed
            id: core-check
