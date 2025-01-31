@@ -51,8 +51,8 @@ jobs:
 
          - name: build store
            run: |
-              echo "PACKAGE_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
-              echo "The package version is $PACKAGE_VERSION"
+              echo "STORE_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+              echo "The package version is $STORE_VERSION"
               cd apps/store && ls && yarn && yarn build
 
          - name: deploy store to firebase hosting
