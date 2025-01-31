@@ -55,6 +55,8 @@ jobs:
               VITE_STORE_VERSION=$(jq -r .version package.json)
               echo "VITE_STORE_VERSION=$VITE_STORE_VERSION" > .env
               echo "The package version is $VITE_STORE_VERSION"
+              echo "==== .env File Contents ===="
+              cat .env
               echo "install"
               yarn 
               echo "build"
