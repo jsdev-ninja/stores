@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "./infra/index.ts";
 import { mixPanelApi } from "./lib/mixpanel/index.ts";
 import { SentryApi } from "./lib/sentry/index.ts";
+
 import "./index.css";
 
 console.log("CONFIG", CONFIG);
