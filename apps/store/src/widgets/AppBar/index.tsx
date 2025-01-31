@@ -81,7 +81,7 @@ export function AppBar() {
 			: () => modalApi.openModal("authModal");
 
 	return (
-		<Navbar isBordered>
+		<Navbar isBordered className="">
 			<NavbarBrand>
 				<div className="size-11">
 					<WebsiteLogo />
