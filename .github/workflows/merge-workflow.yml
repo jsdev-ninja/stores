@@ -52,8 +52,8 @@ jobs:
          - name: build store
            run: |
               cd apps/store 
-              STORE_VERSION=$(jq -r .version package.json)
-              echo "The package version is $STORE_VERSION"
+              VITE_STORE_VERSION=$(jq -r .version package.json)
+              echo "The package version is $VITE_STORE_VERSION"
               ls && yarn && yarn build
 
          - name: deploy store to firebase hosting
