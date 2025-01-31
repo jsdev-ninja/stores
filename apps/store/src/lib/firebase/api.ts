@@ -15,7 +15,7 @@ async function init() {
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
-		console.log(code, message, details);
+		console.error(code, message, details);
 		return { success: false, data: null };
 	}
 }

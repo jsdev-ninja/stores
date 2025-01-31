@@ -21,7 +21,7 @@ async function getData({ workspaceId, bookmarkId }: { workspaceId: string; bookm
 	return response.data;
 }
 
-export const getMixpanelData = functions.pubsub.schedule("every 1 hour").onRun(async () => {
+export const getMixpanelData = functions.pubsub.schedule("every 1 hours").onRun(async () => {
 	console.log("function: get mixpanel data for stores");
 	try {
 		const [totalPageViewResult, totalUsersResult, visitorsResult] = await Promise.all([

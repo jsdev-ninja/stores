@@ -52,6 +52,7 @@ const getProductFinalPrice = (product) => {
 };
 // HYP BUGS
 // 1) success pay twice on same order
+// 2) F5 not works
 // 5326105300985614
 // 12/25
 // 125

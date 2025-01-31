@@ -16,6 +16,7 @@ export async function useAppInit() {
 	if (appReady) return;
 
 	const response = await FirebaseApi.api.init();
+
 	const data = response.data as Data;
 
 	if (data.company && data.store) {

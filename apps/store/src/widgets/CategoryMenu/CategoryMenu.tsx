@@ -74,7 +74,7 @@ function Category({
 	return (
 		<Accordion.Item key={category.tag} value={category.locales[0].value}>
 			<Accordion.Trigger
-				className={classNames("px-4 py-1", {
+				className={classNames("px-4 py-1 hover:text-gray-500", {
 					"bg-gray-100  rounded-md": isSelected,
 				})}
 			>

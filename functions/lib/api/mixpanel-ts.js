@@ -44,7 +44,7 @@ async function getData({ workspaceId, bookmarkId }) {
     const response = await (0, axios_1.default)(url, options);
     return response.data;
 }
-exports.getMixpanelData = functions.pubsub.schedule("every 1 hour").onRun(async () => {
+exports.getMixpanelData = functions.pubsub.schedule("every 1 hours").onRun(async () => {
     var _a, _b, _c;
     console.log("function: get mixpanel data for stores");
     try {
