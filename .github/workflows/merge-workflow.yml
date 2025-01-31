@@ -53,8 +53,12 @@ jobs:
            run: |
               cd apps/store 
               VITE_STORE_VERSION=$(jq -r .version package.json)
-              yarn && VITE_STORE_VERSION="dadas" yarn build
+              echo "VITE_STORE_VERSION=$VITE_STORE_VERSION" > .env
               echo "The package version is $VITE_STORE_VERSION"
+              echo "install"
+              yarn 
+              echo "build"
+              yarn build
 
          - name: deploy store to firebase hosting
            uses: FirebaseExtended/action-hosting-deploy@v0
