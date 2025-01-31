@@ -51,7 +51,7 @@ jobs:
 
          - name: build store
            run: |
-              cd apps/store & yarn && yarn build
+              cd apps/store && ls && yarn && yarn build
 
          - name: deploy store to firebase hosting
            uses: FirebaseExtended/action-hosting-deploy@v0
