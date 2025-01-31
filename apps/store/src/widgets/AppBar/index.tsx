@@ -7,19 +7,8 @@ import { FirebaseApi } from "src/lib/firebase";
 import { Icon } from "src/components";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
-
-import {
-	Navbar,
-	NavbarBrand,
-	NavbarContent,
-	NavbarItem,
-	NavbarMenu,
-	NavbarMenuItem,
-	NavbarMenuToggle,
-} from "@nextui-org/react";
-import { useState } from "react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@nextui-org/react";
 import { Link } from "src/ui";
-
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
 import { useStore } from "src/domains/Store";
 
@@ -27,8 +16,6 @@ export function AppBar() {
 	const { t } = useTranslation(["common"]);
 
 	const appApi = useAppApi();
-
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	const store = useStore();
 
@@ -78,7 +65,7 @@ export function AppBar() {
 	if (user?.admin) {
 		dropdownItems.unshift({
 			key: "admin",
-			label: "admin",
+			label: t("admin"),
 			action: () =>
 				navigate({
 					to: "admin",
@@ -94,12 +81,12 @@ export function AppBar() {
 			: () => modalApi.openModal("authModal");
 
 	return (
-		<Navbar onMenuOpenChange={setIsMenuOpen} isBordered>
+		<Navbar isBordered>
 			<NavbarBrand>
 				<div className="size-11">
 					<WebsiteLogo />
 				</div>
-				<p className="font-bold text-inherit">{store.name}</p>
+				<p className="font-bold text-inherit">{store?.name}</p>
 			</NavbarBrand>
 			<NavbarContent className="hidden md:flex gap-4" justify="center">
 				{navLinks.map((link) => {
