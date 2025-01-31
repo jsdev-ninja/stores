@@ -49,17 +49,12 @@ jobs:
            env:
               NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-   store_job:
-      runs-on: ubuntu-latest
-      steps:
-         - uses: actions/checkout@v4
-
-         - name: enter store folder
+         - name: build store
            run: |
-              pwd
-              yarn && yarn build
+              cd apps/store & yarn && yarn build
 
-         - uses: FirebaseExtended/action-hosting-deploy@v0
+         - name: deploy store to firebase hosting
+           uses: FirebaseExtended/action-hosting-deploy@v0
            with:
               repoToken: ${{ secrets.GITHUB_TOKEN }}
               firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSDEV_STORES_PROD }}
