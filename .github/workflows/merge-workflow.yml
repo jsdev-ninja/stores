@@ -27,6 +27,7 @@ jobs:
               registry-url: "https://registry.npmjs.org"
               # Defaults to the user or organization that owns the workflow file
               scope: "@octocat"
+              cache: "yarn"
 
          - name: check if core package changed
            id: core-check
@@ -57,7 +58,7 @@ jobs:
               echo "The package version is $VITE_STORE_VERSION"
               echo -e "\033[1;34mINSTALL"
               yarn 
-              echo "build"
+              echo -e "\033[1;34mBUILD"
               yarn build
 
          - name: deploy store to firebase hosting
