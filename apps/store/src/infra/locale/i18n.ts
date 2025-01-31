@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { CONFIG } from "src/config";
 
 export const defaultNS = "common";
 
@@ -242,7 +243,7 @@ i18n
 			escapeValue: false, // react already safes from xss
 		},
 		ns: ["common"],
-		debug: true,
+		debug: CONFIG.DEV,
 	});
 
 export { i18n };
