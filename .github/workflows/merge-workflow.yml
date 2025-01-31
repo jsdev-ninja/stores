@@ -51,7 +51,7 @@ jobs:
               echo "open core package folder"
               cd packages/core
               echo "install"
-              yarn
+              yarn --ignore-engines
               echo "publish"
               yarn publish
            env:
@@ -64,7 +64,7 @@ jobs:
               echo "VITE_STORE_VERSION=$VITE_STORE_VERSION" > .env
               echo "The package version is $VITE_STORE_VERSION"
               echo -e "\033[1;34mINSTALL"
-              yarn 
+              yarn --ignore-engines
               echo -e "\033[1;34mBUILD"
               yarn build
 
