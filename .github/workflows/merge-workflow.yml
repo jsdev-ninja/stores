@@ -20,6 +20,14 @@ jobs:
            with:
               fetch-depth: 2;
 
+         - uses: actions/setup-node@v4
+           name: Setup .npmrc file to publish to npm
+           with:
+              node-version: "20.x"
+              registry-url: "https://registry.npmjs.org"
+              # Defaults to the user or organization that owns the workflow file
+              scope: "@octocat"
+
          - name: check if core package changed
            id: core-check
            run: |
@@ -31,19 +39,15 @@ jobs:
 
          - name: publich core package
            if: steps.core-check.outputs.CORE_CHANGE == 'true'
-           uses: actions/setup-node@v4
-           with:
-              node-version: "20.x"
-              registry-url: "https://registry.npmjs.org"
-              # Defaults to the user or organization that owns the workflow file
-              scope: "@octocat"
-            run: |
-               echo "install"
-               yarn
-               echo "publish"
-               yarn publish
-            env:
-               NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+           run: |
+              echo "open core package folder"
+              cd packages/core
+              echo "install"
+              yarn
+              echo "publish"
+              yarn publish
+           env:
+              NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
    store_job:
       runs-on: ubuntu-latest
