@@ -25,16 +25,12 @@ export function CatalogPage() {
 		4: "",
 	});
 
-	console.log("selectedKeys", selectedCategory);
-
 	const filter = Object.entries(selectedCategory)
 		.map(([, name]) => {
 			return name ? `categoryNames:"${decodeURIComponent(name)}"` : "";
 		})
 		.filter(Boolean)
 		.join(" OR ");
-
-	console.log("filter", filter);
 
 	return (
 		<ProductsWidget filter={filter}>
@@ -47,7 +43,17 @@ export function CatalogPage() {
 						<ProductsWidget.SearchBox />
 					</div>
 					<div className="flex gap-4 w-full flex-wrap justify-center flex-grow">
-						<ProductsWidget.Products>
+						<ProductsWidget.Products
+							emptyStateAction={() => {
+								setSelectedCategory({
+									0: "",
+									1: "",
+									2: "",
+									3: "",
+									4: "",
+								});
+							}}
+						>
 							{(products) => {
 								return products.map((product) => {
 									console.log(product);

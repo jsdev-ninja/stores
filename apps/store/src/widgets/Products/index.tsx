@@ -7,6 +7,8 @@ import { ProductFilter } from "./ProductFilter/ProductFilter";
 import { SearchBox } from "./SearchBox";
 import { useStore } from "src/domains/Store";
 import { TProduct } from "@jsdev_ninja/core";
+import { EmptyState } from "src/components/EmptyState/EmptyState";
+import { useTranslation } from "react-i18next";
 
 export function ProductsWidget({
 	children,
@@ -47,11 +49,15 @@ ProductsWidget.SearchBox = SearchBox;
 
 export function Products({
 	children,
+	emptyStateAction,
 }: {
 	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
+	emptyStateAction: () => void;
 }) {
 	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>();
 	const { status } = useInstantSearch();
+
+	const { t } = useTranslation(["emptyState"]);
 
 	const sentinelRef = useRef(null);
 
@@ -74,6 +80,21 @@ export function Products({
 	}, [isLastPage, showMore]);
 
 	if (status === "loading") return null; //todo
+
+	if (!items.length) {
+		return (
+			<div className="mx-auto self-center">
+				<EmptyState
+					title={t("emptyState:productsList.title")}
+					description={t("emptyState:productsList.description")}
+					action={{
+						onClick: emptyStateAction,
+						title: t("emptyState:productsList.action"),
+					}}
+				/>
+			</div>
+		);
+	}
 
 	return (
 		<>

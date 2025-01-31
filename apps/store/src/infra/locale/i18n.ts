@@ -14,6 +14,13 @@ export const resources = {
 		admin: {},
 	},
 	he: {
+		emptyState: {
+			productsList: {
+				title: "אין מוצרים להצגה",
+				description: "נקה את סינון כדי לראות את כל המוצרים",
+				action: "נקה סינון",
+			},
+		},
 		// static
 		errors: {
 			required_error: "שדה חובה",
