@@ -57,7 +57,7 @@ jobs:
               echo "The package version is $VITE_STORE_VERSION"
               echo "==== .env File Contents ===="
               cat .env
-              echo -e "\033[34m install"
+              echo -e "\033[1;34mINSTALL"
               yarn 
               echo "build"
               yarn build
