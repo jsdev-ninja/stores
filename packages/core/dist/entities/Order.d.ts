@@ -813,31 +813,6 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: number;
         lastActivityDate: number;
     }>;
-    address: z.ZodObject<{
-        country: z.ZodString;
-        city: z.ZodString;
-        street: z.ZodString;
-        streetNumber: z.ZodString;
-        floor: z.ZodString;
-        apartmentEnterNumber: z.ZodString;
-        apartmentNumber: z.ZodString;
-    }, "strip", z.ZodTypeAny, {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
-    }, {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
-    }>;
 }, "strip", z.ZodTypeAny, {
     type: "Order";
     status: "pending" | "processing" | "delivered" | "canceled" | "completed" | "refunded";
@@ -845,15 +820,6 @@ export declare const OrderSchema: z.ZodObject<{
     id: string;
     companyId: string;
     storeId: string;
-    address: {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
-    };
     userId: string;
     paymentStatus: "pending" | "completed" | "refunded" | "failed";
     cart: {
@@ -984,15 +950,6 @@ export declare const OrderSchema: z.ZodObject<{
     id: string;
     companyId: string;
     storeId: string;
-    address: {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
-    };
     userId: string;
     paymentStatus: "pending" | "completed" | "refunded" | "failed";
     cart: {

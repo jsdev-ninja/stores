@@ -38,7 +38,7 @@ function CheckoutPage() {
 	const _profile: TProfile = {
 		type: "Profile",
 		id: profile?.id ?? user.uid,
-		address: profile?.address ?? emptyAddress,
+		address: emptyAddress,
 		clientType: profile?.clientType ?? "user",
 		companyId: profile?.companyId ?? store.companyId,
 		storeId: profile?.storeId ?? store.id,
@@ -46,7 +46,7 @@ function CheckoutPage() {
 		email: profile?.email ?? user.email ?? "",
 		displayName: profile?.displayName ?? user.displayName ?? user.email ?? "",
 		phoneNumber: {
-			code: profile?.phoneNumber?.code ?? "",
+			code: profile?.phoneNumber?.code ?? "+972",
 			number: profile?.phoneNumber?.number ?? "",
 		},
 		createdDate: Date.now(),
@@ -72,8 +72,7 @@ function CheckoutPage() {
 					storeId: store.id,
 					status: "pending",
 					paymentStatus: "pending",
-					client: profile ?? _profile,
-					address: profile?.address ?? emptyAddress,
+					client: _profile,
 					cart: {
 						id: cart.id,
 						items: cart.items,
@@ -119,7 +118,7 @@ function CheckoutPage() {
 								/>
 								<Form.Input<TOrder>
 									placeholder={t("common:city")}
-									name="address.city"
+									name="client.address.city"
 									label={t("common:city")}
 								/>
 								<Form.Input<TOrder>
@@ -129,22 +128,22 @@ function CheckoutPage() {
 									endAdornment={<span dir="ltr">+972</span>}
 								/>
 								<Form.Input<TOrder>
-									name="address.street"
+									name="client.address.street"
 									placeholder={t("common:street")}
 									label={t("common:street")}
 								/>
 								<Form.Input<TOrder>
-									name="address.streetNumber"
+									name="client.address.streetNumber"
 									placeholder={t("common:streetNumber")}
 									label={t("common:streetNumber")}
 								/>
 								<Form.Input<TOrder>
-									name="address.floor"
+									name="client.address.floor"
 									placeholder={t("common:floor")}
 									label={t("common:floor")}
 								/>
 								<Form.Input<TOrder>
-									name="address.apartmentNumber"
+									name="client.address.apartmentNumber"
 									placeholder={t("common:apartmentNumber")}
 									label={t("common:apartmentNumber")}
 								/>

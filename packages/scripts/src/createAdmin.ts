@@ -41,6 +41,7 @@ async function createAdmin() {
 	// Access custom claims
 	const customClaims = userRecord2.customClaims;
 	console.log("customClaims", customClaims);
+	console.log("getClaims", await getClaims(userRecord.uid));
 }
 
 // Set a user as admin

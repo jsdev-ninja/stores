@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { AddressSchema } from "./Address";
 import { ProfileSchema } from "./Profile";
 import { ProductSchema } from "./Product";
 // pending - order created / by user
@@ -26,5 +25,4 @@ export const OrderSchema = z.object({
     date: z.number(),
     deliveryDate: z.number().optional(),
     client: ProfileSchema,
-    address: AddressSchema,
 });
