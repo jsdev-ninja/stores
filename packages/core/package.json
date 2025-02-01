@@ -1,6 +1,6 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.8.31",
+	"version": "0.8.32",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
 	"types": "dist/index.d.ts",
@@ -15,11 +15,11 @@
 		"publish_core": "yarn publish --non-interactive"
 	},
 	"dependencies": {
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
 		"@eslint/js": "^9.9.0",
 		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
