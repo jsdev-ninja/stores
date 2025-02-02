@@ -15,24 +15,40 @@ export async function useAppInit() {
 
 	if (appReady) return;
 
-	const response = await FirebaseApi.api.init();
+	const companyRequest = FirebaseApi.firestore.listV2<TCompany>({
+		collection: "companies",
+		where: [
+			{ name: "websiteDomains", operator: "array-contains", value: window.location.origin },
+		],
+	});
+	const storeRequest = FirebaseApi.firestore.listV2<TStore>({
+		collection: "stores",
+		where: [{ name: "urls", operator: "array-contains", value: window.location.origin }],
+	});
 
-	const data = response.data as Data;
+	const [companyResponse, storeResponse] = await Promise.all([companyRequest, storeRequest]);
 
-	if (data.company && data.store) {
+	const company = companyResponse?.data?.[0];
+	const store = storeResponse?.data?.[0];
+
+	if (!company || !store) {
+		// todo
+	}
+
+	if (company && store) {
 		// Function to change the favicon
 
 		const link: any =
 			document.querySelector("link[rel*='icon']") || document.createElement("link");
 		link.type = "image/x-icon";
 		link.rel = "shortcut icon";
-		link.href = data.store.logoUrl ?? DefaultLogoSrc;
+		link.href = store.logoUrl ?? DefaultLogoSrc;
 		document.getElementsByTagName("head")[0].appendChild(link);
-		document.title = data.company.name;
+		document.title = company.name;
 	}
 
-	FirebaseApi.auth.setTenantId(data.store.tenantId);
-	actions.dispatch(actions.company.setCompany(data.company));
-	actions.dispatch(actions.store.setStore(data.store));
+	!!store && FirebaseApi.auth.setTenantId(store.tenantId);
+	!!company && actions.dispatch(actions.company.setCompany(company));
+	!!store && actions.dispatch(actions.store.setStore(store));
 	actions.dispatch(actions.ui.setAppReady(true));
 }
