@@ -182,6 +182,10 @@ export const resources = {
 			shoppingCart: "סל קניות",
 			proceedToCheckout: "המשך לתשלום",
 			backToShop: "חזרה לחנות",
+			emptyState: {
+				title: "עגלת קניות שלך ריקה",
+				description: "כאן יופיעו המוצרים שהזמנת",
+			},
 		},
 
 		ordersPage: {

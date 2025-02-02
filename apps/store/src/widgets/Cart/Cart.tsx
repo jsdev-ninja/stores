@@ -2,11 +2,12 @@ import { cartSlice } from "src/domains/cart";
 import { useAppSelector } from "src/infra/store";
 import { Product, getProductFinalPrice } from "../Product";
 
-import EmptyCartImg from ".././../assets/empty-cart.png";
+import EmptyCartImg from ".././../assets/empty-cart.svg";
 import classNames from "classnames";
 import { Icon } from "src/components";
 import { useTranslation } from "react-i18next";
 import { TProduct } from "@jsdev_ninja/core";
+import { EmptyState } from "src/components/EmptyState/EmptyState";
 
 export function Badge({ children }: any) {
 	return (
@@ -33,15 +34,22 @@ export function Cart({ size = "sm" }: { size?: "sm" | "lg" }) {
 
 			{isEmpty && (
 				<div className="w-full h-full flex justify-center items-center">
-					<img src={EmptyCartImg} className="w-full auto" alt="empty cart" />
+					<EmptyState
+						size="md"
+						title={t("cart:emptyState.title")}
+						img={EmptyCartImg}
+						description={t("cart:emptyState.description")}
+					/>
 				</div>
 			)}
 
-			<div className="flex flex-col gap-4 flex-grow overflow-y-auto">
-				{cart?.map((cartItem) => (
-					<CartItem size={size} key={cartItem.product.id} cartItem={cartItem} />
-				))}
-			</div>
+			{!isEmpty && (
+				<div className="flex flex-col gap-4 flex-grow overflow-y-auto">
+					{cart?.map((cartItem) => (
+						<CartItem size={size} key={cartItem.product.id} cartItem={cartItem} />
+					))}
+				</div>
+			)}
 		</div>
 	);
 }
