@@ -1,6 +1,5 @@
 //Import Mixpanel SDK
 import { User } from "firebase/auth";
-import mixpanel from "mixpanel-browser";
 import { CONFIG } from "src/config";
 import { TStore } from "src/domains/Store";
 import { TProfile } from "@jsdev_ninja/core";
@@ -16,16 +15,21 @@ type events =
 	| "ADMIN_ORDER_DELIVERED";
 
 export const mixPanelApi = {
-	init: ({ debug }: { debug: boolean }) => {
+	init: async ({ debug }: { debug: boolean }) => {
 		// Near entry of your product, init Mixpanel
+		const mixpanel = await import("mixpanel-browser");
+
 		mixpanel.init("7bbee5e370000e2b2c4eff3f8b5e6460", {
 			debug: debug,
 			track_pageview: false,
 			persistence: "localStorage",
 		});
 	},
-	identify: (user: User, { store, profile }: { store: TStore; profile: TProfile | null }) => {
-		console.log("store.id", store.id);
+	identify: async (
+		user: User,
+		{ store, profile }: { store: TStore; profile: TProfile | null }
+	) => {
+		const mixpanel = await import("mixpanel-browser");
 
 		mixpanel.identify(user.uid);
 		mixpanel.people.set({
@@ -38,10 +42,13 @@ export const mixPanelApi = {
 			clientType: profile?.clientType,
 		});
 	},
-	pageView: (data: any) => {
+	pageView: async (data: any) => {
+		const mixpanel = (await import("mixpanel-browser")).default;
 		mixpanel.track_pageview(data);
 	},
-	track: (event: events, data: object) => {
+	track: async (event: events, data: object) => {
+		const mixpanel = await import("mixpanel-browser");
+
 		mixpanel.track(event, {
 			...data,
 			MODE: CONFIG.MODE,

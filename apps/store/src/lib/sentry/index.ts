@@ -1,12 +1,12 @@
 //...
-import * as Sentry from "@sentry/react";
+import { init, captureException } from "@sentry/react";
 import { CONFIG } from "src/config";
 
 export const SentryApi = {
 	init: () => {
-		Sentry.init({
+		init({
 			dsn: "https://a8da1526d763fe7c4b8fd9c18e48fe4e@o4507773250764800.ingest.de.sentry.io/4507773252862032",
-			integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+			// integrations: [Sentry.browserTracingIntegration(), replayIntegration()],
 			environment: CONFIG.MODE,
 			// Tracing
 			tracesSampleRate: 1.0, //  Capture 100% of the transactions
@@ -18,6 +18,6 @@ export const SentryApi = {
 		});
 	},
 	captureException: (error: any) => {
-		Sentry.captureException(error);
+		captureException(error);
 	},
 };
