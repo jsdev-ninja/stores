@@ -1,7 +1,7 @@
 {
 	"hosting": [
 		{
-			"target": "opal-market",
+			"target": "balasistore",
 			"source": ".",
 			"ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
 			"frameworksBackend": {

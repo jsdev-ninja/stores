@@ -5,8 +5,8 @@
 	"targets": {
 		"jsdev-stores-prod": {
 			"hosting": {
-				"opal-market": [
-					"opal-market"
+				"balasistore": [
+					"balasistore"
 				],
 				"tester": [
 					"jsdev-stores-prod"
