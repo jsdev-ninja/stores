@@ -1,6 +1,6 @@
 import { Configure, InstantSearch, useInfiniteHits, useInstantSearch } from "react-instantsearch";
 import { AlgoliaClient } from "src/services";
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 import type { Hit as AlgoliaHit } from "instantsearch.js";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
@@ -54,12 +54,18 @@ export function Products({
 	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
 	emptyStateAction: () => void;
 }) {
-	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>();
+	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>({});
 	const { status } = useInstantSearch();
+
+	const [ready, setReady] = useState(false);
 
 	const { t } = useTranslation(["emptyState"]);
 
 	const sentinelRef = useRef(null);
+
+	useEffect(() => {
+		setReady(true);
+	}, []);
 
 	useEffect(() => {
 		if (sentinelRef.current !== null) {
@@ -79,7 +85,7 @@ export function Products({
 		}
 	}, [isLastPage, showMore]);
 
-	if (status === "loading") return null; //todo
+	if (status === "loading" || status === "stalled" || !ready) return null; //todo
 
 	if (!items.length) {
 		return (
