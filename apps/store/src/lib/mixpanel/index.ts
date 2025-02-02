@@ -17,7 +17,7 @@ type events =
 export const mixPanelApi = {
 	init: async ({ debug }: { debug: boolean }) => {
 		// Near entry of your product, init Mixpanel
-		const mixpanel = await import("mixpanel-browser");
+		const mixpanel = (await import("mixpanel-browser")).default;
 
 		mixpanel.init("7bbee5e370000e2b2c4eff3f8b5e6460", {
 			debug: debug,
@@ -29,7 +29,7 @@ export const mixPanelApi = {
 		user: User,
 		{ store, profile }: { store: TStore; profile: TProfile | null }
 	) => {
-		const mixpanel = await import("mixpanel-browser");
+		const mixpanel = (await import("mixpanel-browser")).default;
 
 		mixpanel.identify(user.uid);
 		mixpanel.people.set({
@@ -47,7 +47,7 @@ export const mixPanelApi = {
 		mixpanel.track_pageview(data);
 	},
 	track: async (event: events, data: object) => {
-		const mixpanel = await import("mixpanel-browser");
+		const mixpanel = (await import("mixpanel-browser")).default;
 
 		mixpanel.track(event, {
 			...data,
