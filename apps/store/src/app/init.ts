@@ -4,11 +4,6 @@ import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import DefaultLogoSrc from "../assets/default_logo.png";
 
-type Data = {
-	company: TCompany;
-	store: TStore;
-};
-
 export async function useAppInit() {
 	const actions = useStoreActions();
 	const appReady = useAppSelector((state) => state.ui.appReady);
