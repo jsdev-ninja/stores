@@ -1,10 +1,9 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useAppSelector } from "src/infra";
-import { FirebaseApi } from "src/lib/firebase";
 import { Redirect } from "src/navigation";
 
 type Props = {
-	access?: { admin: boolean };
+	access?: { admin?: boolean; superAdmin?: boolean };
 	children: ReactNode;
 };
 export function ProtectedRoute(props: Props) {
@@ -15,12 +14,13 @@ export function ProtectedRoute(props: Props) {
 	const [ready, setIsReady] = useState(false);
 
 	useEffect(() => {
-		FirebaseApi.auth.getClaims().then((claims) => {
-			if (access?.admin) {
-				setIsValid(!!claims?.admin);
-				setIsReady(true);
-			}
-		});
+		if (access?.admin) {
+			setIsValid(!!user?.admin);
+			setIsReady(true);
+		} else if (access?.superAdmin) {
+			setIsValid(!!user?.superAdmin);
+			setIsReady(true);
+		}
 	}, [user?.uid]);
 
 	if (!ready) return null;

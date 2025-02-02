@@ -155,7 +155,9 @@ function App() {
 				</ProtectedRoute>
 			</Route>
 			<Route name="superAdmin">
-				<SuperAdminLayout />
+				<ProtectedRoute access={{ superAdmin: true }}>
+					<SuperAdminLayout />
+				</ProtectedRoute>
 			</Route>
 		</NextUIProvider>
 	);

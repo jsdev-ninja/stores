@@ -6,6 +6,7 @@ export * from "./fields";
 // extend with custom claims
 export type Token = {
 	admin?: boolean;
+	superAdmin?: boolean;
 	storeId?: string;
 	tenantId?: string;
 };

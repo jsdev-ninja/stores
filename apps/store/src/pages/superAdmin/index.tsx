@@ -1,6 +1,17 @@
+import { useEffect } from "react";
+import { useAppApi } from "src/appApi";
+
 function SuperAdminLayout() {
+	const appApi = useAppApi();
+
+	useEffect(() => {
+		appApi.superAdmin.getAllStores().then((res) => {
+			console.log("all stores", res.data);
+		});
+	}, []);
+
 	return (
-		<div className="">
+		<div>
 			<div className="antialiased bg-gray-50 dark:bg-gray-900">
 				<nav className="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50">
 					<div className="flex flex-wrap justify-between items-center">

@@ -545,7 +545,16 @@ export const useAppApi = () => {
 			},
 		};
 
-		return { orders, admin, system, user: userApi };
+		const superAdmin = {
+			getAllStores: async () => {
+				const res = await FirebaseApi.firestore.listV2({
+					collection: "stores",
+				});
+				return res;
+			},
+		};
+
+		return { orders, admin, system, user: userApi, superAdmin };
 	}, [store, cart, user]);
 
 	return api;

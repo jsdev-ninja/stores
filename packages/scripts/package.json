@@ -13,9 +13,14 @@
 	"devDependencies": {
 		"@types/express": "^5.0.0",
 		"@types/node": "^22.10.1",
+		"read-excel-file": "^5.8.6",
 		"typescript": "^5.7.2"
 	},
 	"dependencies": {
-		"firebase-admin": "^13.0.1"
+		"@types/react-dom": "^19.0.3",
+		"convert-csv-to-json": "^2.50.0",
+		"firebase-admin": "^13.0.1",
+		"read-excel-file": "^5.8.6",
+		"@jsdev_ninja/core": "0.8.32"
 	}
 }
