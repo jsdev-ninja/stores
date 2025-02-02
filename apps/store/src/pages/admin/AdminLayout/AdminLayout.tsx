@@ -37,7 +37,7 @@ const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any 
 	{ name: "settings", path: "admin.settings" },
 ] as const;
 
-export function AdminLayout() {
+export default function AdminLayout() {
 	const store = useStore();
 
 	const actions = useStoreActions();

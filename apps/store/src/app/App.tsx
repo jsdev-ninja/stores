@@ -1,13 +1,10 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Route, useLocation } from "src/navigation";
-import { AdminLayout } from "src/pages";
-import { StoreLayout } from "src/pages/store/StoreLayout";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { useAppInit } from "./init";
 import { mixPanelApi } from "src/lib/mixpanel";
-import SuperAdminLayout from "src/pages/superAdmin";
 import { ProtectedRoute } from "src/features/auth";
 import { TCart } from "src/domains/cart";
 import { useStore } from "src/domains/Store";
@@ -16,6 +13,10 @@ import { TProfile } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
 import { NextUIProvider } from "@nextui-org/react";
+
+const SuperAdminLayout = lazy(() => import("src/pages/superAdmin"));
+const StoreLayout = lazy(() => import("src/pages/store/StoreLayout"));
+const AdminLayout = lazy(() => import("src/pages/admin/AdminLayout/AdminLayout"));
 
 function App() {
 	const { i18n } = useTranslation();
@@ -141,24 +142,27 @@ function App() {
 
 	return (
 		<NextUIProvider>
-			<ModalProvider />
-			<Route name="store">
-				<StoreLayout />
-			</Route>
-			<Route name="admin">
-				<ProtectedRoute
-					access={{
-						admin: true,
-					}}
-				>
-					<AdminLayout />
-				</ProtectedRoute>
-			</Route>
-			<Route name="superAdmin">
-				<ProtectedRoute access={{ superAdmin: true }}>
-					<SuperAdminLayout />
-				</ProtectedRoute>
-			</Route>
+			{/* todo fix fallback */}
+			<Suspense fallback="loading">
+				<ModalProvider />
+				<Route name="store">
+					<StoreLayout />
+				</Route>
+				<Route name="admin">
+					<ProtectedRoute
+						access={{
+							admin: true,
+						}}
+					>
+						<AdminLayout />
+					</ProtectedRoute>
+				</Route>
+				<Route name="superAdmin">
+					<ProtectedRoute access={{ superAdmin: true }}>
+						<SuperAdminLayout />
+					</ProtectedRoute>
+				</Route>
+			</Suspense>
 		</NextUIProvider>
 	);
 }

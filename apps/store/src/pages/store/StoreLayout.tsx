@@ -15,7 +15,7 @@ import { useStoreActions } from "src/infra";
 import FavoritesProductsPage from "./FavoritesProductsPage/FavoritesProductsPage";
 import HomePage from "./HomePage/HomePage";
 
-export function StoreLayout() {
+export default function StoreLayout() {
 	const appApi = useAppApi();
 
 	const user = useUser();
