@@ -1319,6 +1319,13 @@
     react-dom "^18.3.1"
     zod "^3.23.8"
 
+"@jsdev_ninja/core@0.8.32":
+  version "0.8.32"
+  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.8.32.tgz#8d796605ac620f94c8df28241948d164b8429d79"
+  integrity sha512-DJbMeMM6rhv4+RcO1g91dKqdAtTneJYPDprvUnkEZ2TY5u//7O/n/CzYAk0yYzCaY63m4CjJc9SojNgZAb/eFA==
+  dependencies:
+    zod "^3.23.8"
+
 "@mdx-js/react@^3.0.0":
   version "3.0.1"
   resolved "https://registry.npmjs.org/@mdx-js/react/-/react-3.0.1.tgz"
@@ -2276,11 +2283,6 @@
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
-
-"@popperjs/core@^2.11.2":
-  version "2.11.8"
-  resolved "https://registry.npmjs.org/@popperjs/core/-/core-2.11.8.tgz"
-  integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
@@ -6375,11 +6377,6 @@ algoliasearch@^4.23.2:
     "@algolia/requester-node-http" "4.24.0"
     "@algolia/transporter" "4.24.0"
 
-animejs@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.npmjs.org/animejs/-/animejs-3.2.2.tgz"
-  integrity sha512-Ao95qWLpDPXXM+WrmwcKbl6uNlC5tjnowlaRYtuVDHHoygjtIPfDUoK9NthrlZsQSKjZXlmji2TrBUAVbiH0LQ==
-
 ansi-regex@^5.0.1:
   version "5.0.1"
   resolved "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz"
@@ -9069,13 +9066,6 @@ preact@^10.10.0:
   version "10.24.0"
   resolved "https://registry.npmjs.org/preact/-/preact-10.24.0.tgz"
   integrity sha512-aK8Cf+jkfyuZ0ZZRG9FbYqwmEiGQ4y/PUO4SuTWoyWL244nZZh7bd5h2APd4rSNDYTBNghg1L+5iJN3Skxtbsw==
-
-preline@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.npmjs.org/preline/-/preline-2.4.1.tgz"
-  integrity sha512-30yx5s2gEOTBWXSTPa+Th23/kGryn9Inhmp9KPzz9G8DZPp9j/LkGyyrSvdsuXh4Clc/sJFLObumFrbI/WmB0w==
-  dependencies:
-    "@popperjs/core" "^2.11.2"
 
 prelude-ls@^1.2.1:
   version "1.2.1"
