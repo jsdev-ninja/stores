@@ -12,7 +12,7 @@ functions/lib
 
 node_modules
 _secrets
-apps/*/dist
+dist
 dist-ssr
 *.local
 
