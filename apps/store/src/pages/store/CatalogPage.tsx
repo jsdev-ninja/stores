@@ -30,7 +30,7 @@ export function CatalogPage() {
 			return name ? `categoryNames:"${decodeURIComponent(name)}"` : "";
 		})
 		.filter(Boolean)
-		.join(" OR ");
+		.join(" AND ");
 
 	return (
 		<ProductsWidget filter={filter}>

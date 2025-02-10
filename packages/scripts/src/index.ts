@@ -1,8 +1,17 @@
-import { admin } from "./utils/app";
-// Get the TenantAwareAuth instance for the specific tenant
+import inquirer from "inquirer";
 
-const testerTenantId = "tester-tenant-2vcku";
-const davidTenantId = "opal-market-tenant-ia9ux";
+async function main() {
+	const answers = await inquirer.prompt([
+		{ type: "input", name: "name", message: "Enter project name:" },
+		{
+			type: "list",
+			name: "framework",
+			message: "Choose a framework",
+			choices: ["React", "Vue", "Svelte"],
+		},
+	]);
 
-const tenantId = davidTenantId;
-const tenantAuth = admin.auth().tenantManager().authForTenant(tenantId);
+	console.log(answers);
+}
+
+main();

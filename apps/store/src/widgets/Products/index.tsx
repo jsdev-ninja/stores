@@ -69,6 +69,7 @@ export function Products({
 
 	useEffect(() => {
 		if (sentinelRef.current !== null) {
+			// todo fix
 			const observer = new IntersectionObserver((entries) => {
 				entries.forEach((entry) => {
 					if (entry.isIntersecting && !isLastPage) {
@@ -83,9 +84,11 @@ export function Products({
 				observer.disconnect();
 			};
 		}
-	}, [isLastPage, showMore]);
+	}, [isLastPage]);
 
 	if (status === "loading" || status === "stalled" || !ready) return null; //todo
+
+	console.log("items.length", items);
 
 	if (!items.length) {
 		return (
@@ -105,7 +108,7 @@ export function Products({
 	return (
 		<>
 			{children(items)}
-			<div ref={sentinelRef} aria-hidden="true" />
+			<div className="" ref={sentinelRef}></div>
 		</>
 	);
 }

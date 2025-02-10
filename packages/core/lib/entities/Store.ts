@@ -17,4 +17,10 @@ const StoreSchema = z.object({
 		.optional(),
 });
 
+// private sub collection
+export const StorePrivateSchema = z.object({
+	storeEmail: z.string().email(),
+});
+
 export type TStore = z.infer<typeof StoreSchema>;
+export type TStorePrivate = z.infer<typeof StorePrivateSchema>;

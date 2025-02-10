@@ -187,7 +187,7 @@ async function downloadImage(product) {
 
 	if (!image) return;
 
-	// https://aviram.blob.core.windows.net/product-images/סנסודיילבנה.png
+	// https://aviram.blob.core.windows.net/product-images/111777889900052.png
 
 	try {
 		// Make a GET request to the image URL

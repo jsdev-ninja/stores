@@ -9,6 +9,6 @@
 		"apps/*"
 	],
 	"scripts": {
-		"dev-store": "cd apps/store && yarn dev"
+		"dev": "yarn workspace store run dev"
 	}
 }
