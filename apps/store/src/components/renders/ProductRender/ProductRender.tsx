@@ -9,10 +9,10 @@ export const RENDER_CONFIG: Record<
 	{ productCard?: LazyExoticComponent<ComponentType<{ product: TProduct }>> }
 > = {
 	"tester-store": {
-		// productCard: lazy(() => import("../../../websites/tester/index")),
+		productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 	"opal-market-store": {
-		productCard: lazy(() => import("../../../websites/opal-market/index")),
+		productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 } as const;
 

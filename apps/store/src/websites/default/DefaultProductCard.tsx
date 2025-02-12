@@ -34,7 +34,7 @@ function DefaultProductCard({ product }: { product: TProduct }) {
 						<Product.ProductBrand />
 					</div>
 				</div>
-				<div className="flex items-center gap-2 my-4"></div>
+
 				<div className="w-full mt-auto">
 					<Product.CartButton size="md" />
 				</div>

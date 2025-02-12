@@ -3,7 +3,14 @@ import { Divider } from "@nextui-org/react";
 import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
-function OpalMarketProduct({ product }: { product: TProduct }) {
+function BalasiStoreProduct({ product }: { product: TProduct }) {
+	const productWeightOrVolume =
+		product.weight.unit !== "none" ? (
+			<Product.Weight />
+		) : product.volume.unit !== "none" ? (
+			<Product.Volume />
+		) : null;
+
 	return (
 		<Product key={product.id} product={product}>
 			<div
@@ -29,12 +36,14 @@ function OpalMarketProduct({ product }: { product: TProduct }) {
 					</div>
 
 					<div className="flex items-center gap-2">
-						<Product.Weight />
+						{productWeightOrVolume}
 						<Divider orientation="vertical" />
 						<Product.ProductBrand />
 					</div>
 				</div>
-				<div className="flex items-center gap-2 my-4"></div>
+				<div className="my-4 text-sm text-gray-500 max-h-10 overflow-hidden  text-ellipsis">
+					<Product.Description />
+				</div>
 				<div className="w-full mt-auto">
 					<Product.CartButton size="lg" />
 				</div>
@@ -43,4 +52,4 @@ function OpalMarketProduct({ product }: { product: TProduct }) {
 	);
 }
 
-export default OpalMarketProduct;
+export default BalasiStoreProduct;

@@ -37,6 +37,8 @@ readXlsxFile("src2/data/products.xlsx").then(async (rows: any[]) => {
 
 		const [headers, ...data] = rows;
 
+		console.log("headers", headers);
+
 		const products: TProduct[] = [];
 
 		const categoriesMap: Record<string, TCategory> = {};
@@ -48,8 +50,6 @@ readXlsxFile("src2/data/products.xlsx").then(async (rows: any[]) => {
 				category,
 				subCategory,
 				priceType,
-				priceUnit,
-				mishkal,
 				volumeType,
 				volumeValue,
 				description,
@@ -57,18 +57,6 @@ readXlsxFile("src2/data/products.xlsx").then(async (rows: any[]) => {
 				price,
 				mam,
 			] = row;
-			// console.log("barCode", barCode);
-			// console.log("name", name);
-			// console.log("category", category);
-			// console.log("subCategory", subCategory);
-			// console.log("priceType", priceType); // unit or kg
-			// console.log("mishkal", mishkal);
-			// console.log("volumeType", volumeType);
-			// console.log("volumeValue", volumeValue);
-			// console.log("description", description);
-			// console.log("brand", brand);
-			// console.log("price", price);
-			// console.log("mam", mam);
 
 			const isNotValid = !name || !barCode || !price;
 
@@ -133,11 +121,11 @@ readXlsxFile("src2/data/products.xlsx").then(async (rows: any[]) => {
 				updated_at: Date.now(),
 				volume: {
 					unit: hasVolume ? (namesMap[volumeType as any] as any) : "none",
-					value: _volumeValue,
+					value: isNaN(_volumeValue) ? 0 : _volumeValue,
 				},
 				weight: {
 					unit: hasWeight ? (namesMap[volumeType as any] as any) : "none",
-					value: _weightValue,
+					value: isNaN(_weightValue) ? 0 : _weightValue,
 				},
 				profitPercentage: 0,
 				purchasePrice: 0,
