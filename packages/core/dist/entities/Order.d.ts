@@ -5,7 +5,7 @@ export declare const OrderSchema: z.ZodObject<{
     companyId: z.ZodString;
     storeId: z.ZodString;
     userId: z.ZodString;
-    status: z.ZodEnum<["pending", "processing", "delivered", "canceled", "completed", "refunded"]>;
+    status: z.ZodEnum<["pending", "processing", "in_delivery", "delivered", "canceled", "completed", "refunded"]>;
     paymentStatus: z.ZodEnum<["pending", "completed", "failed", "refunded"]>;
     cart: z.ZodObject<{
         id: z.ZodString;
@@ -43,11 +43,11 @@ export declare const OrderSchema: z.ZodObject<{
                     type: z.ZodEnum<["unit", "kg", "gram", "liter", "ml"]>;
                     value: z.ZodNumber;
                 }, "strip", z.ZodTypeAny, {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 }, {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 }>;
                 price: z.ZodNumber;
                 purchasePrice: z.ZodOptional<z.ZodNumber>;
@@ -57,11 +57,11 @@ export declare const OrderSchema: z.ZodObject<{
                     type: z.ZodEnum<["number", "percent", "none"]>;
                     value: z.ZodNumber;
                 }, "strip", z.ZodTypeAny, {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 }, {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 }>;
                 weight: z.ZodObject<{
                     value: z.ZodNumber;
@@ -196,14 +196,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;
@@ -280,14 +280,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;
@@ -367,14 +367,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;
@@ -454,14 +454,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;
@@ -547,14 +547,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;
@@ -640,14 +640,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;
@@ -815,7 +815,7 @@ export declare const OrderSchema: z.ZodObject<{
     }>;
 }, "strip", z.ZodTypeAny, {
     type: "Order";
-    status: "pending" | "processing" | "delivered" | "canceled" | "completed" | "refunded";
+    status: "pending" | "processing" | "in_delivery" | "delivered" | "canceled" | "completed" | "refunded";
     date: number;
     id: string;
     companyId: string;
@@ -843,14 +843,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;
@@ -945,7 +945,7 @@ export declare const OrderSchema: z.ZodObject<{
     deliveryDate?: number | undefined;
 }, {
     type: "Order";
-    status: "pending" | "processing" | "delivered" | "canceled" | "completed" | "refunded";
+    status: "pending" | "processing" | "in_delivery" | "delivered" | "canceled" | "completed" | "refunded";
     date: number;
     id: string;
     companyId: string;
@@ -973,14 +973,14 @@ export declare const OrderSchema: z.ZodObject<{
                 isPublished: boolean;
                 vat: boolean;
                 priceType: {
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                     value: number;
+                    type: "unit" | "kg" | "gram" | "liter" | "ml";
                 };
                 price: number;
                 currency: "ILS";
                 discount: {
-                    type: "number" | "percent" | "none";
                     value: number;
+                    type: "number" | "percent" | "none";
                 };
                 weight: {
                     value: number;

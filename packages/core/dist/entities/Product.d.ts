@@ -32,11 +32,11 @@ export declare const ProductSchema: z.ZodObject<{
         type: z.ZodEnum<["unit", "kg", "gram", "liter", "ml"]>;
         value: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     }, {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     }>;
     price: z.ZodNumber;
     purchasePrice: z.ZodOptional<z.ZodNumber>;
@@ -46,11 +46,11 @@ export declare const ProductSchema: z.ZodObject<{
         type: z.ZodEnum<["number", "percent", "none"]>;
         value: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     }, {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     }>;
     weight: z.ZodObject<{
         value: z.ZodNumber;
@@ -185,14 +185,14 @@ export declare const ProductSchema: z.ZodObject<{
     isPublished: boolean;
     vat: boolean;
     priceType: {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     };
     price: number;
     currency: "ILS";
     discount: {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     };
     weight: {
         value: number;
@@ -269,14 +269,14 @@ export declare const ProductSchema: z.ZodObject<{
     isPublished: boolean;
     vat: boolean;
     priceType: {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     };
     price: number;
     currency: "ILS";
     discount: {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     };
     weight: {
         value: number;
@@ -369,11 +369,11 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
         type: z.ZodEnum<["unit", "kg", "gram", "liter", "ml"]>;
         value: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     }, {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     }>;
     price: z.ZodNumber;
     purchasePrice: z.ZodOptional<z.ZodNumber>;
@@ -383,11 +383,11 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
         type: z.ZodEnum<["number", "percent", "none"]>;
         value: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     }, {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     }>;
     weight: z.ZodObject<{
         value: z.ZodNumber;
@@ -523,14 +523,14 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     isPublished: boolean;
     vat: boolean;
     priceType: {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     };
     price: number;
     currency: "ILS";
     discount: {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     };
     weight: {
         value: number;
@@ -596,14 +596,14 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     isPublished: boolean;
     vat: boolean;
     priceType: {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     };
     price: number;
     currency: "ILS";
     discount: {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     };
     weight: {
         value: number;
@@ -686,11 +686,11 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         type: z.ZodEnum<["unit", "kg", "gram", "liter", "ml"]>;
         value: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     }, {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     }>;
     price: z.ZodNumber;
     purchasePrice: z.ZodOptional<z.ZodNumber>;
@@ -700,11 +700,11 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         type: z.ZodEnum<["number", "percent", "none"]>;
         value: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     }, {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     }>;
     weight: z.ZodObject<{
         value: z.ZodNumber;
@@ -841,14 +841,14 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     isPublished: boolean;
     vat: boolean;
     priceType: {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     };
     price: number;
     currency: "ILS";
     discount: {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     };
     weight: {
         value: number;
@@ -926,14 +926,14 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     isPublished: boolean;
     vat: boolean;
     priceType: {
-        type: "unit" | "kg" | "gram" | "liter" | "ml";
         value: number;
+        type: "unit" | "kg" | "gram" | "liter" | "ml";
     };
     price: number;
     currency: "ILS";
     discount: {
-        type: "number" | "percent" | "none";
         value: number;
+        type: "number" | "percent" | "none";
     };
     weight: {
         value: number;

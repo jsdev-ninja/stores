@@ -13,7 +13,15 @@ export const OrderSchema = z.object({
     companyId: z.string(),
     storeId: z.string(),
     userId: z.string(),
-    status: z.enum(["pending", "processing", "delivered", "canceled", "completed", "refunded"]),
+    status: z.enum([
+        "pending",
+        "processing",
+        "in_delivery",
+        "delivered",
+        "canceled",
+        "completed",
+        "refunded",
+    ]),
     paymentStatus: z.enum(["pending", "completed", "failed", "refunded"]),
     cart: z.object({
         id: z.string(),

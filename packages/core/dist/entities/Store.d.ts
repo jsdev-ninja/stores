@@ -39,6 +39,14 @@ declare const StoreSchema: z.ZodObject<{
         method: "internal" | "external";
     }[] | undefined;
 }>;
+export declare const StorePrivateSchema: z.ZodObject<{
+    storeEmail: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    storeEmail: string;
+}, {
+    storeEmail: string;
+}>;
 export type TStore = z.infer<typeof StoreSchema>;
+export type TStorePrivate = z.infer<typeof StorePrivateSchema>;
 export {};
 //# sourceMappingURL=Store.d.ts.map

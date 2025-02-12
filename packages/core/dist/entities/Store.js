@@ -13,3 +13,7 @@ const StoreSchema = z.object({
     }))
         .optional(),
 });
+// private sub collection
+export const StorePrivateSchema = z.object({
+    storeEmail: z.string().email(),
+});
