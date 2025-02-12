@@ -24,11 +24,7 @@ export const passwordSchema = z
 	);
 
 // custom.d.ts
-declare global {
-	interface Document {
-		startViewTransition?: (callback?: () => void) => void;
-	}
-}
+declare global {}
 
 export type TStoreStats = {
 	id: string;

@@ -106,6 +106,7 @@ export const CategorySelect = <T,>({
 export const SelectItem = React.forwardRef<any, any>(({ children, ...props }, forwardedRef) => {
 	return (
 		<RadixSelect.Item
+			value={props.value}
 			className={classnames(
 				"flex items-center select-none justify-between h-12  bg-white hover:bg-primary-main p-2 "
 			)}

@@ -7,7 +7,7 @@ function calculateDiscount(product: TProduct) {
 		return (product.price * (product.discount.value ?? 100)) / 100;
 	}
 	if (product.discount?.type === "number") {
-		return product.price - product.discount.value ?? 0;
+		return product.price - (product.discount.value ?? 0);
 	}
 	return 0;
 }
