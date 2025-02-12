@@ -9,6 +9,7 @@
 		"apps/*"
 	],
 	"scripts": {
-		"dev": "yarn workspace store run dev"
+		"dev": "yarn workspace store run dev",
+		"build": "yarn workspace store run build"
 	}
 }
