@@ -1,8 +1,8 @@
 import { z } from "zod";
+import { hypBooleanSchema } from "./Atoms";
 
 // 600 - Checking a card number700 - Approved without charge800 - Postpone transaction - success handle ass error
 
-export const hypBooleanSchema = z.enum(["True", "False"]);
 const textSchema = z.string().min(1);
 const numericTextSchema = z.string().regex(/^\d+$/, "Must be a numeric string");
 
