@@ -61,6 +61,7 @@ function OrderItem({ order }: { order: TOrder }) {
 		canceled: "danger",
 		refunded: "danger",
 		completed: "success",
+		in_delivery: "warning",
 		delivered: "primary",
 	};
 
@@ -106,7 +107,7 @@ function OrderItem({ order }: { order: TOrder }) {
 				<div className="w-full grid sm:grid-cols-2 lg:flex lg:w-64 lg:items-center lg:justify-end gap-4">
 					<Button
 						color="primary"
-						onClick={() => {
+						onPress={() => {
 							navigate({ to: "store.orderPage", params: { id: order.id ?? "" } });
 						}}
 					>

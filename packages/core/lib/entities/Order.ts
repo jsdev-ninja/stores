@@ -25,7 +25,7 @@ export const OrderSchema = z.object({
 		"completed",
 		"refunded",
 	]),
-	paymentStatus: z.enum(["pending", "completed", "failed", "refunded"]),
+	paymentStatus: z.enum(["pending", "completed", "failed", "refunded"]), //todo check if hyp support partial refund
 	cart: z.object({
 		id: z.string(),
 		items: z.array(z.object({ product: ProductSchema, amount: z.number() })),

@@ -67,34 +67,32 @@ function CartItem({
 
 	return (
 		<Product product={product}>
-			<div className="h-20 flex items-center gap-3 justify-start">
-				<div className="w-16 h-16">
-					<Product.Image />
-				</div>
-				<div className="flex flex-col">
+			<div className="flex flex-col shadow py-2 justify-start">
+				<div className="flex my-2">
+					<div className="w-16 h-16">
+						<Product.Image />
+					</div>
 					<div
-						className={classNames("ellipsis", {
+						className={classNames("flex-grow", {
 							"w-24": size === "sm",
 						})}
 					>
-						<Product.Name />
-					</div>
-					<div className="flex gap-1">
-						<Product.Price />
-					</div>
-					<div className="">
-						<Product.Weight />
+						<Product.Name size="sm" />
+						<div className="flex gap-1">
+							<Product.Price />
+							<div className="flex items-center gap-2">
+								<span>X</span>
+								<span>{amount}</span>
+								<span>{totalPrice}</span>
+							</div>
+						</div>
 					</div>
 				</div>
-				{size === "lg" && (
-					<div className="flex items-center gap-2">
-						<span>X</span>
-						<span>{amount}</span>
-						<span>{totalPrice}</span>
+				<div className="flex flex-col">
+					<div className="flex items-center gap-4">
+						<Product.Weight />
+						<Product.CartButton size="sm" />
 					</div>
-				)}
-				<div className="ms-auto flex-shrink-0">
-					<Product.CartButton size="sm" />
 				</div>
 			</div>
 		</Product>

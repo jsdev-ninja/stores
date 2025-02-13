@@ -91,6 +91,7 @@ export const resources = {
 				canceled: "בוטל",
 				completed: "הסתיים בהצלחה",
 				refunded: "הוחזר",
+				in_delivery: "במשלוח",
 			},
 			navLinks: {
 				saved: "שמורים",
@@ -205,6 +206,8 @@ export const resources = {
 				deliveredOrder: "הזמנה הגיע",
 				paidOrder: "הזמנה שולמה",
 				duplicateOrder: "הזמן שוב",
+				setOnDelivery: "יצא למשלוח",
+				chargeOrder: "חייב הזמנה",
 			},
 		},
 

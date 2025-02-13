@@ -80,15 +80,6 @@ export const useAppApi = () => {
 						cartDiscount: calculateCartPrice(cart.items).discount,
 						cartVat: calculateCartPrice(cart.items).vat,
 					},
-					address: {
-						apartmentEnterNumber: "",
-						apartmentNumber: "",
-						city: "",
-						country: "",
-						floor: "",
-						street: "",
-						streetNumber: "",
-					},
 					client: {
 						clientType: "user",
 						companyId: "",
@@ -474,6 +465,10 @@ export const useAppApi = () => {
 					SentryApi.captureException(error);
 					return { user: null, success: false, error };
 				}
+			},
+			async chargeOrder({}: { order: TOrder }) {
+				// get transactionId
+				// create token
 			},
 			orderPaid({ order }: { order: TOrder }) {
 				if (!isValidAdmin) return;

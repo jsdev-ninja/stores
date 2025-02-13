@@ -183,6 +183,8 @@ function subscribeDocV2<T>(data: {
 
 	if (docRef) {
 		return onSnapshot(docRef, (querySnapshot) => {
+			if (!querySnapshot.exists()) return data.callback(null);
+
 			const result = {
 				id: querySnapshot.id,
 				...querySnapshot.data(),

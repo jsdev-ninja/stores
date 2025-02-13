@@ -2,10 +2,10 @@
 	"name": "@jsdev_ninja/scripts",
 	"version": "1.0.0",
 	"main": "dist/index.js",
+	"type": "module",
 	"scripts": {
-		"dev": "npx ts-node",
-		"create-admin": "npx ts-node src/createAdmin.ts",
-		"start": "ts-node src/index.ts"
+		"start": "npx tsx src/index.ts",
+		"create-admin": "npx ts-node src/createAdmin.ts"
 	},
 	"keywords": [],
 	"author": "",
@@ -19,6 +19,7 @@
 		"typescript": "^5.7.3"
 	},
 	"dependencies": {
+		"@inquirer/prompts": "^7.3.1",
 		"@jsdev_ninja/core": "^0.8.33",
 		"axios": "^1.7.9",
 		"convert-csv-to-json": "^2.50.0",

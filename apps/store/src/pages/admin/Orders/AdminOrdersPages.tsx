@@ -65,14 +65,34 @@ function OrderRow({
 		refunded: "danger",
 		completed: "success",
 		delivered: "primary",
+		in_delivery: "secondary",
 	};
 
 	function orderMainAction() {
+		if (order.status === "in_delivery") {
+			return (
+				<>
+					<Button
+						onPress={async () => {
+							const res = await appApi.admin.orderPaid({ order });
+							if (!res?.success) {
+								// todo:
+								return;
+							}
+							updateOrder(order.id, "delivered");
+						}}
+					>
+						{t("ordersPage:actions.deliveredOrder")}
+					</Button>
+				</>
+			);
+		}
 		if (order.status === "delivered") {
 			return (
 				<>
 					<Button
-						onClick={async () => {
+						onPress={async () => {
+							// charge for order
 							const res = await appApi.admin.orderPaid({ order });
 							if (!res?.success) {
 								// todo:
@@ -81,7 +101,7 @@ function OrderRow({
 							updateOrder(order.id, "completed");
 						}}
 					>
-						{t("ordersPage:actions.paidOrder")}
+						{t("ordersPage:actions.chargeOrder")}
 					</Button>
 				</>
 			);
@@ -97,10 +117,10 @@ function OrderRow({
 								// todo:
 								return;
 							}
-							updateOrder(order.id, "delivered");
+							updateOrder(order.id, "in_delivery");
 						}}
 					>
-						{t("ordersPage:actions.deliveredOrder")}
+						{t("ordersPage:actions.setOnDelivery")}
 					</Button>
 					<Button type="button">{t("ordersPage:actions.cancelOrder")}</Button>
 				</>
