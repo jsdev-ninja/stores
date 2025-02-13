@@ -83,7 +83,7 @@ function CheckoutPage() {
 					date: Date.now(), //todo: set on submit event
 				}}
 				onError={(errors) => {
-					console.log("errors", errors);
+					console.warn("errors", errors);
 				}}
 				onSubmit={async () => {
 					console.log("submit");

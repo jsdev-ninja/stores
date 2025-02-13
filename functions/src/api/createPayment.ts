@@ -54,7 +54,11 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		);
 
 		const systemParams = {};
-		const storeParams = {};
+		const storeParams = {
+			MoreData: "True",
+			J5: "True",
+			sendemail: "True",
+		};
 		const clientParams = {};
 		const unknowParams = {};
 
@@ -78,14 +82,11 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			phone: "098610338",
 			cell: "050555555555", //?
 			email: "test@yaad.net",
-			Tash: "2", //?
+			Tash: "1", //?
 			FixTash: "False",
 			ShowEngTashText: "False",
 			Coin: "1", //?
 			Postpone: "False",
-			J5: "False", // False
-			MoreData: "True",
-			sendemail: "True",
 
 			SendHesh: "True",
 			heshDesc: items.join(""),
@@ -94,11 +95,13 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			PageLang: "HEB",
 			tmp: "1",
 			Sign: "True",
+			...storeParams,
 		};
 
 		const queryString = objectToQueryParams(params);
 
 		const url = `https://pay.hyp.co.il/p/?${queryString}`;
+		console.log(queryString);
 
 		const res = await fetch(url);
 		const body = await res.text();
