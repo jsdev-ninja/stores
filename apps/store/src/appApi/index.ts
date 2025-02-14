@@ -468,9 +468,10 @@ export const useAppApi = () => {
 			},
 			async chargeOrder({ order }: { order: TOrder }) {
 				// get transactionId
-				FirebaseApi.api.chargeOrder({
+				await FirebaseApi.api.chargeOrder({
 					orderId: order.id,
 				});
+				return { success: true };
 				// create token
 			},
 			orderPaid({ order }: { order: TOrder }) {
