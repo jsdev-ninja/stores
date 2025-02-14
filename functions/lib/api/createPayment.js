@@ -24,13 +24,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createPayment = void 0;
+const core_1 = require("@jsdev_ninja/core");
 const functions = __importStar(require("firebase-functions/v1"));
 // import admin from "firebase-admin";
-function objectToQueryParams(obj) {
-    return Object.keys(obj)
-        .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
-        .join("&");
-}
 const getProductFinalPrice = (product) => {
     if (!product)
         return 0;
@@ -63,22 +59,38 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
         console.log("create payment data", JSON.stringify(data));
         const { order } = data;
         const items = order.cart.items.map((item) => `[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${getProductFinalPrice(item.product)}]`);
-        const systemParams = {};
-        const storeParams = {
-            MoreData: "True",
+        const res = await core_1.hypPaymentService.createPaymentLink({
+            action: "APISign",
+            What: "SIGN",
+            KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",
+            PassP: "hyp1234",
+            Masof: "0010302921",
+            Sign: "True",
+            Amount: order.cart.cartTotal.toString(),
+            Order: order.id,
             J5: "True",
+            MoreData: "True",
+            phone: "",
+            ClientName: "",
+            ClientLName: "",
+            email: "",
+            UserId: "",
+            cell: "",
+            street: "",
+            zip: "",
+            city: "",
+            Tash: "1",
+            FixTash: "True",
+            Info: "balasi store",
+            UTF8: "True",
+            UTF8out: "True",
             sendemail: "True",
-        };
-        const clientParams = {};
-        const unknowParams = {};
-        const params = Object.assign({ PassP: "hyp1234", KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2", Masof: "0010302921", action: "APISign", What: "SIGN", Order: order.id, Info: "test-api", Amount: order.cart.cartTotal, UTF8: "True", UTF8out: "True", UserId: "203269535", ClientName: "Israel", ClientLName: "Isareli", street: "levanon+3", city: "netanya", zip: "42361", phone: "098610338", cell: "050555555555", email: "test@yaad.net", Tash: "2", FixTash: "False", ShowEngTashText: "False", Coin: "1", Postpone: "False", SendHesh: "True", heshDesc: items.join(""), Pritim: "True", PageLang: "HEB", tmp: "1", Sign: "True" }, storeParams);
-        const queryString = objectToQueryParams(params);
-        const url = `https://pay.hyp.co.il/p/?${queryString}`;
-        console.log(queryString);
-        const res = await fetch(url);
-        const body = await res.text();
+            SendHesh: "True",
+            heshDesc: items.join(""),
+            Pritim: "True",
+        });
         return {
-            paymentLink: `https://pay.hyp.co.il/p/?action=pay&${body}`,
+            paymentLink: res.paymentLink,
         };
     }
     catch (error) {

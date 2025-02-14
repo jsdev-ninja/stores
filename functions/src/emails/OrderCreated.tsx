@@ -1,4 +1,4 @@
-import { Img, Html, Container, Text, Row, Column, Head, Section } from "@react-email/components";
+import { Img, Html, Container, Text, Row, Column, Head } from "@react-email/components";
 import * as React from "react";
 import { TOrder } from "@jsdev_ninja/core";
 
@@ -13,7 +13,7 @@ type Props = {
 function OrderCreated({ order }: Props) {
 	if (!order) return null;
 
-	const { apartmentNumber, city, floor, street, streetNumber } = order.address;
+	const { apartmentNumber, city, floor, street, streetNumber } = order.client.address;
 
 	const fullAdress = `${city}, ${street} ${streetNumber} קומה ${floor}, דירה ${apartmentNumber}`;
 	return (

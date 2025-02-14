@@ -31,7 +31,7 @@ const content = {
 function OrderCreated({ order }) {
     if (!order)
         return null;
-    const { apartmentNumber, city, floor, street, streetNumber } = order.address;
+    const { apartmentNumber, city, floor, street, streetNumber } = order.client.address;
     const fullAdress = `${city}, ${street} ${streetNumber} קומה ${floor}, דירה ${apartmentNumber}`;
     return (React.createElement(components_1.Html, { dir: "rtl", lang: "he", style: { textAlign: "right" } },
         React.createElement(components_1.Head, null,

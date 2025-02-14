@@ -552,10 +552,10 @@
   resolved "https://registry.npmjs.org/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@jsdev_ninja/core@^0.8.41":
-  version "0.8.41"
-  resolved "https://registry.npmjs.org/@jsdev_ninja/core/-/core-0.8.41.tgz"
-  integrity sha512-FQ0mhefJWvWiMuslHOjCjwHV27C38V+0yJSfNiwGj4SnsDUTgS9ngdIYL9Xt0V67Ty9HP6dir1DiCFmgw4+Ibg==
+"@jsdev_ninja/core@^0.8.43":
+  version "0.8.43"
+  resolved "https://registry.npmjs.org/@jsdev_ninja/core/-/core-0.8.43.tgz"
+  integrity sha512-t0cTGPMPqPrk3jRbLeQuLl4xmTKO/YRykp7BZ319bNWd9jNC4rfnBeA/awSwOR1ARgW4pt6XwC5eEnx/VN23Xg==
   dependencies:
     zod "^3.23.8"
 

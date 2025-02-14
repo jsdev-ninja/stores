@@ -3,15 +3,6 @@ import { TOrder } from "@jsdev_ninja/core";
 import OrderCreated from "../emails/OrderCreated";
 
 const testOrder: TOrder = {
-	address: {
-		apartmentEnterNumber: "1",
-		apartmentNumber: "1",
-		city: "רמת גן",
-		country: "ישראל",
-		floor: "1",
-		street: "הראה",
-		streetNumber: "58",
-	},
 	paymentStatus: "completed",
 	cart: {
 		cartDiscount: 100,
@@ -39,6 +30,15 @@ const testOrder: TOrder = {
 	},
 	client: {
 		displayName: "יוסי חיים",
+		address: {
+			apartmentEnterNumber: "1",
+			apartmentNumber: "1",
+			city: "רמת גן",
+			country: "ישראל",
+			floor: "1",
+			street: "הראה",
+			streetNumber: "58",
+		},
 	} as any,
 	companyId: "",
 	date: Date.now(),

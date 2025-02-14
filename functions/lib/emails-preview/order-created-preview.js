@@ -29,15 +29,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const React = __importStar(require("react"));
 const OrderCreated_1 = __importDefault(require("../emails/OrderCreated"));
 const testOrder = {
-    address: {
-        apartmentEnterNumber: "1",
-        apartmentNumber: "1",
-        city: "רמת גן",
-        country: "ישראל",
-        floor: "1",
-        street: "הראה",
-        streetNumber: "58",
-    },
     paymentStatus: "completed",
     cart: {
         cartDiscount: 100,
@@ -65,6 +56,15 @@ const testOrder = {
     },
     client: {
         displayName: "יוסי חיים",
+        address: {
+            apartmentEnterNumber: "1",
+            apartmentNumber: "1",
+            city: "רמת גן",
+            country: "ישראל",
+            floor: "1",
+            street: "הראה",
+            streetNumber: "58",
+        },
     },
     companyId: "",
     date: Date.now(),
