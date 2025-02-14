@@ -468,6 +468,8 @@ export const useAppApi = () => {
 			},
 			async chargeOrder({ order }: { order: TOrder }) {
 				// get transactionId
+				console.log("chargeOrder", order);
+
 				await FirebaseApi.api.chargeOrder({
 					orderId: order.id,
 				});

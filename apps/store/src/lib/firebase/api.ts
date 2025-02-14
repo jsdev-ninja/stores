@@ -36,7 +36,7 @@ async function createPayment({ order }: { order: TOrder }) {
 }
 async function chargeOrder({ orderId }: { orderId: TOrder["id"] }) {
 	try {
-		const func = httpsCallable(functions, "createPayment");
+		const func = httpsCallable(functions, "chargeOrder");
 
 		const response = await func({ orderId });
 		return { success: true, data: response.data };
