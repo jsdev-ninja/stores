@@ -6,38 +6,43 @@ declare const StoreSchema: z.ZodObject<{
     urls: z.ZodArray<z.ZodString, "many">;
     logoUrl: z.ZodString;
     tenantId: z.ZodString;
-    paymentMethods: z.ZodOptional<z.ZodArray<z.ZodObject<{
-        clientType: z.ZodEnum<["user", "company"]>;
-        method: z.ZodEnum<["internal", "external"]>;
+    hypData: z.ZodObject<{
+        masof: z.ZodString;
+        password: z.ZodString;
+        isJ5: z.ZodEnum<["True", "False"]>;
     }, "strip", z.ZodTypeAny, {
-        clientType: "user" | "company";
-        method: "internal" | "external";
+        masof: string;
+        password: string;
+        isJ5: "True" | "False";
     }, {
-        clientType: "user" | "company";
-        method: "internal" | "external";
-    }>, "many">>;
+        masof: string;
+        password: string;
+        isJ5: "True" | "False";
+    }>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     companyId: string;
-    tenantId: string;
     name: string;
+    tenantId: string;
     urls: string[];
     logoUrl: string;
-    paymentMethods?: {
-        clientType: "user" | "company";
-        method: "internal" | "external";
-    }[] | undefined;
+    hypData: {
+        masof: string;
+        password: string;
+        isJ5: "True" | "False";
+    };
 }, {
     id: string;
     companyId: string;
-    tenantId: string;
     name: string;
+    tenantId: string;
     urls: string[];
     logoUrl: string;
-    paymentMethods?: {
-        clientType: "user" | "company";
-        method: "internal" | "external";
-    }[] | undefined;
+    hypData: {
+        masof: string;
+        password: string;
+        isJ5: "True" | "False";
+    };
 }>;
 export declare const StorePrivateSchema: z.ZodObject<{
     storeEmail: z.ZodString;

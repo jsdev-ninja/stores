@@ -7,24 +7,24 @@ export declare const ProductSchema: z.ZodObject<{
     objectID: z.ZodString;
     sku: z.ZodString;
     name: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     description: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     isPublished: z.ZodBoolean;
     vat: z.ZodBoolean;
@@ -87,14 +87,14 @@ export declare const ProductSchema: z.ZodObject<{
     importer: z.ZodString;
     supplier: z.ZodString;
     ingredients: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     created_at: z.ZodNumber;
     updated_at: z.ZodNumber;
@@ -105,7 +105,7 @@ export declare const ProductSchema: z.ZodObject<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -117,7 +117,7 @@ export declare const ProductSchema: z.ZodObject<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -129,7 +129,7 @@ export declare const ProductSchema: z.ZodObject<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -141,7 +141,7 @@ export declare const ProductSchema: z.ZodObject<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -176,11 +176,11 @@ export declare const ProductSchema: z.ZodObject<{
     sku: string;
     name: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     description: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     isPublished: boolean;
     vat: boolean;
@@ -212,7 +212,7 @@ export declare const ProductSchema: z.ZodObject<{
     supplier: string;
     ingredients: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     created_at: number;
     updated_at: number;
@@ -223,7 +223,7 @@ export declare const ProductSchema: z.ZodObject<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -235,7 +235,7 @@ export declare const ProductSchema: z.ZodObject<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -260,11 +260,11 @@ export declare const ProductSchema: z.ZodObject<{
     sku: string;
     name: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     description: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     isPublished: boolean;
     vat: boolean;
@@ -296,7 +296,7 @@ export declare const ProductSchema: z.ZodObject<{
     supplier: string;
     ingredients: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     created_at: number;
     updated_at: number;
@@ -307,7 +307,7 @@ export declare const ProductSchema: z.ZodObject<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -319,7 +319,7 @@ export declare const ProductSchema: z.ZodObject<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -344,24 +344,24 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     objectID: z.ZodString;
     sku: z.ZodString;
     name: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     description: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     isPublished: z.ZodBoolean;
     vat: z.ZodBoolean;
@@ -424,14 +424,14 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     importer: z.ZodString;
     supplier: z.ZodString;
     ingredients: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     created_at: z.ZodNumber;
     updated_at: z.ZodNumber;
@@ -442,7 +442,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -454,7 +454,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -466,7 +466,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -478,7 +478,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -514,11 +514,11 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     sku: string;
     name: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     description: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     isPublished: boolean;
     vat: boolean;
@@ -546,7 +546,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     supplier: string;
     ingredients: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     created_at: number;
     updated_at: number;
@@ -557,7 +557,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -569,7 +569,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -587,11 +587,11 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     sku: string;
     name: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     description: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     isPublished: boolean;
     vat: boolean;
@@ -619,7 +619,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
     supplier: string;
     ingredients: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     created_at: number;
     updated_at: number;
@@ -630,7 +630,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -642,7 +642,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<Omit
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -661,24 +661,24 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     objectID: z.ZodString;
     sku: z.ZodString;
     name: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     description: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     isPublished: z.ZodBoolean;
     vat: z.ZodBoolean;
@@ -741,14 +741,14 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     importer: z.ZodString;
     supplier: z.ZodString;
     ingredients: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     created_at: z.ZodNumber;
     updated_at: z.ZodNumber;
@@ -759,7 +759,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -771,7 +771,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -783,7 +783,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -795,7 +795,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -832,11 +832,11 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     sku: string;
     name: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     description: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     isPublished: boolean;
     vat: boolean;
@@ -868,7 +868,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     supplier: string;
     ingredients: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     created_at: number;
     updated_at: number;
@@ -879,7 +879,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -891,7 +891,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
@@ -917,11 +917,11 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     sku: string;
     name: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     description: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     isPublished: boolean;
     vat: boolean;
@@ -953,7 +953,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     supplier: string;
     ingredients: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     created_at: number;
     updated_at: number;
@@ -964,7 +964,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         tag: string;
         locales: {
             value: string;
-            lang: string;
+            lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
@@ -976,7 +976,7 @@ export declare const EditProductSchema: z.ZodObject<z.objectUtil.extendShape<{
             tag: string;
             locales: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;

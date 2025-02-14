@@ -1,4 +1,4 @@
-import { TOrder, TProduct } from "@jsdev_ninja/core";
+import { TOrder, TProduct, hypPaymentService } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 // import admin from "firebase-admin";
 function objectToQueryParams(obj: any) {
@@ -53,60 +53,39 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 				}~${getProductFinalPrice(item.product)}]`
 		);
 
-		const systemParams = {};
-		const storeParams = {
-			MoreData: "True",
-			J5: "True",
-			sendemail: "True",
-		};
-		const clientParams = {};
-		const unknowParams = {};
-
-		const params = {
-			PassP: "hyp1234",
-			KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",
-			Masof: "0010302921",
+		const res = await hypPaymentService.createPaymentLink({
 			action: "APISign",
 			What: "SIGN",
-			Order: order.id, //?
-			Info: "test-api", //?
-			Amount: order.cart.cartTotal,
+			KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",
+			PassP: "hyp1234",
+			Masof: "0010302921",
+			Sign: "True",
+			Amount: order.cart.cartTotal.toString(),
+			Order: order.id,
+			J5: "True",
+			MoreData: "True",
+			phone: "",
+			ClientName: "",
+			ClientLName: "",
+			email: "",
+			UserId: "",
+			cell: "",
+			street: "",
+			zip: "",
+			city: "",
+			Tash: "1",
+			FixTash: "True",
+			Info: "balasi store",
 			UTF8: "True",
 			UTF8out: "True",
-			UserId: "203269535",
-			ClientName: "Israel",
-			ClientLName: "Isareli",
-			street: "levanon+3",
-			city: "netanya",
-			zip: "42361",
-			phone: "098610338",
-			cell: "050555555555", //?
-			email: "test@yaad.net",
-			Tash: "1", //?
-			FixTash: "False",
-			ShowEngTashText: "False",
-			Coin: "1", //?
-			Postpone: "False",
-
+			sendemail: "True",
 			SendHesh: "True",
 			heshDesc: items.join(""),
 			Pritim: "True",
+		});
 
-			PageLang: "HEB",
-			tmp: "1",
-			Sign: "True",
-			...storeParams,
-		};
-
-		const queryString = objectToQueryParams(params);
-
-		const url = `https://pay.hyp.co.il/p/?${queryString}`;
-		console.log(queryString);
-
-		const res = await fetch(url);
-		const body = await res.text();
 		return {
-			paymentLink: `https://pay.hyp.co.il/p/?action=pay&${body}`,
+			paymentLink: res.paymentLink,
 		};
 	} catch (error: any) {
 		console.error(error.message);

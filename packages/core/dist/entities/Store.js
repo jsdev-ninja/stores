@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { hypBooleanSchema } from "./Atoms";
 const StoreSchema = z.object({
     id: z.string(),
     companyId: z.string(),
@@ -6,12 +7,11 @@ const StoreSchema = z.object({
     urls: z.array(z.string()),
     logoUrl: z.string(),
     tenantId: z.string(), // firebase auth tenantId
-    paymentMethods: z
-        .array(z.object({
-        clientType: z.enum(["user", "company"]),
-        method: z.enum(["internal", "external"]),
-    }))
-        .optional(),
+    hypData: z.object({
+        masof: z.string().min(1),
+        password: z.string().min(1),
+        isJ5: hypBooleanSchema,
+    }),
 });
 // private sub collection
 export const StorePrivateSchema = z.object({

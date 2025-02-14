@@ -15,24 +15,24 @@ export declare const CartSchema: z.ZodObject<{
             objectID: z.ZodString;
             sku: z.ZodString;
             name: z.ZodArray<z.ZodObject<{
-                lang: z.ZodString;
+                lang: z.ZodEnum<["he"]>;
                 value: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 value: string;
-                lang: string;
+                lang: "he";
             }, {
                 value: string;
-                lang: string;
+                lang: "he";
             }>, "many">;
             description: z.ZodArray<z.ZodObject<{
-                lang: z.ZodString;
+                lang: z.ZodEnum<["he"]>;
                 value: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 value: string;
-                lang: string;
+                lang: "he";
             }, {
                 value: string;
-                lang: string;
+                lang: "he";
             }>, "many">;
             isPublished: z.ZodBoolean;
             vat: z.ZodBoolean;
@@ -95,14 +95,14 @@ export declare const CartSchema: z.ZodObject<{
             importer: z.ZodString;
             supplier: z.ZodString;
             ingredients: z.ZodArray<z.ZodObject<{
-                lang: z.ZodString;
+                lang: z.ZodEnum<["he"]>;
                 value: z.ZodString;
             }, "strip", z.ZodTypeAny, {
                 value: string;
-                lang: string;
+                lang: "he";
             }, {
                 value: string;
-                lang: string;
+                lang: "he";
             }>, "many">;
             created_at: z.ZodNumber;
             updated_at: z.ZodNumber;
@@ -113,7 +113,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -125,7 +125,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -137,7 +137,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -149,7 +149,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -184,11 +184,11 @@ export declare const CartSchema: z.ZodObject<{
             sku: string;
             name: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             description: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             isPublished: boolean;
             vat: boolean;
@@ -220,7 +220,7 @@ export declare const CartSchema: z.ZodObject<{
             supplier: string;
             ingredients: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             created_at: number;
             updated_at: number;
@@ -231,7 +231,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -243,7 +243,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -268,11 +268,11 @@ export declare const CartSchema: z.ZodObject<{
             sku: string;
             name: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             description: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             isPublished: boolean;
             vat: boolean;
@@ -304,7 +304,7 @@ export declare const CartSchema: z.ZodObject<{
             supplier: string;
             ingredients: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             created_at: number;
             updated_at: number;
@@ -315,7 +315,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -327,7 +327,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -355,11 +355,11 @@ export declare const CartSchema: z.ZodObject<{
             sku: string;
             name: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             description: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             isPublished: boolean;
             vat: boolean;
@@ -391,7 +391,7 @@ export declare const CartSchema: z.ZodObject<{
             supplier: string;
             ingredients: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             created_at: number;
             updated_at: number;
@@ -402,7 +402,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -414,7 +414,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -442,11 +442,11 @@ export declare const CartSchema: z.ZodObject<{
             sku: string;
             name: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             description: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             isPublished: boolean;
             vat: boolean;
@@ -478,7 +478,7 @@ export declare const CartSchema: z.ZodObject<{
             supplier: string;
             ingredients: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             created_at: number;
             updated_at: number;
@@ -489,7 +489,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -501,7 +501,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -522,7 +522,7 @@ export declare const CartSchema: z.ZodObject<{
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     type: "Cart";
-    status: "completed" | "active" | "draft";
+    status: "active" | "draft" | "completed";
     id: string;
     companyId: string;
     storeId: string;
@@ -537,11 +537,11 @@ export declare const CartSchema: z.ZodObject<{
             sku: string;
             name: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             description: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             isPublished: boolean;
             vat: boolean;
@@ -573,7 +573,7 @@ export declare const CartSchema: z.ZodObject<{
             supplier: string;
             ingredients: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             created_at: number;
             updated_at: number;
@@ -584,7 +584,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -596,7 +596,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;
@@ -617,7 +617,7 @@ export declare const CartSchema: z.ZodObject<{
     }[];
 }, {
     type: "Cart";
-    status: "completed" | "active" | "draft";
+    status: "active" | "draft" | "completed";
     id: string;
     companyId: string;
     storeId: string;
@@ -632,11 +632,11 @@ export declare const CartSchema: z.ZodObject<{
             sku: string;
             name: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             description: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             isPublished: boolean;
             vat: boolean;
@@ -668,7 +668,7 @@ export declare const CartSchema: z.ZodObject<{
             supplier: string;
             ingredients: {
                 value: string;
-                lang: string;
+                lang: "he";
             }[];
             created_at: number;
             updated_at: number;
@@ -679,7 +679,7 @@ export declare const CartSchema: z.ZodObject<{
                 tag: string;
                 locales: {
                     value: string;
-                    lang: string;
+                    lang: "he";
                 }[];
                 depth: number;
                 parentId?: string | null | undefined;
@@ -691,7 +691,7 @@ export declare const CartSchema: z.ZodObject<{
                     tag: string;
                     locales: {
                         value: string;
-                        lang: string;
+                        lang: "he";
                     }[];
                     depth: number;
                     parentId?: string | null | undefined;

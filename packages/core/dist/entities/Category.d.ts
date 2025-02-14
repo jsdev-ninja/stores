@@ -6,14 +6,14 @@ export declare const BaseCategorySchema: z.ZodObject<{
     parentId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     tag: z.ZodString;
     locales: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     depth: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
@@ -23,7 +23,7 @@ export declare const BaseCategorySchema: z.ZodObject<{
     tag: string;
     locales: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     depth: number;
     parentId?: string | null | undefined;
@@ -34,7 +34,7 @@ export declare const BaseCategorySchema: z.ZodObject<{
     tag: string;
     locales: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     depth: number;
     parentId?: string | null | undefined;
@@ -53,14 +53,14 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     parentId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     tag: z.ZodString;
     locales: z.ZodArray<z.ZodObject<{
-        lang: z.ZodString;
+        lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        lang: string;
+        lang: "he";
     }, {
         value: string;
-        lang: string;
+        lang: "he";
     }>, "many">;
     depth: z.ZodNumber;
 }, {
@@ -75,7 +75,7 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     tag: string;
     locales: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     depth: number;
     children: Category[];
@@ -89,7 +89,7 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     tag: string;
     locales: {
         value: string;
-        lang: string;
+        lang: "he";
     }[];
     depth: number;
     children: Category[];

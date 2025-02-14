@@ -61,7 +61,7 @@ export const HypPaymentLinkRequestSchema = PayProtocolGeneralSchema.extend({
 
 	// EzCount Invoice parameters - Pay Protocol
 	SendHesh: hypBooleanSchema.optional(), // send invoice in email
-	heshDesc: hypBooleanSchema.optional(), // [0~Item 1~1~8][0~Item 2~2~1]
+	heshDesc: textSchema, // [0~Item 1~1~8][0~Item 2~2~1]
 	Pritim: hypBooleanSchema.optional(), // The invoice description contains items
 
 	// client data
