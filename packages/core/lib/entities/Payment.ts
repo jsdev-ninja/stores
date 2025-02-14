@@ -33,6 +33,7 @@ export const HypSoftTransactionRequestSchema = PayProtocolGeneralSchema.extend({
 	Tyear: textSchema, // YYYY
 	AuthNum: textSchema, //  confirmation number
 	cvv: z.string().optional(), // only if required
+	UserId: textSchema,
 	// CC2
 	// Coin
 });

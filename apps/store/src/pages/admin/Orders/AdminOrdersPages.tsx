@@ -98,7 +98,7 @@ function OrderRow({
 								// todo:
 								return;
 							}
-							updateOrder(order.id, "completed");
+							// updateOrder(order.id, "completed");
 						}}
 					>
 						{t("ordersPage:actions.chargeOrder")}

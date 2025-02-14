@@ -56,6 +56,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     Tyear: z.ZodString;
     AuthNum: z.ZodString;
     cvv: z.ZodOptional<z.ZodString>;
+    UserId: z.ZodString;
 }>, "strip", z.ZodTypeAny, {
     Masof: string;
     PassP: string;
@@ -69,6 +70,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     Tmonth: string;
     Tyear: string;
     AuthNum: string;
+    UserId: string;
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
@@ -88,6 +90,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     Tmonth: string;
     Tyear: string;
     AuthNum: string;
+    UserId: string;
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
@@ -194,10 +197,10 @@ export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendS
     J5?: "True" | "False" | undefined;
     Tmonth?: string | undefined;
     Tyear?: string | undefined;
+    UserId?: string | undefined;
     Bank?: string | undefined;
     TransType?: string | undefined;
     Payments?: string | undefined;
-    UserId?: string | undefined;
     Brand?: string | undefined;
     Issuer?: string | undefined;
     L4digit?: string | undefined;
@@ -231,10 +234,10 @@ export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendS
     J5?: "True" | "False" | undefined;
     Tmonth?: string | undefined;
     Tyear?: string | undefined;
+    UserId?: string | undefined;
     Bank?: string | undefined;
     TransType?: string | undefined;
     Payments?: string | undefined;
-    UserId?: string | undefined;
     Brand?: string | undefined;
     Issuer?: string | undefined;
     L4digit?: string | undefined;
@@ -293,8 +296,8 @@ export declare const HypPaymentLinkRequestSchema: z.ZodObject<z.objectUtil.exten
     UTF8out: "True" | "False";
     action: "APISign";
     Info: string;
-    Sign: "True" | "False";
     UserId: string;
+    Sign: "True" | "False";
     What: "SIGN";
     heshDesc: string;
     ClientName: string;
@@ -322,8 +325,8 @@ export declare const HypPaymentLinkRequestSchema: z.ZodObject<z.objectUtil.exten
     UTF8out: "True" | "False";
     action: "APISign";
     Info: string;
-    Sign: "True" | "False";
     UserId: string;
+    Sign: "True" | "False";
     What: "SIGN";
     heshDesc: string;
     ClientName: string;

@@ -3170,8 +3170,9 @@ const xn = i.object({
   // YYYY
   AuthNum: x,
   //  confirmation number
-  cvv: i.string().optional()
+  cvv: i.string().optional(),
   // only if required
+  UserId: x
   // CC2
   // Coin
 }), wn = i.object({
