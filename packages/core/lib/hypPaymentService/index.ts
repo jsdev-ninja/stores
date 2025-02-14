@@ -40,7 +40,6 @@ type chargeJ5TransactionParams = {
 	actualAmount: number;
 	orderId: string;
 	creditCardConfirmNumber: string;
-	hypPayToken: string;
 };
 
 // parse hyp text response
