@@ -2,7 +2,7 @@ import { z } from "zod";
 export declare const PayProtocolGeneralSchema: z.ZodObject<{
     Masof: z.ZodString;
     PassP: z.ZodString;
-    KEY: z.ZodString;
+    KEY: z.ZodOptional<z.ZodString>;
     Amount: z.ZodString;
     Order: z.ZodOptional<z.ZodString>;
     Tash: z.ZodString;
@@ -14,24 +14,24 @@ export declare const PayProtocolGeneralSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     Masof: string;
     PassP: string;
-    KEY: string;
     Amount: string;
     Tash: string;
     UTF8: "True" | "False";
     UTF8out: "True" | "False";
     Order?: string | undefined;
+    KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
 }, {
     Masof: string;
     PassP: string;
-    KEY: string;
     Amount: string;
     Tash: string;
     UTF8: "True" | "False";
     UTF8out: "True" | "False";
     Order?: string | undefined;
+    KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
@@ -39,7 +39,7 @@ export declare const PayProtocolGeneralSchema: z.ZodObject<{
 export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.extendShape<{
     Masof: z.ZodString;
     PassP: z.ZodString;
-    KEY: z.ZodString;
+    KEY: z.ZodOptional<z.ZodString>;
     Amount: z.ZodString;
     Order: z.ZodOptional<z.ZodString>;
     Tash: z.ZodString;
@@ -59,7 +59,6 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
 }>, "strip", z.ZodTypeAny, {
     Masof: string;
     PassP: string;
-    KEY: string;
     Amount: string;
     Tash: string;
     UTF8: "True" | "False";
@@ -71,6 +70,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     Tyear: string;
     AuthNum: string;
     Order?: string | undefined;
+    KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
@@ -78,7 +78,6 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
 }, {
     Masof: string;
     PassP: string;
-    KEY: string;
     Amount: string;
     Tash: string;
     UTF8: "True" | "False";
@@ -90,6 +89,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     Tyear: string;
     AuthNum: string;
     Order?: string | undefined;
+    KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
@@ -115,6 +115,7 @@ export declare const HypTokenRequestSchema: z.ZodObject<{
     allowFalse: "True";
     TransId: string;
 }>;
+export type THypTokenRequest = z.infer<typeof HypTokenRequestSchema>;
 export declare const HypTokenResponseSchema: z.ZodObject<{
     Id: z.ZodString;
     Token: z.ZodString;
@@ -131,10 +132,11 @@ export declare const HypTokenResponseSchema: z.ZodObject<{
     Tokef: string;
     CCode: string;
 }>;
+export type THypTokenResponse = z.infer<typeof HypTokenResponseSchema>;
 export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendShape<{
     Masof: z.ZodString;
     PassP: z.ZodString;
-    KEY: z.ZodString;
+    KEY: z.ZodOptional<z.ZodString>;
     Amount: z.ZodString;
     Order: z.ZodOptional<z.ZodString>;
     Tash: z.ZodString;
@@ -172,7 +174,6 @@ export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendS
 }>, "strip", z.ZodTypeAny, {
     Masof: string;
     PassP: string;
-    KEY: string;
     Amount: string;
     Tash: string;
     UTF8: "True" | "False";
@@ -187,6 +188,7 @@ export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendS
     city?: string | undefined;
     street?: string | undefined;
     Order?: string | undefined;
+    KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
@@ -209,7 +211,6 @@ export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendS
 }, {
     Masof: string;
     PassP: string;
-    KEY: string;
     Amount: string;
     Tash: string;
     UTF8: "True" | "False";
@@ -224,6 +225,7 @@ export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendS
     city?: string | undefined;
     street?: string | undefined;
     Order?: string | undefined;
+    KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
@@ -247,7 +249,7 @@ export declare const PayProtocolResponseSchema: z.ZodObject<z.objectUtil.extendS
 export declare const HypPaymentLinkRequestSchema: z.ZodObject<z.objectUtil.extendShape<{
     Masof: z.ZodString;
     PassP: z.ZodString;
-    KEY: z.ZodString;
+    KEY: z.ZodOptional<z.ZodString>;
     Amount: z.ZodString;
     Order: z.ZodOptional<z.ZodString>;
     Tash: z.ZodString;

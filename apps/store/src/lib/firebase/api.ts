@@ -34,6 +34,20 @@ async function createPayment({ order }: { order: TOrder }) {
 		return { success: false, data: null };
 	}
 }
+async function chargeOrder({ orderId }: { order: TOrder["id"] }) {
+	try {
+		const func = httpsCallable(functions, "createPayment");
+
+		const response = await func({ orderId });
+		return { success: true, data: response.data };
+	} catch (error: any) {
+		const code = error.code;
+		const message = error.message;
+		const details = error.details;
+		console.log(code, message, details);
+		return { success: false, data: null };
+	}
+}
 
 async function createCompanyClient(company: TCompany) {
 	try {
@@ -50,4 +64,4 @@ async function createCompanyClient(company: TCompany) {
 	}
 }
 
-export const api = { init, createCompanyClient, createPayment };
+export const api = { init, createCompanyClient, createPayment, chargeOrder };

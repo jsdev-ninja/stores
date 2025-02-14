@@ -1,4 +1,4 @@
-import { hypPaymentService, TOrder, TProduct } from "@jsdev_ninja/core";
+import { hypPaymentService, TOrder, TPayProtocolResponse } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import admin from "firebase-admin";
 
@@ -11,9 +11,9 @@ export const chargeOrder = functions.https.onCall(
 			console.log("context.auth?.token", context.auth?.token);
 			console.log("orderId", orderId);
 
-			const store = {} as any;
+			// const store = {} as any;
 
-			const userId = context.auth?.uid;
+			// const userId = context.auth?.uid;
 			// check if user admin
 			// check if user store id === order store id
 
@@ -31,17 +31,23 @@ export const chargeOrder = functions.https.onCall(
 				// todo return err
 			}
 
-			const payment = paymentDoc.data() as any;
+			const payment = paymentDoc.data() as { payment: TPayProtocolResponse };
 
-			const transactionId = payment.payment?.id;
+			const transactionId = payment.payment?.Id;
 
 			if (!transactionId) {
 				// todo
 			}
-			hypPaymentService.chargeJ5Transaction({
-				action: "APISign",
+			await hypPaymentService.chargeJ5Transaction({
+				actualAmount: order.cart.cartTotal,
+				originalAmount: order.cart.cartTotal,
+				creditCardConfirmNumber: payment.payment.ACode,
+				masof: "0010302921",
+				masofPassword: "hyp1234",
+				orderId: order.id,
+				transactionId: payment.payment.Id,
 			});
-			console.log("token", token);
+			console.log("chargeJ5Transaction success");
 			return { success: true };
 		} catch (error: any) {
 			console.error(error.message);

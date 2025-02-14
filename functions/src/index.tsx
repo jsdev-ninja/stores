@@ -17,6 +17,7 @@ export { appInit } from "./api/init";
 export { getMixpanelData } from "./api/mixpanel-ts";
 export { createCompanyClient } from "./api/createCompany";
 export { createPayment } from "./api/createPayment";
+export { chargeOrder } from "./api/chargeOrder";
 
 export const onOrderUpdate = functions.firestore
 	.document("/orders/{orderId}")
