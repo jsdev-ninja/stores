@@ -1,6 +1,7 @@
 import { useAppApi } from "src/appApi";
 import { Form } from "src/components/Form";
-import { TCategory } from "src/domains/Category";
+import { TCategory } from "@jsdev_ninja/core";
+
 import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
 import { z } from "zod";

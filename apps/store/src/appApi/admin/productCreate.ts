@@ -1,4 +1,4 @@
-import { TCategory } from "src/domains/Category";
+import { TCategory } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
 import { SentryApi } from "src/lib/sentry";
 import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";

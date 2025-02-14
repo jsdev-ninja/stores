@@ -6,7 +6,8 @@ import { useAppApi } from "src/appApi";
 import { Flex } from "src/components/Flex";
 import { Form } from "src/components/Form";
 // import { NewProductSchema, TNewProduct } from "src/domains";
-import { TCategory } from "src/domains/Category";
+import { TCategory } from "@jsdev_ninja/core";
+
 import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
 
@@ -65,8 +66,7 @@ function PriceSection() {
 
 export function AddProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
-	console.log('categories',categories);
-	
+	console.log("categories", categories);
 
 	const store = useStore();
 

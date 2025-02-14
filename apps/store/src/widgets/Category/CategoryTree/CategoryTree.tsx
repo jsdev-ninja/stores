@@ -22,8 +22,8 @@ import { CSS } from "@dnd-kit/utilities";
 
 import type { MutableRefObject } from "react";
 import { TreeItem } from "./Item/Item";
-import { TCategory } from "src/domains/Category";
 import { buildTree, flattenTree, removeChildrenOf } from "./utils";
+import { TCategory } from "@jsdev_ninja/core";
 
 export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
 

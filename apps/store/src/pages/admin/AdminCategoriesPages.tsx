@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "src/components/button";
-import { CategorySlice, TCategory } from "src/domains/Category";
+import { CategorySlice } from "src/domains/Category";
+import { TCategory } from "@jsdev_ninja/core";
 import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
 import { CategoryTree } from "src/widgets/Category/CategoryTree/CategoryTree";

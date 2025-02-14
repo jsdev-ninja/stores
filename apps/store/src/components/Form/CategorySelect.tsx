@@ -7,7 +7,7 @@ import { useController, useFormContext } from "react-hook-form";
 import { NestedKeys } from "src/shared/types";
 
 import { Select as BaseSelect } from "../Select/Select";
-import { TCategory } from "src/domains/Category";
+import { TCategory } from "@jsdev_ninja/core";
 import { flattenTree } from "src/widgets/Category/CategoryTree/utils";
 
 export const CategorySelect = <T,>({

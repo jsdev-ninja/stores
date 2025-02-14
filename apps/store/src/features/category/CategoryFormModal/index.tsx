@@ -2,7 +2,7 @@ import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
 import { Modal } from "src/components/Modal/Modal";
-import { CategorySchema, TCategory } from "src/domains/Category";
+import { TCategory, CategorySchema } from "@jsdev_ninja/core";
 import { useAppSelector } from "src/infra";
 import { modalApi } from "src/infra/modals";
 import { flatten } from "src/utils";

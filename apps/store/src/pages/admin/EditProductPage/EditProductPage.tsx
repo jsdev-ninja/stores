@@ -1,10 +1,16 @@
-import { EditProductSchema, ProductSchema, TEditProduct, TProduct } from "@jsdev_ninja/core";
+import {
+	EditProductSchema,
+	ProductSchema,
+	TCategory,
+	TEditProduct,
+	TProduct,
+} from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Flex } from "src/components/Flex";
 import { Form } from "src/components/Form";
-import { CategoryService, TCategory, TFlattenCategory } from "src/domains/Category";
+import { CategoryService, TFlattenCategory } from "src/domains/Category";
 import { useStore } from "src/domains/Store";
 import { ProductService } from "src/domains/product/productService";
 import { FirebaseApi } from "src/lib/firebase";

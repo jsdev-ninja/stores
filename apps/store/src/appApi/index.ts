@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { TCategory } from "src/domains/Category";
+import { TCategory } from "@jsdev_ninja/core";
 import { TCompany, useCompany } from "src/domains/Company";
 import { OrderApi, TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";

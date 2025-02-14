@@ -1,6 +1,6 @@
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { TCategory } from "src/domains/Category";
+import { TCategory } from "@jsdev_ninja/core";
 
 export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
 

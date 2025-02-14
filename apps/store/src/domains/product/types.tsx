@@ -1,6 +1,6 @@
 import { LocaleSchema } from "src/shared/types";
 import { z } from "zod";
-import { CategorySchema } from "../Category";
+import { CategorySchema } from "@jsdev_ninja/core";
 import { positiveNumber } from "src/types";
 
 const text = z.string();
