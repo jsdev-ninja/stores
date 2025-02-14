@@ -1,4 +1,8 @@
-import { TPaymentLinkRequest } from "../entities/Payment";
+import {
+	THypSoftTransactionRequest,
+	THypTokenRequest,
+	TPaymentLinkRequest,
+} from "../entities/Payment";
 
 const baseUrl = "https://pay.hyp.co.il/p/";
 
@@ -9,7 +13,7 @@ function objectToQueryParams<T extends { [key: string]: any }>(obj: T) {
 }
 
 export const hypPaymentService = {
-	async chargeJ5Transaction(params: TPaymentLinkRequest) {
+	async chargeJ5Transaction(params: THypSoftTransactionRequest & THypTokenRequest) {
 		try {
 			const tokenParams = objectToQueryParams({});
 

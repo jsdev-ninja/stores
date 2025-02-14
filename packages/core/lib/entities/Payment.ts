@@ -47,12 +47,15 @@ export const HypTokenRequestSchema = z.object({
 	TransId: numericTextSchema,
 	//todo api key is not required???
 });
+export type THypTokenRequest = z.infer<typeof HypTokenRequestSchema>;
+
 export const HypTokenResponseSchema = z.object({
 	Id: numericTextSchema,
 	Token: numericTextSchema,
 	Tokef: numericTextSchema, // credit card validity date in the format YYMM
 	CCode: numericTextSchema, //0 code is valid
 });
+export type THypTokenResponse = z.infer<typeof HypTokenResponseSchema>;
 
 export const PayProtocolResponseSchema = PayProtocolGeneralSchema.extend({
 	Id: textSchema, // transaction Id in Hypay
