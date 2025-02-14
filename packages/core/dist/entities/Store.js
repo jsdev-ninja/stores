@@ -11,6 +11,7 @@ const StoreSchema = z.object({
         masof: z.string().min(1),
         password: z.string().min(1),
         isJ5: hypBooleanSchema,
+        KEY: z.string().min(1), // api key
     }),
 });
 // private sub collection

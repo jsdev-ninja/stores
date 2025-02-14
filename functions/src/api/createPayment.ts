@@ -1,11 +1,6 @@
 import { TOrder, TProduct, hypPaymentService } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 // import admin from "firebase-admin";
-function objectToQueryParams(obj: any) {
-	return Object.keys(obj)
-		.map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
-		.join("&");
-}
 
 const getProductFinalPrice = (product: TProduct) => {
 	if (!product) return 0;

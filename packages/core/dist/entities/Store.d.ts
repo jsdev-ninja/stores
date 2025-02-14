@@ -10,11 +10,14 @@ declare const StoreSchema: z.ZodObject<{
         masof: z.ZodString;
         password: z.ZodString;
         isJ5: z.ZodEnum<["True", "False"]>;
+        KEY: z.ZodString;
     }, "strip", z.ZodTypeAny, {
+        KEY: string;
         masof: string;
         password: string;
         isJ5: "True" | "False";
     }, {
+        KEY: string;
         masof: string;
         password: string;
         isJ5: "True" | "False";
@@ -27,6 +30,7 @@ declare const StoreSchema: z.ZodObject<{
     urls: string[];
     logoUrl: string;
     hypData: {
+        KEY: string;
         masof: string;
         password: string;
         isJ5: "True" | "False";
@@ -39,6 +43,7 @@ declare const StoreSchema: z.ZodObject<{
     urls: string[];
     logoUrl: string;
     hypData: {
+        KEY: string;
         masof: string;
         password: string;
         isJ5: "True" | "False";
