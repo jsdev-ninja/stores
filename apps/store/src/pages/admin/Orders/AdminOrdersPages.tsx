@@ -93,7 +93,7 @@ function OrderRow({
 					<Button
 						onPress={async () => {
 							// charge for order
-							const res = await appApi.admin.orderPaid({ order });
+							const res = await appApi.admin.chargeOrder({ order });
 							if (!res?.success) {
 								// todo:
 								return;
