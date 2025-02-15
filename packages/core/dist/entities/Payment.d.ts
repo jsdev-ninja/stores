@@ -60,6 +60,8 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     "inputObj.originalUid": z.ZodString;
     "inputObj.originalAmount": z.ZodString;
     "inputObj.authorizationCodeManpik": z.ZodLiteral<"7">;
+    ClientName: z.ZodString;
+    ClientLName: z.ZodString;
 }>, "strip", z.ZodTypeAny, {
     Masof: string;
     PassP: string;
@@ -77,6 +79,8 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     "inputObj.originalUid": string;
     "inputObj.originalAmount": string;
     "inputObj.authorizationCodeManpik": "7";
+    ClientName: string;
+    ClientLName: string;
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
@@ -100,6 +104,8 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     "inputObj.originalUid": string;
     "inputObj.originalAmount": string;
     "inputObj.authorizationCodeManpik": "7";
+    ClientName: string;
+    ClientLName: string;
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
@@ -306,10 +312,10 @@ export declare const HypPaymentLinkRequestSchema: z.ZodObject<z.objectUtil.exten
     action: "APISign";
     Info: string;
     UserId: string;
+    ClientName: string;
     Sign: "True" | "False";
     What: "SIGN";
     heshDesc: string;
-    ClientName: string;
     city?: string | undefined;
     street?: string | undefined;
     email?: string | undefined;
@@ -317,12 +323,12 @@ export declare const HypPaymentLinkRequestSchema: z.ZodObject<z.objectUtil.exten
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
+    ClientLName?: string | undefined;
     zip?: string | undefined;
     cell?: string | undefined;
     sendemail?: "True" | "False" | undefined;
     SendHesh?: "True" | "False" | undefined;
     Pritim?: "True" | "False" | undefined;
-    ClientLName?: string | undefined;
     phone?: string | undefined;
 }, {
     Masof: string;
@@ -335,10 +341,10 @@ export declare const HypPaymentLinkRequestSchema: z.ZodObject<z.objectUtil.exten
     action: "APISign";
     Info: string;
     UserId: string;
+    ClientName: string;
     Sign: "True" | "False";
     What: "SIGN";
     heshDesc: string;
-    ClientName: string;
     city?: string | undefined;
     street?: string | undefined;
     email?: string | undefined;
@@ -346,12 +352,12 @@ export declare const HypPaymentLinkRequestSchema: z.ZodObject<z.objectUtil.exten
     FixTash?: "True" | "False" | undefined;
     MoreData?: "True" | "False" | undefined;
     J5?: "True" | "False" | undefined;
+    ClientLName?: string | undefined;
     zip?: string | undefined;
     cell?: string | undefined;
     sendemail?: "True" | "False" | undefined;
     SendHesh?: "True" | "False" | undefined;
     Pritim?: "True" | "False" | undefined;
-    ClientLName?: string | undefined;
     phone?: string | undefined;
 }>;
 export type TPaymentLinkRequest = z.infer<typeof HypPaymentLinkRequestSchema>;

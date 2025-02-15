@@ -38,6 +38,8 @@ export const chargeOrder = functions.https.onCall(
 			if (!transactionId) {
 				// todo
 			}
+
+			const [clientName, clientLastName] = (payment.payment.Fild1 ?? "").split(" ");
 			await hypPaymentService.chargeJ5Transaction({
 				actualAmount: order.cart.cartTotal,
 				originalAmount: order.cart.cartTotal,
@@ -47,6 +49,8 @@ export const chargeOrder = functions.https.onCall(
 				orderId: order.id,
 				transactionId: payment.payment.Id,
 				transactionUID: payment.payment.UID ?? "",
+				clientName,
+				clientLastName,
 			});
 			console.log("chargeJ5Transaction success");
 			return { success: true };

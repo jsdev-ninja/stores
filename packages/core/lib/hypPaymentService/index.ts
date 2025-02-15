@@ -41,6 +41,8 @@ type chargeJ5TransactionParams = {
 	orderId: string;
 	creditCardConfirmNumber: string;
 	transactionUID: string;
+	clientName: string;
+	clientLastName: string;
 };
 
 // parse hyp text response
@@ -92,6 +94,8 @@ export const hypPaymentService = {
 				Order: params.orderId,
 				CC: tokenData.Token,
 				UserId: "203269535",
+				ClientName: params.clientName,
+				ClientLName: params.clientLastName,
 			});
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
 			const transactionData = await transactionCommit.text();

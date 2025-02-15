@@ -29,6 +29,8 @@ export const HypSoftTransactionRequestSchema = PayProtocolGeneralSchema.extend({
     "inputObj.originalUid": textSchema,
     "inputObj.originalAmount": textSchema,
     "inputObj.authorizationCodeManpik": z.literal("7"),
+    ClientName: textSchema,
+    ClientLName: textSchema,
     // CC2
     // Coin
 });
