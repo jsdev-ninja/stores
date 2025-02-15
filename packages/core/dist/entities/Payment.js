@@ -31,6 +31,7 @@ export const HypSoftTransactionRequestSchema = PayProtocolGeneralSchema.extend({
     "inputObj.authorizationCodeManpik": z.literal("7"),
     ClientName: textSchema,
     ClientLName: textSchema,
+    Token: z.literal("True"),
     // CC2
     // Coin
 });

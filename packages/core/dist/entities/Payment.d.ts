@@ -62,6 +62,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     "inputObj.authorizationCodeManpik": z.ZodLiteral<"7">;
     ClientName: z.ZodString;
     ClientLName: z.ZodString;
+    Token: z.ZodLiteral<"True">;
 }>, "strip", z.ZodTypeAny, {
     Masof: string;
     PassP: string;
@@ -81,6 +82,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     "inputObj.authorizationCodeManpik": "7";
     ClientName: string;
     ClientLName: string;
+    Token: "True";
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
@@ -106,6 +108,7 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     "inputObj.authorizationCodeManpik": "7";
     ClientName: string;
     ClientLName: string;
+    Token: "True";
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
@@ -140,13 +143,13 @@ export declare const HypTokenResponseSchema: z.ZodObject<{
     Tokef: z.ZodString;
     CCode: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    Id: string;
     Token: string;
+    Id: string;
     Tokef: string;
     CCode: string;
 }, {
-    Id: string;
     Token: string;
+    Id: string;
     Tokef: string;
     CCode: string;
 }>;

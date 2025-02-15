@@ -98,6 +98,8 @@ export const hypPaymentService = {
 				UserId: "203269535",
 				ClientName: params.clientName,
 				ClientLName: params.clientLastName,
+				Token: "True",
+				FixTash: "True",
 			});
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
 			const transactionData = await transactionCommit.text();

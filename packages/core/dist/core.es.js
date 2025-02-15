@@ -3177,7 +3177,8 @@ const xn = i.object({
   "inputObj.originalAmount": x,
   "inputObj.authorizationCodeManpik": i.literal("7"),
   ClientName: x,
-  ClientLName: x
+  ClientLName: x,
+  Token: i.literal("True")
   // CC2
   // Coin
 }), wn = i.object({
@@ -3352,7 +3353,9 @@ const Nn = {
         CC: s.Token,
         UserId: "203269535",
         ClientName: n.clientName,
-        ClientLName: n.clientLastName
+        ClientLName: n.clientLastName,
+        Token: "True",
+        FixTash: "True"
       }), u = await (await fetch(`${pe}?${d}`)).text();
       return console.log("Amount", n.actualAmount.toString()), console.log("token", s.Token), console.log("AuthNum", n.creditCardConfirmNumber), console.log("originalUid", n.transactionUID), console.log("transactionData", u), { success: !0 };
     } catch (e) {
