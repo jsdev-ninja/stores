@@ -19,7 +19,7 @@
 	"main": "lib/index.js",
 	"dependencies": {
 		"@getbrevo/brevo": "^1.0.1",
-		"@jsdev_ninja/core": "^0.8.49",
+		"@jsdev_ninja/core": "^0.8.50",
 		"@react-email/components": "0.0.25",
 		"algoliasearch": "^4.23.3",
 		"axios": "^1.7.5",

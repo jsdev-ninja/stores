@@ -64,7 +64,7 @@ jobs:
               echo "VITE_STORE_VERSION=$VITE_STORE_VERSION" > .env
               echo "The package version is $VITE_STORE_VERSION"
               echo -e "\033[1;34mINSTALL"
-              yarn --ignore-engines
+              yarn install --frozen-lockfile --ignore-engines
               echo -e "\033[1;34mBUILD"
               yarn build
 
