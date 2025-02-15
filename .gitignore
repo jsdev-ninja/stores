@@ -27,7 +27,6 @@ dist-ssr
 *.sln
 *.sw?
 
-packages/core/dist
 
 # Sentry Config File
 .env.sentry-build-plugin
