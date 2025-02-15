@@ -9,3 +9,7 @@ add new website
 
 3. add tenant
    https://console.cloud.google.com/customer-identity/tenants?authuser=1&hl=en&project=jsdev-stores-prod
+
+# calculate store revenue
+
+all orders with status payment status COMPLETED

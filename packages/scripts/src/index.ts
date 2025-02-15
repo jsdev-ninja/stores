@@ -1,8 +1,6 @@
 import { input, select } from "@inquirer/prompts";
 import { admin } from "./admin";
 
-const auth = admin.auth();
-
 const stores = {
 	tester: {
 		company: "tester",

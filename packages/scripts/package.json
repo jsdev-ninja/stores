@@ -20,7 +20,7 @@
 	},
 	"dependencies": {
 		"@inquirer/prompts": "^7.3.1",
-		"@jsdev_ninja/core": "^0.8.33",
+		"@jsdev_ninja/core": "^0.8.50",
 		"axios": "^1.7.9",
 		"convert-csv-to-json": "^2.50.0",
 		"firebase-admin": "^13.0.1",

@@ -3143,10 +3143,14 @@ const xr = i.object({
   cart: i.object({
     id: i.string(),
     items: i.array(i.object({ product: Se, amount: i.number() })),
-    cartTotal: i.number(),
     cartDiscount: i.number(),
+    cartTotal: i.number(),
     cartVat: i.number()
   }),
+  originalAmount: i.number().positive().optional(),
+  // what client pay
+  actualAmount: i.number().positive().optional(),
+  // what store charge
   date: i.number(),
   deliveryDate: i.number().optional(),
   client: or

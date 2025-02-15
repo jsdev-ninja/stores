@@ -29,10 +29,12 @@ export const OrderSchema = z.object({
 	cart: z.object({
 		id: z.string(),
 		items: z.array(z.object({ product: ProductSchema, amount: z.number() })),
-		cartTotal: z.number(),
 		cartDiscount: z.number(),
+		cartTotal: z.number(),
 		cartVat: z.number(),
 	}),
+	originalAmount: z.number().positive().optional(), // what client pay
+	actualAmount: z.number().positive().optional(), // what store charge
 	date: z.number(),
 	deliveryDate: z.number().optional(),
 	client: ProfileSchema,

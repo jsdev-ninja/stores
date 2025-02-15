@@ -523,8 +523,8 @@ export declare const OrderSchema: z.ZodObject<{
             };
             amount: number;
         }>, "many">;
-        cartTotal: z.ZodNumber;
         cartDiscount: z.ZodNumber;
+        cartTotal: z.ZodNumber;
         cartVat: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         id: string;
@@ -616,8 +616,8 @@ export declare const OrderSchema: z.ZodObject<{
             };
             amount: number;
         }[];
-        cartTotal: number;
         cartDiscount: number;
+        cartTotal: number;
         cartVat: number;
     }, {
         id: string;
@@ -709,10 +709,12 @@ export declare const OrderSchema: z.ZodObject<{
             };
             amount: number;
         }[];
-        cartTotal: number;
         cartDiscount: number;
+        cartTotal: number;
         cartVat: number;
     }>;
+    originalAmount: z.ZodOptional<z.ZodNumber>;
+    actualAmount: z.ZodOptional<z.ZodNumber>;
     date: z.ZodNumber;
     deliveryDate: z.ZodOptional<z.ZodNumber>;
     client: z.ZodObject<{
@@ -912,8 +914,8 @@ export declare const OrderSchema: z.ZodObject<{
             };
             amount: number;
         }[];
-        cartTotal: number;
         cartDiscount: number;
+        cartTotal: number;
         cartVat: number;
     };
     client: {
@@ -942,6 +944,8 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: number;
         lastActivityDate: number;
     };
+    originalAmount?: number | undefined;
+    actualAmount?: number | undefined;
     deliveryDate?: number | undefined;
 }, {
     type: "Order";
@@ -1042,8 +1046,8 @@ export declare const OrderSchema: z.ZodObject<{
             };
             amount: number;
         }[];
-        cartTotal: number;
         cartDiscount: number;
+        cartTotal: number;
         cartVat: number;
     };
     client: {
@@ -1072,6 +1076,8 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: number;
         lastActivityDate: number;
     };
+    originalAmount?: number | undefined;
+    actualAmount?: number | undefined;
     deliveryDate?: number | undefined;
 }>;
 export type TOrder = z.infer<typeof OrderSchema>;
