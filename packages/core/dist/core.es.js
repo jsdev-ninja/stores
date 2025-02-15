@@ -34,14 +34,14 @@ var b;
   }
   n.joinValues = r, n.jsonStringifyReplacer = (s, a) => typeof a == "bigint" ? a.toString() : a;
 })(b || (b = {}));
-var Ne;
+var Ae;
 (function(n) {
   n.mergeShapes = (e, t) => ({
     ...e,
     ...t
     // second overwrites first
   });
-})(Ne || (Ne = {}));
+})(Ae || (Ae = {}));
 const h = b.arrayToEnum([
   "string",
   "nan",
@@ -307,7 +307,7 @@ class w {
 }
 const g = Object.freeze({
   status: "aborted"
-}), q = (n) => ({ status: "dirty", value: n }), T = (n) => ({ status: "valid", value: n }), Ae = (n) => n.status === "aborted", je = (n) => n.status === "dirty", F = (n) => n.status === "valid", te = (n) => typeof Promise < "u" && n instanceof Promise;
+}), q = (n) => ({ status: "dirty", value: n }), T = (n) => ({ status: "valid", value: n }), Ne = (n) => n.status === "aborted", je = (n) => n.status === "dirty", F = (n) => n.status === "valid", te = (n) => typeof Promise < "u" && n instanceof Promise;
 function _e(n, e, t, r) {
   if (typeof e == "function" ? n !== e || !0 : !e.has(n)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
   return e.get(n);
@@ -321,7 +321,7 @@ var m;
   n.errToObj = (e) => typeof e == "string" ? { message: e } : e || {}, n.toString = (e) => typeof e == "string" ? e : e == null ? void 0 : e.message;
 })(m || (m = {}));
 var K, X;
-class O {
+class E {
   constructor(e, t, r, s) {
     this._cachedPath = [], this.parent = e, this.data = t, this._path = r, this._key = s;
   }
@@ -486,7 +486,7 @@ class v {
     return this._refinement((r, s) => e(r) ? !0 : (s.addIssue(typeof t == "function" ? t(r, s) : t), !1));
   }
   _refinement(e) {
-    return new A({
+    return new N({
       schema: this,
       typeName: p.ZodEffects,
       effect: { type: "refinement", refinement: e }
@@ -503,7 +503,7 @@ class v {
     };
   }
   optional() {
-    return E.create(this, this._def);
+    return O.create(this, this._def);
   }
   nullable() {
     return z.create(this, this._def);
@@ -512,7 +512,7 @@ class v {
     return this.nullable().optional();
   }
   array() {
-    return N.create(this);
+    return A.create(this);
   }
   promise() {
     return Q.create(this, this._def);
@@ -524,7 +524,7 @@ class v {
     return ie.create(this, e, this._def);
   }
   transform(e) {
-    return new A({
+    return new N({
       ..._(this._def),
       schema: this,
       typeName: p.ZodEffects,
@@ -541,7 +541,7 @@ class v {
     });
   }
   brand() {
-    return new Oe({
+    return new Ee({
       typeName: p.ZodBranded,
       type: this,
       ..._(this._def)
@@ -1508,7 +1508,7 @@ be.create = (n) => new be({
   typeName: p.ZodVoid,
   ..._(n)
 });
-class N extends v {
+class A extends v {
   _parse(e) {
     const { ctx: t, status: r } = this._processInputParams(e), s = this._def;
     if (t.parsedType !== h.array)
@@ -1544,27 +1544,27 @@ class N extends v {
       exact: !1,
       message: s.maxLength.message
     }), r.dirty()), t.common.async)
-      return Promise.all([...t.data].map((o, d) => s.type._parseAsync(new O(t, o, t.path, d)))).then((o) => w.mergeArray(r, o));
-    const a = [...t.data].map((o, d) => s.type._parseSync(new O(t, o, t.path, d)));
+      return Promise.all([...t.data].map((o, d) => s.type._parseAsync(new E(t, o, t.path, d)))).then((o) => w.mergeArray(r, o));
+    const a = [...t.data].map((o, d) => s.type._parseSync(new E(t, o, t.path, d)));
     return w.mergeArray(r, a);
   }
   get element() {
     return this._def.type;
   }
   min(e, t) {
-    return new N({
+    return new A({
       ...this._def,
       minLength: { value: e, message: m.toString(t) }
     });
   }
   max(e, t) {
-    return new N({
+    return new A({
       ...this._def,
       maxLength: { value: e, message: m.toString(t) }
     });
   }
   length(e, t) {
-    return new N({
+    return new A({
       ...this._def,
       exactLength: { value: e, message: m.toString(t) }
     });
@@ -1573,7 +1573,7 @@ class N extends v {
     return this.min(1, e);
   }
 }
-N.create = (n, e) => new N({
+A.create = (n, e) => new A({
   type: n,
   minLength: null,
   maxLength: null,
@@ -1586,16 +1586,16 @@ function Y(n) {
     const e = {};
     for (const t in n.shape) {
       const r = n.shape[t];
-      e[t] = E.create(Y(r));
+      e[t] = O.create(Y(r));
     }
     return new k({
       ...n._def,
       shape: () => e
     });
-  } else return n instanceof N ? new N({
+  } else return n instanceof A ? new A({
     ...n._def,
     type: Y(n.element)
-  }) : n instanceof E ? E.create(Y(n.unwrap())) : n instanceof z ? z.create(Y(n.unwrap())) : n instanceof R ? R.create(n.items.map((e) => Y(e))) : n;
+  }) : n instanceof O ? O.create(Y(n.unwrap())) : n instanceof z ? z.create(Y(n.unwrap())) : n instanceof R ? R.create(n.items.map((e) => Y(e))) : n;
 }
 class k extends v {
   constructor() {
@@ -1625,7 +1625,7 @@ class k extends v {
       const y = a[l], I = s.data[l];
       f.push({
         key: { status: "valid", value: l },
-        value: y._parse(new O(s, I, s.path, l)),
+        value: y._parse(new E(s, I, s.path, l)),
         alwaysSet: l in s.data
       });
     }
@@ -1650,7 +1650,7 @@ class k extends v {
         f.push({
           key: { status: "valid", value: y },
           value: l._parse(
-            new O(s, I, s.path, y)
+            new E(s, I, s.path, y)
             //, ctx.child(key), value, getParsedType(value)
           ),
           alwaysSet: y in s.data
@@ -1850,7 +1850,7 @@ class k extends v {
         t[r] = this.shape[r];
       else {
         let a = this.shape[r];
-        for (; a instanceof E; )
+        for (; a instanceof O; )
           a = a._def.innerType;
         t[r] = a;
       }
@@ -1957,7 +1957,7 @@ ae.create = (n, e) => new ae({
   typeName: p.ZodUnion,
   ..._(e)
 });
-const P = (n) => n instanceof de ? P(n.schema) : n instanceof A ? P(n.innerType()) : n instanceof ce ? [n.value] : n instanceof L ? n.options : n instanceof ue ? b.objectValues(n.enum) : n instanceof le ? P(n._def.innerType) : n instanceof re ? [void 0] : n instanceof se ? [null] : n instanceof E ? [void 0, ...P(n.unwrap())] : n instanceof z ? [null, ...P(n.unwrap())] : n instanceof Oe || n instanceof he ? P(n.unwrap()) : n instanceof fe ? P(n._def.innerType) : [];
+const P = (n) => n instanceof de ? P(n.schema) : n instanceof N ? P(n.innerType()) : n instanceof ce ? [n.value] : n instanceof L ? n.options : n instanceof ue ? b.objectValues(n.enum) : n instanceof le ? P(n._def.innerType) : n instanceof re ? [void 0] : n instanceof se ? [null] : n instanceof O ? [void 0, ...P(n.unwrap())] : n instanceof z ? [null, ...P(n.unwrap())] : n instanceof Ee || n instanceof he ? P(n.unwrap()) : n instanceof fe ? P(n._def.innerType) : [];
 class we extends v {
   _parse(e) {
     const { ctx: t } = this._processInputParams(e);
@@ -2020,14 +2020,14 @@ class we extends v {
     });
   }
 }
-function Ee(n, e) {
+function Oe(n, e) {
   const t = $(n), r = $(e);
   if (n === e)
     return { valid: !0, data: n };
   if (t === h.object && r === h.object) {
     const s = b.objectKeys(e), a = b.objectKeys(n).filter((d) => s.indexOf(d) !== -1), o = { ...n, ...e };
     for (const d of a) {
-      const f = Ee(n[d], e[d]);
+      const f = Oe(n[d], e[d]);
       if (!f.valid)
         return { valid: !1 };
       o[d] = f.data;
@@ -2038,7 +2038,7 @@ function Ee(n, e) {
       return { valid: !1 };
     const s = [];
     for (let a = 0; a < n.length; a++) {
-      const o = n[a], d = e[a], f = Ee(o, d);
+      const o = n[a], d = e[a], f = Oe(o, d);
       if (!f.valid)
         return { valid: !1 };
       s.push(f.data);
@@ -2049,9 +2049,9 @@ function Ee(n, e) {
 class ie extends v {
   _parse(e) {
     const { status: t, ctx: r } = this._processInputParams(e), s = (a, o) => {
-      if (Ae(a) || Ae(o))
+      if (Ne(a) || Ne(o))
         return g;
-      const d = Ee(a.value, o.value);
+      const d = Oe(a.value, o.value);
       return d.valid ? ((je(a) || je(o)) && t.dirty(), { status: t.value, value: d.data }) : (u(r, {
         code: c.invalid_intersection_types
       }), g);
@@ -2110,7 +2110,7 @@ class R extends v {
     }), t.dirty());
     const a = [...r.data].map((o, d) => {
       const f = this._def.items[d] || this._def.rest;
-      return f ? f._parse(new O(r, o, r.path, d)) : null;
+      return f ? f._parse(new E(r, o, r.path, d)) : null;
     }).filter((o) => !!o);
     return r.common.async ? Promise.all(a).then((o) => w.mergeArray(t, o)) : w.mergeArray(t, a);
   }
@@ -2152,8 +2152,8 @@ class oe extends v {
     const s = [], a = this._def.keyType, o = this._def.valueType;
     for (const d in r.data)
       s.push({
-        key: a._parse(new O(r, d, r.path, d)),
-        value: o._parse(new O(r, r.data[d], r.path, d)),
+        key: a._parse(new E(r, d, r.path, d)),
+        value: o._parse(new E(r, r.data[d], r.path, d)),
         alwaysSet: d in r.data
       });
     return r.common.async ? w.mergeObjectAsync(t, s) : w.mergeObjectSync(t, s);
@@ -2191,8 +2191,8 @@ class xe extends v {
         received: r.parsedType
       }), g;
     const s = this._def.keyType, a = this._def.valueType, o = [...r.data.entries()].map(([d, f], l) => ({
-      key: s._parse(new O(r, d, r.path, [l, "key"])),
-      value: a._parse(new O(r, f, r.path, [l, "value"]))
+      key: s._parse(new E(r, d, r.path, [l, "key"])),
+      value: a._parse(new E(r, f, r.path, [l, "value"]))
     }));
     if (r.common.async) {
       const d = /* @__PURE__ */ new Map();
@@ -2258,7 +2258,7 @@ class W extends v {
       }
       return { status: t.value, value: l };
     }
-    const d = [...r.data.values()].map((f, l) => a._parse(new O(r, f, r.path, l)));
+    const d = [...r.data.values()].map((f, l) => a._parse(new E(r, f, r.path, l)));
     return r.common.async ? Promise.all(d).then((f) => o(f)) : o(d);
   }
   min(e, t) {
@@ -2547,7 +2547,7 @@ Q.create = (n, e) => new Q({
   typeName: p.ZodPromise,
   ..._(e)
 });
-class A extends v {
+class N extends v {
   innerType() {
     return this._def.schema;
   }
@@ -2624,19 +2624,19 @@ class A extends v {
     b.assertNever(s);
   }
 }
-A.create = (n, e, t) => new A({
+N.create = (n, e, t) => new N({
   schema: n,
   typeName: p.ZodEffects,
   effect: e,
   ..._(t)
 });
-A.createWithPreprocess = (n, e, t) => new A({
+N.createWithPreprocess = (n, e, t) => new N({
   schema: e,
   effect: { type: "preprocess", transform: n },
   typeName: p.ZodEffects,
   ..._(t)
 });
-class E extends v {
+class O extends v {
   _parse(e) {
     return this._getType(e) === h.undefined ? T(void 0) : this._def.innerType._parse(e);
   }
@@ -2644,7 +2644,7 @@ class E extends v {
     return this._def.innerType;
   }
 }
-E.create = (n, e) => new E({
+O.create = (n, e) => new O({
   innerType: n,
   typeName: p.ZodOptional,
   ..._(e)
@@ -2743,7 +2743,7 @@ ke.create = (n) => new ke({
   ..._(n)
 });
 const xt = Symbol("zod_brand");
-class Oe extends v {
+class Ee extends v {
   _parse(e) {
     const { ctx: t } = this._processInputParams(e), r = t.data;
     return this._def.type._parse({
@@ -2828,7 +2828,7 @@ var p;
 })(p || (p = {}));
 const wt = (n, e = {
   message: `Input not instance of ${n.name}`
-}) => We((t) => t instanceof n, e), Ye = Z.create, qe = D.create, Tt = ke.create, St = V.create, He = ne.create, Ct = B.create, It = ve.create, Zt = re.create, Nt = se.create, At = G.create, jt = U.create, Et = M.create, Ot = be.create, Rt = N.create, Pt = k.create, $t = k.strictCreate, Mt = ae.create, Dt = we.create, Vt = ie.create, Lt = R.create, zt = oe.create, Ut = xe.create, Ft = W.create, Bt = H.create, Wt = de.create, Yt = ce.create, qt = L.create, Ht = ue.create, Jt = Q.create, De = A.create, Gt = E.create, Qt = z.create, Kt = A.createWithPreprocess, Xt = me.create, en = () => Ye().optional(), tn = () => qe().optional(), nn = () => He().optional(), rn = {
+}) => We((t) => t instanceof n, e), Ye = Z.create, qe = D.create, Tt = ke.create, St = V.create, He = ne.create, Ct = B.create, It = ve.create, Zt = re.create, At = se.create, Nt = G.create, jt = U.create, Ot = M.create, Et = be.create, Rt = A.create, Pt = k.create, $t = k.strictCreate, Mt = ae.create, Dt = we.create, Vt = ie.create, Lt = R.create, zt = oe.create, Ut = xe.create, Ft = W.create, Bt = H.create, Wt = de.create, Yt = ce.create, qt = L.create, Ht = ue.create, Jt = Q.create, De = N.create, Gt = O.create, Qt = z.create, Kt = N.createWithPreprocess, Xt = me.create, en = () => Ye().optional(), tn = () => qe().optional(), nn = () => He().optional(), rn = {
   string: (n) => Z.create({ ...n, coerce: !0 }),
   number: (n) => D.create({ ...n, coerce: !0 }),
   boolean: (n) => ne.create({
@@ -2850,7 +2850,7 @@ var i = /* @__PURE__ */ Object.freeze({
   INVALID: g,
   DIRTY: q,
   OK: T,
-  isAborted: Ae,
+  isAborted: Ne,
   isDirty: je,
   isValid: F,
   isAsync: te,
@@ -2858,7 +2858,7 @@ var i = /* @__PURE__ */ Object.freeze({
     return b;
   },
   get objectUtil() {
-    return Ne;
+    return Ae;
   },
   ZodParsedType: h,
   getParsedType: $,
@@ -2876,7 +2876,7 @@ var i = /* @__PURE__ */ Object.freeze({
   ZodUnknown: U,
   ZodNever: M,
   ZodVoid: be,
-  ZodArray: N,
+  ZodArray: A,
   ZodObject: k,
   ZodUnion: ae,
   ZodDiscriminatedUnion: we,
@@ -2891,15 +2891,15 @@ var i = /* @__PURE__ */ Object.freeze({
   ZodEnum: L,
   ZodNativeEnum: ue,
   ZodPromise: Q,
-  ZodEffects: A,
-  ZodTransformer: A,
-  ZodOptional: E,
+  ZodEffects: N,
+  ZodTransformer: N,
+  ZodOptional: O,
   ZodNullable: z,
   ZodDefault: le,
   ZodCatch: fe,
   ZodNaN: ke,
   BRAND: xt,
-  ZodBranded: Oe,
+  ZodBranded: Ee,
   ZodPipeline: me,
   ZodReadonly: he,
   custom: We,
@@ -2910,7 +2910,7 @@ var i = /* @__PURE__ */ Object.freeze({
     return p;
   },
   coerce: rn,
-  any: At,
+  any: Nt,
   array: Rt,
   bigint: St,
   boolean: He,
@@ -2926,8 +2926,8 @@ var i = /* @__PURE__ */ Object.freeze({
   map: Ut,
   nan: Tt,
   nativeEnum: Ht,
-  never: Et,
-  null: Nt,
+  never: Ot,
+  null: At,
   nullable: Qt,
   number: qe,
   object: Pt,
@@ -2948,7 +2948,7 @@ var i = /* @__PURE__ */ Object.freeze({
   undefined: Zt,
   union: Mt,
   unknown: jt,
-  void: Ot,
+  void: Et,
   NEVER: sn,
   ZodIssueCode: c,
   quotelessJson: Qe,
@@ -3172,7 +3172,10 @@ const xn = i.object({
   //  confirmation number
   cvv: i.string().optional(),
   // only if required
-  UserId: x
+  UserId: x,
+  "inputObj.originalUid": x,
+  "inputObj.originalAmount": x,
+  "inputObj.authorizationCodeManpik": i.literal("7")
   // CC2
   // Coin
 }), wn = i.object({
@@ -3316,7 +3319,7 @@ function un(n) {
     return r && s && (e[r] = decodeURIComponent(s)), e;
   }, {});
 }
-const Nn = {
+const An = {
   async chargeJ5Transaction(n) {
     try {
       const e = Ze({
@@ -3330,6 +3333,9 @@ const Nn = {
         MoreData: "True",
         UTF8: "True",
         UTF8out: "True",
+        "inputObj.originalUid": n.transactionUID,
+        "inputObj.originalAmount": n.actualAmount.toString(),
+        "inputObj.authorizationCodeManpik": "7",
         Amount: n.actualAmount.toString(),
         AuthNum: n.creditCardConfirmNumber,
         Info: "soft Info",
@@ -3339,9 +3345,10 @@ const Nn = {
         Tmonth: a.month,
         Tyear: a.year,
         Order: n.orderId,
-        CC: s.Token
+        CC: s.Token,
+        UserId: "203269535"
       }), f = await (await fetch(`${pe}?${o}`)).text();
-      return console.log("transactionData", f), { success: !0 };
+      return console.log("Amount", n.actualAmount.toString()), console.log("token", s.Token), console.log("AuthNum", n.creditCardConfirmNumber), console.log("originalUid", n.transactionUID), console.log("transactionData", f), { success: !0 };
     } catch (e) {
       return console.log(e), { success: !1, errMessage: e.message };
     }
@@ -3382,7 +3389,7 @@ export {
   mn as TFlattenCategorySchema,
   bn as createEmptyProfile,
   S as hypBooleanSchema,
-  Nn as hypPaymentService,
+  An as hypPaymentService,
   ln as notEmptyTextSchema,
   fn as numericTextSchema
 };

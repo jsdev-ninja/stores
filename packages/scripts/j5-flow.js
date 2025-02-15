@@ -70,9 +70,6 @@ async function main() {
 
 	const paymentLink = await createPaymentLink();
 
-	const token = await createToken();
-	console.log("token", token);
-
 	// STEP 2 - client payment (5326105300985614)
 
 	// STEP 3 - collect data from payment
@@ -81,13 +78,13 @@ async function main() {
 
 	// STET 5 - create token
 
-	async function createToken() {
+	async function createToken(id) {
 		try {
 			const params = {
 				...masofData,
 				action: "getToken",
 				allowTrueFalse: "True",
-				TransId: "261027850", // id from paymnet result (step 3)
+				TransId: id, // id from paymnet result (step 3)
 			};
 
 			const queryString = new URLSearchParams(params).toString();
@@ -112,29 +109,33 @@ async function main() {
 		}
 	}
 
+	const token = await createToken(261881835);
+	console.log("token", token);
+	softTransaction("6392578052413445614", "0490496");
+
 	// STep 6 soft transaction
 
 	// Id=261027850&CCode=0&Token=3688405320412205614&Tokef=2512&Fild1=&Fild2=&Fild3=
 }
 
-softTransaction();
+main();
 
-async function softTransaction() {
+async function softTransaction(token, authnum) {
 	try {
 		const params = {
 			PassP: "hyp1234",
 			Masof: "0010302921",
 			action: "soft",
-			"inputObj.originalUid": "25021216040808822865758",
-			"inputObj.originalAmount": "900",
+			"inputObj.originalUid": "25021509070808822863110",
+			"inputObj.originalAmount": "1000",
 			"inputObj.authorizationCodeManpik": "7",
-			AuthNum: "0012345",
-			Amount: '100',
-			CC: "3688405320412205614",
+			AuthNum: authnum,
+			Amount: 9,
+			CC: token,
 			Tmonth: 12,
 			Tyear: 25,
 			Coin: 1,
-			Info: "test-api9",
+			Info: "test-api14",
 			Order: "12345678910",
 			Tash: 1,
 			UserId: 203269535,
@@ -149,9 +150,9 @@ async function softTransaction() {
 			J5: "False",
 			MoreData: "True",
 			Postpone: false,
-			Pritim: "True",
-			SendHesh: "True",
-			heshDesc: "[0~Item 1~1~8][0~Item 2~2~1]",
+			// Pritim: "True",
+			// SendHesh: "True",
+			// heshDesc: "[0~Item 1~1~8][0~Item 2~2~1]",
 			sendemail: "True",
 			UTF8: "True",
 			UTF8out: "True",
@@ -170,15 +171,12 @@ async function softTransaction() {
 
 		const response = await fetch(apiUrl, {
 			method: "GET",
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded",
-			},
 		});
 
 		if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
 		const data = await response.text(); // Assuming response is text, change to `.json()` if needed
-		console.log(data);
+		console.log("\n", data);
 		return data;
 	} catch (error) {
 		console.error("Error:", error.message);

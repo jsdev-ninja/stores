@@ -40,6 +40,7 @@ type chargeJ5TransactionParams = {
 	actualAmount: number;
 	orderId: string;
 	creditCardConfirmNumber: string;
+	transactionUID: string;
 };
 
 // parse hyp text response
@@ -77,6 +78,9 @@ export const hypPaymentService = {
 				MoreData: "True",
 				UTF8: "True",
 				UTF8out: "True",
+				"inputObj.originalUid": params.transactionUID,
+				"inputObj.originalAmount": params.actualAmount.toString(),
+				"inputObj.authorizationCodeManpik": "7",
 				Amount: params.actualAmount.toString(),
 				AuthNum: params.creditCardConfirmNumber,
 				Info: "soft Info",
@@ -91,6 +95,11 @@ export const hypPaymentService = {
 			});
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
 			const transactionData = await transactionCommit.text();
+			console.log("Amount", params.actualAmount.toString());
+			console.log("token", tokenData.Token);
+			console.log("AuthNum", params.creditCardConfirmNumber);
+			console.log("originalUid", params.transactionUID);
+
 			console.log("transactionData", transactionData);
 
 			return { success: true };

@@ -57,6 +57,9 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     AuthNum: z.ZodString;
     cvv: z.ZodOptional<z.ZodString>;
     UserId: z.ZodString;
+    "inputObj.originalUid": z.ZodString;
+    "inputObj.originalAmount": z.ZodString;
+    "inputObj.authorizationCodeManpik": z.ZodLiteral<"7">;
 }>, "strip", z.ZodTypeAny, {
     Masof: string;
     PassP: string;
@@ -71,6 +74,9 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     Tyear: string;
     AuthNum: string;
     UserId: string;
+    "inputObj.originalUid": string;
+    "inputObj.originalAmount": string;
+    "inputObj.authorizationCodeManpik": "7";
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;
@@ -91,6 +97,9 @@ export declare const HypSoftTransactionRequestSchema: z.ZodObject<z.objectUtil.e
     Tyear: string;
     AuthNum: string;
     UserId: string;
+    "inputObj.originalUid": string;
+    "inputObj.originalAmount": string;
+    "inputObj.authorizationCodeManpik": "7";
     Order?: string | undefined;
     KEY?: string | undefined;
     FixTash?: "True" | "False" | undefined;

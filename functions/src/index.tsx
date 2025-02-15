@@ -5,7 +5,7 @@ import algoliasearch from "algoliasearch";
 import { emailService } from "./services/email";
 import { render } from "@react-email/render";
 import OrderCreated from "./emails/OrderCreated";
-import { TOrder, TProfile, createEmptyProfile } from "@jsdev_ninja/core";
+import { TOrder } from "@jsdev_ninja/core";
 
 const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 

@@ -46,6 +46,7 @@ export const chargeOrder = functions.https.onCall(
 				masofPassword: "hyp1234",
 				orderId: order.id,
 				transactionId: payment.payment.Id,
+				transactionUID: payment.payment.UID ?? "",
 			});
 			console.log("chargeJ5Transaction success");
 			return { success: true };

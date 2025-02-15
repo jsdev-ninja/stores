@@ -6,7 +6,11 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
-		"apps/*"
+		"apps/*",
+		"!functions"
+	],
+	"nohoist": [
+		"functions/**"
 	],
 	"scripts": {
 		"dev": "yarn workspace store run dev",
