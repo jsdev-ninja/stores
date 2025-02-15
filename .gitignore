@@ -12,8 +12,6 @@ functions/lib
 
 node_modules
 _secrets
-dist
-dist-ssr
 *.local
 
 # Editor directories and files
