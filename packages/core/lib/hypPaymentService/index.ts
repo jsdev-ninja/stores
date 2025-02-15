@@ -75,13 +75,15 @@ export const hypPaymentService = {
 
 			// todo Tmonth=mm&Tyear=yyyy
 
+			let originalAmount = Number(params.originalAmount) * 100;
+
 			const transParams = objectToQueryParams<THypSoftTransactionRequest>({
 				action: "soft",
 				MoreData: "True",
 				UTF8: "True",
 				UTF8out: "True",
 				"inputObj.originalUid": params.transactionUID,
-				"inputObj.originalAmount": params.actualAmount.toString(),
+				"inputObj.originalAmount": originalAmount.toString(),
 				"inputObj.authorizationCodeManpik": "7",
 				Amount: params.actualAmount.toString(),
 				AuthNum: params.creditCardConfirmNumber,

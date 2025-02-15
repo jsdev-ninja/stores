@@ -87,7 +87,7 @@ function OrderRow({
 				</>
 			);
 		}
-		if (order.status === "delivered") {
+		// if (order.status === "delivered") {
 			return (
 				<>
 					<Button
@@ -105,7 +105,7 @@ function OrderRow({
 					</Button>
 				</>
 			);
-		}
+		// }
 		if (order.status === "processing") {
 			return (
 				<>
