@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
-
 import { navigate } from "src/navigation";
 import { Cart } from "src/widgets/Cart/Cart";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
@@ -69,7 +68,7 @@ export function CatalogPage() {
 					<div className="p-4 flex-shrink-0 mt-auto border-t">
 						<Button
 							fullWidth
-							onClick={() =>
+							onPress={() =>
 								navigate({
 									to: "store.cart",
 								})

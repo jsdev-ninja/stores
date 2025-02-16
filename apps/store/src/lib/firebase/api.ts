@@ -20,6 +20,26 @@ async function init() {
 	}
 }
 
+type Payload = {
+	message: string;
+	[key: string]: any; // Allows any additional properties
+};
+
+async function uiLogs(payload: Payload) {
+	try {
+		const func = httpsCallable(functions, "uiLogs");
+
+		const response = await func(payload);
+		return { success: true, data: response.data };
+	} catch (error: any) {
+		const code = error.code;
+		const message = error.message;
+		const details = error.details;
+		console.error(code, message, details);
+		return { success: false, data: null };
+	}
+}
+
 async function createPayment({ order }: { order: TOrder }) {
 	try {
 		const func = httpsCallable(functions, "createPayment");
@@ -64,4 +84,4 @@ async function createCompanyClient(company: TCompany) {
 	}
 }
 
-export const api = { init, createCompanyClient, createPayment, chargeOrder };
+export const api = { init, createCompanyClient, createPayment, chargeOrder, uiLogs };

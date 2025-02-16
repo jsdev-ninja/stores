@@ -26,7 +26,7 @@ export function ProductCartButton(props: Props) {
 			<Button
 				color="primary"
 				fullWidth
-				onClick={() => appApi.user.addItemToCart({ product })}
+				onPress={() => appApi.user.addItemToCart({ product })}
 				{...props}
 			>
 				{t("addToCart")}

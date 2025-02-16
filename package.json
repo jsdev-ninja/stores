@@ -10,6 +10,7 @@
 	],
 	"scripts": {
 		"dev": "yarn workspace store run dev",
+		"dev_website": "yarn workspace website run dev",
 		"build": "yarn workspace store run build",
 		"build_all": "yarn workspace core run build & yarn workspace store run build",
 		"deploy_functions": "cd functions & npm run deploy"

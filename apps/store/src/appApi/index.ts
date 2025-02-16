@@ -294,7 +294,7 @@ export const useAppApi = () => {
 			},
 
 			async addItemToCart({ product }: { product: TProduct }) {
-				if (!product || !user || !store) return;
+				if (!product || !user || !store || !company) return;
 
 				const actualCart: Omit<TCart, "id"> = cart ?? {
 					companyId: store.companyId ?? "",
@@ -344,6 +344,10 @@ export const useAppApi = () => {
 				mixPanelApi.track("USER_ADD_ITEM_TO_CART", {
 					productId: product.id,
 					productName: product.name[0].value, //todo get correct lang
+					storeId: store.id,
+					storeName: store.name,
+					companyId: company.id,
+					companyName: company.name,
 				});
 			},
 			async removeItemFromCart({ product }: { product: TProduct }) {

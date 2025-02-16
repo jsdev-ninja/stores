@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import * as functions from "firebase-functions/v1";
+import * as functionsV2 from "firebase-functions/v2";
 import React from "react";
 import algoliasearch from "algoliasearch";
 import { emailService } from "./services/email";
@@ -12,6 +13,11 @@ const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 const index = algolia.initIndex("products");
 
 admin.initializeApp({});
+
+export const uiLogs = functionsV2.https.onCall((opts) => {
+	const { data } = opts;
+	functionsV2.logger.write({ message: "AAAA", severity: "ALERT", data });
+});
 
 export { appInit } from "./api/init";
 export { getMixpanelData } from "./api/mixpanel-ts";
