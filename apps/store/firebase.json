@@ -15,7 +15,7 @@
 			"frameworksBackend": {
 				"region": "europe-west1"
 			}
-		}
+		},
 		{
 			"target": "balasi-picuhim",
 			"source": ".",
