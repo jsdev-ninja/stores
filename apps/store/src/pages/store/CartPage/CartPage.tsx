@@ -1,4 +1,3 @@
-import { TProduct } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { cartSlice } from "src/domains/cart";
