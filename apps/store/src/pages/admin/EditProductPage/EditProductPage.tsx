@@ -1,5 +1,6 @@
 import {
 	EditProductSchema,
+	FirebaseAPI,
 	ProductSchema,
 	TCategory,
 	TEditProduct,
@@ -195,7 +196,11 @@ export function EditProductPage() {
 					await FirebaseApi.firestore.update(
 						product.id ?? "",
 						product,
-						FirebaseApi.firestore.collections.products
+						FirebaseAPI.firestore.getPath({
+							collectionName: "products",
+							companyId: store?.companyId ?? "",
+							storeId: store?.id ?? "",
+						})
 					);
 
 					navigate({ to: "admin.products" });
