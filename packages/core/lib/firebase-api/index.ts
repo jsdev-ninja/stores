@@ -19,12 +19,9 @@ export const FirestoreApi = {
 	}: {
 		companyId: string;
 		storeId: string;
-		collectionName: string;
+		collectionName: keyof typeof collections;
 	}) => {
 		return `${companyId}/${storeId}/${collectionName}`;
-	},
-	getProductsPath: ({ companyId, storeId }: { companyId: string; storeId: string }) => {
-		return FirestoreApi.getPath({ companyId, storeId, collectionName: collections.products });
 	},
 };
 

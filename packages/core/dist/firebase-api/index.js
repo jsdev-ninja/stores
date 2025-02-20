@@ -14,9 +14,6 @@ export const FirestoreApi = {
     getPath: ({ companyId, storeId, collectionName, }) => {
         return `${companyId}/${storeId}/${collectionName}`;
     },
-    getProductsPath: ({ companyId, storeId }) => {
-        return FirestoreApi.getPath({ companyId, storeId, collectionName: collections.products });
-    },
 };
 export const FirebaseAPI = {
     firestore: FirestoreApi,

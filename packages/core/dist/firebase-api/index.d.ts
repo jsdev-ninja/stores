@@ -14,11 +14,7 @@ export declare const FirestoreApi: {
     getPath: ({ companyId, storeId, collectionName, }: {
         companyId: string;
         storeId: string;
-        collectionName: string;
-    }) => string;
-    getProductsPath: ({ companyId, storeId }: {
-        companyId: string;
-        storeId: string;
+        collectionName: keyof typeof collections;
     }) => string;
 };
 export declare const FirebaseAPI: {
@@ -26,11 +22,7 @@ export declare const FirebaseAPI: {
         getPath: ({ companyId, storeId, collectionName, }: {
             companyId: string;
             storeId: string;
-            collectionName: string;
-        }) => string;
-        getProductsPath: ({ companyId, storeId }: {
-            companyId: string;
-            storeId: string;
+            collectionName: keyof typeof collections;
         }) => string;
     };
 };

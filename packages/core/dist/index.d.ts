@@ -1,4 +1,4 @@
 export * from "./entities";
-export { FirebaseAPI } from "./firebase-api";
 export * from "./hypPaymentService";
+export { FirebaseAPI } from "./firebase-api";
 //# sourceMappingURL=index.d.ts.map
