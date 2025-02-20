@@ -1,4 +1,9 @@
-export const collections = {
+export const systemCollections = {
+	stores: "stores",
+	companies: "companies",
+} as const;
+
+export const storeCollections = {
 	products: "products",
 	profiles: "profiles",
 	cart: "cart",
@@ -6,22 +11,29 @@ export const collections = {
 	orders: "orders",
 	categories: "categories",
 	favorites: "favorites",
-	stores: "stores",
-	companies: "companies",
 	payments: "payments",
 } as const;
 
 export const FirestoreApi = {
+	systemCollections,
+	storeCollections,
+	// for client
 	getPath: ({
 		companyId,
 		storeId,
 		collectionName,
+		id,
 	}: {
 		companyId: string;
 		storeId: string;
-		collectionName: keyof typeof collections;
+		collectionName: keyof typeof storeCollections;
+		id?: string;
 	}) => {
-		return `${companyId}/${storeId}/${collectionName}`;
+		return `${companyId}/${storeId}/${collectionName}${id ? `/${id}` : ""}`;
+	},
+	// for backend
+	getDocPath: (collectionName: keyof typeof storeCollections) => {
+		return `{companyId}/{storeId}/${collectionName}/{id}`;
 	},
 };
 
