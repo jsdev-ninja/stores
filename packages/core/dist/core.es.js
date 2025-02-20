@@ -2975,10 +2975,10 @@ const ar = i.object({
   floor: i.string(),
   apartmentEnterNumber: i.string(),
   apartmentNumber: i.string()
-}), C = i.enum(["True", "False"]), ur = i.string().min(1), lr = i.string().regex(/^\d+$/, "Must be a numeric string"), ee = i.object({
+}), C = i.enum(["True", "False"]), fr = i.string().min(1), hr = i.string().regex(/^\d+$/, "Must be a numeric string"), ee = i.object({
   lang: i.enum(["he"]),
   value: i.string().min(1)
-}), fr = i.array(ee), Ge = i.object({
+}), mr = i.array(ee), Ge = i.object({
   id: i.string().min(1),
   companyId: i.string().min(1),
   storeId: i.string().min(1),
@@ -2988,7 +2988,7 @@ const ar = i.object({
   depth: i.number()
 }), Pe = Ge.extend({
   children: i.lazy(() => Pe.array())
-}), hr = Ge.extend({
+}), pr = Ge.extend({
   index: i.number(),
   depth: i.number(),
   collapsed: i.boolean().optional(),
@@ -3042,15 +3042,15 @@ const ar = i.object({
     lvl4: i.array(i.string())
   }),
   categoryNames: i.array(i.string())
-}), mr = Se.omit({
+}), gr = Se.omit({
   id: !0,
   categories: !0,
   images: !0
 }).extend({
   image: i.instanceof(File).optional()
-}), pr = Se.extend({
+}), yr = Se.extend({
   image: i.instanceof(File).optional()
-}), gr = i.object({
+}), vr = i.object({
   type: i.literal("Cart"),
   id: i.string().uuid(),
   companyId: i.string().uuid(),
@@ -3063,7 +3063,7 @@ const ar = i.object({
       amount: i.number().int().positive({ message: "Quantity must be a positive integer." })
     })
   )
-}), yr = i.object({
+}), _r = i.object({
   id: i.string(),
   name: i.string(),
   websiteDomains: i.array(i.string()),
@@ -3073,7 +3073,7 @@ const ar = i.object({
       mainEmail: i.string()
     })
   })
-}), vr = i.object({
+}), br = i.object({
   type: i.literal("FavoriteProduct"),
   id: i.string().uuid(),
   companyId: i.string().uuid(),
@@ -3098,7 +3098,7 @@ const ar = i.object({
   createdDate: i.number(),
   lastActivityDate: i.number()
 });
-function _r() {
+function xr() {
   return {
     type: "Profile",
     id: "",
@@ -3123,7 +3123,7 @@ function _r() {
     isAnonymous: !0
   };
 }
-const br = i.object({
+const kr = i.object({
   type: i.literal("Order"),
   id: i.string(),
   companyId: i.string(),
@@ -3175,7 +3175,7 @@ const br = i.object({
   MoreData: C.optional(),
   // extra data in response
   J5: C.optional()
-}), xr = $e.extend({
+}), wr = $e.extend({
   action: i.literal("soft"),
   Info: x,
   // text that will be displayed in transaction, report and the management system.
@@ -3198,7 +3198,7 @@ const br = i.object({
   Token: i.literal("True")
   // CC2
   // Coin
-}), kr = i.object({
+}), Tr = i.object({
   action: i.literal("getToken"),
   allowFalse: i.literal("True"),
   Masof: x,
@@ -3207,14 +3207,14 @@ const br = i.object({
   // store masof password,
   TransId: j
   //todo api key is not required???
-}), wr = i.object({
+}), Sr = i.object({
   Id: j,
   Token: j,
   Tokef: j,
   // credit card validity date in the format YYMM
   CCode: j
   //0 code is valid
-}), Tr = $e.extend({
+}), Cr = $e.extend({
   Id: x,
   // transaction Id in Hypay
   ACode: j,
@@ -3253,7 +3253,7 @@ const br = i.object({
   // UID unique value receive from response after successful transaction from request with action pay/soft
   spType: i.string().optional(),
   bincard: i.string().optional()
-}), Sr = $e.extend({
+}), Ir = $e.extend({
   Masof: x,
   // store masof number
   PassP: x,
@@ -3310,7 +3310,7 @@ i.object({
     // api key
   })
 });
-const Cr = i.object({
+const Zr = i.object({
   storeEmail: i.string().email()
 }), ge = "https://pay.hyp.co.il/p/";
 function Ne(r) {
@@ -3328,7 +3328,7 @@ function cr(r) {
     return n && s && (e[n] = decodeURIComponent(s)), e;
   }, {});
 }
-const Ir = {
+const Nr = {
   async chargeJ5Transaction(r) {
     try {
       const e = Ne({
@@ -3379,41 +3379,59 @@ const Ir = {
     }
   }
 }, dr = {
+  stores: "stores",
+  companies: "companies"
+}, ur = {
+  products: "products",
+  profiles: "profiles",
+  cart: "cart",
+  clients: "clients",
+  orders: "orders",
+  categories: "categories",
+  favorites: "favorites",
+  payments: "payments"
+}, lr = {
+  systemCollections: dr,
+  storeCollections: ur,
+  // for client
   getPath: ({
     companyId: r,
     storeId: e,
-    collectionName: t
-  }) => `${r}/${e}/${t}`
-}, Zr = {
-  firestore: dr
+    collectionName: t,
+    id: n
+  }) => `${r}/${e}/${t}${n ? `/${n}` : ""}`,
+  // for backend
+  getDocPath: (r) => `{companyId}/{storeId}/${r}/{id}`
+}, Ar = {
+  firestore: lr
 };
 export {
   ar as AddressSchema,
   Ge as BaseCategorySchema,
-  gr as CartSchema,
+  vr as CartSchema,
   Pe as CategorySchema,
-  yr as CompanySchema,
-  pr as EditProductSchema,
-  vr as FavoriteProductSchema,
-  Zr as FirebaseAPI,
-  Sr as HypPaymentLinkRequestSchema,
-  xr as HypSoftTransactionRequestSchema,
-  kr as HypTokenRequestSchema,
-  wr as HypTokenResponseSchema,
+  _r as CompanySchema,
+  yr as EditProductSchema,
+  br as FavoriteProductSchema,
+  Ar as FirebaseAPI,
+  Ir as HypPaymentLinkRequestSchema,
+  wr as HypSoftTransactionRequestSchema,
+  Tr as HypTokenRequestSchema,
+  Sr as HypTokenResponseSchema,
   ee as LocaleSchema,
-  fr as LocaleValueSchema,
-  mr as NewProductSchema,
-  br as OrderSchema,
+  mr as LocaleValueSchema,
+  gr as NewProductSchema,
+  kr as OrderSchema,
   $e as PayProtocolGeneralSchema,
-  Tr as PayProtocolResponseSchema,
+  Cr as PayProtocolResponseSchema,
   Se as ProductSchema,
   ir as ProfileSchema,
-  Cr as StorePrivateSchema,
-  hr as TFlattenCategorySchema,
-  _r as createEmptyProfile,
+  Zr as StorePrivateSchema,
+  pr as TFlattenCategorySchema,
+  xr as createEmptyProfile,
   C as hypBooleanSchema,
-  Ir as hypPaymentService,
-  ur as notEmptyTextSchema,
-  lr as numericTextSchema
+  Nr as hypPaymentService,
+  fr as notEmptyTextSchema,
+  hr as numericTextSchema
 };
 //# sourceMappingURL=core.es.js.map

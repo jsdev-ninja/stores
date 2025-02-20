@@ -1,4 +1,8 @@
-export const collections = {
+export const systemCollections = {
+    stores: "stores",
+    companies: "companies",
+};
+export const storeCollections = {
     products: "products",
     profiles: "profiles",
     cart: "cart",
@@ -6,13 +10,18 @@ export const collections = {
     orders: "orders",
     categories: "categories",
     favorites: "favorites",
-    stores: "stores",
-    companies: "companies",
     payments: "payments",
 };
 export const FirestoreApi = {
-    getPath: ({ companyId, storeId, collectionName, }) => {
-        return `${companyId}/${storeId}/${collectionName}`;
+    systemCollections,
+    storeCollections,
+    // for client
+    getPath: ({ companyId, storeId, collectionName, id, }) => {
+        return `${companyId}/${storeId}/${collectionName}${id ? `/${id}` : ""}`;
+    },
+    // for backend
+    getDocPath: (collectionName) => {
+        return `{companyId}/{storeId}/${collectionName}/{id}`;
     },
 };
 export const FirebaseAPI = {
