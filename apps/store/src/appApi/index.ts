@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { TCategory } from "@jsdev_ninja/core";
+import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { TCompany, useCompany } from "src/domains/Company";
 import { OrderApi, TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
@@ -41,6 +41,7 @@ function productInCart(cart: TCart | null, product: TProduct) {
 
 export const useAppApi = () => {
 	const company = useCompany();
+
 	const store = useStore();
 	const user = useAppSelector((state) => state.user.user);
 	const cart = useAppSelector((state) => state.cart.currentCart);
@@ -114,7 +115,11 @@ export const useAppApi = () => {
 				if (!isValid) return;
 
 				return FirebaseApi.firestore.getV2<TProduct>({
-					collection: "products",
+					collection: FirebaseAPI.firestore.getPath({
+						companyId: company.id,
+						storeId: store.id,
+						collectionName: "products",
+					}),
 					id,
 				});
 			},

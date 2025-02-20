@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { FirebaseApi } from "src/lib/firebase";
-import { BaseCategorySchema, CategorySchema, TCategory } from "@jsdev_ninja/core";
+import { BaseCategorySchema, CategorySchema, FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 
 // export type TCategory = z.infer<typeof CategorySchema>;
 
@@ -41,11 +41,23 @@ export const CategorySlice = createSlice({
 });
 
 export const CategoryService = {
-	list(storeId: string) {
+	list(storeId: string, companyId: string) {
 		return FirebaseApi.firestore
-			.get(storeId, FirebaseApi.firestore.collections.categories)
+			.get(
+				storeId,
+				FirebaseAPI.firestore.getPath({
+					storeId,
+					companyId,
+					collectionName: "categories",
+				})
+			)
 			.then((res) => {
-				return (res.data as any).categories ?? [];
+				console.log("AAAAA", res);
+
+				return (res.data as any)?.categories ?? [];
+			})
+			.catch((er) => {
+				console.log("er", er.message);
 			});
 	},
 	subscribe(storeId: string, callback: any) {

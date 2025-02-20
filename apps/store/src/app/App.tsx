@@ -110,7 +110,7 @@ function App() {
 			actions.dispatch(actions.user.setUser(user));
 		});
 
-		CategoryService.list(store.id).then((result) => {
+		CategoryService.list(store.id, store.companyId).then((result) => {
 			actions.dispatch(actions.category.setCategories(result));
 		});
 

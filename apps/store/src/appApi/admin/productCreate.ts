@@ -1,12 +1,10 @@
-import { TCategory } from "@jsdev_ninja/core";
+import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
 import { SentryApi } from "src/lib/sentry";
 import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
 
 export async function productCreate(newProduct: TNewProduct) {
 	const { image, ...rest } = newProduct;
-
-	console.log("newProduct", newProduct);
 
 	const categories = newProduct.categoryList;
 
@@ -49,7 +47,11 @@ export async function productCreate(newProduct: TNewProduct) {
 
 	if (validation.success) {
 		return await FirebaseApi.firestore.createV2({
-			collection: "products",
+			collection: FirebaseAPI.firestore.getPath({
+				storeId: product.storeId,
+				companyId: product.companyId,
+				collectionName: "products",
+			}),
 			doc: product,
 			id: productId,
 		});

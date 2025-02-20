@@ -8,11 +8,11 @@ import {
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useAppApi } from "src/appApi";
 import { Flex } from "src/components/Flex";
 import { Form } from "src/components/Form";
 import { CategoryService, TFlattenCategory } from "src/domains/Category";
 import { useStore } from "src/domains/Store";
-import { ProductService } from "src/domains/product/productService";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate, useParams } from "src/navigation";
 import { flatten } from "src/utils/flatten";
@@ -93,10 +93,12 @@ export function EditProductPage() {
 
 	const [product, setProduct] = useState<TProduct | null>(null);
 
+	const appApi = useAppApi();
+
 	useEffect(() => {
 		if (params.id) {
-			ProductService.get(params.id).then((response) => {
-				if (response.success) {
+			appApi.system.getProductById({ id: params.id }).then((response) => {
+				if (response?.success) {
 					setProduct(response.data);
 				}
 			});
@@ -105,7 +107,9 @@ export function EditProductPage() {
 
 	useEffect(() => {
 		if (!store?.id) return;
-		CategoryService.list(store.id).then((items) => setCategories(flatten(items)));
+		CategoryService.list(store.id, store.companyId).then((items) =>
+			setCategories(flatten(items))
+		);
 	}, [store?.id]);
 
 	function renderParent(category: TCategory, categories: TFlattenCategory[]): string {
@@ -201,7 +205,7 @@ export function EditProductPage() {
 
 				<Flex>
 					<Form.TextArea<TEditProduct>
-						name="description"
+						name="description[0].value"
 						label={t("common:description")}
 						placeholder={t("common:description")}
 					/>
