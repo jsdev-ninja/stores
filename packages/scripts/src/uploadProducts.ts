@@ -1,4 +1,4 @@
-import { TProduct, ProductSchema, TCategory } from "@jsdev_ninja/core";
+import { TProduct, ProductSchema, TCategory, FirebaseAPI } from "@jsdev_ninja/core";
 import { getDownloadURL } from "firebase-admin/storage";
 import _allProducts from "./data/all-products.json";
 import axios from "axios";
@@ -202,7 +202,7 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 		await admin
 			.firestore()
 			.collection("categories")
-			.doc("tester-store")
+			.doc(storeId)
 			.set({
 				categories: Object.values(categoriesMap),
 			});
@@ -227,7 +227,15 @@ async function updateAllProducts(products: any) {
 			chunk.forEach((s: any) => {
 				console.log("s", s.id, s.name[0].value);
 
-				const collectionRef = db.collection("products").doc(s.id);
+				const collectionRef = db
+					.collection(
+						FirebaseAPI.firestore.getPath({
+							collectionName: "products",
+							companyId,
+							storeId,
+						})
+					)
+					.doc(s.id);
 				batch.set(collectionRef, s, { merge: true });
 				// console.log(s);
 			});
