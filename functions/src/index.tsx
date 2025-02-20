@@ -51,7 +51,7 @@ export const onOrderUpdate = functions.firestore
 	});
 
 export const onProductCreate = functions.firestore
-	.document(FirebaseAPI.firestore)
+	.document(FirebaseAPI.firestore.getDocPath(""))
 	.onCreate(async (snap, context) => {
 		console.log(snap.data(), snap.id, snap.createTime);
 		console.log("AUTH", context.authType, context.auth?.uid);
