@@ -8,6 +8,11 @@ const stores = {
 		store: "tester-store",
 		tenantId: "tester-tenant-2vcku",
 	},
+	balasi: {
+		company: "balasistore_company",
+		store: "balasistore_store",
+		tenantId: "balasistore-tenant-p1lml",
+	},
 } as const;
 async function main() {
 	const action = await select({

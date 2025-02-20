@@ -1,17 +1,17 @@
 import { TProduct, ProductSchema, TCategory } from "@jsdev_ninja/core";
 import { getDownloadURL } from "firebase-admin/storage";
 import _allProducts from "./data/all-products.json";
-import { admin } from "./utils/app";
 import axios from "axios";
+import { admin } from "./admin";
 
-const readXlsxFile = require("read-excel-file/node");
-
+// const readXlsxFile = require("read-excel-file/node");
+import readXlsxFile from "read-excel-file/node";
 const allProducts = _allProducts as any[];
 
 console.log("readXlsxFile", readXlsxFile);
 
-const companyId = "tester";
-const storeId = "tester-store";
+const companyId = "balasistore_company";
+const storeId = "balasistore_store";
 
 function renderParent(category: TCategory, categories: TCategory[]): string {
 	if (!category) return "";
@@ -28,7 +28,7 @@ function renderParent(category: TCategory, categories: TCategory[]): string {
 }
 
 // File path.
-readXlsxFile("src2/data/products.xlsx").then(async (rows: any[]) => {
+readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 	try {
 		// `rows` is an array of rows
 		// each row being an array of cells.

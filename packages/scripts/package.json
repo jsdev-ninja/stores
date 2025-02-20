@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "npx tsx src/index.ts",
-		"create-admin": "npx ts-node src/createAdmin.ts"
+		"uploadProducts": "npx tsx src/uploadProducts.ts"
 	},
 	"keywords": [],
 	"author": "",
