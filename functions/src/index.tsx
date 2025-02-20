@@ -51,7 +51,7 @@ export const onOrderUpdate = functions.firestore
 	});
 
 export const onProductCreate = functions.firestore
-	.document(FirebaseAPI.firestore.getDocPath(""))
+	.document(FirebaseAPI.firestore.getDocPath("products"))
 	.onCreate(async (snap, context) => {
 		console.log(snap.data(), snap.id, snap.createTime);
 		console.log("AUTH", context.authType, context.auth?.uid);
@@ -64,17 +64,17 @@ export const onProductCreate = functions.firestore
 	});
 
 export const onProductDelete = functions.firestore
-	.document("/products/{productId}")
+	.document(FirebaseAPI.firestore.getDocPath("products"))
 	.onDelete(async (snap) => {
 		return await index.deleteObject(snap.id);
 	});
 
 export const onProductUpdate = functions.firestore
-	.document("/products/{productId}")
+	.document(FirebaseAPI.firestore.getDocPath("products"))
 	.onUpdate(async (snap, context) => {
 		const after = snap.after.data();
 
-		const { productId } = context.params;
+		const { id: productId } = context.params;
 
 		return await index.saveObject({
 			objectID: productId,
