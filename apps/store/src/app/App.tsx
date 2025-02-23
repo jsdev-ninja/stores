@@ -47,19 +47,17 @@ function App() {
 			tenantId: store.tenantId,
 			profile: profile ?? undefined,
 		});
-	}, [location.pathname]);
+	}, [location.pathname, store, profile]);
 
 	useEffect(() => {
 		document.body.dir = dir;
 	}, [dir]);
 
-	// handle Profile
-
 	useEffect(() => {
 		if (user && store) {
 			mixPanelApi.identify(user, { store, profile });
 		}
-	}, [user?.uid, profile, store]);
+	}, [user, profile, store]);
 
 	useEffect(() => {
 		if (user?.uid && !user.isAnonymous) {
@@ -75,12 +73,10 @@ function App() {
 		if (user?.isAnonymous) {
 			actions.dispatch(actions.profile.setProfile(null));
 		}
-	}, [user]);
+	}, [user, actions]);
 
 	useEffect(() => {
 		if (!user || !store) return;
-
-		// handle cart
 
 		const unsubscribe = FirebaseApi.firestore.subscribeDocV2<TCart>({
 			collection: "cart",
@@ -95,7 +91,7 @@ function App() {
 		});
 
 		return () => unsubscribe();
-	}, [store?.id, user?.uid, actions]);
+	}, [store, user, actions]);
 
 	useEffect(() => {
 		if (!appReady) return;
@@ -107,14 +103,10 @@ function App() {
 				return;
 			}
 
-			console.log("onUser", user);
-
 			actions.dispatch(actions.user.setUser(user));
 		});
 
 		appApi.system.getStoreCategories().then((result) => {
-			console.log("result", result);
-
 			actions.dispatch(actions.category.setCategories(result?.data?.categories ?? []));
 		});
 
