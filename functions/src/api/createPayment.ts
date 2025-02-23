@@ -1,5 +1,6 @@
-import { TOrder, TProduct, hypPaymentService } from "@jsdev_ninja/core";
+import { TOrder, TProduct } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
+import { hypPaymentService } from "../services/hypPaymentService";
 // import admin from "firebase-admin";
 
 const getProductFinalPrice = (product: TProduct) => {

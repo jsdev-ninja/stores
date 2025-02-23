@@ -11,6 +11,7 @@ module.exports = {
 		"plugin:import/typescript",
 		"google",
 		"plugin:@typescript-eslint/recommended",
+		"prettier",
 	],
 	parser: "@typescript-eslint/parser",
 	parserOptions: {
@@ -26,10 +27,10 @@ module.exports = {
 		"no-tabs": "off",
 		"object-curly-spacing": 0,
 		indent: ["error", "tab"],
-		"max-len": ["error", { code: 100 }],
 		"quote-props": ["error", "as-needed"],
 		"require-jsdoc": "off",
 		"spaced-comment": "off",
 		"operator-linebreak": "off",
+		"@typescript-eslint/no-explicit-any": "off",
 	},
 };

@@ -1,6 +1,8 @@
-import { hypPaymentService, TOrder, TPayProtocolResponse } from "@jsdev_ninja/core";
+import { TOrder } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import admin from "firebase-admin";
+import { TPayProtocolResponse } from "src/schema";
+import { hypPaymentService } from "../services/hypPaymentService";
 
 // charge order for J5 transaction
 export const chargeOrder = functions.https.onCall(
