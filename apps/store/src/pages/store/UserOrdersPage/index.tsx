@@ -18,7 +18,6 @@ function UserOrdersPage() {
 
 	useEffect(() => {
 		appApi.system.getUserOrders().then((res) => {
-			console.log("res", res);
 			if (res?.success) {
 				setOrders(res.data as any); // todo
 			}

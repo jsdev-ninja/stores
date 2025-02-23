@@ -56,9 +56,6 @@ function CheckoutPage() {
 
 	const cartCost = calculateCartPrice(cart.items);
 
-	console.log("profile", profile);
-	console.log("_profile", _profile);
-
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16 px-4">
 			<Form<TOrder>
@@ -86,15 +83,11 @@ function CheckoutPage() {
 					console.warn("errors", errors);
 				}}
 				onSubmit={async () => {
-					console.log("submit");
-
 					if (!user || !cart) return;
 					const order = await appApi.orders.order();
-					console.log("order", order);
 					if (!order?.success) return null; //todo
 
 					const paymnet: any = await FirebaseApi.api.createPayment({ order: order.data });
-					console.log("paymnet", paymnet.data.paymentLink);
 
 					window.location.href = paymnet.data.paymentLink;
 				}}

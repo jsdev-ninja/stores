@@ -155,8 +155,6 @@ export const useAppApi = () => {
 					id: "categories",
 				});
 
-				console.log("balasistore_store", res);
-
 				return res;
 			},
 
@@ -202,7 +200,7 @@ export const useAppApi = () => {
 					},
 					"orders"
 				);
-				const res = await FirebaseApi.firestore.createV2({
+				await FirebaseApi.firestore.createV2({
 					collection: "payments",
 					id: payment.Order,
 					doc: {
@@ -214,7 +212,6 @@ export const useAppApi = () => {
 					},
 				});
 				// todo handle refresh
-				console.log("res", res);
 			},
 		};
 
@@ -257,7 +254,6 @@ export const useAppApi = () => {
 			},
 			async removeProductToFavorite({ id }: { id: string }) {
 				if (!id || !user || !company || !store || user.isAnonymous) return;
-				console.log("remove", id);
 
 				return await FirebaseApi.firestore.remove({
 					collectionName: "favorite-products",
@@ -267,8 +263,7 @@ export const useAppApi = () => {
 			async profileUpdate({ profile }: { profile: TProfile }) {
 				if (!user || !store || !profile) return;
 
-				const response = await FirebaseApi.firestore.update(profile.id, profile, "profiles");
-				console.log("response", response);
+				await FirebaseApi.firestore.update(profile.id, profile, "profiles");
 			},
 			async cancelOrder({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
@@ -397,8 +392,6 @@ export const useAppApi = () => {
 			signup: async (newUser: { email: string; password: string; fullName: string }) => {
 				if (!isValid) return;
 
-				console.log("newUser", newUser);
-
 				const profile: TProfile = {
 					id: user.uid,
 					companyId: store.companyId,
@@ -422,7 +415,6 @@ export const useAppApi = () => {
 					lastActivityDate: Date.now(),
 					type: "Profile",
 				};
-				console.log("profile.profile", profile);
 
 				return await signup({ newUser, newProfile: profile });
 			},
@@ -470,7 +462,6 @@ export const useAppApi = () => {
 
 				try {
 					const res = await FirebaseApi.api.createCompanyClient(newCompany);
-					console.log("res", res);
 
 					if (!res.success) {
 						// todo: handle
@@ -484,7 +475,6 @@ export const useAppApi = () => {
 			},
 			async chargeOrder({ order }: { order: TOrder }) {
 				// get transactionId
-				console.log("chargeOrder", order);
 
 				await FirebaseApi.api.chargeOrder({
 					orderId: order.id,

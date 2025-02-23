@@ -21,7 +21,6 @@ export function ProfileEditModal({ profile }: { profile: TProfile }) {
 		>
 			<Form<TProfile>
 				onSubmit={async (data) => {
-					console.log("submit", data);
 					await appApi.user.profileUpdate({ profile: data });
 					modalApi.closeModal("profileEdit");
 				}}

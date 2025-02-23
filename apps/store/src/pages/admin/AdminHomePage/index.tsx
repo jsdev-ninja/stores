@@ -9,7 +9,6 @@ function AdminHomePage() {
 
 	useEffect(() => {
 		appApi.admin.getStoreStats().then((res) => {
-			console.log("stats", res?.data);
 			if (res?.success) {
 				setStats(res.data);
 			}

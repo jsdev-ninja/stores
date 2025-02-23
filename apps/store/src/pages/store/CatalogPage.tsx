@@ -26,14 +26,11 @@ export function CatalogPage() {
 
 	const topCategory = Object.values(selectedCategory);
 	const index = topCategory.findLastIndex((el) => !!el);
-	console.log("index", index);
 
 	const categoryName =
 		selectedCategory[index.toString() as unknown as keyof typeof selectedCategory];
 
 	const filter = categoryName ? `categoryNames:'${decodeURIComponent(categoryName)}'` : "";
-
-	console.log("filter", filter);
 
 	return (
 		<ProductsWidget filter={filter}>
@@ -42,9 +39,7 @@ export function CatalogPage() {
 					<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 				</div>
 				<div className="flex-grow p-6 flex flex-col justify-start items-start gap-4  ">
-					<div className="mx-auto  w-full">
-						{/* <ProductsWidget.SearchBox /> */}
-					</div>
+					<div className="mx-auto  w-full">{/* <ProductsWidget.SearchBox /> */}</div>
 					<div className="flex gap-4 w-full flex-wrap justify-center flex-grow">
 						<ProductsWidget.Products
 							emptyStateAction={() => {

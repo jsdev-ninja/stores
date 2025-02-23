@@ -80,13 +80,11 @@ export const cartSlice = createSlice({
 					const { product, amount } = item;
 					const productPrice = getPriceAfterDiscount(product);
 					const discount = calculateDiscount(product);
-					console.log("product", product.vat);
 
 					let productVatValue: number = 0;
 					if (product.vat) {
 						productVatValue = (product.price * CONFIG.VAT) / 100;
 						productVatValue = productVatValue * amount;
-						console.log("productVatValue", productVatValue);
 						acc.vat += +productVatValue.toFixed(2);
 					}
 					acc.cost += amount * product.price;

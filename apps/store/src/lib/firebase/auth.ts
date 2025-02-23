@@ -75,8 +75,6 @@ export const Auth = {
 	},
 	onUser: (callback: (user: TUser | null) => void) => {
 		const unSubscribe = onAuthStateChanged(auth, async (user) => {
-			console.log("user", user, user?.isAnonymous);
-
 			if (user && !user.isAnonymous) {
 				const claims = await Auth.getClaims();
 

@@ -28,8 +28,6 @@ function AdminOrdersPages() {
 		});
 	}, [appApi.orders]);
 
-	console.log("orders", orders);
-
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
 			<div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
@@ -88,23 +86,23 @@ function OrderRow({
 			);
 		}
 		// if (order.status === "delivered") {
-			return (
-				<>
-					<Button
-						onPress={async () => {
-							// charge for order
-							const res = await appApi.admin.chargeOrder({ order });
-							if (!res?.success) {
-								// todo:
-								return;
-							}
-							// updateOrder(order.id, "completed");
-						}}
-					>
-						{t("ordersPage:actions.chargeOrder")}
-					</Button>
-				</>
-			);
+		return (
+			<>
+				<Button
+					onPress={async () => {
+						// charge for order
+						const res = await appApi.admin.chargeOrder({ order });
+						if (!res?.success) {
+							// todo:
+							return;
+						}
+						// updateOrder(order.id, "completed");
+					}}
+				>
+					{t("ordersPage:actions.chargeOrder")}
+				</Button>
+			</>
+		);
 		// }
 		if (order.status === "processing") {
 			return (

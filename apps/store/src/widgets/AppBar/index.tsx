@@ -110,8 +110,6 @@ export function AppBar() {
 							</DropdownTrigger>
 							<DropdownMenu
 								onAction={(key) => {
-									console.log("key", key);
-
 									const item = dropdownItems.find((item) => item.key === key);
 									item?.action();
 								}}

@@ -22,8 +22,6 @@ export function CategoryMenu({
 }) {
 	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
 
-	console.log("categories", categories);
-
 	function onChange(name: string, depth: number) {
 		const isSelected = (value as any)[depth] === name;
 

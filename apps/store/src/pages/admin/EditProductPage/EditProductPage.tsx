@@ -108,7 +108,9 @@ export function EditProductPage() {
 
 	useEffect(() => {
 		if (!store?.id) return;
-		appApi.system.getStoreCategories().then((items) => setCategories(flatten(items?.data?.categories ?? [])));
+		appApi.system
+			.getStoreCategories()
+			.then((items) => setCategories(flatten(items?.data?.categories ?? [])));
 	}, [store?.id]);
 
 	function renderParent(category: TCategory, categories: TFlattenCategory[]): string {
@@ -136,8 +138,6 @@ export function EditProductPage() {
 	if (!product) return;
 
 	const title = t("admin:productForm.edit.title");
-
-	console.log(product);
 
 	return (
 		<div className="">

@@ -13,8 +13,7 @@ function AdminSettingsPage() {
 
 	async function uploadLogo() {
 		if (!store || !logo) return;
-		const res = await appApi.admin.uploadLogo({ logo });
-		console.log("res", res);
+		await appApi.admin.uploadLogo({ logo });
 	}
 
 	return (

@@ -11,15 +11,12 @@ export const getProductFinalPrice = (product: TProduct) => {
 			: (product.price * product.discount.value) / 100
 		: 0;
 
-	console.log("discount", discount);
-
 	let price = 0;
 
 	price = product.price - discount;
 
 	if (product.vat) {
 		const productVatValue = (product.price * CONFIG.VAT) / 100;
-		console.log("productVatValue", productVatValue, price);
 
 		price += productVatValue;
 	}

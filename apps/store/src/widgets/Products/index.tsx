@@ -20,7 +20,6 @@ export function ProductsWidget({
 	if (!store?.companyId || !store.id) return null;
 
 	const _filter = filter ? `AND ${filter}` : "";
-	console.log("_filter", _filter);
 
 	const filters = `companyId:${store.companyId} AND storeId:${store.id} ${_filter}`;
 
@@ -89,7 +88,6 @@ export function Products({
 		}
 	}, [isLastPage]);
 
-	console.log("items.length", items, status, isLastPage);
 	if (status === "loading" || status === "stalled" || !ready) return null; //todo
 
 	if (!items.length) {

@@ -58,8 +58,6 @@ export function AdminCompanyCreateModal() {
 						}}
 						className="p-4"
 						onSubmit={async (formData: any) => {
-							console.log("formData", formData);
-
 							// todo
 							await appApi.admin.companyCreate({
 								...formData,

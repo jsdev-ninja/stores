@@ -10,8 +10,6 @@ export type TOrder = z.infer<typeof OrderSchema>;
 
 export const OrderApi = {
 	createOrder: async (newOrder: TNewOrder) => {
-		console.log("newOrder", newOrder);
-
 		const response = await FirebaseApi.firestore.create(newOrder, "orders");
 		return response;
 	},

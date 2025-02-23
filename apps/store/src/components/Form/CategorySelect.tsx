@@ -76,8 +76,6 @@ export const CategorySelect = <T,>({
 					newCategories.map((c) => findAllParents(c, [])).flat()
 				);
 
-				console.log("allParents", allParents);
-
 				const childToRemove = removeDuplicatesById(
 					removedCategories.map((c) => findAllChildren(c, [])).flat()
 				);

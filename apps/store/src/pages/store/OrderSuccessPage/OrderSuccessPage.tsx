@@ -31,7 +31,6 @@ export function OrderSuccessPage() {
 	const user = useAppSelector((state) => state.user.user);
 
 	const queryParams = getQueryParams(window.location.href);
-	console.log("queryParams", queryParams);
 	useEffect(() => {
 		appApi.system.onOrderPaid(queryParams);
 	}, [window.location.href]);

@@ -47,7 +47,6 @@ function AdminUsersPage() {
 	const { t } = useTranslation(["common", "admin"]);
 
 	const [clients, setClients] = useState<TProfile[]>([]);
-	console.log("clients", clients);
 
 	const [filterValue, setFilterValue] = React.useState("");
 	const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
@@ -110,7 +109,6 @@ function AdminUsersPage() {
 
 	useEffect(() => {
 		appApi.admin.getStoreClients().then((res) => {
-			console.log("res", res);
 			if (res?.success) {
 				setClients(res.data);
 			}

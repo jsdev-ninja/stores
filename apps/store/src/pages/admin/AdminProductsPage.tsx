@@ -31,14 +31,12 @@ export function AdminProductsPage() {
 
 	const topCategory = Object.values(selectedCategory);
 	const index = topCategory.findLastIndex((el) => !!el);
-	console.log("index", index);
 
 	const categoryName =
 		selectedCategory[index.toString() as unknown as keyof typeof selectedCategory];
 
 	const filter = categoryName ? `categoryNames:'${decodeURIComponent(categoryName)}'` : "";
 
-	console.log("filter", filter);
 	return (
 		<ProductsWidget filter={filter}>
 			<div className="">
@@ -71,8 +69,6 @@ export function AdminProductsPage() {
 							}}
 						>
 							{(products) => {
-								console.log("products", products);
-
 								return products.map((product) => (
 									<Product key={product.id} product={product}>
 										<div className="w-80 shadow p-4 flex flex-col h-fit ">

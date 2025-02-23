@@ -18,7 +18,6 @@ async function upload(path: string, file: File) {
 }
 async function remove(ref: string) {
 	await deleteObject(createRef(ref));
-	console.log("storage.remove success");
 
 	return { success: true };
 }

@@ -13,8 +13,6 @@ export function ProductAddToFavorite() {
 
 	const inFavorites = favoriteProducts.find((p) => p.productId === product?.id);
 
-	console.log();
-
 	function handlePress() {
 		if (!product) return;
 		if (!inFavorites) {

@@ -66,7 +66,6 @@ function PriceSection() {
 
 export function AddProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
-	console.log("categories", categories);
 
 	const store = useStore();
 
@@ -153,7 +152,6 @@ export function AddProductPage() {
 				}}
 				onSubmit={async (data) => {
 					const response = await appApi.admin.productCreate(data);
-					console.log("response", response);
 
 					if (response?.success) {
 						navigate({

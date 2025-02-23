@@ -11,7 +11,6 @@ function ProfilePage() {
 	if (!profile) {
 		return null;
 	}
-	console.log("profile", profile);
 
 	return (
 		<div className="">
