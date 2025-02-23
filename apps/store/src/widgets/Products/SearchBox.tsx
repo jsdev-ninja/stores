@@ -12,6 +12,7 @@ export function SearchBox() {
 		<input
 			onChange={(event) => {
 				const value = event.target.value;
+
 				onSearch(value);
 			}}
 			type="search"

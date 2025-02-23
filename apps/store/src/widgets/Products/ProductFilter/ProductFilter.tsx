@@ -1,6 +1,4 @@
 import classNames from "classnames";
-import { HierarchicalMenuItem } from "instantsearch.js/es/connectors/hierarchical-menu/connectHierarchicalMenu";
-import { RangeBoundaries } from "instantsearch.js/es/connectors/range/connectRange";
 import { useHierarchicalMenu, useRange, useRefinementList } from "react-instantsearch";
 import { Checkbox } from "src/components/Checkbox/Checkbox";
 import { Slider } from "src/components/Slider/Slider";
@@ -42,8 +40,8 @@ function MenuItem({
 	onClick,
 	depth = 0,
 }: {
-	item: HierarchicalMenuItem;
-	onClick: (item: HierarchicalMenuItem) => void;
+	item: any;
+	onClick: (item: any) => void;
 	depth?: number;
 }) {
 	return (
@@ -61,7 +59,7 @@ function MenuItem({
 				{item.label}
 			</div>
 			{item.data &&
-				item.data.map((item) => (
+				item.data.map((item: any) => (
 					<MenuItem depth={depth + 1} key={item.value} item={item} onClick={onClick} />
 				))}
 		</>
@@ -81,7 +79,7 @@ function RangeFilter(props: { attribute: NestedKeys<TProduct> & string; label: s
 			<div className="font-semibold my-2">{props.label}</div>
 			<Slider
 				onChange={(change) => {
-					refinement.refine(change.value as RangeBoundaries);
+					refinement.refine(change.value as any);
 				}}
 			/>
 			{/* {items.map((item) => {

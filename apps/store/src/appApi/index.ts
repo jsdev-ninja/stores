@@ -146,11 +146,18 @@ export const useAppApi = () => {
 			async getStoreCategories() {
 				if (!isValid) return;
 
-				const res = await FirebaseApi.firestore.getV2({
-					collection: "categories",
-					id: store.id,
+				const res = await FirebaseApi.firestore.getV2<{ categories: TCategory[] }>({
+					collection: FirebaseAPI.firestore.getPath({
+						companyId: company.id,
+						storeId: store.id,
+						collectionName: "categories",
+					}),
+					id: "categories",
 				});
-				console.log("res", res);
+
+				console.log("balasistore_store", res);
+
+				return res;
 			},
 
 			auth: {

@@ -172,19 +172,20 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 						lvl0: newProduct.categoryList
 							.filter((c) => c.depth === 0)
 							.map((c) => renderParent(c, newProduct.categoryList)),
-						lvl1: newProduct.categoryList
-							.filter((c) => c.depth === 1)
-							.map((c) => renderParent(c, newProduct.categoryList)),
+						lvl1: _category.children
+							.filter((c) => c.depth === 1 && c.locales[0].value === subCategory)
+							.map((c) => renderParent(c, [_category])),
 						lvl2: [],
 						lvl3: [],
 						lvl4: [],
 					};
-					newProduct.categoryNames = newProduct.categoryList
-						.map(
-							(c) =>
-								[c.locales[0].value, ...c.children.map((c) => c.locales[0].value)] as any
-						)
-						.flat();
+					newProduct.categoryNames = [];
+					if (category) {
+						newProduct.categoryNames.push(category);
+					}
+					if (subCategory) {
+						newProduct.categoryNames.push(subCategory);
+					}
 				}
 			}
 
@@ -201,8 +202,8 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 		// upload category
 		await admin
 			.firestore()
-			.collection("categories")
-			.doc(storeId)
+			.collection(`${companyId}/${storeId}/categories`)
+			.doc("categories")
 			.set({
 				categories: Object.values(categoriesMap),
 			});
@@ -225,8 +226,6 @@ async function updateAllProducts(products: any) {
 		try {
 			const batch = db.batch();
 			chunk.forEach((s: any) => {
-				console.log("s", s.id, s.name[0].value);
-
 				const collectionRef = db
 					.collection(
 						FirebaseAPI.firestore.getPath({

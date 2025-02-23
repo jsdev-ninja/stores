@@ -26,6 +26,8 @@ export async function useAppInit() {
 	const company = companyResponse?.data?.[0];
 	const store = storeResponse?.data?.[0];
 
+	console.log(store, company);
+
 	if (!company || !store) {
 		// todo
 	}

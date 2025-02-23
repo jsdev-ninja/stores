@@ -8,11 +8,11 @@ import { mixPanelApi } from "src/lib/mixpanel";
 import { ProtectedRoute } from "src/features/auth";
 import { TCart } from "src/domains/cart";
 import { useStore } from "src/domains/Store";
-import { CategoryService } from "src/domains/Category";
 import { TProfile } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
 import { NextUIProvider } from "@nextui-org/react";
+import { useAppApi } from "src/appApi";
 
 const SuperAdminLayout = lazy(() => import("src/pages/superAdmin"));
 const StoreLayout = lazy(() => import("src/pages/store/StoreLayout"));
@@ -27,6 +27,8 @@ function App() {
 	const profile = useProfile();
 
 	const [location] = useLocation();
+
+	const appApi = useAppApi();
 
 	const store = useStore();
 	const user = useAppSelector((state) => state.user.user);
@@ -110,12 +112,14 @@ function App() {
 			actions.dispatch(actions.user.setUser(user));
 		});
 
-		CategoryService.list(store.id, store.companyId).then((result) => {
-			actions.dispatch(actions.category.setCategories(result));
+		appApi.system.getStoreCategories().then((result) => {
+			console.log("result", result);
+
+			actions.dispatch(actions.category.setCategories(result?.data?.categories ?? []));
 		});
 
 		return () => {};
-	}, [actions, appReady]);
+	}, [actions, appReady, store?.id, user?.uid]);
 
 	if (!appReady || !user) {
 		return (

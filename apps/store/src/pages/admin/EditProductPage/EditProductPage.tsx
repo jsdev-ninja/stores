@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Flex } from "src/components/Flex";
 import { Form } from "src/components/Form";
-import { CategoryService, TFlattenCategory } from "src/domains/Category";
+import { TFlattenCategory } from "src/domains/Category";
 import { useStore } from "src/domains/Store";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate, useParams } from "src/navigation";
@@ -108,9 +108,7 @@ export function EditProductPage() {
 
 	useEffect(() => {
 		if (!store?.id) return;
-		CategoryService.list(store.id, store.companyId).then((items) =>
-			setCategories(flatten(items))
-		);
+		appApi.system.getStoreCategories().then((items) => setCategories(flatten(items?.data?.categories ?? [])));
 	}, [store?.id]);
 
 	function renderParent(category: TCategory, categories: TFlattenCategory[]): string {

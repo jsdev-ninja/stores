@@ -7,11 +7,6 @@ import { AddCategoryPage } from "../AddCategoryPage";
 import { RouteKeys } from "src/lib/router/types";
 import { EditProductPage } from "../EditProductPage/EditProductPage";
 import AdminOrdersPages from "../Orders/AdminOrdersPages";
-import { useStore } from "src/domains/Store";
-import { useEffect } from "react";
-import { CategoryService } from "src/domains/Category";
-import { Unsubscribe } from "firebase/firestore";
-import { useStoreActions } from "src/infra";
 import AdminSettingsPage from "../AdminSettingsPage";
 import AdminHomePage from "../AdminHomePage";
 import { WebsiteLogo } from "src/widgets/WebsiteLogo";
@@ -38,25 +33,7 @@ const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any 
 ] as const;
 
 export default function AdminLayout() {
-	const store = useStore();
-
-	const actions = useStoreActions();
-
 	const { t } = useTranslation(["common"]);
-
-	useEffect(() => {
-		let unsubscribe: Unsubscribe;
-
-		if (store?.id) {
-			unsubscribe = CategoryService.subscribe(store.id, (res: any) => {
-				actions.dispatch(actions.category.setCategories(res.categories ?? []));
-			});
-		}
-
-		return () => {
-			unsubscribe?.();
-		};
-	}, [store?.id]);
 
 	return (
 		<div className="">

@@ -1,8 +1,6 @@
 import { Configure, InstantSearch, useInfiniteHits, useInstantSearch } from "react-instantsearch";
 import { AlgoliaClient } from "src/services";
 import { ReactNode, useEffect, useRef, useState } from "react";
-
-import type { Hit as AlgoliaHit } from "instantsearch.js";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
 import { SearchBox } from "./SearchBox";
 import { useStore } from "src/domains/Store";
@@ -21,12 +19,10 @@ export function ProductsWidget({
 
 	if (!store?.companyId || !store.id) return null;
 
-	const _filter = filter ? ` AND (${filter})` : "";
+	const _filter = filter ? `AND ${filter}` : "";
 	console.log("_filter", _filter);
 
-	const filters = `(companyId:${store.companyId} AND storeId:${store.id}) ${_filter}`;
-	// const filters = ``;
-	console.log("filters", filters);
+	const filters = `companyId:${store.companyId} AND storeId:${store.id} ${_filter}`;
 
 	return (
 		<InstantSearch
@@ -37,11 +33,17 @@ export function ProductsWidget({
 				persistHierarchicalRootCount: false,
 			}}
 		>
-			<Configure filters={filters} attributesToHighlight={[]} />
+			<Configure
+				queryLanguages={["he", "en"]}
+				{...(filters ? { filters: filters } : {})}
+				attributesToHighlight={[]}
+			/>
 			{children}
 		</InstantSearch>
 	);
 }
+// filters: categoryNames:"קפה שחור"
+// filters: categoryNames:"קפה שחור"
 
 ProductsWidget.Filter = ProductFilter;
 ProductsWidget.Products = Products;
@@ -51,7 +53,8 @@ export function Products({
 	children,
 	emptyStateAction,
 }: {
-	children: (products: AlgoliaHit<TProduct>[]) => ReactNode;
+	// AlgoliaHit<TProduct>
+	children: (products: any[]) => ReactNode;
 	emptyStateAction: () => void;
 }) {
 	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>({});
@@ -86,9 +89,8 @@ export function Products({
 		}
 	}, [isLastPage]);
 
+	console.log("items.length", items, status, isLastPage);
 	if (status === "loading" || status === "stalled" || !ready) return null; //todo
-
-	console.log("items.length", items);
 
 	if (!items.length) {
 		return (
@@ -108,7 +110,7 @@ export function Products({
 	return (
 		<>
 			{children(items)}
-			<div className="" ref={sentinelRef}></div>
+			{/* <div aria-hidden="true" className="w-full" ref={sentinelRef}></div> */}
 		</>
 	);
 }
