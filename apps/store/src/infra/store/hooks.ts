@@ -1,5 +1,5 @@
 import { cartSlice } from "src/domains/cart";
-import { useAppDispatch, useAppSelector } from "./store";
+import { useAppDispatch } from "./store";
 import { CategorySlice } from "src/domains/Category";
 import { userSlice } from "src/domains/user";
 import { useMemo } from "react";
