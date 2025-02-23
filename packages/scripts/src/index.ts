@@ -1,19 +1,7 @@
 import { input, select } from "@inquirer/prompts";
 import { admin } from "./admin";
-import { TCompany, TStore } from "@jsdev_ninja/core";
+import { CompanySchema, FirebaseAPI, TCompany, TStore } from "@jsdev_ninja/core";
 
-const stores = {
-	tester: {
-		company: "tester",
-		store: "tester-store",
-		tenantId: "tester-tenant-2vcku",
-	},
-	balasi: {
-		company: "balasistore_company",
-		store: "balasistore_store",
-		tenantId: "balasistore-tenant-p1lml",
-	},
-} as const;
 async function main() {
 	const action = await select({
 		message: "selection action",
@@ -25,17 +13,29 @@ async function main() {
 	});
 
 	if (action === "createAdmin") {
-		const selectedStoreName = await select({
-			message: "selection store",
-			choices: Object.keys(stores).map((s) => ({ name: s, value: s })),
+		const storesRes = await admin
+			.firestore()
+			.collection(FirebaseAPI.firestore.systemCollections.stores)
+			.get();
+
+		const stores: TStore[] = [];
+		storesRes.forEach((doc) => {
+			if (doc.exists) {
+				stores.push(doc.data() as TStore);
+			}
 		});
-		console.log("selectedStoreName", selectedStoreName);
+
+		const selectedStore = await select({
+			message: "selection store",
+			choices: stores.map((s) => ({ name: s.name, value: s })),
+		});
+		console.log("selectedStore", selectedStore);
+
 		const email = await input({ message: "enter email" });
 		const password = await input({ message: "enter password" });
 		const name = await input({ message: "enter name" });
 
-		const store = stores[selectedStoreName as keyof typeof stores];
-		const auth = admin.auth().tenantManager().authForTenant(store.tenantId);
+		const auth = admin.auth().tenantManager().authForTenant(selectedStore.tenantId);
 		const userRecord = await auth.createUser({
 			displayName: name,
 			email,
@@ -45,23 +45,17 @@ async function main() {
 
 		const token = {
 			admin: true,
-			tenantId: store.tenantId,
-			storeId: store.store,
+			tenantId: selectedStore.tenantId,
+			storeId: selectedStore.id,
 		};
 		await auth.setCustomUserClaims(userRecord.uid, token);
-		console.log("SUCCESS", action, selectedStoreName, email, password, name);
+		console.log("SUCCESS");
 	}
 
 	if (action === "createStore") {
 		const store: TStore = {
 			id: "",
 			companyId: "",
-			hypData: {
-				isJ5: "True",
-				KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",
-				masof: "0010302921",
-				password: "hyp1234",
-			},
 			name: "",
 			logoUrl: "",
 			tenantId: "",
@@ -73,6 +67,7 @@ async function main() {
 		const companyId = await input({ message: "enter  store  companyId" });
 		const tenantId = await input({ message: "enter store tenantId" });
 		const url = await input({ message: "enter store url" });
+		const email = await input({ message: "enter store email" });
 
 		store.id = id;
 		store.name = name;
@@ -80,7 +75,26 @@ async function main() {
 		store.tenantId = tenantId;
 		store.urls.push(url);
 
-		await admin.firestore().collection("stores").doc(id).set(store);
+		await admin
+			.firestore()
+			.collection(FirebaseAPI.firestore.systemCollections.stores)
+			.doc(id)
+			.set(store);
+		await admin
+			.firestore()
+			.collection(FirebaseAPI.firestore.systemCollections.stores)
+			.doc(id)
+			.collection("private")
+			.doc("data")
+			.set({
+				hypData: {
+					isJ5: "True",
+					KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",
+					masof: "0010302921",
+					password: "hyp1234",
+				},
+				storeEmail: email,
+			});
 
 		console.log("store", store);
 	}
@@ -90,10 +104,6 @@ async function main() {
 			id: "",
 			name: "",
 			websiteDomains: [],
-			owner: {
-				emails: { mainEmail: "" },
-				name: "",
-			},
 		};
 
 		const id = await input({ message: "enter company id" });
@@ -103,10 +113,26 @@ async function main() {
 
 		company.id = id;
 		company.name = name;
-		company.owner.name = ownerName;
-		company.owner.emails.mainEmail = ownerEmil;
 
-		await admin.firestore().collection("companies").doc(id).set(company);
+		const validation = CompanySchema.safeParse(company);
+
+		if (!validation.success) return;
+
+		await admin
+			.firestore()
+			.collection(FirebaseAPI.firestore.systemCollections.companies)
+			.doc(id)
+			.set(company);
+		await admin
+			.firestore()
+			.collection(FirebaseAPI.firestore.systemCollections.companies)
+			.doc(id)
+			.collection("private")
+			.doc("data")
+			.set({
+				emails: { mainEmail: ownerEmil },
+				name: ownerName,
+			});
 
 		console.log("company", company);
 	}
