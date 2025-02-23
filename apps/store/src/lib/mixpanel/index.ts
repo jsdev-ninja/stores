@@ -21,7 +21,7 @@ export const mixPanelApi = {
 
 		mixpanel.init("7bbee5e370000e2b2c4eff3f8b5e6460", {
 			debug: debug,
-			track_pageview: false,
+			track_pageview: "url-with-path-and-query-string",
 			persistence: "localStorage",
 		});
 	},
@@ -30,7 +30,6 @@ export const mixPanelApi = {
 		{ store, profile }: { store: TStore; profile: TProfile | null }
 	) => {
 		const mixpanel = (await import("mixpanel-browser")).default;
-
 		mixpanel.identify(user.uid);
 		mixpanel.people.set({
 			$name: user.displayName ?? user.email,
@@ -40,11 +39,12 @@ export const mixPanelApi = {
 			storeId: store.id,
 			companyId: store.companyId,
 			clientType: profile?.clientType,
+			MODE: CONFIG.MODE,
 		});
 	},
 	pageView: async (data: any) => {
 		const mixpanel = (await import("mixpanel-browser")).default;
-		mixpanel.track_pageview(data);
+		mixpanel.track_pageview({ ...data, MODE: CONFIG.MODE }, { event_name: "custom_page_view" });
 	},
 	track: async (event: events, data: object) => {
 		const mixpanel = (await import("mixpanel-browser")).default;
