@@ -1,6 +1,6 @@
 export const systemCollections = {
-	stores: "stores",
-	companies: "companies",
+	stores: "STORES",
+	companies: "COMPANIES",
 } as const;
 
 export const storeCollections = {

@@ -3,7 +3,7 @@ import {
 	THypTokenRequest,
 	THypTokenResponse,
 	TPaymentLinkRequest,
-} from "../entities/Payment";
+} from "../../schema";
 
 const baseUrl = "https://pay.hyp.co.il/p/";
 

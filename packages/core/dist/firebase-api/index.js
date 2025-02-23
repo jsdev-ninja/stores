@@ -1,6 +1,6 @@
 export const systemCollections = {
-    stores: "stores",
-    companies: "companies",
+    stores: "STORES",
+    companies: "COMPANIES",
 };
 export const storeCollections = {
     products: "products",

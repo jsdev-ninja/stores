@@ -1,6 +1,6 @@
 export declare const systemCollections: {
-    readonly stores: "stores";
-    readonly companies: "companies";
+    readonly stores: "STORES";
+    readonly companies: "COMPANIES";
 };
 export declare const storeCollections: {
     readonly products: "products";
@@ -14,8 +14,8 @@ export declare const storeCollections: {
 };
 export declare const FirestoreApi: {
     systemCollections: {
-        readonly stores: "stores";
-        readonly companies: "companies";
+        readonly stores: "STORES";
+        readonly companies: "COMPANIES";
     };
     storeCollections: {
         readonly products: "products";
@@ -38,8 +38,8 @@ export declare const FirestoreApi: {
 export declare const FirebaseAPI: {
     firestore: {
         systemCollections: {
-            readonly stores: "stores";
-            readonly companies: "companies";
+            readonly stores: "STORES";
+            readonly companies: "COMPANIES";
         };
         storeCollections: {
             readonly products: "products";

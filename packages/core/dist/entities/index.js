@@ -6,7 +6,6 @@ export * from "./Company";
 export * from "./FavoriteProduct";
 export * from "./Locale";
 export * from "./Order";
-export * from "./Payment";
 export * from "./Product";
 export * from "./Profile";
 export * from "./Store";
