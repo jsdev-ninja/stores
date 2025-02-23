@@ -1701,13 +1701,6 @@
   resolved "https://registry.yarnpkg.com/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz#9299f82874bab9e4c7f9c48d865becbfe8d6907c"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@jsdev_ninja/core@0.8.53":
-  version "0.8.53"
-  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.8.53.tgz#5c2efb2dba6f43dce9d24eb80196ffa6e7aba036"
-  integrity sha512-wQ5nNfoP4EEoEN6cn9np6s6Qafmq6yD3AHmHsQF2vGZCOhS8Fp+6b/XRdCk6DSfNSQ+Gc7uinm1qqcyO4Zo1Sw==
-  dependencies:
-    zod "^3.23.8"
-
 "@mdx-js/react@^3.0.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@mdx-js/react/-/react-3.1.0.tgz#c4522e335b3897b9a845db1dbdd2f966ae8fb0ed"

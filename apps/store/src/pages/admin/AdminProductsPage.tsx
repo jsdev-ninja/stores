@@ -29,17 +29,16 @@ export function AdminProductsPage() {
 		4: "",
 	});
 
-	const isEmpty = !selectedCategory["0"];
+	const topCategory = Object.values(selectedCategory);
+	const index = topCategory.findLastIndex((el) => !!el);
+	console.log("index", index);
 
-	const filter = !isEmpty
-		? Object.entries(selectedCategory)
-				.map(([, name]) => {
-					return name ? `categoryNames:"${decodeURIComponent(name)}"` : "";
-				})
-				.filter(Boolean)
-				.join(" OR ")
-		: "";
+	const categoryName =
+		selectedCategory[index.toString() as unknown as keyof typeof selectedCategory];
 
+	const filter = categoryName ? `categoryNames:'${decodeURIComponent(categoryName)}'` : "";
+
+	console.log("filter", filter);
 	return (
 		<ProductsWidget filter={filter}>
 			<div className="">
