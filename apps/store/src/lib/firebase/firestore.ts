@@ -150,6 +150,7 @@ async function listV2<T>(data: {
 
 		const result: any = [];
 		const querySnapshot = await getDocs(q);
+
 		querySnapshot.forEach((doc) => {
 			// doc.data() is never undefined for query doc snapshots
 			result.push({

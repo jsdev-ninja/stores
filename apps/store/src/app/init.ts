@@ -3,6 +3,7 @@ import { TStore } from "src/domains/Store";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import DefaultLogoSrc from "../assets/default_logo.png";
+import { FirebaseAPI } from "@jsdev_ninja/core";
 
 export async function useAppInit() {
 	const actions = useStoreActions();
@@ -11,13 +12,13 @@ export async function useAppInit() {
 	if (appReady) return;
 
 	const companyRequest = FirebaseApi.firestore.listV2<TCompany>({
-		collection: "companies",
+		collection: FirebaseAPI.firestore.systemCollections.companies,
 		where: [
 			{ name: "websiteDomains", operator: "array-contains", value: window.location.origin },
 		],
 	});
 	const storeRequest = FirebaseApi.firestore.listV2<TStore>({
-		collection: "stores",
+		collection: FirebaseAPI.firestore.systemCollections.stores,
 		where: [{ name: "urls", operator: "array-contains", value: window.location.origin }],
 	});
 
@@ -25,8 +26,6 @@ export async function useAppInit() {
 
 	const company = companyResponse?.data?.[0];
 	const store = storeResponse?.data?.[0];
-
-	console.log(store, company);
 
 	if (!company || !store) {
 		// todo
