@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "src/components/button";
-import { CategorySlice } from "src/domains/Category";
 import { TCategory } from "@jsdev_ninja/core";
-import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
 import { CategoryTree } from "src/widgets/Category/CategoryTree/CategoryTree";
 import { isEqual } from "lodash";
@@ -10,12 +8,13 @@ import { useAppApi } from "src/appApi";
 
 export function AdminCategoriesPages() {
 	const appApi = useAppApi();
-	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
 	const [categoriesToEdit, setCategoriesToEdit] = useState<TCategory[]>([]);
 
 	useEffect(() => {
-		setCategoriesToEdit(JSON.parse(JSON.stringify(categories)));
-	}, [categories]);
+		appApi.system.getStoreCategories().then((res) => {
+			setCategoriesToEdit(res?.data?.categories ?? []);
+		});
+	}, []);
 
 	function addCategory() {
 		return navigate({
@@ -23,7 +22,8 @@ export function AdminCategoriesPages() {
 		});
 	}
 
-	const noChanged = isEqual(categories, categoriesToEdit);
+	// const noChanged = isEqual(categories, categoriesToEdit);
+	const noChanged = true;
 
 	async function save() {
 		await appApi.admin.category.update(categoriesToEdit);
@@ -37,12 +37,12 @@ export function AdminCategoriesPages() {
 			)}
 			<div className="border w-80 p-4 flex flex-col sticky top-20 h-[80vh] self-start">
 				<div className="">
-					<Button fullWidth onClick={addCategory}>
+					<Button fullWidth onPress={addCategory}>
 						Add Category
 					</Button>
 				</div>
 				<div className="mt-auto">
-					<Button onClick={save} disabled={noChanged}>
+					<Button onPress={save} disabled={noChanged}>
 						Save
 					</Button>
 				</div>

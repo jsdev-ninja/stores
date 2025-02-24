@@ -47,12 +47,15 @@ export const useAppApi = () => {
 	const cart = useAppSelector((state) => state.cart.currentCart);
 	const cartId = cart?.id ?? FirebaseApi.firestore.generateDocId("cart");
 
+	const storeId = store?.id;
+	const companyId = store?.companyId;
+
 	const [loading, setLoading] = useState<
 		Partial<Record<SubNestedKeys<typeof api>, boolean | undefined>>
 	>({});
 
 	const isValid = !!company?.id && store?.id && !!user?.uid;
-	const isValidAdmin = !!company?.id && store?.id && !!user?.uid && !!user.admin;
+	const isValidAdmin = !!companyId && !!storeId && !!user?.uid && !!user.admin;
 
 	const api = useMemo(() => {
 		const orders = {
@@ -530,13 +533,17 @@ export const useAppApi = () => {
 				create: async (category: TCategory) => {
 					if (!isValidAdmin) return;
 
-					return await FirebaseApi.firestore.update(
-						store.id,
-						{
+					return await FirebaseApi.firestore.setV2({
+						collection: FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "categories",
+						}),
+						doc: {
+							id: "categories",
 							categories: FirebaseApi.firestore.arrayUnion(category),
 						},
-						"categories"
-					);
+					});
 				},
 				update: async (categories: TCategory[]) => {
 					if (!isValidAdmin) return;

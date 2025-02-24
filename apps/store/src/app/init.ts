@@ -43,6 +43,9 @@ export async function useAppInit() {
 		document.title = company.name;
 	}
 
+	console.log('store',store?.name);
+	
+
 	!!store && FirebaseApi.auth.setTenantId(store.tenantId);
 	!!company && actions.dispatch(actions.company.setCompany(company));
 	!!store && actions.dispatch(actions.store.setStore(store));
