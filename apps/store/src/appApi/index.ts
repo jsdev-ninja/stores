@@ -548,13 +548,17 @@ export const useAppApi = () => {
 				update: async (categories: TCategory[]) => {
 					if (!isValidAdmin) return;
 
-					return await FirebaseApi.firestore.update(
-						store.id,
-						{
+					return await FirebaseApi.firestore.setV2({
+						collection: FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "categories",
+						}),
+						doc: {
+							id: "categories",
 							categories: categories,
 						},
-						"categories"
-					);
+					});
 				},
 			},
 		};

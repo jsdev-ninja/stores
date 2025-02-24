@@ -17,8 +17,8 @@ export const modals = {
 	profileEdit: ({ profile }: { profile: TProfile }) => <ProfileEditModal profile={profile} />,
 	authModal: () => <AuthModal />,
 	AdminCompanyCreateModal: () => <AdminCompanyCreateModal />,
-	categoryFormModal: ({ categoryId }: { categoryId: string }) => (
-		<CategoryFormModal categoryId={categoryId} />
+	categoryFormModal: ({ categoryId, onSave }: { categoryId: string; onSave?: any }) => (
+		<CategoryFormModal categoryId={categoryId} onSave={onSave} />
 	),
 };
 

@@ -3,19 +3,25 @@ import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
 import { Modal } from "src/components/Modal/Modal";
 import { TCategory, CategorySchema } from "@jsdev_ninja/core";
-import { useAppSelector } from "src/infra";
 import { modalApi } from "src/infra/modals";
 import { flatten } from "src/utils";
 import { buildTree } from "src/widgets/Category/CategoryTree/utils";
+import { useEffect, useState } from "react";
 
-export function CategoryFormModal({ categoryId }: { categoryId: string }) {
+export function CategoryFormModal({ categoryId, onSave }: { categoryId: string; onSave?: any }) {
 	const appApi = useAppApi();
 
-	const categories = useAppSelector((state) => state.category.categories);
+	const [categories, setCategories] = useState<TCategory[]>([]);
 
 	const flattenCategory = flatten(categories);
 
 	const category = flattenCategory.find((c) => c.id === categoryId);
+
+	useEffect(() => {
+		appApi.system.getStoreCategories().then((res) => {
+			setCategories(res?.data?.categories ?? []);
+		});
+	}, []);
 
 	if (!category) {
 		return null;
@@ -34,6 +40,7 @@ export function CategoryFormModal({ categoryId }: { categoryId: string }) {
 						return data;
 					});
 					await appApi.admin.category.update(buildTree(newCategories as any));
+					onSave?.(buildTree(newCategories as any));
 					modalApi.closeModal("categoryFormModal");
 				}}
 				onError={(errors) => {
@@ -58,7 +65,7 @@ export function CategoryFormModal({ categoryId }: { categoryId: string }) {
 						</div>
 					</div>
 					<div className="flex items-center justify-between mt-8 mb-4">
-						<Button onClick={() => modalApi.closeModal("categoryFormModal")}>Cancel</Button>
+						<Button onPress={() => modalApi.closeModal("categoryFormModal")}>Cancel</Button>
 						<Form.Submit>Save</Form.Submit>
 					</div>
 				</div>

@@ -255,7 +255,7 @@ export function CategoryTree({ indentationWidth = 50, categories = [], setCatego
 	const activeItem = activeId ? flattenedItems.find(({ id }) => id === activeId) : null;
 
 	return (
-		<div className="w-full">
+		<div className="flex-grow">
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}
@@ -280,6 +280,7 @@ export function CategoryTree({ indentationWidth = 50, categories = [], setCatego
 								collapsed={Boolean(collapsed && children.length)}
 								onCollapse={children.length ? () => handleCollapse(id) : undefined}
 								onRemove={() => handleRemove(id)}
+								setCategories={setCategories}
 							/>
 						);
 					})}

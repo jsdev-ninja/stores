@@ -8,11 +8,16 @@ import { useAppApi } from "src/appApi";
 
 export function AdminCategoriesPages() {
 	const appApi = useAppApi();
+	const [categories, setCategories] = useState<TCategory[]>([]);
 	const [categoriesToEdit, setCategoriesToEdit] = useState<TCategory[]>([]);
 
 	useEffect(() => {
+		setCategoriesToEdit(structuredClone(categories));
+	}, [categories]);
+
+	useEffect(() => {
 		appApi.system.getStoreCategories().then((res) => {
-			setCategoriesToEdit(res?.data?.categories ?? []);
+			setCategories(res?.data?.categories ?? []);
 		});
 	}, []);
 
@@ -22,19 +27,17 @@ export function AdminCategoriesPages() {
 		});
 	}
 
-	// const noChanged = isEqual(categories, categoriesToEdit);
-	const noChanged = true;
+	const noChanged = isEqual(categories, categoriesToEdit);
 
 	async function save() {
 		await appApi.admin.category.update(categoriesToEdit);
+		setCategories(categoriesToEdit);
 	}
 
 	// todo: fix ltr
 	return (
 		<div className="w-full border p-20 ltr flex flex-grow  gap-5">
-			{!!categoriesToEdit.length && (
-				<CategoryTree setCategories={setCategoriesToEdit} categories={categoriesToEdit} />
-			)}
+			<CategoryTree setCategories={setCategoriesToEdit} categories={categoriesToEdit} />
 			<div className="border w-80 p-4 flex flex-col sticky top-20 h-[80vh] self-start">
 				<div className="">
 					<Button fullWidth onPress={addCategory}>
@@ -42,7 +45,7 @@ export function AdminCategoriesPages() {
 					</Button>
 				</div>
 				<div className="mt-auto">
-					<Button onPress={save} disabled={noChanged}>
+					<Button onPress={save} color="danger" isDisabled={noChanged}>
 						Save
 					</Button>
 				</div>

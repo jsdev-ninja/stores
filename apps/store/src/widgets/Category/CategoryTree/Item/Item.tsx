@@ -81,6 +81,7 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "id">
 	onRemove?(): void;
 	wrapperRef?(node: HTMLLIElement): void;
 	id: string;
+	setCategories?: any;
 }
 
 export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
@@ -93,6 +94,7 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 		collapsed,
 		onCollapse,
 		onRemove,
+		setCategories,
 		value,
 		...props
 	}) => {
@@ -150,7 +152,10 @@ export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
 							size="sm"
 							name="edit"
 							onClick={() => {
-								modalApi.openModal("categoryFormModal", { categoryId: id });
+								modalApi.openModal("categoryFormModal", {
+									categoryId: id,
+									onSave: setCategories,
+								});
 							}}
 						/>
 						{!clone && onRemove && <Remove onClick={onRemove} />}

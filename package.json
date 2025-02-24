@@ -8,6 +8,11 @@
 		"packages/*",
 		"apps/*"
 	],
+	"browserslist": [
+		"defaults",
+		"last 5 versions",
+		"not dead"
+	],
 	"scripts": {
 		"dev": "yarn workspace store run dev",
 		"start_scripts": "yarn workspace @jsdev_ninja/scripts run start",
@@ -15,5 +20,8 @@
 		"build": "yarn workspace store run build",
 		"build_all": "yarn workspace core run build & yarn workspace store run build",
 		"deploy_functions": "cd functions & npm run deploy"
+	},
+	"dependencies": {
+		"browserslist": "^4.24.4"
 	}
 }
