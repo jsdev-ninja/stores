@@ -86,7 +86,7 @@ export function AppBar() {
 				<div className="size-11">
 					<WebsiteLogo />
 				</div>
-				<p className="font-bold text-inherit">{store?.name}</p>
+				<p className="font-bold text-inherit mx-2">{store?.name}</p>
 			</NavbarBrand>
 			<NavbarContent className="hidden md:flex gap-4" justify="center">
 				{navLinks.map((link) => {

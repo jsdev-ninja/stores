@@ -6,7 +6,7 @@ export function WebsiteLogo() {
 	const store = useStore();
 	return (
 		<img
-			src={store?.logoUrl ?? DefaultLogoSrc}
+			src={store?.logoUrl || DefaultLogoSrc}
 			alt=""
 			className="w-full h-full rounded object-contain"
 			onClick={() => {
