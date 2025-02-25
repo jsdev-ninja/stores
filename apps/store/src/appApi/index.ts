@@ -481,13 +481,9 @@ export const useAppApi = () => {
 					const fileRef = await FirebaseApi.storage.upload(path, logo);
 					const newLogo = { id: path, url: fileRef.url };
 					await FirebaseApi.firestore.setV2({
-						collection: FirebaseAPI.firestore.getPath({
-							storeId,
-							companyId,
-							collectionName: "settings",
-						}),
+						collection: FirebaseAPI.firestore.systemCollections.stores,
 						doc: {
-							id: "website",
+							id: storeId,
 							logoUrl: newLogo.url,
 						},
 					});
