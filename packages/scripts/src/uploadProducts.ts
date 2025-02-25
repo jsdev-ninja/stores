@@ -276,7 +276,7 @@ async function downloadImage(product: any, id: any) {
 
 		const res: any = await uploadFile({
 			file: response.data,
-			name: `products/${storeId}/${id}/` + image,
+			name: `${companyId}/${storeId}/products/${product.SKU || product.ProductSKU}/` + image,
 		});
 
 		return { url: res.url, id: crypto.randomUUID() };
