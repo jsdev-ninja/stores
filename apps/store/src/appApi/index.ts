@@ -435,7 +435,6 @@ export const useAppApi = () => {
 
 				// remove product images
 				if (product.images?.[0]) {
-					console.log("save product remove all image");
 					await FirebaseApi.storage.remove(product.images?.[0].url);
 				}
 

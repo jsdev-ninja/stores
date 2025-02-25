@@ -6,8 +6,6 @@ import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
 export async function productCreate(newProduct: TNewProduct) {
 	const { image, ...rest } = newProduct;
 
-	console.log("save product", newProduct);
-
 	const categories = newProduct.categoryList;
 
 	const productId = newProduct.sku;
@@ -34,17 +32,14 @@ export async function productCreate(newProduct: TNewProduct) {
 	if (image) {
 		// upload image
 		try {
-			console.log("save product upload new image");
 			const id = crypto.randomUUID();
 			const path = `${newProduct.companyId}/${newProduct.storeId}/products/${productId}/${id}`;
 			const fileRef = await FirebaseApi.storage.upload(path, image);
 
 			// remove all image
 			if (newProduct.images?.[0]) {
-				console.log("save product remove all image");
 				await FirebaseApi.storage.remove(newProduct.images?.[0].url);
 			}
-			console.log("file", fileRef);
 
 			product.images = [{ id: id, url: fileRef.url }];
 		} catch (error) {

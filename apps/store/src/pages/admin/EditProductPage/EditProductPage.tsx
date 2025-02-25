@@ -130,8 +130,6 @@ export function EditProductPage() {
 					product ? { ...product, profitPercentage: 0, purchasePrice: 0 } : undefined
 				}
 				onSubmit={async (data) => {
-					console.log("edit", data);
-
 					await appApi.admin.saveProduct(data);
 
 					navigate({ to: "admin.products" });
