@@ -16,7 +16,7 @@ admin.initializeApp({});
 
 export const uiLogs = functionsV2.https.onCall((opts) => {
 	const { data } = opts;
-	functionsV2.logger.write({ message: "AAAA", severity: "ALERT", data });
+	functionsV2.logger.write(data);
 });
 
 export { appInit } from "./api/init";

@@ -6,7 +6,7 @@ import { useAppApi } from "src/appApi";
 import { ButtonGroup, ButtonProps } from "@nextui-org/react";
 import { useTranslation } from "react-i18next";
 
-type Props = {} & Omit<ButtonProps, "value" | "onChange">;
+type Props = Omit<ButtonProps, "value" | "onChange">;
 
 export function ProductCartButton(props: Props) {
 	const { product } = useProduct();
@@ -26,7 +26,9 @@ export function ProductCartButton(props: Props) {
 			<Button
 				color="primary"
 				fullWidth
-				onPress={() => appApi.user.addItemToCart({ product })}
+				onPress={() => {
+					appApi.user.addItemToCart({ product });
+				}}
 				{...props}
 			>
 				{t("addToCart")}

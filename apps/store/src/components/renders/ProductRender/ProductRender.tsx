@@ -1,10 +1,9 @@
 import { TProduct } from "@jsdev_ninja/core";
 import { ComponentType, LazyExoticComponent, Suspense, lazy } from "react";
 import { useStore } from "src/domains/Store";
-
 import { TStore } from "src/domains/Store";
 
-export const RENDER_CONFIG: Record<
+const RENDER_CONFIG: Record<
 	TStore["id"],
 	{ productCard?: LazyExoticComponent<ComponentType<{ product: TProduct }>> }
 > = {
@@ -26,7 +25,7 @@ export function ProductRender({ product }: { product: TProduct }) {
 
 	return (
 		<Suspense fallback="loading">
-			{!!Component ? <Component product={product} /> : <DefaultProductCard product={product} />}
+			{Component ? <Component product={product} /> : <DefaultProductCard product={product} />}
 		</Suspense>
 	);
 }

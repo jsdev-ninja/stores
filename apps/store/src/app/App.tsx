@@ -8,7 +8,7 @@ import { mixPanelApi } from "src/lib/mixpanel";
 import { ProtectedRoute } from "src/features/auth";
 import { TCart } from "src/domains/cart";
 import { useStore } from "src/domains/Store";
-import { TProfile } from "@jsdev_ninja/core";
+import { FirebaseAPI, TProfile } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
 import { NextUIProvider } from "@nextui-org/react";
@@ -34,6 +34,9 @@ function App() {
 	const user = useAppSelector((state) => state.user.user);
 
 	const appReady = useAppSelector((state) => state.ui.appReady);
+
+	const storeId = store?.id ?? "";
+	const companyId = store?.companyId ?? "";
 
 	useAppInit();
 
@@ -79,7 +82,11 @@ function App() {
 		if (!user || !store) return;
 
 		const unsubscribe = FirebaseApi.firestore.subscribeDocV2<TCart>({
-			collection: "cart",
+			collection: FirebaseAPI.firestore.getPath({
+				collectionName: "cart",
+				companyId,
+				storeId,
+			}),
 			where: [
 				{ name: "storeId", value: store.id, operator: "==" },
 				{ name: "userId", operator: "==", value: user.uid },

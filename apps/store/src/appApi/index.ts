@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { TCompany, useCompany } from "src/domains/Company";
 import { OrderApi, TOrder } from "src/domains/Order";
@@ -22,6 +22,7 @@ import { TCart } from "src/domains/cart";
 import { CartService } from "src/domains/cart/CartService";
 import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
+import { LogPayload } from "src/lib/firebase/api";
 
 // client -> login, logout, register
 // client -> add product to cart, remove product from cart, add product to favorites
@@ -38,22 +39,62 @@ function productInCart(cart: TCart | null, product: TProduct) {
 }
 
 export const useAppApi = () => {
+	const appReady = useAppSelector((state) => state.ui.appReady);
 	const company = useCompany();
-
 	const store = useStore();
 	const user = useAppSelector((state) => state.user.user);
 	const cart = useAppSelector((state) => state.cart.currentCart);
 	const cartId = cart?.id ?? FirebaseApi.firestore.generateDocId("cart");
 
 	const storeId = store?.id;
+	const tenantId = store?.tenantId;
 	const companyId = store?.companyId;
+	const userId = user?.uid;
 
 	const [loading, setLoading] = useState<
 		Partial<Record<SubNestedKeys<typeof api>, boolean | undefined>>
 	>({});
 
+	const isValidStoreData = companyId && storeId && tenantId;
+	const isValidUser = userId && isValidStoreData;
+
 	const isValid = !!company?.id && store?.id && !!user?.uid;
 	const isValidAdmin = !!companyId && !!storeId && !!user?.uid && !!user.admin;
+
+	const actualCart: TCart = cart ?? {
+		id: cartId,
+		companyId: store?.companyId ?? "",
+		storeId: store?.id ?? "",
+		userId: user?.uid ?? "",
+		items: [],
+		type: "Cart",
+		status: "active",
+	};
+
+	const logger = useCallback(
+		(
+			payload: { message: LogPayload["message"]; severity: LogPayload["severity"] } & {
+				[key: string]: any;
+			}
+		) => {
+			FirebaseApi.api.uiLogs({
+				companyId,
+				storeId,
+				tenantId,
+				userId,
+				...payload,
+			});
+		},
+		[companyId, storeId, tenantId, userId]
+	);
+	useEffect(() => {
+		if (appReady && !isValidStoreData) {
+			logger({
+				message: "invalid store data",
+				severity: "ALERT",
+			});
+		}
+	}, [appReady, isValidStoreData, logger]);
 
 	const api = useMemo(() => {
 		const orders = {
@@ -302,23 +343,25 @@ export const useAppApi = () => {
 			},
 
 			async addItemToCart({ product }: { product: TProduct }) {
-				if (!product || !user || !store || !company) return;
+				if (!isValidUser) {
+					return;
+				}
 
-				const actualCart: Omit<TCart, "id"> = cart ?? {
-					companyId: store.companyId ?? "",
-					storeId: store.id,
-					userId: user.uid,
-					items: [],
-					type: "Cart",
-					status: "active",
-				};
+				logger({
+					message: "user add item to cart",
+					severity: "INFO",
+				});
 
 				const cartItems = cart?.items ?? [];
 
 				const validation = ProductSchema.safeParse(product);
 				if (!validation.success) {
-					// todo handle schema error
-					console.log(validation.error);
+					logger({
+						message: `add item to cart - invalid product data`,
+						severity: "ERROR",
+						product,
+						error: validation.error,
+					});
 					return;
 				}
 				const safeProduct = validation.data;
@@ -331,9 +374,16 @@ export const useAppApi = () => {
 						(cartItem) => cartItem.product.id === product?.id
 					);
 					items[productIndex].amount += 1;
-					CartService.updateCart(cartId, {
-						...actualCart,
-						items,
+					FirebaseApi.firestore.setV2<TCart>({
+						collection: FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "cart",
+						}),
+						doc: {
+							...actualCart,
+							items,
+						},
 					});
 				} else {
 					const items = [
@@ -344,9 +394,16 @@ export const useAppApi = () => {
 						},
 					];
 
-					CartService.updateCart(cartId, {
-						...actualCart,
-						items,
+					FirebaseApi.firestore.setV2<TCart>({
+						collection: FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "cart",
+						}),
+						doc: {
+							...actualCart,
+							items,
+						},
 					});
 				}
 				mixPanelApi.track("USER_ADD_ITEM_TO_CART", {
@@ -354,12 +411,20 @@ export const useAppApi = () => {
 					productName: product.name[0].value, //todo get correct lang
 					storeId: store.id,
 					storeName: store.name,
-					companyId: company.id,
-					companyName: company.name,
+					companyId: companyId,
+					companyName: company?.name,
 				});
 			},
 			async removeItemFromCart({ product }: { product: TProduct }) {
-				if (!product || !user || !store || !cart) return;
+				if (!isValidUser) {
+					return;
+				}
+
+				logger({
+					message: "user remove item from cart",
+					severity: "INFO",
+				});
+
 				const cartItems = cart?.items ?? [];
 
 				const productIndex = cartItems.findIndex(
@@ -372,18 +437,36 @@ export const useAppApi = () => {
 
 				if (items[productIndex].amount > 1) {
 					items[productIndex].amount -= 1;
-					CartService.updateCart(cartId, {
-						...cart,
-						items,
+					FirebaseApi.firestore.setV2<TCart>({
+						collection: FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "cart",
+						}),
+						doc: {
+							...actualCart,
+							items,
+						},
+					});
+					mixPanelApi.track("USER_REMOVE_ITEM_FROM_CART", {
+						productId: product.id,
+						productName: product.name[0].value, //todo get correct lang
 					});
 
 					return;
 				}
 				items.splice(productIndex, 1);
 
-				CartService.updateCart(cartId, {
-					...cart,
-					items,
+				FirebaseApi.firestore.setV2<TCart>({
+					collection: FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "cart",
+					}),
+					doc: {
+						...actualCart,
+						items,
+					},
 				});
 				mixPanelApi.track("USER_REMOVE_ITEM_FROM_CART", {
 					productId: product.id,

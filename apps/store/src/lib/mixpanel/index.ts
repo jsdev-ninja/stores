@@ -21,7 +21,7 @@ export const mixPanelApi = {
 
 		mixpanel.init("7bbee5e370000e2b2c4eff3f8b5e6460", {
 			debug: debug,
-			track_pageview: "url-with-path-and-query-string",
+			track_pageview: false,
 			persistence: "localStorage",
 		});
 	},
