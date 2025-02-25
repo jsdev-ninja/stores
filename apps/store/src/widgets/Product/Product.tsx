@@ -73,7 +73,7 @@ Product.Price = function Price() {
 	}).format(finalPrice);
 
 	return (
-		<div className="text-base font-bold text-primary-500 dark:text-white">{finalPriceView}</div>
+		<p className="text-base font-bold text-primary-500 dark:text-white">{finalPriceView}</p>
 	);
 };
 Product.Currency = function Currency() {

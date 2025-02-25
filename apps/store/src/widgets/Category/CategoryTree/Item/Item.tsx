@@ -18,26 +18,27 @@ export interface AProps extends React.HTMLAttributes<HTMLButtonElement> {
 	cursor?: CSSProperties["cursor"];
 }
 
-export const Action = forwardRef<HTMLButtonElement, AProps>(
-	({ active, className, cursor, style, ...props }, ref) => {
-		return (
-			<button
-				ref={ref}
-				{...props}
-				className={classNames(styles2.Action, className)}
-				tabIndex={0}
-				style={
-					{
-						...style,
-						cursor,
-						"--fill": active?.fill,
-						"--background": active?.background,
-					} as CSSProperties
-				}
-			/>
-		);
-	}
-);
+export const Action = forwardRef<HTMLButtonElement, AProps>(function Action(
+	{ active, className, cursor, style, ...props },
+	ref
+) {
+	return (
+		<button
+			ref={ref}
+			{...props}
+			className={classNames(styles2.Action, className)}
+			tabIndex={0}
+			style={
+				{
+					...style,
+					cursor,
+					"--fill": active?.fill,
+					"--background": active?.background,
+				} as CSSProperties
+			}
+		/>
+	);
+});
 
 export function Remove(props: AProps) {
 	return (
@@ -84,101 +85,99 @@ export interface TreeItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "id">
 	setCategories?: any;
 }
 
-export const TreeItem = forwardRef<HTMLDivElement, TreeItemProps>(
-	({
+export const TreeItem = ({
+	id,
+	depth,
+	childCount,
+	clone,
+	indentationWidth,
+	collapsed,
+	onCollapse,
+	onRemove,
+	setCategories,
+	value,
+	...props
+}: TreeItemProps) => {
+	const {
+		attributes,
+		listeners,
+		isDragging,
+		isSorting,
+		setDraggableNodeRef,
+		setDroppableNodeRef,
+		transform,
+		transition,
+	} = useSortable({
 		id,
-		depth,
-		childCount,
-		clone,
-		indentationWidth,
-		collapsed,
-		onCollapse,
-		onRemove,
-		setCategories,
-		value,
-		...props
-	}) => {
-		const {
-			attributes,
-			listeners,
-			isDragging,
-			isSorting,
-			setDraggableNodeRef,
-			setDroppableNodeRef,
-			transform,
-			transition,
-		} = useSortable({
-			id,
-			animateLayoutChanges,
-		});
-		const style: CSSProperties = {
-			transform: CSS.Translate.toString(transform),
-			transition,
-		};
+		animateLayoutChanges,
+	});
+	const style: CSSProperties = {
+		transform: CSS.Translate.toString(transform),
+		transition,
+	};
 
-		return (
-			<li
-				className={classNames(
-					styles.Wrapper,
-					clone && styles.clone,
-					isDragging && styles.ghost,
-					styles.indicator,
-					iOS && styles.disableSelection,
-					isSorting && styles.disableInteraction
-				)}
-				ref={setDroppableNodeRef}
-				style={
-					{
-						"--spacing": `${indentationWidth * depth}px`,
-					} as React.CSSProperties
-				}
-				{...props}
-			>
-				<div className={styles.TreeItem} ref={setDraggableNodeRef} style={style}>
-					<Handle {...attributes} {...listeners} />
-					<span
+	return (
+		<li
+			className={classNames(
+				styles.Wrapper,
+				clone && styles.clone,
+				isDragging && styles.ghost,
+				styles.indicator,
+				iOS && styles.disableSelection,
+				isSorting && styles.disableInteraction
+			)}
+			ref={setDroppableNodeRef}
+			style={
+				{
+					"--spacing": `${indentationWidth * depth}px`,
+				} as React.CSSProperties
+			}
+			{...props}
+		>
+			<div className={styles.TreeItem} ref={setDraggableNodeRef} style={style}>
+				<Handle {...attributes} {...listeners} />
+				<span
+					onClick={() => {
+						navigate({
+							to: "admin.productsByCategory",
+							params: { categoryName: value },
+						});
+					}}
+					className="mx-5 cursor-pointer"
+				>
+					{value}
+				</span>
+				<div className="flex items-center gap-5 ms-auto">
+					<Icon
+						size="sm"
+						name="edit"
 						onClick={() => {
-							navigate({
-								to: "admin.productsByCategory",
-								params: { categoryName: value },
+							modalApi.openModal("categoryFormModal", {
+								categoryId: id,
+								onSave: setCategories,
 							});
 						}}
-						className="mx-5 cursor-pointer"
-					>
-						{value}
-					</span>
-					<div className="flex items-center gap-5 ms-auto">
-						<Icon
-							size="sm"
-							name="edit"
-							onClick={() => {
-								modalApi.openModal("categoryFormModal", {
-									categoryId: id,
-									onSave: setCategories,
-								});
-							}}
-						/>
-						{!clone && onRemove && <Remove onClick={onRemove} />}
-						{onCollapse && (
-							<Action
-								ref={undefined}
-								onClick={onCollapse}
-								className={classNames({
-									[styles2.collapsed]: collapsed,
-								})}
-							>
-								{collapseIcon}
-							</Action>
-						)}
-						{clone && childCount && childCount > 1 ? (
-							<span className={styles.Count}>{childCount}</span>
-						) : null}
-					</div>
+					/>
+					{!clone && onRemove && <Remove onClick={onRemove} />}
+					{onCollapse && (
+						<Action
+							ref={undefined}
+							onClick={onCollapse}
+							className={classNames({
+								[styles2.collapsed]: collapsed,
+							})}
+						>
+							{collapseIcon}
+						</Action>
+					)}
+					{clone && childCount && childCount > 1 ? (
+						<span className={styles.Count}>{childCount}</span>
+					) : null}
 				</div>
-			</li>
-		);
-	}
-);
+			</div>
+		</li>
+	);
+};
 
 export const collapseIcon = (
 	<svg width="10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 41">

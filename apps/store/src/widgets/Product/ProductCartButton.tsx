@@ -59,18 +59,18 @@ export function InputButton(props: InputButtonProps) {
 		<ButtonGroup size={size} color="primary" className="mx-auto w-full">
 			<Button
 				className="rounded-none rounded-s-lg"
-				onClick={() => onChange(value - 1, "decrease")}
+				onPress={() => onChange(value - 1, "decrease")}
 				isIconOnly
 				{...rest}
 			>
 				-
 			</Button>
-			<Button fullWidth onClick={(e) => e.stopPropagation()} disableRipple disabled>
+			<Button fullWidth disableRipple disableAnimation disabled>
 				{value}
 			</Button>
 			<Button
 				className=" rounded-none rounded-e-lg"
-				onClick={() => onChange(value + 1, "increase")}
+				onPress={() => onChange(value + 1, "increase")}
 				isIconOnly
 				{...rest}
 			>

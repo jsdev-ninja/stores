@@ -10,5 +10,5 @@ export function Price(props: Props) {
 		style: "currency",
 		currency: currency,
 	}).format(price);
-	return <div className={className}>{priceView}</div>;
+	return <p className={className}>{priceView}</p>;
 }

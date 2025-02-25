@@ -1,9 +1,10 @@
 import { Link as UiLink, LinkProps as UiLinkProps } from "@nextui-org/react";
+import { forwardRef } from "react";
 import { TLinkTo, Router } from "src/navigation";
 type LinkProps = UiLinkProps & {
 	to: TLinkTo;
 };
 
-export function Link(props: LinkProps) {
-	return <UiLink as={Router.Link} {...props} />;
-}
+export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(props, ref) {
+	return <UiLink as={Router.Link} {...props} ref={ref} />;
+});

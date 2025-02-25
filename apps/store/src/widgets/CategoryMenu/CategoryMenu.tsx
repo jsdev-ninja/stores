@@ -47,7 +47,9 @@ export function CategoryMenu({
 			collapsible
 		>
 			{categories.map((category) => {
-				return <Category value={value} onChange={onChange} category={category} />;
+				return (
+					<Category key={category.id} value={value} onChange={onChange} category={category} />
+				);
 			})}
 		</Accordion.Root>
 	);
