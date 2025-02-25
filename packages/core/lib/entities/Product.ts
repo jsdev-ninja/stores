@@ -2,15 +2,15 @@ import { z } from "zod";
 import { LocaleSchema } from "./Locale";
 import { CategorySchema } from "./Category";
 
-const text = z.string();
+const text = z.string().min(1);
 
 export const ProductSchema = z.object({
 	type: z.literal("Product"),
 	storeId: text,
 	companyId: text,
-	id: z.string(),
-	objectID: z.string(),
-	sku: z.string().min(1),
+	id: text,
+	objectID: text,
+	sku: text,
 	name: z.array(LocaleSchema),
 	description: z.array(LocaleSchema),
 	isPublished: z.boolean(),
@@ -36,7 +36,7 @@ export const ProductSchema = z.object({
 		unit: z.enum(["liter", "ml", "none"]),
 	}),
 	images: z.array(z.object({ url: z.string().url(), id: z.string() })),
-	manufacturer: text,
+	manufacturer: z.string(),
 	brand: z.string(),
 	importer: z.string(),
 	supplier: z.string(),
@@ -55,20 +55,10 @@ export const ProductSchema = z.object({
 	}),
 	categoryNames: z.array(z.string()),
 });
+export type TProduct = z.infer<typeof ProductSchema>;
 
-export const NewProductSchema = ProductSchema.omit({
-	id: true,
-	categories: true,
-	images: true,
-}).extend({
-	image: z.instanceof(File).optional(),
-});
-export const EditProductSchema = ProductSchema.extend({
+export const NewProductSchema = ProductSchema.extend({
 	image: z.instanceof(File).optional(),
 });
 
 export type TNewProduct = z.infer<typeof NewProductSchema>;
-
-export type TEditProduct = z.infer<typeof EditProductSchema>;
-
-export type TProduct = z.infer<typeof ProductSchema>;

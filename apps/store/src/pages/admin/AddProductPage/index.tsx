@@ -64,6 +64,10 @@ function PriceSection() {
 	);
 }
 
+const FormSchema = NewProductSchema.omit({
+	id: true,
+	objectID: true,
+});
 export function AddProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
 
@@ -100,8 +104,8 @@ export function AddProductPage() {
 	useEffect(() => {
 		if (!store?.id) return;
 
-		appApi.system.categories.get().then((categories) => {
-			setCategories(categories);
+		appApi.system.getStoreCategories().then((res) => {
+			setCategories(res?.data?.categories ?? []);
 		});
 	}, [store?.id]);
 
@@ -114,7 +118,7 @@ export function AddProductPage() {
 			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
 			<Form<TNewProduct>
 				className="flex flex-wrap shadow flex-col gap-4 mx-auto mt-10  p-4 justify-center max-w-screen-md"
-				schema={NewProductSchema}
+				schema={FormSchema}
 				defaultValues={{
 					type: "Product",
 					storeId: store.id,
@@ -122,6 +126,7 @@ export function AddProductPage() {
 					name: [{ lang: "he", value: "" }],
 					vat: true,
 					ingredients: [],
+					images: [],
 					priceType: {
 						type: "unit",
 						value: 1,
@@ -130,6 +135,7 @@ export function AddProductPage() {
 						unit: "none",
 						value: 0,
 					},
+					sku: "",
 					volume: { unit: "none", value: 0 },
 					discount: { type: "none", value: 0 },
 					description: [{ lang: "he", value: "" }],
@@ -146,6 +152,13 @@ export function AddProductPage() {
 					created_at: Date.now(),
 					updated_at: Date.now(),
 					isPublished: true,
+					categories: {
+						lvl0: [],
+						lvl1: [],
+						lvl2: [],
+						lvl3: [],
+						lvl4: [],
+					},
 				}}
 				onError={(errors) => {
 					console.error(errors);
@@ -286,7 +299,7 @@ function ImagePreview() {
 	const form = useFormContext();
 	const images = form.watch("images");
 
-	const url = images ? URL.createObjectURL(images) : null;
+	const url = images?.[0] ? URL.createObjectURL(images?.[0]) : null;
 
 	return <div className="h-40 w-40">{url && <img src={url} className="" alt="" />}</div>;
 }

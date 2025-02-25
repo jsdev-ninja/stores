@@ -3,7 +3,6 @@ import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { TCompany, useCompany } from "src/domains/Company";
 import { OrderApi, TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
-import { productDelete } from "src/features/admin/productDelete";
 import { uploadLogo } from "src/features/admin/uploadLogo";
 import { signup } from "src/features/auth/signup";
 import { useAppSelector } from "src/infra";
@@ -431,6 +430,31 @@ export const useAppApi = () => {
 				setLoading({ ...loading, "admin.productCreate": false });
 				return res;
 			},
+			productDelete: async ({ product }: { product: TProduct }) => {
+				if (!isValidAdmin) return;
+
+				// remove product images
+				if (product.images?.[0]) {
+					console.log("save product remove all image");
+					await FirebaseApi.storage.remove(product.images?.[0].url);
+				}
+
+				return await FirebaseApi.firestore.remove({
+					id: product.id,
+					collectionName: FirebaseAPI.firestore.getPath({
+						collectionName: "products",
+						companyId,
+						storeId,
+					}),
+				});
+			},
+			saveProduct: async (newProduct: TNewProduct) => {
+				setLoading({ ...loading, "admin.productCreate": true });
+
+				const res = await productCreate(newProduct);
+				setLoading({ ...loading, "admin.productCreate": false });
+				return res;
+			},
 
 			getStoreStats: async () => {
 				if (!isValidAdmin) return;
@@ -524,11 +548,7 @@ export const useAppApi = () => {
 					"orders"
 				);
 			},
-			productDelete: async ({ product }: { product: TProduct }) => {
-				if (!isValidAdmin) return;
 
-				return productDelete({ product });
-			},
 			category: {
 				create: async (category: TCategory) => {
 					if (!isValidAdmin) return;

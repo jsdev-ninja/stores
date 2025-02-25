@@ -1,4 +1,3 @@
-import { TProduct } from "@jsdev_ninja/core";
 import { useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
@@ -10,10 +9,6 @@ import { ProductsWidget } from "src/widgets/Products";
 
 export function AdminProductsPage() {
 	const appApi = useAppApi();
-
-	function deleteProduct(product: TProduct) {
-		appApi.admin.productDelete({ product });
-	}
 
 	const [selectedCategory, setSelectedCategory] = useState<{
 		0: string;
@@ -46,7 +41,7 @@ export function AdminProductsPage() {
 					</div>
 					<div className="p-4 flex items-center gap-4">
 						<Button
-							onClick={() =>
+							onPress={() =>
 								navigate({
 									to: "admin.addProduct",
 								})
@@ -101,7 +96,7 @@ export function AdminProductsPage() {
 											</div>
 											<div className="flex gap-4 justify-center my-4">
 												<Button
-													onClick={() =>
+													onPress={() =>
 														navigate({
 															to: "admin.editProduct",
 															params: { id: product.id },
@@ -112,7 +107,10 @@ export function AdminProductsPage() {
 												>
 													Edit
 												</Button>
-												<Button onClick={() => deleteProduct(product)} fullWidth>
+												<Button
+													onPress={() => appApi.admin.productDelete({ product })}
+													fullWidth
+												>
 													Delete
 												</Button>
 											</div>

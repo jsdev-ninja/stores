@@ -1,8 +1,8 @@
+import { TProduct } from "@jsdev_ninja/core";
 import classNames from "classnames";
 import { useHierarchicalMenu, useRange, useRefinementList } from "react-instantsearch";
 import { Checkbox } from "src/components/Checkbox/Checkbox";
 import { Slider } from "src/components/Slider/Slider";
-import { TProduct } from "src/domains";
 import { NestedKeys } from "src/shared/types";
 
 function CategoryFilter() {

@@ -39,6 +39,7 @@ export function Select({
 			>
 				<div className="relative">
 					<ComboboxInput
+						autoComplete="off"
 						placeholder={placeholder}
 						className={inputStyle}
 						displayValue={displayValue ?? undefined}

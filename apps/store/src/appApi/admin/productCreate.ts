@@ -6,9 +6,12 @@ import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
 export async function productCreate(newProduct: TNewProduct) {
 	const { image, ...rest } = newProduct;
 
+	console.log("save product", newProduct);
+
 	const categories = newProduct.categoryList;
 
-	const productId = FirebaseApi.firestore.generateDocId("products");
+	const productId = newProduct.sku;
+	const categoryNames = categories.map((c) => c.locales[0].value);
 
 	const categoryProps = {
 		lvl0: categories.filter((c) => c.depth === 0).map((c) => renderParent(c, categories)),
@@ -24,16 +27,24 @@ export async function productCreate(newProduct: TNewProduct) {
 		objectID: productId,
 		categories: { ...categoryProps },
 		categoryList: categories,
-		categoryNames: categories.map((c) => c.locales[0].value),
-		images: [],
+		categoryNames: categoryNames,
+		images: newProduct.images ?? [],
 	};
 
-	if (newProduct.image) {
+	if (image) {
 		// upload image
 		try {
+			console.log("save product upload new image");
 			const id = crypto.randomUUID();
-			const path = `products/${newProduct.storeId}/${productId}/${id}`;
-			const fileRef = await FirebaseApi.storage.upload(path, newProduct.image);
+			const path = `${newProduct.companyId}/${newProduct.storeId}/products/${productId}/${id}`;
+			const fileRef = await FirebaseApi.storage.upload(path, image);
+
+			// remove all image
+			if (newProduct.images?.[0]) {
+				console.log("save product remove all image");
+				await FirebaseApi.storage.remove(newProduct.images?.[0].url);
+			}
+			console.log("file", fileRef);
 
 			product.images = [{ id: id, url: fileRef.url }];
 		} catch (error) {
@@ -46,14 +57,13 @@ export async function productCreate(newProduct: TNewProduct) {
 	const validation = ProductSchema.safeParse(product);
 
 	if (validation.success) {
-		return await FirebaseApi.firestore.createV2({
+		return await FirebaseApi.firestore.setV2({
 			collection: FirebaseAPI.firestore.getPath({
 				storeId: product.storeId,
 				companyId: product.companyId,
 				collectionName: "products",
 			}),
 			doc: product,
-			id: productId,
 		});
 	} else {
 		console.log("validation.error", validation.error.issues);
