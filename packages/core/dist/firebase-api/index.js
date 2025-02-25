@@ -11,6 +11,7 @@ export const storeCollections = {
     categories: "categories",
     favorites: "favorites",
     payments: "payments",
+    settings: "settings",
 };
 export const FirestoreApi = {
     systemCollections,

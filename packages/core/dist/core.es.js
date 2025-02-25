@@ -3163,7 +3163,8 @@ const tr = {
   orders: "orders",
   categories: "categories",
   favorites: "favorites",
-  payments: "payments"
+  payments: "payments",
+  settings: "settings"
 }, nr = {
   systemCollections: tr,
   storeCollections: rr,

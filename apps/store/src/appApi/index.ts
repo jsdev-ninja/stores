@@ -3,7 +3,6 @@ import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { TCompany, useCompany } from "src/domains/Company";
 import { OrderApi, TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
-import { uploadLogo } from "src/features/admin/uploadLogo";
 import { signup } from "src/features/auth/signup";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
@@ -477,11 +476,26 @@ export const useAppApi = () => {
 			},
 			uploadLogo: async ({ logo }: { logo: File }) => {
 				if (!isValidAdmin) return;
-
-				return await uploadLogo({
-					storeId: store.id,
-					logo,
-				});
+				try {
+					const path = `${companyId}/${storeId}/logo`;
+					const fileRef = await FirebaseApi.storage.upload(path, logo);
+					const newLogo = { id: path, url: fileRef.url };
+					await FirebaseApi.firestore.setV2({
+						collection: FirebaseAPI.firestore.getPath({
+							storeId,
+							companyId,
+							collectionName: "settings",
+						}),
+						doc: {
+							id: "website",
+							logoUrl: newLogo.url,
+						},
+					});
+					return { success: true, data: newLogo };
+				} catch (error) {
+					SentryApi.captureException(error);
+					return { success: false };
+				}
 			},
 			async companyCreate(newCompany: TCompany) {
 				if (!isValidAdmin) return;

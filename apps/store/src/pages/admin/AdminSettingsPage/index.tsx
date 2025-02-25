@@ -28,7 +28,7 @@ function AdminSettingsPage() {
 				/>
 			</div>
 			<div className="flex gap-4">
-				<Button isDisabled={!logo} onClick={uploadLogo}>
+				<Button isDisabled={!logo} onPress={uploadLogo}>
 					Save
 				</Button>
 				<Button>Back</Button>
