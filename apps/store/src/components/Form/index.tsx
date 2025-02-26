@@ -37,6 +37,8 @@ export function Form<T extends FieldValues>(props: FormProps<T>) {
 		resolver: schema && zodResolver(schema),
 		defaultValues,
 	});
+	console.log(form.watch());
+	
 
 	return (
 		<FormProvider<T> {...form}>

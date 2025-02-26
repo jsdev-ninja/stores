@@ -45,7 +45,6 @@ export function AdminCompanyCreateModal() {
 							displayName: "",
 							email: "",
 							password: "",
-							phoneNumber: { code: "+972", number: "" },
 							address: {
 								country: "",
 								city: "",
@@ -95,9 +94,8 @@ export function AdminCompanyCreateModal() {
 							<div className="">
 								<Form.Input<TNewCompany>
 									placeholder={t("common:phone")}
-									name="phoneNumber.number"
+									name="phoneNumber"
 									label={t("common:phone")}
-									endAdornment={<span dir="ltr">+972</span>}
 								/>
 							</div>
 							<div className="flex gap-4 mx-auto text-center">

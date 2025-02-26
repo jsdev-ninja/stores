@@ -9,12 +9,12 @@ export function Profile({ profile, children }: { profile: TProfile; children: Re
 
 const useProfileHook = () => useContext(ProfileContext);
 
-Profile.Address = function () {
+Profile.Address = function Address() {
 	const profile = useProfileHook();
 
 	if (!profile) return null;
 
-	const { city } = profile.address;
+	const { city } = profile.address ?? {};
 
 	return <div className="">{city}</div>;
 };

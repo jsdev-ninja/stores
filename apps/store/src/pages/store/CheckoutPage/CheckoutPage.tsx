@@ -45,10 +45,6 @@ function CheckoutPage() {
 		tenantId: profile?.tenantId ?? store.tenantId,
 		email: profile?.email ?? user.email ?? "",
 		displayName: profile?.displayName ?? user.displayName ?? user.email ?? "",
-		phoneNumber: {
-			code: profile?.phoneNumber?.code ?? "+972",
-			number: profile?.phoneNumber?.number ?? "",
-		},
 		createdDate: Date.now(),
 		isAnonymous: profile?.isAnonymous ?? true,
 		lastActivityDate: Date.now(),
@@ -82,14 +78,14 @@ function CheckoutPage() {
 				onError={(errors) => {
 					console.warn("errors", errors);
 				}}
-				onSubmit={async () => {
+				onSubmit={async (values) => {
 					if (!user || !cart) return;
-					const order = await appApi.orders.order();
+					const order = await appApi.orders.order({ order: values });
 					if (!order?.success) return null; //todo
 
-					const paymnet: any = await FirebaseApi.api.createPayment({ order: order.data });
-
-					window.location.href = paymnet.data.paymentLink;
+					// todo create profile if not exists
+					const payment = await appApi.user.createPaymentLink({ order: values });
+					window.location.href = payment.data.paymentLink;
 				}}
 			>
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
@@ -116,20 +112,28 @@ function CheckoutPage() {
 								/>
 								<Form.Input<TOrder>
 									placeholder={t("common:phone")}
-									name="client.phoneNumber.number"
+									name="client.phoneNumber"
 									label={t("common:phone")}
-									endAdornment={<span dir="ltr">+972</span>}
 								/>
 								<Form.Input<TOrder>
 									name="client.address.street"
 									placeholder={t("common:street")}
 									label={t("common:street")}
 								/>
-								<Form.Input<TOrder>
-									name="client.address.streetNumber"
-									placeholder={t("common:streetNumber")}
-									label={t("common:streetNumber")}
-								/>
+								<div className="flex gap-2">
+									<Form.Input<TOrder>
+										name="client.address.streetNumber"
+										placeholder={t("common:streetNumber")}
+										label={t("common:streetNumber")}
+									/>
+									<div className="w-32">
+										<Form.Input<TOrder>
+											name="client.address.apartmentEnterNumber"
+											placeholder={t("common:apartmentEnterNumber")}
+											label={t("common:apartmentEnterNumber")}
+										/>
+									</div>
+								</div>
 								<Form.Input<TOrder>
 									name="client.address.floor"
 									placeholder={t("common:floor")}

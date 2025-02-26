@@ -168,7 +168,7 @@ function OrderRow({
 				<dd className="mt-1.5 text-base font-semibold text-gray-900 dark:text-white">
 					<a href="#" className="hover:underline">
 						{order.client.displayName}
-						<br />({order.client.phoneNumber.number})
+						<br />({order.client.phoneNumber})
 					</a>
 				</dd>
 			</dl>

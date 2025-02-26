@@ -184,7 +184,7 @@ function AdminUsersPage() {
 												{t("apartmentNumber")} {user.address.apartmentNumber},{" "}
 												{t("common:floor")} {user.address.floor}
 											</TableCell>
-											<TableCell>{user.phoneNumber.number}</TableCell>
+											<TableCell>{user.phoneNumber}</TableCell>
 											<TableCell>{user.clientType}</TableCell>
 											<TableCell>
 												<div className="relative flex justify-end items-center gap-2">

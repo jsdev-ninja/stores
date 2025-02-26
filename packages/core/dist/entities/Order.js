@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ProfileSchema } from "./Profile";
 import { ProductSchema } from "./Product";
+import { notEmptyTextSchema } from "./Atoms";
 // pending - order created / by user
 // processing order accepted by store by admin
 // delivered - order delivered by admin
@@ -9,10 +10,10 @@ import { ProductSchema } from "./Product";
 // type PaymentMethod = "credit_card" | "paypal" | "bank_transfer" | "cash_on_delivery";
 export const OrderSchema = z.object({
     type: z.literal("Order"),
-    id: z.string(),
-    companyId: z.string(),
-    storeId: z.string(),
-    userId: z.string(),
+    id: notEmptyTextSchema,
+    companyId: notEmptyTextSchema,
+    storeId: notEmptyTextSchema,
+    userId: notEmptyTextSchema,
     status: z.enum([
         "pending",
         "processing",
@@ -34,5 +35,6 @@ export const OrderSchema = z.object({
     actualAmount: z.number().positive().optional(), // what store charge
     date: z.number(),
     deliveryDate: z.number().optional(),
-    client: ProfileSchema,
+    createdAt: z.number().optional(),
+    client: ProfileSchema.required({}),
 });

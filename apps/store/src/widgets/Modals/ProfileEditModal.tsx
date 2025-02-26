@@ -49,7 +49,7 @@ export function ProfileEditModal({ profile }: { profile: TProfile }) {
 						/>
 
 						<Form.Input<TProfile>
-							name="phoneNumber.number"
+							name="phoneNumber"
 							label={t("common:phone")}
 							type="text"
 							placeholder="123-456-7890"

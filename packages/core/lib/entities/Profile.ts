@@ -1,20 +1,18 @@
 import { z } from "zod";
 import { AddressSchema } from "./Address";
+import { notEmptyTextSchema } from "./Atoms";
 
 export const ProfileSchema = z.object({
 	type: z.literal("Profile"),
-	id: z.string(),
-	companyId: z.string(),
-	storeId: z.string(),
-	tenantId: z.string(),
+	id: notEmptyTextSchema,
+	companyId: notEmptyTextSchema,
+	storeId: notEmptyTextSchema,
+	tenantId: notEmptyTextSchema,
 	clientType: z.enum(["user", "company"]),
-	displayName: z.string().min(1),
+	displayName: notEmptyTextSchema,
 	email: z.string().email(),
-	phoneNumber: z.object({
-		code: z.string(),
-		number: z.string(),
-	}),
-	address: AddressSchema,
+	phoneNumber: notEmptyTextSchema.optional(),
+	address: AddressSchema.optional(),
 	isAnonymous: z.boolean(),
 	createdDate: z.number(),
 	lastActivityDate: z.number(),
@@ -32,7 +30,7 @@ export function createEmptyProfile(): TProfile {
 		clientType: "user",
 		displayName: "",
 		email: "",
-		phoneNumber: { code: "+972", number: "" },
+		phoneNumber: "",
 		address: {
 			country: "",
 			city: "",

@@ -1,13 +1,14 @@
 import { z } from "zod";
+import { notEmptyTextSchema } from "./Atoms";
 
 export const AddressSchema = z.object({
-	country: z.string(),
-	city: z.string(),
-	street: z.string(),
-	streetNumber: z.string(),
-	floor: z.string(),
-	apartmentEnterNumber: z.string(),
-	apartmentNumber: z.string(),
+	country: notEmptyTextSchema,
+	city: notEmptyTextSchema,
+	street: notEmptyTextSchema,
+	streetNumber: notEmptyTextSchema,
+	floor: notEmptyTextSchema,
+	apartmentEnterNumber: notEmptyTextSchema,
+	apartmentNumber: notEmptyTextSchema,
 });
 
 export type TAddress = z.infer<typeof AddressSchema>;

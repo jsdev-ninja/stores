@@ -68,7 +68,7 @@ function CartItem({
 	return (
 		<Product product={product}>
 			<div className="flex flex-col shadow py-2 justify-start">
-				<div className="flex my-2">
+				<div className="flex my-2 gap-2">
 					<div className="w-16 h-16">
 						<Product.Image />
 					</div>

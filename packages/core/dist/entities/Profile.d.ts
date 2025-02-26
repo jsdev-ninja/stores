@@ -8,17 +8,8 @@ export declare const ProfileSchema: z.ZodObject<{
     clientType: z.ZodEnum<["user", "company"]>;
     displayName: z.ZodString;
     email: z.ZodString;
-    phoneNumber: z.ZodObject<{
-        code: z.ZodString;
-        number: z.ZodString;
-    }, "strip", z.ZodTypeAny, {
-        number: string;
-        code: string;
-    }, {
-        number: string;
-        code: string;
-    }>;
-    address: z.ZodObject<{
+    phoneNumber: z.ZodOptional<z.ZodString>;
+    address: z.ZodOptional<z.ZodObject<{
         country: z.ZodString;
         city: z.ZodString;
         street: z.ZodString;
@@ -42,7 +33,7 @@ export declare const ProfileSchema: z.ZodObject<{
         floor: string;
         apartmentEnterNumber: string;
         apartmentNumber: string;
-    }>;
+    }>>;
     isAnonymous: z.ZodBoolean;
     createdDate: z.ZodNumber;
     lastActivityDate: z.ZodNumber;
@@ -55,11 +46,11 @@ export declare const ProfileSchema: z.ZodObject<{
     clientType: "user" | "company";
     displayName: string;
     email: string;
-    phoneNumber: {
-        number: string;
-        code: string;
-    };
-    address: {
+    isAnonymous: boolean;
+    createdDate: number;
+    lastActivityDate: number;
+    phoneNumber?: string | undefined;
+    address?: {
         country: string;
         city: string;
         street: string;
@@ -67,10 +58,7 @@ export declare const ProfileSchema: z.ZodObject<{
         floor: string;
         apartmentEnterNumber: string;
         apartmentNumber: string;
-    };
-    isAnonymous: boolean;
-    createdDate: number;
-    lastActivityDate: number;
+    } | undefined;
 }, {
     type: "Profile";
     id: string;
@@ -80,11 +68,11 @@ export declare const ProfileSchema: z.ZodObject<{
     clientType: "user" | "company";
     displayName: string;
     email: string;
-    phoneNumber: {
-        number: string;
-        code: string;
-    };
-    address: {
+    isAnonymous: boolean;
+    createdDate: number;
+    lastActivityDate: number;
+    phoneNumber?: string | undefined;
+    address?: {
         country: string;
         city: string;
         street: string;
@@ -92,10 +80,7 @@ export declare const ProfileSchema: z.ZodObject<{
         floor: string;
         apartmentEnterNumber: string;
         apartmentNumber: string;
-    };
-    isAnonymous: boolean;
-    createdDate: number;
-    lastActivityDate: number;
+    } | undefined;
 }>;
 export type TProfile = z.infer<typeof ProfileSchema>;
 export declare function createEmptyProfile(): TProfile;

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { TCompany, useCompany } from "src/domains/Company";
-import { OrderApi, TOrder } from "src/domains/Order";
+import { TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
 import { signup } from "src/features/auth/signup";
 import { useAppSelector } from "src/infra";
@@ -9,7 +9,6 @@ import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
 import { SentryApi } from "src/lib/sentry";
 import { SubNestedKeys } from "src/shared/types";
-import { calculateCartPrice } from "src/utils/calculateCartPrice";
 import { productCreate } from "./admin";
 import {
 	ProductSchema,
@@ -23,15 +22,6 @@ import { CartService } from "src/domains/cart/CartService";
 import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
 import { LogPayload } from "src/lib/firebase/api";
-
-// client -> login, logout, register
-// client -> add product to cart, remove product from cart, add product to favorites
-// client -> pay order
-// client -> edit profile
-// admin ->
-// admin ->
-// admin ->
-// admin ->
 
 // todo move to folder
 function productInCart(cart: TCart | null, product: TProduct) {
@@ -107,47 +97,16 @@ export const useAppApi = () => {
 				});
 				return res;
 			},
-			order: async () => {
-				if (!isValid || !cart) return;
+			order: async ({ order }: { order: TOrder }) => {
+				if (!isValidUser) return;
 
-				return await OrderApi.createOrder({
-					type: "Order",
-					userId: user.uid,
-					paymentStatus: "pending",
-					companyId: store.companyId,
-					storeId: store.id,
-					cart: {
-						items: cart.items,
-						id: cart.id,
-						cartTotal: calculateCartPrice(cart.items).finalCost,
-						cartDiscount: calculateCartPrice(cart.items).discount,
-						cartVat: calculateCartPrice(cart.items).vat,
-					},
-					client: {
-						clientType: "user",
-						companyId: "",
-						email: "",
-						displayName: "",
-						id: "",
-						phoneNumber: { code: "", number: "" },
-						storeId: "",
-						tenantId: "",
-						type: "Profile",
-						address: {
-							apartmentEnterNumber: "",
-							apartmentNumber: "",
-							city: "",
-							country: "",
-							floor: "",
-							street: "",
-							streetNumber: "",
-						},
-						createdDate: Date.now(),
-						isAnonymous: true,
-						lastActivityDate: Date.now(),
-					},
-					status: "pending",
-					date: Date.now(),
+				return await FirebaseApi.firestore.createV2({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					doc: order,
 				});
 			},
 		};
@@ -230,18 +189,21 @@ export const useAppApi = () => {
 				},
 			},
 			async onOrderPaid(payment: any) {
-				if (!isValid) {
-					console.warn("EEEE", isValid);
+				if (!isValidUser) {
 					return;
 				}
 
-				await FirebaseApi.firestore.update<TOrder>(
-					payment.Order,
-					{
+				await FirebaseApi.firestore.setV2<Partial<TOrder>>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					doc: {
+						id: payment.Order,
 						paymentStatus: "completed",
 					},
-					"orders"
-				);
+				});
 				await FirebaseApi.firestore.createV2({
 					collection: "payments",
 					id: payment.Order,
@@ -249,7 +211,7 @@ export const useAppApi = () => {
 						payment,
 						date: Date.now(),
 						storeId: store.id,
-						companyId: company.id,
+						companyId: companyId,
 						userId: user.uid,
 					},
 				});
@@ -306,6 +268,12 @@ export const useAppApi = () => {
 				if (!user || !store || !profile) return;
 
 				await FirebaseApi.firestore.update(profile.id, profile, "profiles");
+			},
+			async createPaymentLink({ order }: { order: TOrder }) {
+				if (!user || !store || !order) return;
+
+				const payment: any = await FirebaseApi.api.createPayment({ order: order });
+				return payment;
 			},
 			async cancelOrder({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
@@ -483,7 +451,6 @@ export const useAppApi = () => {
 					tenantId: store.tenantId,
 					displayName: newUser.fullName,
 					email: newUser.email,
-					phoneNumber: { code: "+972", number: "" },
 					isAnonymous: false,
 					address: {
 						apartmentEnterNumber: "",

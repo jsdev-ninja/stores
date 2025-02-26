@@ -71,7 +71,7 @@ function ProfilePage() {
 										{t("common:phone")}
 									</dt>
 									<dd className="text-gray-500 dark:text-gray-400">
-										{profile.phoneNumber?.number}
+										{profile.phoneNumber}
 									</dd>
 								</dl>
 							</div>
