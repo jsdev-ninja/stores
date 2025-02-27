@@ -15,7 +15,7 @@
 			"frameworksBackend": {
 				"region": "europe-west1"
 			}
-		}
+		},
 		{
 			"target": "pecanis",
 			"source": ".",
