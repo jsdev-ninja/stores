@@ -100,6 +100,8 @@ export const useAppApi = () => {
 			order: async ({ order }: { order: TOrder }) => {
 				if (!isValidUser) return;
 
+				console.log("order", order.id);
+
 				return await FirebaseApi.firestore.createV2({
 					collection: FirebaseAPI.firestore.getPath({
 						collectionName: "orders",
@@ -193,6 +195,8 @@ export const useAppApi = () => {
 					return;
 				}
 
+				console.log("onOrderPaid", payment.Order);
+
 				await FirebaseApi.firestore.setV2<Partial<TOrder>>({
 					collection: FirebaseAPI.firestore.getPath({
 						collectionName: "orders",
@@ -205,9 +209,13 @@ export const useAppApi = () => {
 					},
 				});
 				await FirebaseApi.firestore.createV2({
-					collection: "payments",
-					id: payment.Order,
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "payments",
+						companyId,
+						storeId,
+					}),
 					doc: {
+						id: payment.Order,
 						payment,
 						date: Date.now(),
 						storeId: store.id,
@@ -271,6 +279,8 @@ export const useAppApi = () => {
 			},
 			async createPaymentLink({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
+
+				console.log("createPaymentLink", order.id);
 
 				const payment: any = await FirebaseApi.api.createPayment({ order: order });
 				return payment;

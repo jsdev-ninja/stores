@@ -72,7 +72,7 @@ export function OrderSuccessPage() {
 				<div className="flex justify-center my-8">
 					<div className="w-40">
 						<Button
-							onClick={() =>
+							onPress={() =>
 								navigate({
 									to: "store",
 								})

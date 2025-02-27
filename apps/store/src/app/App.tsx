@@ -8,7 +8,7 @@ import { mixPanelApi } from "src/lib/mixpanel";
 import { ProtectedRoute } from "src/features/auth";
 import { TCart } from "src/domains/cart";
 import { useStore } from "src/domains/Store";
-import { FirebaseAPI, TProfile } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder, TProfile } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
 import { NextUIProvider } from "@nextui-org/react";
@@ -77,6 +77,31 @@ function App() {
 			actions.dispatch(actions.profile.setProfile(null));
 		}
 	}, [user, actions]);
+
+	useEffect(() => {
+		// subscribe to orders
+		if (!user || !store) return;
+
+		const unsubscribe = FirebaseApi.firestore.subscribeList<TOrder>({
+			collection: FirebaseAPI.firestore.getPath({
+				collectionName: "orders",
+				companyId,
+				storeId,
+			}),
+			where: [
+				// { name: "storeId", value: store.id, operator: "==" },
+				// { name: "userId", operator: "==", value: user.uid },
+				// { name: "status", operator: "==", value: "" },
+			],
+			callback: (orders) => {
+				console.log("orders", orders);
+				// todo
+				// actions.dispatch(actions.cart.setCart(cart ?? null));
+			},
+		});
+
+		return () => unsubscribe();
+	}, [store, user, actions]);
 
 	useEffect(() => {
 		if (!user || !store) return;

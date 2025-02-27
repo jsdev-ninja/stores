@@ -11,6 +11,7 @@ async function main() {
 			{ value: "createStore", name: "create store" },
 		],
 	});
+	// pecanis-drgvz
 
 	if (action === "createAdmin") {
 		const storesRes = await admin

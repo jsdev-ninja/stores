@@ -147,15 +147,13 @@ function CheckoutPage() {
 							</div>
 						</div>
 					</div>
-					<div className="mt-6 w-full space-y-6 sm:mt-8 lg:mt-0 lg:max-w-xs xl:max-w-md">
-						<PaymentSummary>
-							<div className="space-y-3">
-								<Button fullWidth type="submit">
-									{t("checkout:order")}
-								</Button>
-							</div>
-						</PaymentSummary>
-					</div>
+					<PaymentSummary>
+						<div className="space-y-3">
+							<Button fullWidth type="submit">
+								{t("checkout:order")}
+							</Button>
+						</div>
+					</PaymentSummary>
 				</div>
 			</Form>
 		</section>

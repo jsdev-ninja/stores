@@ -8,6 +8,9 @@
 		"packages/*",
 		"apps/*"
 	],
+	"nohoist": [
+		"functions/**"
+	],
 	"browserslist": [
 		"defaults",
 		"last 5 versions",

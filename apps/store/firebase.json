@@ -15,9 +15,9 @@
 			"frameworksBackend": {
 				"region": "europe-west1"
 			}
-		},
+		}
 		{
-			"target": "balasi-picuhim",
+			"target": "pecanis",
 			"source": ".",
 			"ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
 			"frameworksBackend": {

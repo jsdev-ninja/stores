@@ -13,7 +13,7 @@ type Props = {
 function OrderCreated({ order }: Props) {
 	if (!order) return null;
 
-	const { apartmentNumber, city, floor, street, streetNumber } = order.client.address;
+	const { apartmentNumber, city, floor, street, streetNumber } = order.client.address ?? {};
 
 	const fullAdress = `${city}, ${street} ${streetNumber} קומה ${floor}, דירה ${apartmentNumber}`;
 	return (

@@ -47,12 +47,18 @@ async function setV2<T extends { id?: string } = any>(data: { collection: string
 	}
 }
 
-async function createV2<T extends object>(data: { collection: string; doc: T; id?: string }) {
+async function createV2<T extends { id?: string }>(data: {
+	collection: string;
+	doc: T;
+	id?: string;
+}) {
 	try {
 		return await runTransaction(
 			db,
 			async (transaction) => {
-				const docRef = doc(db, data.collection, data.id ?? generateDocId(data.collection)); // Reference to the document with a custom ID
+				const docRef = doc(db, data.collection, data.doc.id ?? generateDocId(data.collection)); // Reference to the document with a custom ID
+
+				console.log("AAA", docRef.id, data.doc.id);
 
 				// Check if the document already exists within the transaction
 				const docSnapshot = await transaction.get(docRef);
