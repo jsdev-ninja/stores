@@ -25,6 +25,23 @@ export { createCompanyClient } from "./api/createCompany";
 export { createPayment } from "./api/createPayment";
 export * from "./api/chargeOrder";
 
+export const onOrderCreated = functions.firestore
+	.document(FirebaseAPI.firestore.getDocPath("orders"))
+	.onCreate(async (snap, context) => {
+		const { storeId, companyId } = context.params;
+
+		const order = snap.data() as TOrder;
+
+		// todo validate order
+
+		return admin
+			.firestore()
+			.collection(FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }))
+			.doc(order.cart.id)
+			.update({
+				status: "completed",
+			});
+	});
 export const onOrderUpdate = functions.firestore
 	.document("/orders/{orderId}")
 	.onUpdate(async (snap, context) => {

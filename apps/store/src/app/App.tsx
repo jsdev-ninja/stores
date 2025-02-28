@@ -80,7 +80,7 @@ function App() {
 
 	useEffect(() => {
 		// subscribe to orders
-		if (!user || !store) return;
+		if (!user || !storeId) return;
 
 		const unsubscribe = FirebaseApi.firestore.subscribeList<TOrder>({
 			collection: FirebaseAPI.firestore.getPath({
@@ -89,19 +89,17 @@ function App() {
 				storeId,
 			}),
 			where: [
-				// { name: "storeId", value: store.id, operator: "==" },
-				// { name: "userId", operator: "==", value: user.uid },
-				// { name: "status", operator: "==", value: "" },
+				{ name: "storeId", value: storeId, operator: "==" },
+				{ name: "userId", operator: "==", value: user.uid },
 			],
 			callback: (orders) => {
 				console.log("orders", orders);
-				// todo
-				// actions.dispatch(actions.cart.setCart(cart ?? null));
+				actions.dispatch(actions.dispatch(actions.orders.setOrders(orders ?? [])));
 			},
 		});
 
 		return () => unsubscribe();
-	}, [store, user, actions]);
+	}, [user, actions, companyId, storeId]);
 
 	useEffect(() => {
 		if (!user || !store) return;

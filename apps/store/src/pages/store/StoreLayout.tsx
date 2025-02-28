@@ -11,9 +11,10 @@ import CartPage from "./CartPage/CartPage";
 import { useEffect } from "react";
 import { useAppApi } from "src/appApi";
 import { useUser } from "src/domains/user";
-import { useStoreActions } from "src/infra";
+import { useAppSelector, useStoreActions } from "src/infra";
 import FavoritesProductsPage from "./FavoritesProductsPage/FavoritesProductsPage";
 import HomePage from "./HomePage/HomePage";
+import { ordersSlice } from "src/domains/Order";
 
 export default function StoreLayout() {
 	const appApi = useAppApi();
@@ -21,6 +22,9 @@ export default function StoreLayout() {
 	const user = useUser();
 
 	const actions = useStoreActions();
+
+	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
+	console.log("unPaidPendingOrder", unPaidPendingOrder);
 
 	useEffect(() => {
 		const unsubscribe = appApi.user.subscriptions.favoriteProductsSubscribe(
@@ -30,6 +34,15 @@ export default function StoreLayout() {
 		);
 		return () => unsubscribe?.();
 	}, [user]);
+
+	if (unPaidPendingOrder) {
+		return (
+			<>
+				<AppBar />
+				unPaidPendingOrder
+			</>
+		);
+	}
 
 	return (
 		<div className="flex flex-col">
