@@ -64,13 +64,7 @@ function App() {
 
 	useEffect(() => {
 		if (user?.uid && !user.isAnonymous) {
-			const unsubscribe = FirebaseApi.firestore.subscribeDocV2<TProfile>({
-				collection: "profiles",
-				id: user.uid,
-				callback(profile) {
-					actions.dispatch(actions.profile.setProfile(profile));
-				},
-			});
+			const unsubscribe = appApi.user.subscriptions.profileSubscribe();
 			return unsubscribe;
 		}
 		if (user?.isAnonymous) {

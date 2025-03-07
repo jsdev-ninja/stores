@@ -4,7 +4,7 @@ import { TCompany, useCompany } from "src/domains/Company";
 import { TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
 import { signup } from "src/features/auth/signup";
-import { useAppSelector } from "src/infra";
+import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
 import { SentryApi } from "src/lib/sentry";
@@ -34,6 +34,8 @@ export const useAppApi = () => {
 	const store = useStore();
 	const user = useAppSelector((state) => state.user.user);
 	const cart = useAppSelector((state) => state.cart.currentCart);
+	const actions = useStoreActions();
+
 	const cartId = cart?.id ?? FirebaseApi.firestore.generateDocId("cart");
 
 	const storeId = store?.id;
@@ -46,7 +48,7 @@ export const useAppApi = () => {
 	>({});
 
 	const isValidStoreData = companyId && storeId && tenantId;
-	const isValidUser = userId && isValidStoreData;
+	const isValidUser = !!user && userId && isValidStoreData;
 
 	const isValid = !!company?.id && store?.id && !!user?.uid;
 	const isValidAdmin = !!companyId && !!storeId && !!user?.uid && !!user.admin;
@@ -235,6 +237,22 @@ export const useAppApi = () => {
 				},
 			},
 			subscriptions: {
+				profileSubscribe: () => {
+					if (!isValidUser || user?.isAnonymous === false) return;
+
+					const unsubscribe = FirebaseApi.firestore.subscribeDocV2<TProfile>({
+						collection: FirebaseAPI.firestore.getPath({
+							collectionName: "profiles",
+							storeId,
+							companyId,
+						}),
+						id: user.uid,
+						callback(profile) {
+							actions.dispatch(actions.profile.setProfile(profile));
+						},
+					});
+					return unsubscribe;
+				},
 				favoriteProductsSubscribe: (
 					callback: (favoriteProducts: TFavoriteProduct[]) => void
 				) => {
@@ -275,7 +293,17 @@ export const useAppApi = () => {
 			async profileUpdate({ profile }: { profile: TProfile }) {
 				if (!user || !store || !profile) return;
 
-				await FirebaseApi.firestore.update(profile.id, profile, "profiles");
+				if (!isValidStoreData) return;
+
+				await FirebaseApi.firestore.update(
+					profile.id,
+					profile,
+					FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					})
+				);
 			},
 			async createPaymentLink({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
@@ -452,7 +480,7 @@ export const useAppApi = () => {
 				});
 			},
 			signup: async (newUser: { email: string; password: string; fullName: string }) => {
-				if (!isValid) return;
+				if (!isValidStoreData) return;
 
 				const profile: TProfile = {
 					id: user.uid,
@@ -477,7 +505,22 @@ export const useAppApi = () => {
 					type: "Profile",
 				};
 
-				return await signup({ newUser, newProfile: profile });
+				const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);
+				if (!res.success) {
+					// todo: handle
+					return res;
+				}
+
+				const newProfile = await FirebaseApi.firestore.setV2<Partial<TProfile>>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						companyId,
+						storeId,
+					}),
+					doc: profile,
+				});
+
+				return { user: res.user, profile: newProfile, success: true, error: null };
 			},
 		};
 
@@ -524,7 +567,11 @@ export const useAppApi = () => {
 			getStoreClients: async () => {
 				if (!isValidAdmin) return;
 				return FirebaseApi.firestore.listV2<TProfile>({
-					collection: "profiles",
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					}),
 					where: [
 						{
 							name: "storeId",
