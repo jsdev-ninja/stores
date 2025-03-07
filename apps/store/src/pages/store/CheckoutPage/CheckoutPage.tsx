@@ -63,7 +63,7 @@ function CheckoutPage() {
 					userId: user.uid,
 					companyId: store.companyId,
 					storeId: store.id,
-					status: "pending",
+					status: "draft",
 					paymentStatus: "pending",
 					client: _profile,
 					cart: {

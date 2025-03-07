@@ -1,5 +1,3 @@
-
-
 HYP
 ItQnx
 
@@ -10,16 +8,17 @@ Fake Card - 5326105300985614
 CVV 125
 date - 12/25
 
+ORDER FLOW
 
-
+1. user create order status draft ,paymentStatus pending (cart completed)
+2. user pay j5 transaction, order status pending, paymentStatus pending_j5
+3. admin charge payment, order status completed, paymentStatus completed
 
 HANDLE DOUBLE ORDER PAYMENT!!!
 
 Order created -> pending
 
 Order Paid -> send email to store owner
-
-
 
 every store choose his benefits/services
 
@@ -106,11 +105,9 @@ todo:
 remove category - find all children and clean all products
 move category - find all children and update all products
 
-
 discount ->
 
 discount type - per product | per category | per store | special
 isActive
 minOrder
 expirationDate
-

@@ -31,9 +31,9 @@ export const onOrderCreated = functions.firestore
 		const { storeId, companyId } = context.params;
 
 		const order = snap.data() as TOrder;
-
 		// todo validate order
 
+		// close cart
 		return admin
 			.firestore()
 			.collection(FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }))

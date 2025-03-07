@@ -3,7 +3,6 @@ import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { TCompany, useCompany } from "src/domains/Company";
 import { TOrder } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
-import { signup } from "src/features/auth/signup";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
@@ -91,12 +90,17 @@ export const useAppApi = () => {
 	const api = useMemo(() => {
 		const orders = {
 			list: async () => {
-				if (!isValid) return;
+				if (!isValidStoreData) return;
 				const res = await FirebaseApi.firestore.listV2<TOrder>({
-					collection: "orders",
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						storeId,
+						companyId,
+					}),
 					sort: [{ name: "date", value: "desc" }],
 					where: [{ name: "storeId", operator: "==", value: store.id }],
 				});
+
 				return res;
 			},
 			order: async ({ order }: { order: TOrder }) => {
@@ -197,6 +201,8 @@ export const useAppApi = () => {
 					return;
 				}
 
+				// todo handle duplicate payment and page refresh
+
 				console.log("onOrderPaid", payment.Order);
 
 				await FirebaseApi.firestore.setV2<Partial<TOrder>>({
@@ -207,7 +213,8 @@ export const useAppApi = () => {
 					}),
 					doc: {
 						id: payment.Order,
-						paymentStatus: "completed",
+						paymentStatus: "pending_j5",
+						status: "pending",
 					},
 				});
 				await FirebaseApi.firestore.createV2({
@@ -238,7 +245,9 @@ export const useAppApi = () => {
 			},
 			subscriptions: {
 				profileSubscribe: () => {
-					if (!isValidUser || user?.isAnonymous === false) return;
+					if (!isValidUser || user?.isAnonymous === true) return;
+
+					console.log("profile AAAA1");
 
 					const unsubscribe = FirebaseApi.firestore.subscribeDocV2<TProfile>({
 						collection: FirebaseAPI.firestore.getPath({
@@ -248,6 +257,8 @@ export const useAppApi = () => {
 						}),
 						id: user.uid,
 						callback(profile) {
+							console.log("profile AAAA", profile);
+
 							actions.dispatch(actions.profile.setProfile(profile));
 						},
 					});

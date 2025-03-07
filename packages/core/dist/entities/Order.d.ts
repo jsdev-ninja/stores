@@ -5,8 +5,8 @@ export declare const OrderSchema: z.ZodObject<{
     companyId: z.ZodString;
     storeId: z.ZodString;
     userId: z.ZodString;
-    status: z.ZodEnum<["pending", "processing", "in_delivery", "delivered", "canceled", "completed", "refunded"]>;
-    paymentStatus: z.ZodEnum<["pending", "completed", "failed", "refunded"]>;
+    status: z.ZodEnum<["draft", "pending", "processing", "in_delivery", "delivered", "canceled", "completed", "refunded"]>;
+    paymentStatus: z.ZodEnum<["pending", "pending_j5", "completed", "failed", "refunded"]>;
     cart: z.ZodObject<{
         id: z.ZodString;
         items: z.ZodArray<z.ZodObject<{
@@ -803,13 +803,13 @@ export declare const OrderSchema: z.ZodObject<{
     }>;
 }, "strip", z.ZodTypeAny, {
     type: "Order";
-    status: "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "canceled" | "refunded";
+    status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "canceled" | "refunded";
     date: number;
     id: string;
     companyId: string;
     storeId: string;
     userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "failed";
+    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "failed";
     cart: {
         id: string;
         items: {
@@ -933,13 +933,13 @@ export declare const OrderSchema: z.ZodObject<{
     createdAt?: number | undefined;
 }, {
     type: "Order";
-    status: "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "canceled" | "refunded";
+    status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "canceled" | "refunded";
     date: number;
     id: string;
     companyId: string;
     storeId: string;
     userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "failed";
+    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "failed";
     cart: {
         id: string;
         items: {

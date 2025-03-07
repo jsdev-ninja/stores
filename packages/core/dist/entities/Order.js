@@ -15,15 +15,16 @@ export const OrderSchema = z.object({
     storeId: notEmptyTextSchema,
     userId: notEmptyTextSchema,
     status: z.enum([
-        "pending",
-        "processing",
-        "in_delivery",
+        "draft", // before payment
+        "pending", // after payment
+        "processing", // after admin approve
+        "in_delivery", //
         "delivered",
         "canceled",
         "completed",
         "refunded",
     ]),
-    paymentStatus: z.enum(["pending", "completed", "failed", "refunded"]), //todo check if hyp support partial refund
+    paymentStatus: z.enum(["pending", "pending_j5", "completed", "failed", "refunded"]), //todo check if hyp support partial refund
     cart: z.object({
         id: z.string(),
         items: z.array(z.object({ product: ProductSchema, amount: z.number() })),

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { DateView } from "src/components/DateView";
@@ -8,21 +7,17 @@ import { Chip, ChipProps } from "@nextui-org/react";
 import { navigate } from "src/navigation";
 import { useUser } from "src/domains/user";
 import { TOrder } from "@jsdev_ninja/core";
+import { useAppSelector } from "src/infra";
 
 function UserOrdersPage() {
 	const appApi = useAppApi();
 
 	const { t } = useTranslation(["common", "ordersPage"]);
 
-	const [orders, setOrders] = useState<TOrder[]>([]);
+	const orders = useAppSelector((state) => state.orders.orders);
 
-	useEffect(() => {
-		appApi.system.getUserOrders().then((res) => {
-			if (res?.success) {
-				setOrders(res.data as any); // todo
-			}
-		});
-	}, []);
+	console.log("orders", orders);
+
 	return (
 		<div className="">
 			<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">

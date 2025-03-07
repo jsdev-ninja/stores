@@ -3115,15 +3115,20 @@ const hr = d.object({
   storeId: k,
   userId: k,
   status: d.enum([
+    "draft",
+    // before payment
     "pending",
+    // after payment
     "processing",
+    // after admin approve
     "in_delivery",
+    //
     "delivered",
     "canceled",
     "completed",
     "refunded"
   ]),
-  paymentStatus: d.enum(["pending", "completed", "failed", "refunded"]),
+  paymentStatus: d.enum(["pending", "pending_j5", "completed", "failed", "refunded"]),
   //todo check if hyp support partial refund
   cart: d.object({
     id: d.string(),
