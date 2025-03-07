@@ -49,7 +49,8 @@ export const onOrderUpdate = functions.firestore
 		const after = snap.after.data() as TOrder;
 		const before = snap.before.data() as TOrder;
 
-		const orderIsPaid = after.paymentStatus === "completed" && before.paymentStatus === "pending";
+		const orderIsPaid =
+			after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
 
 		if (orderIsPaid) {
 			console.log("order paid", orderId);
@@ -57,10 +58,6 @@ export const onOrderUpdate = functions.firestore
 
 			await emailService.sendEmail({
 				html,
-			});
-
-			return admin.firestore().collection("cart").doc(after.cart.id).update({
-				status: "completed",
 			});
 		}
 

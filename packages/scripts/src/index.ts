@@ -48,9 +48,14 @@ async function main() {
 			admin: true,
 			tenantId: selectedStore.tenantId,
 			storeId: selectedStore.id,
+			companyId: selectedStore.companyId,
 		};
 		await auth.setCustomUserClaims(userRecord.uid, token);
-		console.log("SUCCESS");
+		const userRecord2 = await auth.getUser(userRecord.uid);
+
+		// Access custom claims
+		const customClaims = userRecord2.customClaims;
+		console.log("customClaims", customClaims);
 	}
 
 	if (action === "createStore") {

@@ -35,7 +35,7 @@ export default function StoreLayout() {
 		return () => unsubscribe?.();
 	}, [user]);
 
-	if (unPaidPendingOrder) {
+	if (unPaidPendingOrder && user?.uid === unPaidPendingOrder.userId) {
 		return (
 			<>
 				<AppBar />

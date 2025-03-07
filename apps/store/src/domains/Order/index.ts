@@ -23,7 +23,7 @@ export const ordersSlice = createSlice({
 	selectors: {
 		selectUnPaidPendingOrder: (state) => {
 			return state.orders.find(
-				(order) => order.status == "pending" && order.paymentStatus !== "completed"
+				(order) => order.status == "draft" && order.paymentStatus === "pending"
 			);
 		},
 	},

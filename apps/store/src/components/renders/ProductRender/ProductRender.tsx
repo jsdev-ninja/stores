@@ -7,7 +7,7 @@ const RENDER_CONFIG: Record<
 	TStore["id"],
 	{ productCard?: LazyExoticComponent<ComponentType<{ product: TProduct }>> }
 > = {
-	"tester-store": {
+	"tester_store": {
 		productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 	"opal-market-store": {

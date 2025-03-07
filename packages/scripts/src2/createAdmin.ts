@@ -30,6 +30,7 @@ async function createAdmin() {
 		admin: true,
 		tenantId: store?.tenantId,
 		storeId: storeRef.id,
+		companyId: store.companyId
 	};
 	console.log("store", store);
 
