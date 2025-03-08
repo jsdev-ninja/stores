@@ -85,6 +85,7 @@ export const resources = {
 			addToFavorite: "הוסף למועדפים",
 			remove: "הסר",
 			orderStatutes: {
+				draft: "לא הושלם",
 				pending: "בהמתנה",
 				processing: "בהכנה",
 				delivered: "הגיע",

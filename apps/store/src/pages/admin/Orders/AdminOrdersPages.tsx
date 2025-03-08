@@ -57,6 +57,7 @@ function OrderRow({
 	const appApi = useAppApi();
 
 	const chipColors: Record<TOrder["status"], ChipProps["color"]> = {
+		draft: "default",
 		pending: "default",
 		processing: "secondary",
 		canceled: "danger",

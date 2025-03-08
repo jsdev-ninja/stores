@@ -10,8 +10,6 @@ import { TOrder } from "@jsdev_ninja/core";
 import { useAppSelector } from "src/infra";
 
 function UserOrdersPage() {
-	const appApi = useAppApi();
-
 	const { t } = useTranslation(["common", "ordersPage"]);
 
 	const orders = useAppSelector((state) => state.orders.orders);
@@ -50,6 +48,7 @@ function OrderItem({ order }: { order: TOrder }) {
 	const user = useUser();
 
 	const chipColors: Record<TOrder["status"], ChipProps["color"]> = {
+		draft: "default",
 		pending: "default",
 		processing: "secondary",
 		canceled: "danger",

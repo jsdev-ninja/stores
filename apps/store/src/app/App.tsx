@@ -8,7 +8,7 @@ import { mixPanelApi } from "src/lib/mixpanel";
 import { ProtectedRoute } from "src/features/auth";
 import { TCart } from "src/domains/cart";
 import { useStore } from "src/domains/Store";
-import { FirebaseAPI, TOrder, TProfile } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
 import { NextUIProvider } from "@nextui-org/react";

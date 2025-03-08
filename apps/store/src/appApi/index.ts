@@ -494,7 +494,7 @@ export const useAppApi = () => {
 				if (!isValidStoreData) return;
 
 				const profile: TProfile = {
-					id: user.uid,
+					id: "",
 					companyId: store.companyId,
 					storeId: store.id,
 					tenantId: store.tenantId,
@@ -521,6 +521,8 @@ export const useAppApi = () => {
 					// todo: handle
 					return res;
 				}
+
+				profile.id = res.user?.uid ?? "";
 
 				const newProfile = await FirebaseApi.firestore.setV2<Partial<TProfile>>({
 					collection: FirebaseAPI.firestore.getPath({
