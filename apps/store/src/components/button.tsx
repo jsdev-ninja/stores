@@ -1,4 +1,4 @@
-import { Button as UiButton, ButtonProps } from "@nextui-org/button";
+import { Button as UiButton, ButtonProps } from "@heroui/button";
 import { forwardRef } from "react";
 
 export interface IButtonProps extends ButtonProps {}

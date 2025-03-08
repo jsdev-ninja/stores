@@ -3,7 +3,7 @@ import { useProduct } from "./useProduct";
 import { useAppSelector } from "src/infra/store";
 import { cartSlice } from "src/domains/cart";
 import { useAppApi } from "src/appApi";
-import { ButtonGroup, ButtonProps } from "@nextui-org/react";
+import { ButtonGroup, ButtonProps } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 
 type Props = Omit<ButtonProps, "value" | "onChange">;

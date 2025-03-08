@@ -1,5 +1,5 @@
 import { TProduct } from "@jsdev_ninja/core";
-import { Divider } from "@nextui-org/react";
+import { Divider } from "@heroui/react";
 import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
 

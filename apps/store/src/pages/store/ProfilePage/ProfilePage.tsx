@@ -1,4 +1,4 @@
-import { Avatar } from "@nextui-org/react";
+import { Avatar } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useProfile } from "src/domains/profile";
 import { modalApi } from "src/infra/modals";

@@ -6,7 +6,7 @@ import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
 import { navigate } from "src/navigation";
-import { ChipProps, Chip } from "@nextui-org/react";
+import { ChipProps, Chip } from "@heroui/react";
 
 function AdminOrdersPages() {
 	const appApi = useAppApi();

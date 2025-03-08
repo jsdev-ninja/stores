@@ -3,7 +3,7 @@ import { useAppApi } from "src/appApi";
 import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
-import { Chip, ChipProps } from "@nextui-org/react";
+import { Chip, ChipProps } from "@heroui/react";
 import { navigate } from "src/navigation";
 import { useUser } from "src/domains/user";
 import { TOrder } from "@jsdev_ninja/core";

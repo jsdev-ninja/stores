@@ -11,7 +11,7 @@ import { useStore } from "src/domains/Store";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import { useAppApi } from "src/appApi";
 
 const SuperAdminLayout = lazy(() => import("src/pages/superAdmin"));
@@ -160,7 +160,7 @@ function App() {
 	}
 
 	return (
-		<NextUIProvider>
+		<HeroUIProvider>
 			{/* todo fix fallback */}
 			<Suspense fallback="loading">
 				<ModalProvider />
@@ -182,7 +182,7 @@ function App() {
 					</ProtectedRoute>
 				</Route>
 			</Suspense>
-		</NextUIProvider>
+		</HeroUIProvider>
 	);
 }
 

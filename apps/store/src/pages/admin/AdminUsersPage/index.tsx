@@ -17,7 +17,7 @@ import {
 	DropdownMenu,
 	DropdownItem,
 	User,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { useTranslation } from "react-i18next";
 
 export function capitalize(str?: string) {

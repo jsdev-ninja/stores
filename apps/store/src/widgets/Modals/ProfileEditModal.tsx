@@ -1,5 +1,5 @@
 import { ProfileSchema, TProfile } from "@jsdev_ninja/core";
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Form } from "src/components/Form";
