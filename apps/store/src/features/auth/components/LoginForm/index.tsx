@@ -37,7 +37,7 @@ export function LoginForm() {
 			onSubmit={async (data, form) => {
 				const result = await FirebaseApi.auth.login(data.email, data.password);
 				if (!result.success) {
-					form.setError("global", { message: getError(result.error) });
+					form.setError("global", { message: getError(result) });
 					return;
 				}
 				if (result.success) {

@@ -520,7 +520,7 @@ export const useAppApi = () => {
 					doc: profile,
 				});
 
-				return { user: res.user, profile: newProfile, success: true, error: null };
+				return { user: res.user, profile: newProfile, success: true };
 			},
 		};
 

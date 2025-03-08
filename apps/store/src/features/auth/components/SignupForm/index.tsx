@@ -43,7 +43,7 @@ export function SignupForm() {
 					password: data.password,
 				});
 				if (!result?.success) {
-					form.setError("global", { message: getError(result?.error) });
+					form.setError("global", { message: getError(result) });
 					return;
 				}
 
