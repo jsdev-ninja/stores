@@ -28,12 +28,11 @@ export async function useAppInit() {
 	const store = storeResponse?.data?.[0];
 
 	if (!company || !store) {
-		// todo
+		actions.dispatch(actions.ui.setAppReady(true));
+		return;
 	}
 
 	if (company && store) {
-		// Function to change the favicon
-
 		const link: any =
 			document.querySelector("link[rel*='icon']") || document.createElement("link");
 		link.type = "image/x-icon";
@@ -42,9 +41,6 @@ export async function useAppInit() {
 		document.getElementsByTagName("head")[0].appendChild(link);
 		document.title = company.name;
 	}
-
-	console.log('store',store?.name);
-	
 
 	!!store && FirebaseApi.auth.setTenantId(store.tenantId);
 	!!company && actions.dispatch(actions.company.setCompany(company));

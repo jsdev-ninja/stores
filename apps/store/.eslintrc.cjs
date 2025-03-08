@@ -17,5 +17,6 @@ module.exports = {
 		// "react-refresh/only-export-components": "off",
 		"no-mixed-spaces-and-tabs": "off",
 		"@typescript-eslint/no-explicit-any": "off",
+		"compat/compat": ["warn"],
 	},
 };

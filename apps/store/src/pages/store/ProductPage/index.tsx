@@ -13,7 +13,6 @@ export function ProductPage() {
 	const [product, setProduct] = useState<TProduct | null>(() => {
 		const state = history.state?.product;
 		if (state) {
-			// todo: clear history state
 			history.replaceState({}, window.location.pathname);
 		}
 		return state ?? null;

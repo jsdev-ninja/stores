@@ -24,7 +24,6 @@ export default function StoreLayout() {
 	const actions = useStoreActions();
 
 	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
-	console.log("unPaidPendingOrder", unPaidPendingOrder);
 
 	useEffect(() => {
 		const unsubscribe = appApi.user.subscriptions.favoriteProductsSubscribe(

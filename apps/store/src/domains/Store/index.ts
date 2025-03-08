@@ -21,7 +21,6 @@ const StoreSchema = z.object({
 
 export type TStore = z.infer<typeof StoreSchema>;
 
-// todo: make sure load company safe!!!
 const initialState: { data: TStore | null } = {
 	data: null,
 };

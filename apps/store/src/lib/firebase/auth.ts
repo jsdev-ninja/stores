@@ -10,6 +10,7 @@ import {
 } from "firebase/auth";
 import { app } from "./app";
 import { TUser, Token } from "src/types";
+import { handleError } from "./lib";
 
 const auth = getAuth(app);
 
@@ -27,14 +28,13 @@ export const Auth = {
 			if (auth.currentUser && auth.currentUser.isAnonymous) {
 				const credential = EmailAuthProvider.credential(email, password);
 				const response = await linkWithCredential(auth.currentUser, credential);
-				return { success: true, user: response.user as TUser, error: null };
+				return { success: true, user: response.user as TUser } as const;
 			}
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-			return { success: true, user: userCredential.user as TUser, error: null };
-		} catch (error) {
-			console.error("auth.createUser", error);
-			return { success: false, user: null, error };
+			return { success: true, user: userCredential.user as TUser } as const;
+		} catch (error: any) {
+			return handleError(error);
 		}
 	},
 	login: async (email: string, password: string) => {
@@ -55,8 +55,7 @@ export const Auth = {
 			return { success: true, user: newUser as TUser };
 		} catch (error: any) {
 			console.error("auth.createUser", error);
-
-			return { success: false, user: null, error };
+			return handleError(error);
 		}
 	},
 	logout: async () => {

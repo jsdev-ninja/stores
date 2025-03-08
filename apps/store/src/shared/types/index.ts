@@ -7,7 +7,6 @@ export const LocaleSchema = z.object({
 
 export type TLocale = z.infer<typeof LocaleSchema>;
 
-// todo: autocomplete not works for array of objects
 export type NestedKeys<T> = {
 	[K in keyof Required<T>]: Required<T>[K] extends Array<infer U>
 		? K extends string

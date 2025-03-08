@@ -22,7 +22,7 @@ function CheckoutPage() {
 	const store = useAppSelector((state) => state.store.data);
 
 	if (!store || !user || !cart) {
-		return null; // todo
+		return null;
 	}
 
 	const emptyAddress: TProfile["address"] = {
@@ -83,7 +83,6 @@ function CheckoutPage() {
 					const order = await appApi.orders.order({ order: values });
 					if (!order?.success) return null; //todo
 
-					// todo create profile if not exists
 					const payment = await appApi.user.createPaymentLink({ order: values });
 					window.location.href = payment.data.paymentLink;
 				}}

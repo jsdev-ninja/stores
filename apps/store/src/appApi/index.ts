@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
-import { TCompany, useCompany } from "src/domains/Company";
+import { TCompany } from "src/domains/Company";
 import { TOrder } from "src/domains/Order";
-import { useStore } from "src/domains/Store";
-import { useAppSelector, useStoreActions } from "src/infra";
+import { useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
 import { SentryApi } from "src/lib/sentry";
@@ -21,18 +20,14 @@ import { CartService } from "src/domains/cart/CartService";
 import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
 import { LogPayload } from "src/lib/firebase/api";
+import { useApiState } from "./useApiState";
 
-// todo move to folder
 function productInCart(cart: TCart | null, product: TProduct) {
 	return !!cart?.items?.find((item) => item.product.id === product.id);
 }
 
 export const useAppApi = () => {
-	const appReady = useAppSelector((state) => state.ui.appReady);
-	const company = useCompany();
-	const store = useStore();
-	const user = useAppSelector((state) => state.user.user);
-	const cart = useAppSelector((state) => state.cart.currentCart);
+	const { appReady, cart, company, store, user } = useApiState();
 	const actions = useStoreActions();
 
 	const cartId = cart?.id ?? FirebaseApi.firestore.generateDocId("cart");
@@ -105,8 +100,6 @@ export const useAppApi = () => {
 			},
 			order: async ({ order }: { order: TOrder }) => {
 				if (!isValidUser) return;
-
-				console.log("order", order.id);
 
 				return await FirebaseApi.firestore.createV2({
 					collection: FirebaseAPI.firestore.getPath({
@@ -182,7 +175,10 @@ export const useAppApi = () => {
 					navigate({
 						to: "store",
 					});
-					// todo: clear state
+					actions.dispatch(actions.cart.setCart(null));
+					actions.dispatch(actions.orders.setOrders([]));
+					actions.dispatch(actions.favoriteProducts.setFavoriteProducts([]));
+					actions.dispatch(actions.profile.setProfile(null));
 				},
 			},
 			categories: {
@@ -202,8 +198,6 @@ export const useAppApi = () => {
 				}
 
 				// todo handle duplicate payment and page refresh
-
-				console.log("onOrderPaid", payment.Order);
 
 				await FirebaseApi.firestore.setV2<Partial<TOrder>>({
 					collection: FirebaseAPI.firestore.getPath({
@@ -232,7 +226,6 @@ export const useAppApi = () => {
 						userId: user.uid,
 					},
 				});
-				// todo handle refresh
 			},
 		};
 
@@ -247,8 +240,6 @@ export const useAppApi = () => {
 				profileSubscribe: () => {
 					if (!isValidUser || user?.isAnonymous === true) return;
 
-					console.log("profile AAAA1");
-
 					const unsubscribe = FirebaseApi.firestore.subscribeDocV2<TProfile>({
 						collection: FirebaseAPI.firestore.getPath({
 							collectionName: "profiles",
@@ -257,8 +248,6 @@ export const useAppApi = () => {
 						}),
 						id: user.uid,
 						callback(profile) {
-							console.log("profile AAAA", profile);
-
 							actions.dispatch(actions.profile.setProfile(profile));
 						},
 					});
@@ -318,8 +307,6 @@ export const useAppApi = () => {
 			},
 			async createPaymentLink({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
-
-				console.log("createPaymentLink", order.id);
 
 				const payment: any = await FirebaseApi.api.createPayment({ order: order });
 				return payment;
@@ -518,7 +505,7 @@ export const useAppApi = () => {
 
 				const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);
 				if (!res.success) {
-					// todo: handle
+					logger({ severity: "CRITICAL", message: `fail sign up`, ...res });
 					return res;
 				}
 
@@ -620,7 +607,6 @@ export const useAppApi = () => {
 					const res = await FirebaseApi.api.createCompanyClient(newCompany);
 
 					if (!res.success) {
-						// todo: handle
 						return res;
 					}
 				} catch (error) {

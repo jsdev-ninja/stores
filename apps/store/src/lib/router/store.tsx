@@ -90,7 +90,6 @@ export function createStore(routes: Routes) {
 function update() {
 	if (!document.startViewTransition) return emitChange();
 	document.startViewTransition?.(async () => {
-		// todo: forward button not works with page view transition
 		emitChange();
 	});
 }

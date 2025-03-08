@@ -87,7 +87,6 @@ function App() {
 				{ name: "userId", operator: "==", value: user.uid },
 			],
 			callback: (orders) => {
-				console.log("orders", orders);
 				actions.dispatch(actions.dispatch(actions.orders.setOrders(orders ?? [])));
 			},
 		});

@@ -25,7 +25,7 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 	type TTo = RouteKeys<typeof routes>;
 
 	async function _navigate({ path, state }: { path: string; state?: any }) {
-		store.navigate({ path, state }); // todo type
+		store.navigate({ path, state });
 	}
 
 	type Props<K extends string> = RouteParams<RoutePath<K, typeof routes>> extends never
@@ -66,13 +66,13 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 		to: K;
 		state?: any;
 		params?: RouteParams<RoutePath<K, typeof routes>> extends never
-			? undefined // todo fix parmas type
+			? undefined
 			: RouteParams<RoutePath<K, typeof routes>>;
 	}) {
 		const { params, state, to } = props;
 		const routeConfig = getRouteData(to, routes);
 
-		const path = replaceParamsInPath(routeConfig?.fullPath ?? "", params); //todo fix type
+		const path = replaceParamsInPath(routeConfig?.fullPath ?? "", params);
 
 		return await _navigate({ path, state });
 	}

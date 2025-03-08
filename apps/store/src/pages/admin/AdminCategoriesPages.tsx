@@ -34,7 +34,6 @@ export function AdminCategoriesPages() {
 		setCategories(categoriesToEdit);
 	}
 
-	// todo: fix ltr
 	return (
 		<div className="w-full border p-20 ltr flex flex-grow  gap-5">
 			<CategoryTree setCategories={setCategoriesToEdit} categories={categoriesToEdit} />

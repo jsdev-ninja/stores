@@ -75,7 +75,6 @@ function OrderRow({
 						onPress={async () => {
 							const res = await appApi.admin.orderPaid({ order });
 							if (!res?.success) {
-								// todo:
 								return;
 							}
 							updateOrder(order.id, "delivered");
@@ -94,7 +93,6 @@ function OrderRow({
 						// charge for order
 						const res = await appApi.admin.chargeOrder({ order });
 						if (!res?.success) {
-							// todo:
 							return;
 						}
 						// updateOrder(order.id, "completed");
@@ -113,7 +111,6 @@ function OrderRow({
 						onClick={async () => {
 							const res = await appApi.admin.orderDelivered({ order });
 							if (!res?.success) {
-								// todo:
 								return;
 							}
 							updateOrder(order.id, "in_delivery");
@@ -134,7 +131,6 @@ function OrderRow({
 						onClick={async () => {
 							const res = await appApi.admin.orderAccept({ order });
 							if (!res?.success) {
-								// todo:
 								return;
 							}
 							updateOrder(order.id, "processing");

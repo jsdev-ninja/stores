@@ -57,12 +57,10 @@ export function AdminCompanyCreateModal() {
 						}}
 						className="p-4"
 						onSubmit={async (formData: any) => {
-							// todo
 							await appApi.admin.companyCreate({
 								...formData,
 								id: FirebaseApi.firestore.generateDocId("companies"),
 							});
-							// tood update profiles
 							modalApi.closeModal("AdminCompanyCreateModal");
 						}}
 						onError={(errors) => {

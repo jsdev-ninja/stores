@@ -16,7 +16,6 @@ export const CompanySchema = z.object({
 
 export type TCompany = z.infer<typeof CompanySchema>;
 
-// todo: make sure load company safe!!!
 const initialState: { data: TCompany | null } = {
 	data: null,
 };

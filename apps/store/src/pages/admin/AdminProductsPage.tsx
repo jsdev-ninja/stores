@@ -58,11 +58,7 @@ export function AdminProductsPage() {
 						<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 					</div>
 					<div className="flex-grow p-4 flex flex-wrap gap-4">
-						<ProductsWidget.Products
-							emptyStateAction={() => {
-								// todo
-							}}
-						>
+						<ProductsWidget.Products emptyStateAction={() => {}}>
 							{(products) => {
 								return products.map((product) => (
 									<Product key={product.id} product={product}>

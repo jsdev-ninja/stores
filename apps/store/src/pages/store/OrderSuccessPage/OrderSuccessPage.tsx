@@ -35,8 +35,6 @@ export function OrderSuccessPage() {
 		appApi.system.onOrderPaid(queryParams);
 	}, [window.location.href]);
 
-	console.log("queryParams", queryParams);
-
 	useEffect(() => {
 		OrderApi.getOrder(queryParams.Order).then((res) => {
 			if (res.success) {

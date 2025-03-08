@@ -58,13 +58,10 @@ async function createV2<T extends { id?: string }>(data: {
 			async (transaction) => {
 				const docRef = doc(db, data.collection, data.doc.id ?? generateDocId(data.collection)); // Reference to the document with a custom ID
 
-				console.log("AAA", docRef.id, data.doc.id);
-
 				// Check if the document already exists within the transaction
 				const docSnapshot = await transaction.get(docRef);
 
 				if (docSnapshot.exists()) {
-					// todo log
 					return { success: false };
 				} else {
 					// Document does not exist, proceed to create it
@@ -129,7 +126,7 @@ async function getV2<T extends object>(data: { collection: string; id: string })
 			return { success: true, data: null };
 		}
 
-		const result: T = { ...querySnapshot.data(), id: querySnapshot.id } as any; // todo
+		const result: T = { ...querySnapshot.data(), id: querySnapshot.id } as T;
 
 		return { success: true, data: result };
 	} catch (error) {
