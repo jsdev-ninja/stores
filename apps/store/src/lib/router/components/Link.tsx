@@ -2,6 +2,9 @@ import { ReactNode } from "react";
 import { Route, RouteKeys, RouteParams, Routes } from "../types";
 import { replaceParamsInPath } from "../utils";
 import { getRouteData } from "../utils/traverse";
+import { Link as UiLink, LinkProps } from "@heroui/react";
+
+type TUiLinkProps = Omit<LinkProps, "href">;
 
 export function createLink<T extends Routes>(routes: T, store: any) {
 	type RoutePath<key extends string, T extends Routes> = key extends keyof T
@@ -43,7 +46,7 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 				state?: any;
 		  };
 
-	function Link<K extends TTo>(props: Props<K>) {
+	function Link<K extends TTo>(props: Props<K> & TUiLinkProps) {
 		const routeConfig = getRouteData(props.to ?? "", routes);
 
 		const p = "params" in props ? props.params : {};
@@ -51,14 +54,13 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 		const path = replaceParamsInPath(routeConfig?.fullPath ?? "", p); //todo fix type
 
 		return (
-			<a
-				onClick={(e) => {
-					e.preventDefault();
+			<UiLink
+				onPress={() => {
 					_navigate({ path, state: props.state });
 				}}
 			>
 				{props.children}
-			</a>
+			</UiLink>
 		);
 	}
 

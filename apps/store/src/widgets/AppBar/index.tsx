@@ -1,5 +1,5 @@
 import { Button } from "src/components/button";
-import { TLinkTo, navigate } from "src/navigation";
+import { Link, TLinkTo, navigate } from "src/navigation";
 import { useTranslation } from "react-i18next";
 import { modalApi } from "src/infra/modals";
 import { useAppSelector } from "src/infra";
@@ -8,7 +8,6 @@ import { Icon } from "src/components";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
-import { Link } from "src/ui";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { useStore } from "src/domains/Store";
 
@@ -92,7 +91,7 @@ export function AppBar() {
 				{navLinks.map((link) => {
 					return (
 						<NavbarItem key={link.name}>
-							<Link color="foreground" to={link.to}>
+							<Link params={undefined as any} color="foreground" to={link.to}>
 								{link.name}
 							</Link>
 						</NavbarItem>

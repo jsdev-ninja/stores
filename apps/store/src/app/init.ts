@@ -40,6 +40,8 @@ export async function useAppInit() {
 		link.href = store.logoUrl ?? DefaultLogoSrc;
 		document.getElementsByTagName("head")[0].appendChild(link);
 		document.title = company.name;
+
+		// apply store theme
 	}
 
 	!!store && FirebaseApi.auth.setTenantId(store.tenantId);
