@@ -151,7 +151,7 @@ async function listV2<T>(data: {
 		const wheres = filters.map((filter) => where(filter.name, filter.operator, filter.value));
 		const q = query(collection(db, data.collection), ...wheres, ...order, limit(150));
 
-		const result: any = [];
+		const result: any[] = [];
 		const querySnapshot = await getDocs(q);
 
 		querySnapshot.forEach((doc) => {

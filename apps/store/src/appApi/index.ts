@@ -525,6 +525,41 @@ export const useAppApi = () => {
 		};
 
 		const admin = {
+			getOrder: async (id: string) => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.getV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					id,
+				});
+			},
+			getStoreOrders: async () => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.listV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: [
+						{
+							name: "storeId",
+							operator: "==",
+							value: store.id,
+						},
+						{
+							name: "companyId",
+							operator: "==",
+							value: companyId,
+						},
+					],
+				});
+			},
 			productCreate: async (newProduct: TNewProduct) => {
 				setLoading({ ...loading, "admin.productCreate": true });
 

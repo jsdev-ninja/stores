@@ -12,6 +12,7 @@ function AdminOrdersPages() {
 	const appApi = useAppApi();
 
 	const [orders, setOrders] = useState<TOrder[]>([]);
+	console.log("orders.orders", orders);
 
 	function updateOrder(id: string, status: TOrder["status"]) {
 		setOrders((orders) =>
@@ -20,13 +21,13 @@ function AdminOrdersPages() {
 	}
 
 	useEffect(() => {
-		appApi.orders.list().then((res) => {
+		appApi.admin.getStoreOrders().then((res) => {
 			if (!res) {
 				return;
 			}
-			setOrders(res.data as TOrder[]);
+			setOrders(res.data);
 		});
-	}, [appApi.orders]);
+	}, [appApi]);
 
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
