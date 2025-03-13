@@ -75,7 +75,7 @@ export function OrderItemsTable({ items, onUpdateItem, onRemoveItem }: OrderItem
 								isIconOnly
 								color="danger"
 								variant="light"
-								onPress={() => onRemoveItem(item.id)}
+								onPress={() => onRemoveItem(item.product.id)}
 							>
 								<Trash2 />
 							</Button>
@@ -98,7 +98,7 @@ export interface Order {
 	id: string;
 	customerName: string;
 	email: string;
-	status: "pending" | "processing" | "completed" | "cancelled";
+	status: "pending" | "processing" | "completed" | "canceled";
 	items: OrderItem[];
 	total: number;
 	date: string;
@@ -166,7 +166,7 @@ export default function AdminOrderPage() {
 		pending: "warning",
 		processing: "primary",
 		completed: "success",
-		cancelled: "danger",
+		canceled: "danger",
 	} as const;
 
 	if (!order) return null;
@@ -177,7 +177,14 @@ export default function AdminOrderPage() {
 				<CardHeader className="flex flex-col gap-2">
 					<div className="flex items-center justify-between">
 						<h1 className="text-2xl font-bold">Order Details</h1>
-						<Chip color={statusColorMap[order.status]} variant="flat">
+						<Chip
+							color={
+								statusColorMap[
+									order.status as keyof typeof statusColorMap
+								] as unknown as any
+							}
+							variant="flat"
+						>
 							{order.status}
 						</Chip>
 					</div>
@@ -186,16 +193,8 @@ export default function AdminOrderPage() {
 				<Divider />
 				<CardBody className="flex flex-col gap-6">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<Input
-							label="Customer Name"
-							value={order.client.displayName}
-							onChange={(e) => setOrder({ ...order, customerName: e.target.value })}
-						/>
-						<Input
-							label="Email"
-							value={order.client.email}
-							onChange={(e) => setOrder({ ...order, email: e.target.value })}
-						/>
+						<Input label="Customer Name" value={order.client.displayName} isDisabled />
+						<Input label="Email" value={order.client.email} />
 						<Select
 							label="Status"
 							selectedKeys={[order.status]}
@@ -209,12 +208,12 @@ export default function AdminOrderPage() {
 							<SelectItem key="pending">Pending</SelectItem>
 							<SelectItem key="processing">Processing</SelectItem>
 							<SelectItem key="completed">Completed</SelectItem>
-							<SelectItem key="cancelled">Cancelled</SelectItem>
+							<SelectItem key="canceled">Canceled</SelectItem>
 						</Select>
 						<Input
 							label="Order Date"
-							value={order.date}
-							onChange={(e) => setOrder({ ...order, date: e.target.value })}
+							value={order.date?.toString()}
+							onChange={(e) => setOrder({ ...order, date: e.target.value as any })}
 						/>
 					</div>
 
