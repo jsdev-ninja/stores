@@ -265,7 +265,7 @@ function ImagePreview({ productImage }: { productImage?: any }) {
 	// newImage ? URL.createObjectURL(images) :
 	const url = newImage ? URL.createObjectURL(newImage) : productImage ? productImage.url : null;
 
-	return <div className="h-40 w-40">{url && <img src={url} className="" alt="" />}</div>;
+	return <div className="h-40 w-40">{url && <img src={url} className="w-full h-full" alt="" />}</div>;
 }
 
 function NameDetails() {
