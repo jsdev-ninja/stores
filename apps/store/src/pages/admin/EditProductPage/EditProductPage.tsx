@@ -1,3 +1,4 @@
+import { Button } from "@heroui/react";
 import { NewProductSchema, TCategory, TNewProduct, TProduct } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -248,6 +249,17 @@ export function EditProductPage() {
 				</Flex>
 				<div className="my-4 flex flex-col gap-4">
 					<Form.File<TNewProduct> name="image" label="Product image" />
+					{!!product.images?.[0] && (
+						<Button
+							onPress={() => {
+								appApi.admin.removeProductImage({ product });
+							}}
+							size="md"
+							className="w-40"
+						>
+							remove image
+						</Button>
+					)}
 					<ImagePreview productImage={product.images?.[0]} />
 				</div>
 				<div className="my-4">
@@ -265,7 +277,9 @@ function ImagePreview({ productImage }: { productImage?: any }) {
 	// newImage ? URL.createObjectURL(images) :
 	const url = newImage ? URL.createObjectURL(newImage) : productImage ? productImage.url : null;
 
-	return <div className="h-40 w-40">{url && <img src={url} className="w-full h-full" alt="" />}</div>;
+	return (
+		<div className="h-40 w-40">{url && <img src={url} className="w-full h-full" alt="" />}</div>
+	);
 }
 
 function NameDetails() {

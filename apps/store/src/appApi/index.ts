@@ -560,6 +560,26 @@ export const useAppApi = () => {
 					],
 				});
 			},
+			removeProductImage: async ({ product }: { product: TProduct }) => {
+				if (!isValidAdmin) return;
+
+				// remove product images
+				if (product.images?.[0]) {
+					await FirebaseApi.storage.remove(product.images?.[0].url);
+				}
+
+				const newProduct = { ...product };
+				newProduct.images = [];
+
+				return await FirebaseApi.firestore.setV2({
+					doc: newProduct,
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "products",
+						companyId,
+						storeId,
+					}),
+				});
+			},
 			productCreate: async (newProduct: TNewProduct) => {
 				setLoading({ ...loading, "admin.productCreate": true });
 
