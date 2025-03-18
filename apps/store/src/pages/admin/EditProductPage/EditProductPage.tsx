@@ -139,6 +139,10 @@ export function EditProductPage() {
 			>
 				<NameDetails />
 
+				<Flex.Item grow="none" className="h-full">
+					<Form.Checkbox<TNewProduct> name="isPublished" label={'קיים במלאי'} />
+				</Flex.Item>
+
 				<Flex>
 					<Form.TextArea<TNewProduct>
 						name="description[0].value"
@@ -263,7 +267,7 @@ export function EditProductPage() {
 					<ImagePreview productImage={product.images?.[0]} />
 				</div>
 				<div className="my-4">
-					<Form.Submit>Add product</Form.Submit>
+					<Form.Submit>Save product</Form.Submit>
 				</div>
 			</Form>
 		</div>

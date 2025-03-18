@@ -1,7 +1,6 @@
 HYP
 ItQnx
 
-// todo 
 
 masof 0010302921
 password hyp1234
@@ -9,6 +8,12 @@ password hyp1234
 Fake Card - 5326105300985614
 CVV 125
 date - 12/25
+
+
+// todo 
+<!-- category by  url -->
+<!-- barcode is private -->
+
 
 ORDER FLOW
 

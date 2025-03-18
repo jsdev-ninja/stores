@@ -62,7 +62,7 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 
 			const numberPrice = Number(price);
 			if (isNotValid) {
-				// console.log("not valid product", barCode, name, price);
+				console.log("not valid product", barCode, name, price);
 				continue;
 			}
 
@@ -167,7 +167,7 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 					};
 					!existsSubCategory && _category.children.push(_subCategory);
 
-					newProduct.categoryList = [_category];
+					newProduct.categoryList = [_category, _subCategory];
 					newProduct.categories = {
 						lvl0: newProduct.categoryList
 							.filter((c) => c.depth === 0)

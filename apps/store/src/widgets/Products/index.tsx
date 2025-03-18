@@ -21,7 +21,7 @@ export function ProductsWidget({
 
 	const _filter = filter ? `AND ${filter}` : "";
 
-	const filters = `companyId:${store.companyId} AND storeId:${store.id} ${_filter}`;
+	const filters = `companyId:${store.companyId} AND storeId:${store.id} AND isPublished:true ${_filter}`;
 
 	return (
 		<InstantSearch
