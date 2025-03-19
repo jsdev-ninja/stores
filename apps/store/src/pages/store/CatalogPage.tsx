@@ -30,7 +30,7 @@ export function CatalogPage() {
 	const categoryName =
 		selectedCategory[index.toString() as unknown as keyof typeof selectedCategory];
 
-	const filter = categoryName ? `categoryNames:'${decodeURIComponent(categoryName)}'` : "";
+	const filter = categoryName ? `(categoryNames:'${decodeURIComponent(categoryName)}'  AND isPublished:true)` : "isPublished:true";
 
 	return (
 		<ProductsWidget filter={filter}>
