@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { navigate } from "src/navigation";
@@ -16,13 +16,29 @@ export function AdminProductsPage() {
 		2: string;
 		3: string;
 		4: string;
-	}>({
-		0: "",
-		1: "",
-		2: "",
-		3: "",
-		4: "",
+	}>(() => {
+		const queryString = window.location.search; // e.g. "?name=John&age=30"
+		// eslint-disable-next-line compat/compat
+		const params = Object.fromEntries(new URLSearchParams(queryString));
+
+		return {
+			0: params["0"] ?? "",
+			1: params["1"] ?? "",
+			2: params["2"] ?? "",
+			3: params["3"] ?? "",
+			4: params["4"] ?? "",
+		};
 	});
+
+	useEffect(() => {
+		// eslint-disable-next-line compat/compat
+		const queryParams = new URLSearchParams(
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			Object.fromEntries(Object.entries(selectedCategory).filter(([_, value]) => Boolean(value)))
+		).toString();
+
+		window.history.replaceState({}, "", `${window.location.pathname}?${queryParams}`);
+	}, [selectedCategory]);
 
 	const topCategory = Object.values(selectedCategory);
 	const index = topCategory.findLastIndex((el) => !!el);

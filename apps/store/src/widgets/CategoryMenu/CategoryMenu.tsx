@@ -45,6 +45,7 @@ export function CategoryMenu({
 			type="single"
 			className="flex flex-col gap-2"
 			collapsible
+			value={value[0]}
 		>
 			{categories.map((category) => {
 				return (
@@ -86,6 +87,7 @@ function Category({
 				<Accordion.Content className="mt-4">
 					<div className="flex flex-col gap-2">
 						<Accordion.Root
+							value={value[category.depth as keyof typeof value]}
 							onValueChange={(value) => {
 								onChange(value, category.depth + 1);
 							}}
