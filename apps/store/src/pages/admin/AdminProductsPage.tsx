@@ -20,8 +20,6 @@ export function AdminProductsPage() {
 		const queryString = window.location.search; // e.g. "?name=John&age=30"
 		// eslint-disable-next-line compat/compat
 
-		console.log("window.history.state?.selectedCategory", window.history.state?.selectedCategory);
-
 		const historyState: Record<string, string> = window.history.state?.selectedCategory ?? null;
 
 		const navigateParams =
