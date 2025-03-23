@@ -12,7 +12,6 @@ import AdminHomePage from "../AdminHomePage";
 import { WebsiteLogo } from "src/widgets/WebsiteLogo";
 import AdminUsersPage from "../AdminUsersPage";
 import { useTranslation } from "react-i18next";
-import { AdminProductsByCategoryPage } from "../AdminProductsByCategoryPage";
 import AdminOrderPage from "../Orders/AdminOrderPage";
 
 const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
@@ -460,7 +459,7 @@ export default function AdminLayout() {
 							<AdminProductsPage />
 						</Route>
 						<Route name="admin.productsByCategory">
-							<AdminProductsByCategoryPage />
+							<AdminProductsPage />
 						</Route>
 						<Route name="admin.categories">
 							<AdminCategoriesPages />
