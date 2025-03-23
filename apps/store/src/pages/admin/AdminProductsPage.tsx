@@ -19,7 +19,26 @@ export function AdminProductsPage() {
 	}>(() => {
 		const queryString = window.location.search; // e.g. "?name=John&age=30"
 		// eslint-disable-next-line compat/compat
-		const params = Object.fromEntries(new URLSearchParams(queryString));
+
+		console.log("window.history.state?.selectedCategory", window.history.state?.selectedCategory);
+
+		const historyState: Record<string, string> = window.history.state?.selectedCategory ?? null;
+
+		const navigateParams =
+			!!historyState &&
+			Object.fromEntries(
+				// eslint-disable-next-line compat/compat
+				new URLSearchParams(
+					Object.fromEntries(
+						Object.entries(historyState).filter(([_, value]) => Boolean(value))
+					)
+				)
+			);
+
+		const params: any = historyState
+			? navigateParams
+			: // eslint-disable-next-line compat/compat
+			  Object.fromEntries(new URLSearchParams(queryString));
 
 		return {
 			0: params["0"] ?? "",
@@ -112,7 +131,7 @@ export function AdminProductsPage() {
 														navigate({
 															to: "admin.editProduct",
 															params: { id: product.id },
-															state: { product },
+															state: { product, selectedCategory },
 														})
 													}
 													fullWidth

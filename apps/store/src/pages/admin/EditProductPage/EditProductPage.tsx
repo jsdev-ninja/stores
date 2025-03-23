@@ -133,14 +133,14 @@ export function EditProductPage() {
 				onSubmit={async (data) => {
 					await appApi.admin.saveProduct(data);
 
-					navigate({ to: "admin.products" });
+					navigate({ to: "admin.products", state: window.history.state });
 				}}
 				onError={(err) => console.log(err)}
 			>
 				<NameDetails />
 
 				<Flex.Item grow="none" className="h-full">
-					<Form.Checkbox<TNewProduct> name="isPublished" label={'קיים במלאי'} />
+					<Form.Checkbox<TNewProduct> name="isPublished" label={"קיים במלאי"} />
 				</Flex.Item>
 
 				<Flex>
