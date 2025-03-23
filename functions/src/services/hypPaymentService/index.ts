@@ -87,7 +87,7 @@ export const hypPaymentService = {
 				"inputObj.authorizationCodeManpik": "7",
 				Amount: params.actualAmount.toString(),
 				AuthNum: params.creditCardConfirmNumber,
-				Info: "soft Info",
+				Info: "balasi store",
 				Masof: params.masof,
 				PassP: params.masofPassword,
 				Tash: "1",
@@ -103,11 +103,8 @@ export const hypPaymentService = {
 			});
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
 			const transactionData = await transactionCommit.text();
-			console.log("Amount", params.actualAmount.toString());
-			console.log("token", tokenData.Token);
-			console.log("AuthNum", params.creditCardConfirmNumber);
-			console.log("originalUid", params.transactionUID);
-
+			console.log("actualAmount", params.actualAmount.toString());
+			console.log("originalAmount", params.originalAmount.toString());
 			console.log("transactionData", transactionData);
 
 			return { success: true };

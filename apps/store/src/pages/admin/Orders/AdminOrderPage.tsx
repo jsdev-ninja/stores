@@ -18,12 +18,13 @@ import {
 	Button,
 } from "@heroui/react";
 import { Trash2 } from "lucide-react";
-import { useParams } from "src/navigation";
+import { navigate, useParams } from "src/navigation";
 import { useAppApi } from "src/appApi";
 import { TOrder } from "@jsdev_ninja/core";
+import { calculateCartPrice } from "src/utils/calculateCartPrice";
 interface OrderItemsTableProps {
 	items: TOrder["cart"]["items"];
-	onUpdateItem: (itemId: string, field: keyof OrderItem, value: any) => void;
+	onUpdateItem: (itemId: string, field: keyof TOrder["cart"]["items"][number], value: any) => void;
 	onRemoveItem: (itemId: string) => void;
 }
 
@@ -41,12 +42,7 @@ export function OrderItemsTable({ items, onUpdateItem, onRemoveItem }: OrderItem
 				{items.map((item) => (
 					<TableRow key={item.product.id}>
 						<TableCell>
-							<Input
-								value={item.product.name[0].value}
-								onChange={(e) =>
-									onUpdateItem(item.product.id, "productName", e.target.value)
-								}
-							/>
+							<Input isDisabled value={item.product.name[0].value} />
 						</TableCell>
 						<TableCell>
 							<Input
@@ -54,19 +50,17 @@ export function OrderItemsTable({ items, onUpdateItem, onRemoveItem }: OrderItem
 								min={1}
 								value={item.amount.toString()}
 								onChange={(e) =>
-									onUpdateItem(item.product.id, "quantity", parseInt(e.target.value))
+									onUpdateItem(item.product.id, "amount", parseInt(e.target.value))
 								}
 							/>
 						</TableCell>
 						<TableCell>
 							<Input
+								isDisabled
 								type="number"
 								min={0}
 								step={0.01}
 								value={item.product.price.toString()}
-								onChange={(e) =>
-									onUpdateItem(item.product.id, "price", parseFloat(e.target.value))
-								}
 							/>
 						</TableCell>
 						<TableCell>${(item.amount * item.product.price).toFixed(2)}</TableCell>
@@ -87,28 +81,22 @@ export function OrderItemsTable({ items, onUpdateItem, onRemoveItem }: OrderItem
 	);
 }
 
-export interface OrderItem {
-	id: string;
-	productName: string;
-	quantity: number;
-	price: number;
-}
-
-export interface Order {
-	id: string;
-	customerName: string;
-	email: string;
-	status: "pending" | "processing" | "completed" | "canceled";
-	items: OrderItem[];
-	total: number;
-	date: string;
-}
-
 export default function AdminOrderPage() {
 	const [order, setOrder] = React.useState<TOrder | null>(null);
 
+	console.log("order", order);
+
 	const appApi = useAppApi();
 	const { id } = useParams("admin.order");
+
+	async function save() {
+		if (!order) return;
+
+		const res = await appApi.admin.updateOrder({ order });
+		if (res?.success) {
+			navigate({ to: "admin.orders" });
+		}
+	}
 
 	useEffect(() => {
 		if (!id) return;
@@ -132,15 +120,17 @@ export default function AdminOrderPage() {
 				return item;
 			});
 
-			const newTotal = (updatedItems ?? []).reduce(
-				(sum, item) => sum + item.amount * item.product.price,
-				0
-			);
+			const cartCost = calculateCartPrice(updatedItems ?? []);
 
 			return {
 				...prev,
-				items: updatedItems,
-				total: newTotal,
+				cart: {
+					...prev.cart,
+					items: updatedItems,
+					cartDiscount: cartCost.discount,
+					cartTotal: cartCost.finalCost,
+					cartVat: cartCost.vat,
+				},
 			};
 		});
 	};
@@ -149,15 +139,18 @@ export default function AdminOrderPage() {
 		setOrder((prev) => {
 			if (!prev) return prev;
 			const updatedItems = prev.cart.items.filter((item) => item.product.id !== itemId);
-			const newTotal = updatedItems.reduce(
-				(sum, item) => sum + item.amount * item.product.price,
-				0
-			);
+
+			const cartCost = calculateCartPrice(updatedItems ?? []);
 
 			return {
 				...prev,
-				items: updatedItems,
-				total: newTotal,
+				cart: {
+					...prev.cart,
+					items: updatedItems,
+					cartDiscount: cartCost.discount,
+					cartTotal: cartCost.finalCost,
+					cartVat: cartCost.vat,
+				},
 			};
 		});
 	};
@@ -201,7 +194,7 @@ export default function AdminOrderPage() {
 							onChange={(e) =>
 								setOrder({
 									...order,
-									status: e.target.value as Order["status"],
+									status: e.target.value as TOrder["status"],
 								})
 							}
 						>
@@ -229,8 +222,11 @@ export default function AdminOrderPage() {
 				<Divider />
 				<CardFooter>
 					<div className="ml-auto">
-						<p className="text-xl font-semibold">Total: ${order.cart.cartTotal.toFixed(2)}</p>
+						<p className="text-xl font-semibold">
+							Total: ${order?.cart.cartTotal.toFixed(2)}
+						</p>
 					</div>
+					<Button onPress={save}>save</Button>
 				</CardFooter>
 			</Card>
 		</div>

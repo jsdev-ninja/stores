@@ -67,7 +67,7 @@ export const chargeOrder = functions.https.onCall(
 
 			const [clientName, clientLastName] = (payment.payment.Fild1 ?? "").split(" ");
 			const res = await hypPaymentService.chargeJ5Transaction({
-				actualAmount: (order.cart.cartTotal - 20).toFixed(2) as any, // todo
+				actualAmount: (order.cart.cartTotal).toFixed(2) as any, // todo
 				originalAmount: order.cart.cartTotal.toFixed(2) as any,
 				creditCardConfirmNumber: payment.payment.ACode,
 				masof: "0010302921",
@@ -92,7 +92,6 @@ export const chargeOrder = functions.https.onCall(
 					.set(
 						{
 							paymentStatus: "completed", // TODO,
-							status: "completed",
 						},
 						{ merge: true }
 					);

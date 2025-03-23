@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
-import { TOrder } from "src/domains/Order";
+import { TOrder } from "@jsdev_ninja/core";
 import { useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
@@ -669,6 +669,20 @@ export const useAppApi = () => {
 					SentryApi.captureException(error);
 					return { user: null, success: false, error };
 				}
+			},
+			async updateOrder({ order }: { order: TOrder }) {
+				if (!isValidAdmin) return;
+				// mixPanelApi.track("", {
+				// 	order,
+				// });
+				return FirebaseApi.firestore.setV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					}),
+					doc: order,
+				});
 			},
 			async chargeOrder({ order }: { order: TOrder }) {
 				// get transactionId
