@@ -5,6 +5,10 @@ export const routes = {
 	store: {
 		path: "/",
 		children: {
+			terms: {
+				path: "/terms",
+				exact: true,
+			},
 			catalog: {
 				path: "/catalog",
 				exact: false,
