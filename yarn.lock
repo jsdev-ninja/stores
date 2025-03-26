@@ -3238,13 +3238,6 @@
   resolved "https://registry.yarnpkg.com/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz#9299f82874bab9e4c7f9c48d865becbfe8d6907c"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@jsdev_ninja/core@^0.8.55":
-  version "0.8.56"
-  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.8.56.tgz#e5208b7221d94e48517c2f369c1e540572916dc9"
-  integrity sha512-THMsLVLqRC3pb9L0XVmmje4qDQzQ+uwzxYnOabwE7izKeyDbGW2EoZyBUD6nTST8dSHZih8SVHcsiUrZDG2CzA==
-  dependencies:
-    zod "^3.23.8"
-
 "@mdn/browser-compat-data@^5.5.35", "@mdn/browser-compat-data@^5.6.19":
   version "5.6.42"
   resolved "https://registry.yarnpkg.com/@mdn/browser-compat-data/-/browser-compat-data-5.6.42.tgz#700de27d93e8ef1bab2b38c5964f8e0abac78c43"
