@@ -111,7 +111,7 @@ export function EditProductPage() {
 
 	function renderCategory(category: TCategory & FlattenedItem) {
 		return (
-			<Form.CategorySelect.Item key={category.id} value={category}>
+			<Form.CategorySelect.Item key={category.id} value={category.id}>
 				{renderParent(category, categories)}
 			</Form.CategorySelect.Item>
 		);
@@ -120,6 +120,8 @@ export function EditProductPage() {
 	if (!product) return;
 
 	const title = t("admin:productForm.edit.title");
+
+	const flattenCategory = flatten(categories);
 
 	return (
 		<div className="">
@@ -212,10 +214,14 @@ export function EditProductPage() {
 					<Flex.Item>
 						<Form.CategorySelect<TNewProduct>
 							multiple
-							displayValue={(categories: any) =>
-								categories.map((c: any) => c.locales[0].value).join(", ")
-							}
-							name="categoryList"
+							displayValue={(categories: string[]) => {
+								return categories.map((id) => {
+									const category = flattenCategory.find((c) => c.id === id);
+									return category?.locales[0].value;
+								});
+								// categories.map((c: any) => c.locales[0].value).join(", ")
+							}}
+							name="categoryIds"
 							placeholder={t("common:selectCategory")}
 							categories={categories ?? []}
 							label={t("common:category")}

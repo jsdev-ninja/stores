@@ -10,6 +10,7 @@ import { TCategory } from "@jsdev_ninja/core";
 
 import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
+import { flatten } from "src/utils/flatten";
 
 function isValidValue(number: number): boolean {
 	return !isNaN(number) && number > 0;
@@ -91,7 +92,7 @@ export function AddProductPage() {
 
 			return (
 				<Fragment key={category.id}>
-					<Form.CategorySelect.Item key={category.id} value={category}>
+					<Form.CategorySelect.Item key={category.id} value={category.id}>
 						{renderParent(category, sign)}
 					</Form.CategorySelect.Item>
 					{!!category.children?.length &&
@@ -112,6 +113,8 @@ export function AddProductPage() {
 	const title = t("admin:addProductPage.title");
 
 	if (!store?.id || !store.companyId) return null;
+
+	const flattenCategory = flatten(categories);
 
 	return (
 		<div className="">
@@ -152,6 +155,8 @@ export function AddProductPage() {
 					created_at: Date.now(),
 					updated_at: Date.now(),
 					isPublished: true,
+					categoryIds: [],
+
 					categories: {
 						lvl0: [],
 						lvl1: [],
@@ -244,10 +249,14 @@ export function AddProductPage() {
 					<Flex.Item>
 						<Form.CategorySelect<TNewProduct>
 							multiple
-							displayValue={(categories: any) =>
-								categories.map((c: any) => c.locales[0].value).join(", ")
-							}
-							name="categoryList"
+							displayValue={(categories: string[]) => {
+								return categories.map((id) => {
+									const category = flattenCategory.find((c) => c.id === id);
+									return category?.locales[0].value;
+								});
+								// categories.map((c: any) => c.locales[0].value).join(", ")
+							}}
+							name="categoryIds"
 							placeholder={t("common:selectCategory")}
 							categories={categories ?? []}
 							label={t("common:category")}

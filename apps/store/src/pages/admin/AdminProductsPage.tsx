@@ -63,7 +63,9 @@ export function AdminProductsPage() {
 	const categoryName =
 		selectedCategory[index.toString() as unknown as keyof typeof selectedCategory];
 
-	const filter = categoryName ? `categoryNames:'${decodeURIComponent(categoryName)}'` : "";
+	const filter = categoryName ? `categoryIds:'${decodeURIComponent(categoryName)}'` : "";
+	console.log('filter',filter);
+	
 
 	return (
 		<ProductsWidget filter={filter}>
