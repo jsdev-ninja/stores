@@ -486,7 +486,7 @@ class _ {
     return this._refinement((n, s) => e(n) ? !0 : (s.addIssue(typeof t == "function" ? t(n, s) : t), !1));
   }
   _refinement(e) {
-    return new N({
+    return new I({
       schema: this,
       typeName: y.ZodEffects,
       effect: { type: "refinement", refinement: e }
@@ -503,7 +503,7 @@ class _ {
     };
   }
   optional() {
-    return I.create(this, this._def);
+    return N.create(this, this._def);
   }
   nullable() {
     return D.create(this, this._def);
@@ -524,7 +524,7 @@ class _ {
     return ae.create(this, e, this._def);
   }
   transform(e) {
-    return new N({
+    return new I({
       ...v(this._def),
       schema: this,
       typeName: y.ZodEffects,
@@ -541,7 +541,7 @@ class _ {
     });
   }
   brand() {
-    return new Ne({
+    return new Ie({
       typeName: y.ZodBranded,
       type: this,
       ...v(this._def)
@@ -1586,7 +1586,7 @@ function B(r) {
     const e = {};
     for (const t in r.shape) {
       const n = r.shape[t];
-      e[t] = I.create(B(n));
+      e[t] = N.create(B(n));
     }
     return new x({
       ...r._def,
@@ -1595,7 +1595,7 @@ function B(r) {
   } else return r instanceof A ? new A({
     ...r._def,
     type: B(r.element)
-  }) : r instanceof I ? I.create(B(r.unwrap())) : r instanceof D ? D.create(B(r.unwrap())) : r instanceof E ? E.create(r.items.map((e) => B(e))) : r;
+  }) : r instanceof N ? N.create(B(r.unwrap())) : r instanceof D ? D.create(B(r.unwrap())) : r instanceof E ? E.create(r.items.map((e) => B(e))) : r;
 }
 class x extends _ {
   constructor() {
@@ -1850,7 +1850,7 @@ class x extends _ {
         t[n] = this.shape[n];
       else {
         let a = this.shape[n];
-        for (; a instanceof I; )
+        for (; a instanceof N; )
           a = a._def.innerType;
         t[n] = a;
       }
@@ -1957,7 +1957,7 @@ se.create = (r, e) => new se({
   typeName: y.ZodUnion,
   ...v(e)
 });
-const j = (r) => r instanceof oe ? j(r.schema) : r instanceof N ? j(r.innerType()) : r instanceof de ? [r.value] : r instanceof V ? r.options : r instanceof ce ? b.objectValues(r.enum) : r instanceof ue ? j(r._def.innerType) : r instanceof re ? [void 0] : r instanceof ne ? [null] : r instanceof I ? [void 0, ...j(r.unwrap())] : r instanceof D ? [null, ...j(r.unwrap())] : r instanceof Ne || r instanceof fe ? j(r.unwrap()) : r instanceof le ? j(r._def.innerType) : [];
+const j = (r) => r instanceof oe ? j(r.schema) : r instanceof I ? j(r.innerType()) : r instanceof de ? [r.value] : r instanceof V ? r.options : r instanceof ce ? b.objectValues(r.enum) : r instanceof ue ? j(r._def.innerType) : r instanceof re ? [void 0] : r instanceof ne ? [null] : r instanceof N ? [void 0, ...j(r.unwrap())] : r instanceof D ? [null, ...j(r.unwrap())] : r instanceof Ie || r instanceof fe ? j(r.unwrap()) : r instanceof le ? j(r._def.innerType) : [];
 class ke extends _ {
   _parse(e) {
     const { ctx: t } = this._processInputParams(e);
@@ -2547,7 +2547,7 @@ H.create = (r, e) => new H({
   typeName: y.ZodPromise,
   ...v(e)
 });
-class N extends _ {
+class I extends _ {
   innerType() {
     return this._def.schema;
   }
@@ -2624,19 +2624,19 @@ class N extends _ {
     b.assertNever(s);
   }
 }
-N.create = (r, e, t) => new N({
+I.create = (r, e, t) => new I({
   schema: r,
   typeName: y.ZodEffects,
   effect: e,
   ...v(t)
 });
-N.createWithPreprocess = (r, e, t) => new N({
+I.createWithPreprocess = (r, e, t) => new I({
   schema: e,
   effect: { type: "preprocess", transform: r },
   typeName: y.ZodEffects,
   ...v(t)
 });
-class I extends _ {
+class N extends _ {
   _parse(e) {
     return this._getType(e) === h.undefined ? Z(void 0) : this._def.innerType._parse(e);
   }
@@ -2644,7 +2644,7 @@ class I extends _ {
     return this._def.innerType;
   }
 }
-I.create = (r, e) => new I({
+N.create = (r, e) => new N({
   innerType: r,
   typeName: y.ZodOptional,
   ...v(e)
@@ -2743,7 +2743,7 @@ xe.create = (r) => new xe({
   ...v(r)
 });
 const yt = Symbol("zod_brand");
-class Ne extends _ {
+class Ie extends _ {
   _parse(e) {
     const { ctx: t } = this._processInputParams(e), n = t.data;
     return this._def.type._parse({
@@ -2841,7 +2841,7 @@ var y;
 })(y || (y = {}));
 const vt = (r, e = {
   message: `Input not instance of ${r.name}`
-}) => ze((t) => t instanceof r, e), Ue = C.create, Fe = $.create, _t = xe.create, bt = M.create, Be = te.create, xt = U.create, kt = ve.create, wt = re.create, Tt = ne.create, Zt = Y.create, St = L.create, Ct = P.create, At = _e.create, Nt = A.create, It = x.create, Ot = x.strictCreate, Et = se.create, jt = ke.create, Rt = ae.create, Pt = E.create, $t = ie.create, Mt = be.create, Vt = F.create, Dt = q.create, Lt = oe.create, zt = de.create, Ut = V.create, Ft = ce.create, Bt = H.create, Re = N.create, Wt = I.create, qt = D.create, Jt = N.createWithPreprocess, Yt = he.create, Ht = () => Ue().optional(), Gt = () => Fe().optional(), Qt = () => Be().optional(), Xt = {
+}) => ze((t) => t instanceof r, e), Ue = C.create, Fe = $.create, _t = xe.create, bt = M.create, Be = te.create, xt = U.create, kt = ve.create, wt = re.create, Tt = ne.create, Zt = Y.create, St = L.create, Ct = P.create, At = _e.create, It = A.create, Nt = x.create, Ot = x.strictCreate, Et = se.create, jt = ke.create, Rt = ae.create, Pt = E.create, $t = ie.create, Mt = be.create, Vt = F.create, Dt = q.create, Lt = oe.create, zt = de.create, Ut = V.create, Ft = ce.create, Bt = H.create, Re = I.create, Wt = N.create, qt = D.create, Jt = I.createWithPreprocess, Yt = he.create, Ht = () => Ue().optional(), Gt = () => Fe().optional(), Qt = () => Be().optional(), Xt = {
   string: (r) => C.create({ ...r, coerce: !0 }),
   number: (r) => $.create({ ...r, coerce: !0 }),
   boolean: (r) => te.create({
@@ -2904,15 +2904,15 @@ var d = /* @__PURE__ */ Object.freeze({
   ZodEnum: V,
   ZodNativeEnum: ce,
   ZodPromise: H,
-  ZodEffects: N,
-  ZodTransformer: N,
-  ZodOptional: I,
+  ZodEffects: I,
+  ZodTransformer: I,
+  ZodOptional: N,
   ZodNullable: D,
   ZodDefault: ue,
   ZodCatch: le,
   ZodNaN: xe,
   BRAND: yt,
-  ZodBranded: Ne,
+  ZodBranded: Ie,
   ZodPipeline: he,
   ZodReadonly: fe,
   custom: ze,
@@ -2924,7 +2924,7 @@ var d = /* @__PURE__ */ Object.freeze({
   },
   coerce: Xt,
   any: Zt,
-  array: Nt,
+  array: It,
   bigint: bt,
   boolean: Be,
   date: xt,
@@ -2943,7 +2943,7 @@ var d = /* @__PURE__ */ Object.freeze({
   null: Tt,
   nullable: qt,
   number: Fe,
-  object: It,
+  object: Nt,
   oboolean: Qt,
   onumber: Gt,
   optional: Wt,
@@ -2986,13 +2986,13 @@ const k = d.string().min(1, { message: "שדה חובה" }), ar = d.string().reg
   tag: d.string().min(1),
   locales: d.array(K),
   depth: d.number()
-}), Ie = We.extend({
-  children: d.lazy(() => Ie.array())
+}), Ne = We.extend({
+  children: d.lazy(() => Ne.array())
 }), or = We.extend({
   index: d.number(),
   depth: d.number(),
   collapsed: d.boolean().optional(),
-  children: d.array(Ie)
+  children: d.array(Ne)
 }), G = d.string().min(1), Oe = d.object({
   type: d.literal("Product"),
   storeId: G,
@@ -3032,8 +3032,10 @@ const k = d.string().min(1, { message: "שדה חובה" }), ar = d.string().reg
   ingredients: d.array(K),
   created_at: d.number(),
   updated_at: d.number(),
-  categoryList: d.array(Ie),
-  // generated
+  categoryIds: d.array(d.string().nonempty()),
+  // @deprecated
+  categoryList: d.array(Ne),
+  // @deprecated
   categories: d.object({
     lvl0: d.array(d.string()),
     lvl1: d.array(d.string()),
@@ -3041,6 +3043,7 @@ const k = d.string().min(1, { message: "שדה חובה" }), ar = d.string().reg
     lvl3: d.array(d.string()),
     lvl4: d.array(d.string())
   }),
+  // @deprecated
   categoryNames: d.array(d.string())
 }), dr = Oe.extend({
   image: d.instanceof(File).optional()
@@ -3187,7 +3190,7 @@ export {
   er as AddressSchema,
   We as BaseCategorySchema,
   cr as CartSchema,
-  Ie as CategorySchema,
+  Ne as CategorySchema,
   ur as CompanySchema,
   lr as FavoriteProductSchema,
   mr as FirebaseAPI,

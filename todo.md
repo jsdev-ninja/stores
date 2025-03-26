@@ -9,6 +9,19 @@ Fake Card - 5326105300985614
 CVV 125
 date - 12/25
 
+<!-- packages -->
+3 in 10 per product
+
+<!-- by brand by category -->
+
+<!-- privacy policy/ tern of use -->
+
+<!-- minimum order price -->
+
+<!-- select delivery date (max 2 weeks) select hours -->
+
+<!-- company discount (exclude products) -->
+<!-- new product field can be discound -->
 
 // todo 
 <!-- category by  url -->

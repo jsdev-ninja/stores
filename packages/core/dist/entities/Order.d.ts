@@ -109,6 +109,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }>, "many">;
                 created_at: z.ZodNumber;
                 updated_at: z.ZodNumber;
+                categoryIds: z.ZodArray<z.ZodString, "many">;
                 categoryList: z.ZodArray<z.ZodType<{
                     id: string;
                     companyId: string;
@@ -227,6 +228,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;
@@ -311,6 +313,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;
@@ -398,6 +401,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;
@@ -485,6 +489,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;
@@ -578,6 +583,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;
@@ -671,6 +677,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;
@@ -862,6 +869,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;
@@ -992,6 +1000,7 @@ export declare const OrderSchema: z.ZodObject<{
                 }[];
                 created_at: number;
                 updated_at: number;
+                categoryIds: string[];
                 categoryList: ({
                     id: string;
                     companyId: string;

@@ -43,9 +43,11 @@ export const ProductSchema = z.object({
 	ingredients: z.array(LocaleSchema),
 	created_at: z.number(),
 	updated_at: z.number(),
+	categoryIds: z.array(z.string().nonempty()),
 
+	// @deprecated
 	categoryList: z.array(CategorySchema),
-	// generated
+	// @deprecated
 	categories: z.object({
 		lvl0: z.array(z.string()),
 		lvl1: z.array(z.string()),
@@ -53,6 +55,7 @@ export const ProductSchema = z.object({
 		lvl3: z.array(z.string()),
 		lvl4: z.array(z.string()),
 	}),
+	// @deprecated
 	categoryNames: z.array(z.string()),
 });
 export type TProduct = z.infer<typeof ProductSchema>;
