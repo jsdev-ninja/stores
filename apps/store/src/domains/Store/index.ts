@@ -1,25 +1,5 @@
+import { TStore } from "@jsdev_ninja/core";
 import { createSlice } from "@reduxjs/toolkit";
-
-import { z } from "zod";
-
-const StoreSchema = z.object({
-	id: z.string(),
-	companyId: z.string(),
-	name: z.string(),
-	urls: z.array(z.string()),
-	logoUrl: z.string(),
-	tenantId: z.string(), // firebase auth tenantId
-	paymentMethods: z
-		.array(
-			z.object({
-				clientType: z.enum(["user", "company"]),
-				method: z.enum(["internal", "external"]),
-			})
-		)
-		.optional(),
-});
-
-export type TStore = z.infer<typeof StoreSchema>;
 
 const initialState: { data: TStore | null } = {
 	data: null,

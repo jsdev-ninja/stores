@@ -1,7 +1,6 @@
-import { TProduct } from "@jsdev_ninja/core";
+import { TProduct, TStore } from "@jsdev_ninja/core";
 import { ComponentType, LazyExoticComponent, Suspense, lazy } from "react";
 import { useStore } from "src/domains/Store";
-import { TStore } from "src/domains/Store";
 
 const RENDER_CONFIG: Record<
 	TStore["id"],

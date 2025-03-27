@@ -1,9 +1,8 @@
 import { TCompany } from "src/domains/Company";
-import { TStore } from "src/domains/Store";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import DefaultLogoSrc from "../assets/default_logo.png";
-import { FirebaseAPI } from "@jsdev_ninja/core";
+import { FirebaseAPI, TStore } from "@jsdev_ninja/core";
 
 export async function useAppInit() {
 	const actions = useStoreActions();

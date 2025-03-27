@@ -1,8 +1,7 @@
 //Import Mixpanel SDK
 import { User } from "firebase/auth";
 import { CONFIG } from "src/config";
-import { TStore } from "src/domains/Store";
-import { TProfile } from "@jsdev_ninja/core";
+import { TProfile, TStore } from "@jsdev_ninja/core";
 
 type events =
 	| "USER_ADD_ITEM_TO_CART"
