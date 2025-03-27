@@ -329,7 +329,7 @@ class O {
     return this._cachedPath.length || (this._key instanceof Array ? this._cachedPath.push(...this._path, ...this._key) : this._cachedPath.push(...this._path, this._key)), this._cachedPath;
   }
 }
-const Ee = (r, e) => {
+const je = (r, e) => {
   if (z(e))
     return { success: !0, data: e.value };
   if (!r.common.issues.length)
@@ -416,7 +416,7 @@ class _ {
       data: e,
       parsedType: R(e)
     }, a = this._parseSync({ data: e, path: s.path, parent: s });
-    return Ee(s, a);
+    return je(s, a);
   }
   "~validate"(e) {
     var t, n;
@@ -470,7 +470,7 @@ class _ {
       data: e,
       parsedType: R(e)
     }, s = this._parse({ data: e, path: n.path, parent: n }), a = await (ee(s) ? s : Promise.resolve(s));
-    return Ee(n, a);
+    return je(n, a);
   }
   refine(e, t) {
     const n = (s) => typeof t == "string" || typeof t > "u" ? { message: t } : typeof t == "function" ? t(s) : t;
@@ -1595,7 +1595,7 @@ function B(r) {
   } else return r instanceof A ? new A({
     ...r._def,
     type: B(r.element)
-  }) : r instanceof N ? N.create(B(r.unwrap())) : r instanceof D ? D.create(B(r.unwrap())) : r instanceof E ? E.create(r.items.map((e) => B(e))) : r;
+  }) : r instanceof N ? N.create(B(r.unwrap())) : r instanceof D ? D.create(B(r.unwrap())) : r instanceof j ? j.create(r.items.map((e) => B(e))) : r;
 }
 class x extends _ {
   constructor() {
@@ -1957,7 +1957,7 @@ se.create = (r, e) => new se({
   typeName: y.ZodUnion,
   ...v(e)
 });
-const j = (r) => r instanceof oe ? j(r.schema) : r instanceof I ? j(r.innerType()) : r instanceof de ? [r.value] : r instanceof V ? r.options : r instanceof ce ? b.objectValues(r.enum) : r instanceof ue ? j(r._def.innerType) : r instanceof re ? [void 0] : r instanceof ne ? [null] : r instanceof N ? [void 0, ...j(r.unwrap())] : r instanceof D ? [null, ...j(r.unwrap())] : r instanceof Ie || r instanceof fe ? j(r.unwrap()) : r instanceof le ? j(r._def.innerType) : [];
+const E = (r) => r instanceof oe ? E(r.schema) : r instanceof I ? E(r.innerType()) : r instanceof de ? [r.value] : r instanceof V ? r.options : r instanceof ce ? b.objectValues(r.enum) : r instanceof ue ? E(r._def.innerType) : r instanceof re ? [void 0] : r instanceof ne ? [null] : r instanceof N ? [void 0, ...E(r.unwrap())] : r instanceof D ? [null, ...E(r.unwrap())] : r instanceof Ie || r instanceof fe ? E(r.unwrap()) : r instanceof le ? E(r._def.innerType) : [];
 class ke extends _ {
   _parse(e) {
     const { ctx: t } = this._processInputParams(e);
@@ -2002,7 +2002,7 @@ class ke extends _ {
   static create(e, t, n) {
     const s = /* @__PURE__ */ new Map();
     for (const a of t) {
-      const i = j(a.shape[e]);
+      const i = E(a.shape[e]);
       if (!i.length)
         throw new Error(`A discriminator value for key \`${e}\` could not be extracted from all schema options`);
       for (const o of i) {
@@ -2084,7 +2084,7 @@ ae.create = (r, e, t) => new ae({
   typeName: y.ZodIntersection,
   ...v(t)
 });
-class E extends _ {
+class j extends _ {
   _parse(e) {
     const { status: t, ctx: n } = this._processInputParams(e);
     if (n.parsedType !== h.array)
@@ -2118,16 +2118,16 @@ class E extends _ {
     return this._def.items;
   }
   rest(e) {
-    return new E({
+    return new j({
       ...this._def,
       rest: e
     });
   }
 }
-E.create = (r, e) => {
+j.create = (r, e) => {
   if (!Array.isArray(r))
     throw new Error("You must pass an array of schemas to z.tuple([ ... ])");
-  return new E({
+  return new j({
     items: r,
     typeName: y.ZodTuple,
     rest: null,
@@ -2364,7 +2364,7 @@ class q extends _ {
   args(...e) {
     return new q({
       ...this._def,
-      args: E.create(e).rest(L.create())
+      args: j.create(e).rest(L.create())
     });
   }
   returns(e) {
@@ -2381,7 +2381,7 @@ class q extends _ {
   }
   static create(e, t, n) {
     return new q({
-      args: e || E.create([]).rest(L.create()),
+      args: e || j.create([]).rest(L.create()),
       returns: t || L.create(),
       typeName: y.ZodFunction,
       ...v(n)
@@ -2810,7 +2810,7 @@ fe.create = (r, e) => new fe({
   typeName: y.ZodReadonly,
   ...v(e)
 });
-function je(r, e) {
+function Ee(r, e) {
   const t = typeof r == "function" ? r(e) : typeof r == "string" ? { message: r } : r;
   return typeof t == "string" ? { message: t } : t;
 }
@@ -2822,12 +2822,12 @@ function ze(r, e = {}, t) {
       return o.then((f) => {
         var u, p;
         if (!f) {
-          const T = je(e, n), me = (p = (u = T.fatal) !== null && u !== void 0 ? u : t) !== null && p !== void 0 ? p : !0;
+          const T = Ee(e, n), me = (p = (u = T.fatal) !== null && u !== void 0 ? u : t) !== null && p !== void 0 ? p : !0;
           s.addIssue({ code: "custom", ...T, fatal: me });
         }
       });
     if (!o) {
-      const f = je(e, n), u = (i = (a = f.fatal) !== null && a !== void 0 ? a : t) !== null && i !== void 0 ? i : !0;
+      const f = Ee(e, n), u = (i = (a = f.fatal) !== null && a !== void 0 ? a : t) !== null && i !== void 0 ? i : !0;
       s.addIssue({ code: "custom", ...f, fatal: u });
     }
   }) : Y.create();
@@ -2841,7 +2841,7 @@ var y;
 })(y || (y = {}));
 const vt = (r, e = {
   message: `Input not instance of ${r.name}`
-}) => ze((t) => t instanceof r, e), Ue = C.create, Fe = $.create, _t = xe.create, bt = M.create, Be = te.create, xt = U.create, kt = ve.create, wt = re.create, Tt = ne.create, Zt = Y.create, St = L.create, Ct = P.create, At = _e.create, It = A.create, Nt = x.create, Ot = x.strictCreate, Et = se.create, jt = ke.create, Rt = ae.create, Pt = E.create, $t = ie.create, Mt = be.create, Vt = F.create, Dt = q.create, Lt = oe.create, zt = de.create, Ut = V.create, Ft = ce.create, Bt = H.create, Re = I.create, Wt = N.create, qt = D.create, Jt = I.createWithPreprocess, Yt = he.create, Ht = () => Ue().optional(), Gt = () => Fe().optional(), Qt = () => Be().optional(), Xt = {
+}) => ze((t) => t instanceof r, e), Ue = C.create, Fe = $.create, _t = xe.create, bt = M.create, Be = te.create, xt = U.create, kt = ve.create, wt = re.create, Tt = ne.create, Zt = Y.create, St = L.create, Ct = P.create, At = _e.create, It = A.create, Nt = x.create, Ot = x.strictCreate, jt = se.create, Et = ke.create, Rt = ae.create, Pt = j.create, $t = ie.create, Mt = be.create, Vt = F.create, Dt = q.create, Lt = oe.create, zt = de.create, Ut = V.create, Ft = ce.create, Bt = H.create, Re = I.create, Wt = N.create, qt = D.create, Jt = I.createWithPreprocess, Yt = he.create, Ht = () => Ue().optional(), Gt = () => Fe().optional(), Qt = () => Be().optional(), Xt = {
   string: (r) => C.create({ ...r, coerce: !0 }),
   number: (r) => $.create({ ...r, coerce: !0 }),
   boolean: (r) => te.create({
@@ -2894,7 +2894,7 @@ var d = /* @__PURE__ */ Object.freeze({
   ZodUnion: se,
   ZodDiscriminatedUnion: ke,
   ZodIntersection: ae,
-  ZodTuple: E,
+  ZodTuple: j,
   ZodRecord: ie,
   ZodMap: be,
   ZodSet: F,
@@ -2928,7 +2928,7 @@ var d = /* @__PURE__ */ Object.freeze({
   bigint: bt,
   boolean: Be,
   date: xt,
-  discriminatedUnion: jt,
+  discriminatedUnion: Et,
   effect: Re,
   enum: Ut,
   function: Dt,
@@ -2959,7 +2959,7 @@ var d = /* @__PURE__ */ Object.freeze({
   transformer: Re,
   tuple: Pt,
   undefined: wt,
-  union: Et,
+  union: jt,
   unknown: St,
   void: At,
   NEVER: Kt,
@@ -3155,8 +3155,9 @@ d.object({
   name: d.string(),
   urls: d.array(d.string()),
   logoUrl: d.string(),
-  tenantId: d.string()
+  tenantId: d.string(),
   // firebase auth tenantId
+  paymentType: d.enum(["external", "j5"])
 });
 const rr = {
   stores: "STORES",

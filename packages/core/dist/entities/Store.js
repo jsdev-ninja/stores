@@ -6,4 +6,5 @@ const StoreSchema = z.object({
     urls: z.array(z.string()),
     logoUrl: z.string(),
     tenantId: z.string(), // firebase auth tenantId
+    paymentType: z.enum(["external", "j5"]),
 });
