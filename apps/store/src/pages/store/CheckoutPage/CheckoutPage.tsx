@@ -8,6 +8,7 @@ import { FirebaseApi } from "src/lib/firebase";
 import { OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
 import { calculateCartPrice } from "src/utils/calculateCartPrice";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
+import { navigate } from "src/navigation";
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout"]);
@@ -80,6 +81,17 @@ function CheckoutPage() {
 				}}
 				onSubmit={async (values) => {
 					if (!user || !cart) return;
+
+					if (store.paymentType === "external") {
+						values.status = "pending";
+						const order = await appApi.orders.order({ order: values });
+						console.log("new external order", order);
+
+						navigate({ to: "store.orders" });
+
+						return;
+					}
+
 					const order = await appApi.orders.order({ order: values });
 					if (!order?.success) return null; //todo
 

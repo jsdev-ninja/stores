@@ -13,6 +13,7 @@ import { WebsiteLogo } from "src/widgets/WebsiteLogo";
 import AdminUsersPage from "../AdminUsersPage";
 import { useTranslation } from "react-i18next";
 import AdminOrderPage from "../Orders/AdminOrderPage";
+import AdminDiscountsPage from "../AdminDiscountsPage";
 
 const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
 	{
@@ -28,6 +29,7 @@ const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any 
 		path: "admin.products",
 	},
 	{ name: "categories", path: "admin.categories" },
+	{ name: "discounts", path: "admin.discounts" },
 	{ name: "orders", path: "admin.orders" },
 	{ name: "settings", path: "admin.settings" },
 ] as const;
@@ -475,6 +477,9 @@ export default function AdminLayout() {
 						</Route>
 						<Route name="admin.settings">
 							<AdminSettingsPage />
+						</Route>
+						<Route name="admin.discounts">
+							<AdminDiscountsPage />
 						</Route>
 						<Route name="admin.users">
 							<AdminUsersPage />

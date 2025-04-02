@@ -7,6 +7,7 @@ import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
 import { navigate } from "src/navigation";
 import { ChipProps, Chip } from "@heroui/react";
+import { useStore } from "src/domains/Store";
 
 function AdminOrdersPages() {
 	const appApi = useAppApi();
@@ -57,6 +58,8 @@ function OrderRow({
 
 	const appApi = useAppApi();
 
+	const store = useStore();
+
 	const chipColors: Record<TOrder["status"], ChipProps["color"]> = {
 		draft: "default",
 		pending: "default",
@@ -74,7 +77,7 @@ function OrderRow({
 				<>
 					<Button
 						onPress={async () => {
-							const res = await appApi.admin.orderPaid({ order });
+							const res = await appApi.admin.orderDelivered({ order });
 							if (!res?.success) {
 								return;
 							}
@@ -86,31 +89,37 @@ function OrderRow({
 				</>
 			);
 		}
-		// if (order.status === "delivered") {
-		return (
-			<>
-				<Button
-					onPress={async () => {
-						// charge for order
-						const res = await appApi.admin.chargeOrder({ order });
-						if (!res?.success) {
-							return;
-						}
-						// updateOrder(order.id, "completed");
-					}}
-				>
-					{t("ordersPage:actions.chargeOrder")}
-				</Button>
-			</>
-		);
-		// }
+
+		console.log("store?.paymentType", store?.paymentType);
+
+		if (order.status === "delivered") {
+			if (store?.paymentType === "external") {
+				// return "sdakjdlk";
+			}
+			return (
+				<>
+					<Button
+						onPress={async () => {
+							// charge for order
+							const res = await appApi.admin.chargeOrder({ order });
+							if (!res?.success) {
+								return;
+							}
+							// updateOrder(order.id, "completed");
+						}}
+					>
+						{t("ordersPage:actions.chargeOrder")}
+					</Button>
+				</>
+			);
+		}
 		if (order.status === "processing") {
 			return (
 				<>
 					<Button
 						color="primary"
-						onClick={async () => {
-							const res = await appApi.admin.orderDelivered({ order });
+						onPress={async () => {
+							const res = await appApi.admin.orderInDelivery({ order });
 							if (!res?.success) {
 								return;
 							}
@@ -129,7 +138,7 @@ function OrderRow({
 				<>
 					<Button
 						type="button"
-						onClick={async () => {
+						onPress={async () => {
 							const res = await appApi.admin.orderAccept({ order });
 							if (!res?.success) {
 								return;

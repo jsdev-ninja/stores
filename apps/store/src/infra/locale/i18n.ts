@@ -27,6 +27,7 @@ export const resources = {
 			positive: "ערך חייב להיות גדול מ 0",
 		},
 		common: {
+			discounts: "מבצעים",
 			admin: "מערכת ניהול",
 			searchProducts: "חפש מוצרים לפי טקסט חופשי",
 			addToCart: "הוסף לעגלה",

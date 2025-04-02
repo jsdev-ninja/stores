@@ -1,7 +1,6 @@
 HYP
 ItQnx
 
-
 masof 0010302921
 password hyp1234
 
@@ -10,11 +9,10 @@ CVV 125
 date - 12/25
 
 <!-- packages -->
+
 3 in 10 per product
 
 <!-- by brand by category -->
-
-<!-- privacy policy/ tern of use -->
 
 <!-- minimum order price -->
 
@@ -23,10 +21,10 @@ date - 12/25
 <!-- company discount (exclude products) -->
 <!-- new product field can be discound -->
 
-// todo 
+// todo
+
 <!-- category by  url -->
 <!-- barcode is private -->
-
 
 ORDER FLOW
 

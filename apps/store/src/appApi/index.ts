@@ -126,10 +126,14 @@ export const useAppApi = () => {
 				});
 			},
 			getUserOrders: async () => {
-				if (!isValid) return;
+				if (!isValidStoreData || !isValidUser) return;
 
 				return FirebaseApi.firestore.listV2<TOrder>({
-					collection: "orders",
+					collection: FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					}),
 					where: [
 						{
 							name: "storeId",
@@ -312,7 +316,7 @@ export const useAppApi = () => {
 				return payment;
 			},
 			async cancelOrder({ order }: { order: TOrder }) {
-				if (!user || !store || !order) return;
+				if (!isValidUser) return;
 				// mixPanelApi.track("ADMIN_ORDER_ACCEPT", {
 				// 	order,
 				// });
@@ -321,7 +325,11 @@ export const useAppApi = () => {
 					{
 						status: "canceled",
 					},
-					"orders"
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					})
 				);
 			},
 			async createCartFromOrder({ order }: { order: TOrder }) {
@@ -703,7 +711,28 @@ export const useAppApi = () => {
 					{
 						status: "completed",
 					},
-					"orders"
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					})
+				);
+			},
+			orderInDelivery({ order }: { order: TOrder }) {
+				if (!isValidAdmin) return;
+				mixPanelApi.track("ADMIN_ORDER_DELIVERED", {
+					order,
+				});
+				return FirebaseApi.firestore.update<TOrder>(
+					order.id,
+					{
+						status: "in_delivery",
+					},
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					})
 				);
 			},
 			orderDelivered({ order }: { order: TOrder }) {
@@ -716,7 +745,11 @@ export const useAppApi = () => {
 					{
 						status: "delivered",
 					},
-					"orders"
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					})
 				);
 			},
 			orderAccept({ order }: { order: TOrder }) {
@@ -724,12 +757,17 @@ export const useAppApi = () => {
 				mixPanelApi.track("ADMIN_ORDER_ACCEPT", {
 					order,
 				});
+				console.log("update", order.id);
 				return FirebaseApi.firestore.update<TOrder>(
 					order.id,
 					{
 						status: "processing",
 					},
-					"orders"
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					})
 				);
 			},
 

@@ -47,6 +47,9 @@ export const routes = {
 			settings: {
 				path: "/settings",
 			},
+			discounts: {
+				path: "/discounts",
+			},
 			addProduct: {
 				path: "/addProduct",
 			},
