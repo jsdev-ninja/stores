@@ -27,7 +27,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { parseDate, CalendarDate } from "@internationalized/date";
+import { CalendarDate } from "@internationalized/date";
 import type { Control } from "react-hook-form";
 import { useState } from "react";
 
@@ -79,6 +79,7 @@ export const BundleConfigForm: React.FC<BundleConfigFormProps> = ({ control, err
 				render={({ field }) => (
 					<Input
 						{...field}
+						value={field.value as any}
 						type="number"
 						label="Bundle Quantity"
 						placeholder="3"
@@ -95,6 +96,7 @@ export const BundleConfigForm: React.FC<BundleConfigFormProps> = ({ control, err
 				render={({ field }) => (
 					<Input
 						{...field}
+						value={field.value as any}
 						type="number"
 						label="Bundle Price"
 						placeholder="10.00"
@@ -112,6 +114,7 @@ export const BundleConfigForm: React.FC<BundleConfigFormProps> = ({ control, err
 				render={({ field }) => (
 					<Input
 						{...field}
+						value={field.value as any}
 						type="number"
 						label="Regular Item Price"
 						placeholder="4.00"
@@ -151,10 +154,11 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 	const isAutomatic = watch("isAutomatic");
 
 	const onFormSubmit = (data: DiscountFormData) => {
-		onSubmit(data);
+		onSubmit(data as any);
 	};
 
 	const isBundleType = discountType?.includes("bundle");
+	console.log("isBundleType", isBundleType);
 
 	return (
 		<Card className="w-full max-w-2xl mx-auto">
@@ -211,8 +215,10 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 											label="Select Products for Bundle"
 											placeholder="Search products..."
 											defaultItems={products}
-											selectedKeys={field.value}
-											onSelectionChange={(keys) => field.onChange(Array.from(keys))}
+											value={field.value}
+											onSelectionChange={(keys) =>
+												field.onChange(Array.from(keys as any))
+											}
 											isRequired
 										>
 											{(product) => (
@@ -237,8 +243,10 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 											label="Select Categories"
 											placeholder="Search categories..."
 											defaultItems={categories}
-											selectedKeys={field.value}
-											onSelectionChange={(keys) => field.onChange(Array.from(keys))}
+											value={field.value}
+											onSelectionChange={(keys) =>
+												field.onChange(Array.from(keys as any))
+											}
 											isRequired
 										>
 											{(category) => (
@@ -263,8 +271,10 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 											label="Select Brands"
 											placeholder="Search brands..."
 											defaultItems={brands}
-											selectedKeys={field.value}
-											onSelectionChange={(keys) => field.onChange(Array.from(keys))}
+											value={field.value}
+											onSelectionChange={(keys) =>
+												field.onChange(Array.from(keys as any))
+											}
 											isRequired
 										>
 											{(brand) => (
@@ -285,8 +295,8 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 										label="Select Products"
 										placeholder="Search products..."
 										defaultItems={products}
-										selectedKeys={field.value}
-										onSelectionChange={(keys) => field.onChange(Array.from(keys))}
+										value={field.value}
+										onSelectionChange={(keys) => field.onChange(Array.from(keys as any))}
 										isRequired
 									>
 										{(product) => (
@@ -308,8 +318,10 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 										label="Select Customer Type"
 										placeholder="Search customer types..."
 										defaultItems={customerTypes}
-										selectedKeys={field.value ? [field.value] : []}
-										onSelectionChange={(keys) => field.onChange(Array.from(keys)[0])}
+										value={field.value ? [field.value] : []}
+										onSelectionChange={(keys) =>
+											field.onChange(Array.from(keys as any)[0])
+										}
 										isRequired
 									>
 										{(type) => (
@@ -364,6 +376,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 							render={({ field }) => (
 								<Input
 									{...field}
+									value={field.value as unknown as string}
 									type="number"
 									label="Usage Limit"
 									placeholder="100"
@@ -388,7 +401,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 												field.value.getDate()
 											)
 										}
-										onChange={(date) => field.onChange(new Date(date.toString()))}
+										onChange={(date) => field.onChange(new Date(date?.toString() ?? 0))}
 									/>
 								)}
 							/>
@@ -405,7 +418,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 												field.value.getDate()
 											)
 										}
-										onChange={(date) => field.onChange(new Date(date.toString()))}
+										onChange={(date) => field.onChange(new Date(date?.toString() ?? 0))}
 									/>
 								)}
 							/>
