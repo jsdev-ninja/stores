@@ -10,8 +10,8 @@ const allProducts = _allProducts as any[];
 
 console.log("readXlsxFile", readXlsxFile);
 
-const companyId = "balasistore_company";
-const storeId = "balasistore_store";
+const companyId = "pecanis_company";
+const storeId = "pecanis_store";
 
 function renderParent(category: TCategory, categories: TCategory[]): string {
 	if (!category) return "";
@@ -28,7 +28,7 @@ function renderParent(category: TCategory, categories: TCategory[]): string {
 }
 
 // File path.
-readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
+readXlsxFile("src/data/pecanis-products.xlsx").then(async (rows: any[]) => {
 	try {
 		// `rows` is an array of rows
 		// each row being an array of cells.
@@ -37,7 +37,7 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 
 		const [headers, ...data] = rows;
 
-		console.log("headers", headers);
+		console.table(headers);
 
 		const products: TProduct[] = [];
 
@@ -47,8 +47,8 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 			const [
 				barCode,
 				name,
-				category,
 				subCategory,
+				category,
 				priceType,
 				volumeType,
 				volumeValue,
@@ -59,6 +59,8 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 			] = row;
 
 			const isNotValid = !name || !barCode || !price;
+
+			console.log(barCode, name, category, priceType, price);
 
 			const numberPrice = Number(price);
 			if (isNotValid) {
@@ -107,6 +109,7 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 				supplier: "",
 				categories: { lvl0: [], lvl1: [], lvl2: [], lvl3: [], lvl4: [] },
 				categoryList: [],
+				categoryIds: [],
 				categoryNames: [],
 				created_at: Date.now(),
 				currency: "ILS",
@@ -149,6 +152,7 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 				if (!existsCategory) {
 					categoriesMap[category] = _category;
 				}
+				newProduct.categoryIds = [_category.id];
 
 				if (subCategory) {
 					const existsSubCategory = _category.children.find(
@@ -168,6 +172,7 @@ readXlsxFile("src/data/products.xlsx").then(async (rows: any[]) => {
 					!existsSubCategory && _category.children.push(_subCategory);
 
 					newProduct.categoryList = [_category, _subCategory];
+					newProduct.categoryIds.push(_subCategory.id);
 					newProduct.categories = {
 						lvl0: newProduct.categoryList
 							.filter((c) => c.depth === 0)
