@@ -34,8 +34,21 @@ export const onOrderCreated = functions.firestore
 		const order = snap.data() as TOrder;
 		// todo validate order
 
+		const { displayName, email } = order.client;
+
+		// ezcount_key
+		const storePrivateData: any = (
+			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
+		).data();
+
+		console.log("storePrivateData", JSON.stringify(storePrivateData));
+
 		// create delivery note
-		await ezCountService.createDeliveryNote(order);
+		await ezCountService.createDeliveryNote(order, {
+			ezcount_key: storePrivateData.ezcount_key,
+			clientName: displayName,
+			clientEmail: email,
+		});
 
 		// close cart
 		return admin

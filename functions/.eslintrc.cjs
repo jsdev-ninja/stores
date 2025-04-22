@@ -32,5 +32,6 @@ module.exports = {
 		"spaced-comment": "off",
 		"operator-linebreak": "off",
 		"@typescript-eslint/no-explicit-any": "off",
+		camelcase: "off",
 	},
 };
