@@ -14,6 +14,9 @@ function UserOrdersPage() {
 
 	const orders = useAppSelector((state) => state.orders.orders);
 
+	const user = useUser();
+	console.log("user", user?.uid);
+
 	console.log("orders", orders);
 
 	return (

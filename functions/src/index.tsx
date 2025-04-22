@@ -7,6 +7,7 @@ import { emailService } from "./services/email";
 import { render } from "@react-email/render";
 import OrderCreated from "./emails/OrderCreated";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
+import { ezCountService } from "./services/ezCountService";
 
 const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 
@@ -32,6 +33,9 @@ export const onOrderCreated = functions.firestore
 
 		const order = snap.data() as TOrder;
 		// todo validate order
+
+		// create delivery note
+		await ezCountService.createDeliveryNote(order);
 
 		// close cart
 		return admin

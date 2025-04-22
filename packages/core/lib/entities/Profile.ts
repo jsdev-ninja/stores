@@ -18,6 +18,8 @@ export const ProfileSchema = z.object({
 	lastActivityDate: z.number(),
 });
 
+// todo payment type
+
 export type TProfile = z.infer<typeof ProfileSchema>;
 
 export function createEmptyProfile(): TProfile {

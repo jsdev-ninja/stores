@@ -52,6 +52,7 @@ function CheckoutPage() {
 	};
 
 	const cartCost = calculateCartPrice(cart.items);
+	console.log("store", store);
 
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16 px-4">
