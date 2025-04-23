@@ -49,6 +49,7 @@ function CheckoutPage() {
 		createdDate: Date.now(),
 		isAnonymous: profile?.isAnonymous ?? true,
 		lastActivityDate: Date.now(),
+		paymentType: "default",
 	};
 
 	const cartCost = calculateCartPrice(cart.items);

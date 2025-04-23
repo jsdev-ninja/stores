@@ -509,6 +509,7 @@ export const useAppApi = () => {
 					createdDate: Date.now(),
 					lastActivityDate: Date.now(),
 					type: "Profile",
+					paymentType: "default",
 				};
 
 				const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);
