@@ -2,6 +2,9 @@ import { z } from "zod";
 import { AddressSchema } from "./Address";
 import { notEmptyTextSchema } from "./Atoms";
 
+export const ProfilePaymentTypeSchema = z.enum(["default", "delayed"]);
+export type TProfilePaymentType = z.infer<typeof ProfilePaymentTypeSchema>;
+
 export const ProfileSchema = z.object({
 	type: z.literal("Profile"),
 	id: notEmptyTextSchema,
@@ -16,9 +19,8 @@ export const ProfileSchema = z.object({
 	isAnonymous: z.boolean(),
 	createdDate: z.number(),
 	lastActivityDate: z.number(),
+	paymentType: ProfilePaymentTypeSchema,
 });
-
-// todo payment type
 
 export type TProfile = z.infer<typeof ProfileSchema>;
 
@@ -45,5 +47,6 @@ export function createEmptyProfile(): TProfile {
 		createdDate: 0,
 		lastActivityDate: 0,
 		isAnonymous: true,
+		paymentType: ProfilePaymentTypeSchema.Values.default,
 	};
 }
