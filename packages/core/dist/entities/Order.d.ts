@@ -763,6 +763,7 @@ export declare const OrderSchema: z.ZodObject<{
         isAnonymous: z.ZodBoolean;
         createdDate: z.ZodNumber;
         lastActivityDate: z.ZodNumber;
+        paymentType: z.ZodEnum<["default", "delayed"]>;
     }, "strip", z.ZodTypeAny, {
         type: "Profile";
         id: string;
@@ -775,6 +776,7 @@ export declare const OrderSchema: z.ZodObject<{
         isAnonymous: boolean;
         createdDate: number;
         lastActivityDate: number;
+        paymentType: "default" | "delayed";
         phoneNumber?: string | undefined;
         address?: {
             country: string;
@@ -797,6 +799,7 @@ export declare const OrderSchema: z.ZodObject<{
         isAnonymous: boolean;
         createdDate: number;
         lastActivityDate: number;
+        paymentType: "default" | "delayed";
         phoneNumber?: string | undefined;
         address?: {
             country: string;
@@ -924,6 +927,7 @@ export declare const OrderSchema: z.ZodObject<{
         isAnonymous: boolean;
         createdDate: number;
         lastActivityDate: number;
+        paymentType: "default" | "delayed";
         phoneNumber?: string | undefined;
         address?: {
             country: string;
@@ -1055,6 +1059,7 @@ export declare const OrderSchema: z.ZodObject<{
         isAnonymous: boolean;
         createdDate: number;
         lastActivityDate: number;
+        paymentType: "default" | "delayed";
         phoneNumber?: string | undefined;
         address?: {
             country: string;

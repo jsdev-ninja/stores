@@ -1,4 +1,6 @@
 import { z } from "zod";
+export declare const ProfilePaymentTypeSchema: z.ZodEnum<["default", "delayed"]>;
+export type TProfilePaymentType = z.infer<typeof ProfilePaymentTypeSchema>;
 export declare const ProfileSchema: z.ZodObject<{
     type: z.ZodLiteral<"Profile">;
     id: z.ZodString;
@@ -37,6 +39,7 @@ export declare const ProfileSchema: z.ZodObject<{
     isAnonymous: z.ZodBoolean;
     createdDate: z.ZodNumber;
     lastActivityDate: z.ZodNumber;
+    paymentType: z.ZodEnum<["default", "delayed"]>;
 }, "strip", z.ZodTypeAny, {
     type: "Profile";
     id: string;
@@ -49,6 +52,7 @@ export declare const ProfileSchema: z.ZodObject<{
     isAnonymous: boolean;
     createdDate: number;
     lastActivityDate: number;
+    paymentType: "default" | "delayed";
     phoneNumber?: string | undefined;
     address?: {
         country: string;
@@ -71,6 +75,7 @@ export declare const ProfileSchema: z.ZodObject<{
     isAnonymous: boolean;
     createdDate: number;
     lastActivityDate: number;
+    paymentType: "default" | "delayed";
     phoneNumber?: string | undefined;
     address?: {
         country: string;

@@ -12,17 +12,17 @@ declare const StoreSchema: z.ZodObject<{
     companyId: string;
     name: string;
     tenantId: string;
+    paymentType: "external" | "j5";
     urls: string[];
     logoUrl: string;
-    paymentType: "external" | "j5";
 }, {
     id: string;
     companyId: string;
     name: string;
     tenantId: string;
+    paymentType: "external" | "j5";
     urls: string[];
     logoUrl: string;
-    paymentType: "external" | "j5";
 }>;
 export type TStore = z.infer<typeof StoreSchema>;
 export {};
