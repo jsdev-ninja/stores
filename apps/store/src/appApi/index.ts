@@ -628,6 +628,17 @@ export const useAppApi = () => {
 					id: store.id,
 				});
 			},
+			getClient: async (clientId: string) => {
+				if (!isValidAdmin) return;
+				return FirebaseApi.firestore.getV2<TProfile>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					}),
+					id: clientId,
+				});
+			},
 			getStoreClients: async () => {
 				if (!isValidAdmin) return;
 				return FirebaseApi.firestore.listV2<TProfile>({

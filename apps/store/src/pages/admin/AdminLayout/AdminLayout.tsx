@@ -14,6 +14,7 @@ import AdminUsersPage from "../AdminUsersPage";
 import { useTranslation } from "react-i18next";
 import AdminOrderPage from "../Orders/AdminOrderPage";
 import AdminDiscountsPage from "../AdminDiscountsPage";
+import AdminClientProfile from "../AdminClientProfile/AdminClientProfile";
 
 const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
 	{
@@ -483,6 +484,9 @@ export default function AdminLayout() {
 						</Route>
 						<Route name="admin.users">
 							<AdminUsersPage />
+						</Route>
+						<Route name="admin.clientProfile">
+							<AdminClientProfile />
 						</Route>
 					</div>
 				</div>

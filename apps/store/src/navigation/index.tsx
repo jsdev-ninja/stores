@@ -77,6 +77,9 @@ export const routes = {
 			users: {
 				path: "/users",
 			},
+			clientProfile: {
+				path: "/clients/:id",
+			},
 		},
 	},
 	superAdmin: {

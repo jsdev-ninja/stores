@@ -19,6 +19,7 @@ import {
 	User,
 } from "@heroui/react";
 import { useTranslation } from "react-i18next";
+import { navigate } from "src/navigation";
 
 export function capitalize(str?: string) {
 	if (!str) return "";
@@ -32,6 +33,7 @@ const columns = [
 	{ name: "address", uid: "address", sortable: true },
 	{ name: "phone", uid: "phone" },
 	{ name: "clientType", uid: "clientType" },
+	{ name: "paymentType", uid: "paymentType" },
 	{ name: "ACTIONS", uid: "actions" },
 ];
 
@@ -115,6 +117,8 @@ function AdminUsersPage() {
 		});
 	}, []);
 
+	console.log("clients", clients);
+
 	return (
 		<>
 			{/* Card */}
@@ -186,6 +190,7 @@ function AdminUsersPage() {
 											</TableCell>
 											<TableCell>{user.phoneNumber}</TableCell>
 											<TableCell>{user.clientType}</TableCell>
+											<TableCell>{user.paymentType}</TableCell>
 											<TableCell>
 												<div className="relative flex justify-end items-center gap-2">
 													<Dropdown>
@@ -208,8 +213,19 @@ function AdminUsersPage() {
 																</svg>
 															</Button>
 														</DropdownTrigger>
-														<DropdownMenu>
-															<DropdownItem>View</DropdownItem>
+														<DropdownMenu
+															onAction={(key) => {
+																console.log("key", key);
+																if (key === "view") {
+																	navigate({
+																		to: "admin.clientProfile",
+																		params: { id: user.id },
+																	});
+																	return;
+																}
+															}}
+														>
+															<DropdownItem key={"view"}>View</DropdownItem>
 															<DropdownItem>Edit</DropdownItem>
 															<DropdownItem>Delete</DropdownItem>
 														</DropdownMenu>
