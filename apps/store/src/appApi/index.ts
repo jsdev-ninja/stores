@@ -21,6 +21,7 @@ import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
 import { LogPayload } from "src/lib/firebase/api";
 import { useApiState } from "./useApiState";
+import { modalApi } from "src/infra/modals";
 
 function productInCart(cart: TCart | null, product: TProduct) {
 	return !!cart?.items?.find((item) => item.product.id === product.id);
@@ -46,6 +47,8 @@ export const useAppApi = () => {
 
 	const isValid = !!company?.id && store?.id && !!user?.uid;
 	const isValidAdmin = !!companyId && !!storeId && !!user?.uid && !!user.admin;
+
+	const allowAnonymousClients = !!store?.allowAnonymousClients;
 
 	const actualCart: TCart = cart ?? {
 		id: cartId,
@@ -275,7 +278,10 @@ export const useAppApi = () => {
 			},
 			async addProductToFavorite({ product }: { product: TProduct }) {
 				if (!product || !user || !company || !store || user.isAnonymous) return;
-
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
 				return await FirebaseApi.firestore.setV2<any>({
 					collection: "favorite-products",
 					doc: {
@@ -288,7 +294,10 @@ export const useAppApi = () => {
 			},
 			async removeProductToFavorite({ id }: { id: string }) {
 				if (!id || !user || !company || !store || user.isAnonymous) return;
-
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
 				return await FirebaseApi.firestore.remove({
 					collectionName: "favorite-products",
 					id: id,
@@ -296,6 +305,10 @@ export const useAppApi = () => {
 			},
 			async profileUpdate({ profile }: { profile: TProfile }) {
 				if (!user || !store || !profile) return;
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
 
 				if (!isValidStoreData) return;
 
@@ -311,6 +324,10 @@ export const useAppApi = () => {
 			},
 			async createPaymentLink({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
 
 				const payment: any = await FirebaseApi.api.createPayment({ order: order });
 				return payment;
@@ -334,6 +351,10 @@ export const useAppApi = () => {
 			},
 			async createCartFromOrder({ order }: { order: TOrder }) {
 				if (!user || !store || !order || !company) return;
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
 
 				// mark currentCart as draft
 				if (cart?.id) {
@@ -341,6 +362,7 @@ export const useAppApi = () => {
 						status: "draft",
 					});
 				}
+
 				await CartService.createCart({
 					status: "active",
 					items: order.cart.items,
@@ -356,6 +378,11 @@ export const useAppApi = () => {
 
 			async addItemToCart({ product }: { product: TProduct }) {
 				if (!isValidUser) {
+					return;
+				}
+
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
 					return;
 				}
 
@@ -429,6 +456,10 @@ export const useAppApi = () => {
 			},
 			async removeItemFromCart({ product }: { product: TProduct }) {
 				if (!isValidUser) {
+					return;
+				}
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
 					return;
 				}
 

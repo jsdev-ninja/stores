@@ -7,6 +7,7 @@ declare const StoreSchema: z.ZodObject<{
     logoUrl: z.ZodString;
     tenantId: z.ZodString;
     paymentType: z.ZodEnum<["external", "j5"]>;
+    allowAnonymousClients: z.ZodBoolean;
 }, "strip", z.ZodTypeAny, {
     id: string;
     companyId: string;
@@ -15,6 +16,7 @@ declare const StoreSchema: z.ZodObject<{
     paymentType: "external" | "j5";
     urls: string[];
     logoUrl: string;
+    allowAnonymousClients: boolean;
 }, {
     id: string;
     companyId: string;
@@ -23,6 +25,7 @@ declare const StoreSchema: z.ZodObject<{
     paymentType: "external" | "j5";
     urls: string[];
     logoUrl: string;
+    allowAnonymousClients: boolean;
 }>;
 export type TStore = z.infer<typeof StoreSchema>;
 export {};

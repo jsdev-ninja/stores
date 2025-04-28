@@ -3159,7 +3159,8 @@ d.object({
   logoUrl: d.string(),
   tenantId: d.string(),
   // firebase auth tenantId
-  paymentType: d.enum(["external", "j5"])
+  paymentType: d.enum(["external", "j5"]),
+  allowAnonymousClients: d.boolean()
 });
 const nr = {
   stores: "STORES",
