@@ -5,7 +5,6 @@ import {
 	Input,
 	Button,
 	Checkbox,
-	Divider,
 	Select,
 	SelectItem,
 	Avatar,
@@ -24,23 +23,25 @@ import { useParams } from "src/navigation";
 import { useAppApi } from "src/appApi";
 
 interface AddressFormProps {
-	address?: Address;
-	onChange: (address: Address) => void;
+	address?: TProfile["address"];
+	onChange: (address: TProfile["address"]) => void;
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({ address, onChange }) => {
-	const [formData, setFormData] = React.useState<Address>(
+	const [formData, setFormData] = React.useState<TProfile["address"]>(
 		address || {
 			street: "",
 			city: "",
-			state: "",
-			postalCode: "",
-			country: "US",
+			country: "israel",
+			apartmentEnterNumber: "",
+			apartmentNumber: "",
+			floor: "",
+			streetNumber: "",
 		}
 	);
 
-	const handleChange = (field: keyof Address, value: string) => {
-		const updatedAddress = {
+	const handleChange = (field: any, value: string) => {
+		const updatedAddress: any = {
 			...formData,
 			[field]: value,
 		};
@@ -53,27 +54,15 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onChange }) => {
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<Input
 				label="Street Address"
-				value={formData.street}
+				value={formData?.street}
 				onChange={(e) => handleChange("street", e.target.value)}
 				className="md:col-span-2"
 			/>
 
 			<Input
 				label="City"
-				value={formData.city}
+				value={formData?.city}
 				onChange={(e) => handleChange("city", e.target.value)}
-			/>
-
-			<Input
-				label="State/Province"
-				value={formData.state}
-				onChange={(e) => handleChange("state", e.target.value)}
-			/>
-
-			<Input
-				label="Postal Code"
-				value={formData.postalCode}
-				onChange={(e) => handleChange("postalCode", e.target.value)}
 			/>
 
 			{/* <Select
@@ -103,8 +92,8 @@ const formatDate = (timestamp: number): string => {
 };
 
 interface ClientProfileHeaderProps {
-	profile: Profile;
-	onRemove: () => Promise<void>;
+	profile: TProfile;
+	onRemove: () => void;
 }
 
 const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ profile, onRemove }) => {
@@ -198,17 +187,17 @@ const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ profile, onRe
 };
 
 interface ClientProfileFormProps {
-	profile: Profile;
-	onSubmit: (updatedProfile: Profile) => Promise<void>;
+	profile: TProfile;
+	onSubmit: (updatedProfile: TProfile) => void;
 }
 
 const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit }) => {
-	const [formData, setFormData] = React.useState<Profile>(profile);
+	const [formData, setFormData] = React.useState<TProfile>(profile);
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 	const [errors, setErrors] = React.useState<Record<string, string>>({});
 
-	const handleChange = (field: keyof Profile, value: any) => {
-		setFormData((prev) => ({
+	const handleChange = (field: keyof TProfile, value: any) => {
+		setFormData((prev: any) => ({
 			...prev,
 			[field]: value,
 		}));
@@ -299,12 +288,8 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 							onChange={(e) => handleChange("clientType", e.target.value)}
 							isRequired
 						>
-							<SelectItem key="user" value="user">
-								Individual
-							</SelectItem>
-							<SelectItem key="company" value="company">
-								Company
-							</SelectItem>
+							<SelectItem key="user">Individual</SelectItem>
+							<SelectItem key="company">Company</SelectItem>
 						</Select>
 
 						<Select
@@ -406,6 +391,7 @@ export default function AdminClientProfile() {
 
 	const [client, setClient] = useState<TProfile | null>(null);
 	const [loading, setLoading] = useState(false);
+	console.log("loading", loading, setLoading);
 
 	useEffect(() => {
 		appApi.admin.getClient(clientId).then((res) => {
