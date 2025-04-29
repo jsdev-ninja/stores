@@ -210,6 +210,7 @@ export const resources = {
 				duplicateOrder: "הזמן שוב",
 				setOnDelivery: "יצא למשלוח",
 				chargeOrder: "חייב הזמנה",
+				endOrder: "סיום הזמנה",
 			},
 		},
 

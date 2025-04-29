@@ -94,7 +94,20 @@ function OrderRow({
 
 		if (order.status === "delivered") {
 			if (store?.paymentType === "external") {
-				// return "sdakjdlk";
+				return (
+					<Button
+						onPress={async () => {
+							// charge for order
+							const res = await appApi.admin.endOrder({ order });
+							if (!res?.success) {
+								return;
+							}
+							// updateOrder(order.id, "completed");
+						}}
+					>
+						{t("ordersPage:actions.endOrder")}
+					</Button>
+				);
 			}
 			return (
 				<>

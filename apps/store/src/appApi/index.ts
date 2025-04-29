@@ -744,6 +744,25 @@ export const useAppApi = () => {
 				return { success: true };
 				// create token
 			},
+			async endOrder({ order }: { order: TOrder }) {
+				// get transactionId
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.update<TOrder>(
+					order.id,
+					{
+						status: "completed",
+						paymentStatus: "completed",
+					},
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					})
+				);
+				return { success: true };
+				// create token
+			},
 			orderPaid({ order }: { order: TOrder }) {
 				if (!isValidAdmin) return;
 				mixPanelApi.track("ADMIN_ORDER_PAID", {
