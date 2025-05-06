@@ -54,7 +54,7 @@ export const ezCountService = {
 			const res = await axios({
 				method: "post",
 				maxBodyLength: Infinity,
-				url: "https://demo.ezcount.co.il/api/createDoc",
+				url: "https://api.ezcount.co.il/api/createDoc", //todo handle api vs demo
 				headers: {
 					"Content-Type": "application/json",
 				},

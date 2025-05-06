@@ -12,6 +12,7 @@ export declare const storeCollections: {
     readonly favorites: "favorites";
     readonly payments: "payments";
     readonly settings: "settings";
+    readonly discounts: "discounts";
 };
 export declare const FirestoreApi: {
     systemCollections: {
@@ -28,6 +29,7 @@ export declare const FirestoreApi: {
         readonly favorites: "favorites";
         readonly payments: "payments";
         readonly settings: "settings";
+        readonly discounts: "discounts";
     };
     getPath: ({ companyId, storeId, collectionName, id, }: {
         companyId: string;
@@ -53,6 +55,7 @@ export declare const FirebaseAPI: {
             readonly favorites: "favorites";
             readonly payments: "payments";
             readonly settings: "settings";
+            readonly discounts: "discounts";
         };
         getPath: ({ companyId, storeId, collectionName, id, }: {
             companyId: string;

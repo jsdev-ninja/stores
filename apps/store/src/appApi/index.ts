@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FirebaseAPI, TCategory } from "@jsdev_ninja/core";
+import { FirebaseAPI, TCategory, TDiscount } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
 import { useStoreActions } from "src/infra";
@@ -565,6 +565,30 @@ export const useAppApi = () => {
 		};
 
 		const admin = {
+			createDiscount: async (discount: TDiscount) => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.createV2<TDiscount>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "discounts",
+						companyId,
+						storeId,
+					}),
+					doc: discount,
+				});
+			},
+			subscribeToDiscounts: (callback: (discounts: TDiscount[]) => void) => {
+				if (!isValidAdmin) return () => {};
+
+				return FirebaseApi.firestore.subscribeList<TDiscount>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "discounts",
+						companyId,
+						storeId,
+					}),
+					callback,
+				});
+			},
 			getOrder: async (id: string) => {
 				if (!isValidAdmin) return;
 

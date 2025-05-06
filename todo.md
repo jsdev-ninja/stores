@@ -12,6 +12,9 @@ date - 12/25
 
 3 in 10 per product
 
+1) order client details HP, addional contact
+2) store working dates details
+
 <!-- by brand by category -->
 
 <!-- minimum order price -->

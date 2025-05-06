@@ -1,7 +1,5 @@
 import { Icon } from "@iconify/react";
 
-import { z } from "zod";
-
 import {
 	Card,
 	CardBody,
@@ -17,19 +15,19 @@ import {
 	Input,
 	Select,
 	SelectItem,
-	Switch,
 	Button,
 	CardHeader,
-	DateInput,
 	Autocomplete,
 	AutocompleteItem,
 } from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarDate } from "@internationalized/date";
-import type { Control } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { DiscountSchema, TDiscount } from "@jsdev_ninja/core";
+import { FirebaseApi } from "src/lib/firebase";
+import { useStore } from "src/domains/Store";
+import { useAppApi } from "src/appApi";
 
 export const categories = [
 	{ id: "1", name: "Electronics" },
@@ -65,108 +63,76 @@ export const customerTypes = [
 	{ id: "all", name: "All Customers" },
 ];
 
-interface BundleConfigFormProps {
-	control: Control<DiscountFormData>;
-	errors: any;
-}
-
-export const BundleConfigForm: React.FC<BundleConfigFormProps> = ({ control, errors }) => {
-	return (
-		<div className="space-y-4">
-			<Controller
-				name="conditions.bundle.quantity"
-				control={control}
-				render={({ field }) => (
-					<Input
-						{...field}
-						value={field.value as any}
-						type="number"
-						label="Bundle Quantity"
-						placeholder="3"
-						description="Number of items in the bundle"
-						isInvalid={!!errors?.conditions?.bundle?.quantity}
-						errorMessage={errors?.conditions?.bundle?.quantity?.message}
-						isRequired
-					/>
-				)}
-			/>
-			<Controller
-				name="conditions.bundle.price"
-				control={control}
-				render={({ field }) => (
-					<Input
-						{...field}
-						value={field.value as any}
-						type="number"
-						label="Bundle Price"
-						placeholder="10.00"
-						startContent="$"
-						description="Total price for the bundle"
-						isInvalid={!!errors?.conditions?.bundle?.price}
-						errorMessage={errors?.conditions?.bundle?.price?.message}
-						isRequired
-					/>
-				)}
-			/>
-			<Controller
-				name="conditions.bundle.itemPrice"
-				control={control}
-				render={({ field }) => (
-					<Input
-						{...field}
-						value={field.value as any}
-						type="number"
-						label="Regular Item Price"
-						placeholder="4.00"
-						startContent="$"
-						description="Original price per item (for reference)"
-						isInvalid={!!errors?.conditions?.bundle?.itemPrice}
-						errorMessage={errors?.conditions?.bundle?.itemPrice?.message}
-					/>
-				)}
-			/>
-		</div>
-	);
-};
-
 interface DiscountFormProps {
-	onSubmit: (discount: Partial<Discount>) => void;
+	onSubmit: (discount: Partial<TDiscount>) => void;
 }
 
 export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
+	const store = useStore();
+
 	const {
 		control,
 		handleSubmit,
 		watch,
 		formState: { errors },
-	} = useForm<DiscountFormData>({
-		resolver: zodResolver(discountSchema),
+	} = useForm<TDiscount>({
+		resolver: zodResolver(DiscountSchema),
 		defaultValues: {
-			isAutomatic: false,
-			isStackable: false,
-			startDate: new Date(),
-			endDate: new Date(),
-			conditions: {},
+			type: "Discount",
+			companyId: store?.companyId ?? "",
+			storeId: store?.id ?? "",
+			id: FirebaseApi.firestore.generateDocId("discounts"),
+			active: true,
+			name: [{ lang: "he", value: "" }],
+			variant: {
+				variantType: "bundle",
+			},
 		},
 	});
 
-	const discountType = watch("type");
-	const isAutomatic = watch("isAutomatic");
+	const appApi = useAppApi();
 
-	const onFormSubmit = (data: DiscountFormData) => {
-		onSubmit(data as any);
+	const discountType = watch("variant.variantType");
+
+	const onFormSubmit = async (data: TDiscount) => {
+		console.log("data", data);
+		const res = await appApi.admin.createDiscount(data);
+		console.log("appApi", res);
+		onSubmit(data);
+
+		// onSubmit(data as any);
 	};
 
 	const isBundleType = discountType?.includes("bundle");
 	console.log("isBundleType", isBundleType);
 
+	console.log("form", watch());
+
 	return (
 		<Card className="w-full max-w-2xl mx-auto">
 			<CardBody>
-				<form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+				<form onSubmit={handleSubmit(onFormSubmit, console.error)} className="space-y-6">
 					<div className="space-y-4">
 						<Controller
-							name="name"
+							name="variant.variantType"
+							control={control}
+							render={({ field }) => {
+								return (
+									<Select
+										{...field}
+										label="Discount Type"
+										selectedKeys={field.value ? new Set([field.value]) : []}
+										onChange={(e) => field.onChange(e.target.value)}
+										isRequired
+										isDisabled
+									>
+										<SelectItem key="bundle">bundle</SelectItem>
+									</Select>
+								);
+							}}
+						/>
+						<Controller
+							name={`name.0.value`}
 							control={control}
 							render={({ field }) => (
 								<Input
@@ -181,248 +147,61 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 						/>
 
 						<Controller
-							name="type"
-							control={control}
-							render={({ field }) => (
-								<Select
-									{...field}
-									label="Discount Type"
-									selectedKeys={field.value ? [field.value] : []}
-									onChange={(e) => field.onChange(e.target.value)}
-									isRequired
-								>
-									<SelectItem key="bundle">Product Bundle (X for $Y)</SelectItem>
-									<SelectItem key="category-bundle">Category Bundle</SelectItem>
-									<SelectItem key="brand-bundle">Brand Bundle</SelectItem>
-									<SelectItem key="percentage">Percentage Off</SelectItem>
-									<SelectItem key="fixed">Fixed Amount Off</SelectItem>
-									<SelectItem key="bogo">Buy X Get Y Free</SelectItem>
-									<SelectItem key="conditional">Conditional Discount</SelectItem>
-									<SelectItem key="product">Product Specific</SelectItem>
-									<SelectItem key="customer">Customer Based</SelectItem>
-								</Select>
-							)}
-						/>
-
-						{discountType === "bundle" && (
-							<>
-								<BundleConfigForm control={control} errors={errors} />
-								<Controller
-									name="conditions.productIds"
-									control={control}
-									render={({ field }) => (
-										<Autocomplete
-											label="Select Products for Bundle"
-											placeholder="Search products..."
-											defaultItems={products}
-											value={field.value}
-											onSelectionChange={(keys) =>
-												field.onChange(Array.from(keys as any))
-											}
-											isRequired
-										>
-											{(product) => (
-												<AutocompleteItem key={product.id}>
-													{product.name} - ${product.price}
-												</AutocompleteItem>
-											)}
-										</Autocomplete>
-									)}
-								/>
-							</>
-						)}
-
-						{discountType === "category-bundle" && (
-							<>
-								<BundleConfigForm control={control} errors={errors} />
-								<Controller
-									name="conditions.categoryIds"
-									control={control}
-									render={({ field }) => (
-										<Autocomplete
-											label="Select Categories"
-											placeholder="Search categories..."
-											defaultItems={categories}
-											value={field.value}
-											onSelectionChange={(keys) =>
-												field.onChange(Array.from(keys as any))
-											}
-											isRequired
-										>
-											{(category) => (
-												<AutocompleteItem key={category.id}>
-													{category.name}
-												</AutocompleteItem>
-											)}
-										</Autocomplete>
-									)}
-								/>
-							</>
-						)}
-
-						{discountType === "brand-bundle" && (
-							<>
-								<BundleConfigForm control={control} errors={errors} />
-								<Controller
-									name="conditions.brandIds"
-									control={control}
-									render={({ field }) => (
-										<Autocomplete
-											label="Select Brands"
-											placeholder="Search brands..."
-											defaultItems={brands}
-											value={field.value}
-											onSelectionChange={(keys) =>
-												field.onChange(Array.from(keys as any))
-											}
-											isRequired
-										>
-											{(brand) => (
-												<AutocompleteItem key={brand.id}>{brand.name}</AutocompleteItem>
-											)}
-										</Autocomplete>
-									)}
-								/>
-							</>
-						)}
-
-						{discountType === "product" && (
-							<Controller
-								name="conditions.productIds"
-								control={control}
-								render={({ field }) => (
-									<Autocomplete
-										label="Select Products"
-										placeholder="Search products..."
-										defaultItems={products}
-										value={field.value}
-										onSelectionChange={(keys) => field.onChange(Array.from(keys as any))}
-										isRequired
-									>
-										{(product) => (
-											<AutocompleteItem key={product.id}>
-												{product.name} - ${product.price}
-											</AutocompleteItem>
-										)}
-									</Autocomplete>
-								)}
-							/>
-						)}
-
-						{discountType === "customer" && (
-							<Controller
-								name="conditions.customerType"
-								control={control}
-								render={({ field }) => (
-									<Autocomplete
-										label="Select Customer Type"
-										placeholder="Search customer types..."
-										defaultItems={customerTypes}
-										value={field.value ? [field.value] : []}
-										onSelectionChange={(keys) =>
-											field.onChange(Array.from(keys as any)[0])
-										}
-										isRequired
-									>
-										{(type) => (
-											<AutocompleteItem key={type.id}>{type.name}</AutocompleteItem>
-										)}
-									</Autocomplete>
-								)}
-							/>
-						)}
-
-						<div className="flex gap-4">
-							<Controller
-								name="isAutomatic"
-								control={control}
-								render={({ field }) => (
-									<Switch isSelected={field.value} onValueChange={field.onChange}>
-										Automatic Discount
-									</Switch>
-								)}
-							/>
-							<Controller
-								name="isStackable"
-								control={control}
-								render={({ field }) => (
-									<Switch isSelected={field.value} onValueChange={field.onChange}>
-										Stackable with Other Discounts
-									</Switch>
-								)}
-							/>
-						</div>
-
-						{!isAutomatic && (
-							<Controller
-								name="code"
-								control={control}
-								render={({ field }) => (
-									<Input
-										{...field}
-										label="Discount Code"
-										placeholder="BUNDLE3X10"
-										isInvalid={!!errors.code}
-										errorMessage={errors.code?.message}
-										isRequired
-									/>
-								)}
-							/>
-						)}
-
-						<Controller
-							name="usageLimit"
+							name="variant.requiredQuantity"
 							control={control}
 							render={({ field }) => (
 								<Input
 									{...field}
-									value={field.value as unknown as string}
+									onChange={(e) => field.onChange(+e.target.value)}
+									value={field.value as any}
 									type="number"
-									label="Usage Limit"
-									placeholder="100"
-									isInvalid={!!errors.usageLimit}
-									errorMessage={errors.usageLimit?.message}
+									label="Bundle Quantity"
+									placeholder="3"
+									description="Number of items in the bundle"
+									isInvalid={!!errors?.variant?.requiredQuantity}
+									errorMessage={errors?.variant?.requiredQuantity?.message}
 									isRequired
 								/>
 							)}
 						/>
-
-						<div className="flex gap-4">
-							<Controller
-								name="startDate"
-								control={control}
-								render={({ field }) => (
-									<DateInput
-										label="Start Date"
-										value={
-											new CalendarDate(
-												field.value.getFullYear(),
-												field.value.getMonth() + 1,
-												field.value.getDate()
-											)
-										}
-										onChange={(date) => field.onChange(new Date(date?.toString() ?? 0))}
-									/>
-								)}
-							/>
-							<Controller
-								name="endDate"
-								control={control}
-								render={({ field }) => (
-									<DateInput
-										label="End Date"
-										value={
-											new CalendarDate(
-												field.value.getFullYear(),
-												field.value.getMonth() + 1,
-												field.value.getDate()
-											)
-										}
-										onChange={(date) => field.onChange(new Date(date?.toString() ?? 0))}
-									/>
-								)}
-							/>
-						</div>
+						<Controller
+							name="variant.discountPrice"
+							control={control}
+							render={({ field }) => (
+								<Input
+									{...field}
+									onChange={(e) => field.onChange(+e.target.value)}
+									value={field.value as any}
+									type="number"
+									label="Bundle Price"
+									placeholder="10.00"
+									startContent="$"
+									description="Total price for the bundle"
+									isInvalid={!!errors?.variant?.discountPrice}
+									errorMessage={errors?.variant?.discountPrice?.message}
+									isRequired
+								/>
+							)}
+						/>
+						<Controller
+							name="variant.productsId"
+							control={control}
+							render={({ field }) => (
+								<Autocomplete
+									label="Select Products for Bundle"
+									placeholder="Search products..."
+									defaultItems={products}
+									value={field.value}
+									onSelectionChange={(keys) => field.onChange(Array.from(keys as any))}
+									isRequired
+									multiple
+								>
+									{(product) => (
+										<AutocompleteItem key={product.id}>{product.name}</AutocompleteItem>
+									)}
+								</Autocomplete>
+							)}
+						/>
 					</div>
 
 					<Button
@@ -440,7 +219,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 };
 
 interface DiscountListProps {
-	discounts: Discount[];
+	discounts: TDiscount[];
 	onDelete: (id: string) => void;
 }
 
@@ -450,40 +229,32 @@ export const DiscountList: React.FC<DiscountListProps> = ({ discounts, onDelete 
 			<TableHeader>
 				<TableColumn>NAME</TableColumn>
 				<TableColumn>TYPE</TableColumn>
-				<TableColumn>VALUE</TableColumn>
-				<TableColumn>CODE</TableColumn>
-				<TableColumn>USAGE</TableColumn>
-				<TableColumn>STATUS</TableColumn>
-				<TableColumn>ACTIONS</TableColumn>
+				<TableColumn>status</TableColumn>
+				<TableColumn>actions</TableColumn>
 			</TableHeader>
 			<TableBody>
 				{discounts.map((discount) => (
 					<TableRow key={discount.id}>
-						<TableCell>{discount.name}</TableCell>
+						<TableCell>{discount.name[0].value}</TableCell>
 						<TableCell>
 							<Chip size="sm" variant="flat">
-								{discount.type}
+								{discount.variant.variantType}
 							</Chip>
 						</TableCell>
 						<TableCell>
-							{discount.type === "percentage" ? `${discount.value}%` : `$${discount.value}`}
-						</TableCell>
-						<TableCell>
-							{discount.code || (
-								<Chip size="sm" color="success">
-									Automatic
-								</Chip>
-							)}
-						</TableCell>
-						<TableCell>
-							{discount.usageCount} / {discount.usageLimit}
-						</TableCell>
-						<TableCell>
-							<Chip size="sm" color={new Date() > discount.endDate ? "danger" : "success"}>
-								{new Date() > discount.endDate ? "Expired" : "Active"}
+							<Chip size="sm" variant="flat">
+								{discount.active ? "active" : "not active"}
 							</Chip>
 						</TableCell>
 						<TableCell>
+							<Button
+								isIconOnly
+								color="danger"
+								variant="shadow"
+								onPress={() => onDelete(discount.id)}
+							>
+								view
+							</Button>
 							<Tooltip content="Delete Discount">
 								<Button
 									isIconOnly
@@ -502,103 +273,32 @@ export const DiscountList: React.FC<DiscountListProps> = ({ discounts, onDelete 
 	);
 };
 
-const bundleConfigSchema = z.object({
-	quantity: z.number().min(1, "Quantity must be at least 1"),
-	price: z.number().min(0, "Price must be positive"),
-	itemPrice: z.number().min(0, "Item price must be positive").optional(),
-});
-
-export const discountSchema = z.object({
-	name: z.string().min(3, "Name must be at least 3 characters"),
-	type: z.enum([
-		"percentage",
-		"fixed",
-		"bogo",
-		"conditional",
-		"product",
-		"customer",
-		"bundle",
-		"category-bundle",
-		"brand-bundle",
-	]),
-	value: z.number().min(0, "Value must be positive"),
-	code: z.string().optional(),
-	isAutomatic: z.boolean(),
-	isStackable: z.boolean(),
-	startDate: z.date(),
-	endDate: z.date(),
-	usageLimit: z.number().min(1, "Usage limit must be at least 1"),
-	conditions: z
-		.object({
-			minSpend: z.number().optional(),
-			productIds: z.array(z.string()).optional(),
-			categoryIds: z.array(z.string()).optional(),
-			brandIds: z.array(z.string()).optional(),
-			customerType: z.enum(["new", "returning", "vip", "all"]).optional(),
-			bundle: bundleConfigSchema.optional(),
-		})
-		.optional(),
-});
-
-export type DiscountFormData = z.infer<typeof discountSchema>;
-
-export type DiscountType =
-	| "percentage"
-	| "fixed"
-	| "bogo"
-	| "conditional"
-	| "product"
-	| "customer"
-	| "bundle"
-	| "category-bundle"
-	| "brand-bundle";
-
-export interface BundleConfig {
-	quantity: number;
-	price: number;
-	itemPrice?: number; // Original price per item
-}
-
-export interface Discount {
-	id: string;
-	name: string;
-	type: DiscountType;
-	value: number;
-	code?: string;
-	isAutomatic: boolean;
-	isStackable: boolean;
-	startDate: Date;
-	endDate: Date;
-	usageLimit: number;
-	usageCount: number;
-	conditions?: {
-		minSpend?: number;
-		productIds?: string[];
-		categoryIds?: string[];
-		brandIds?: string[];
-		customerType?: "new" | "vip" | "all";
-		bundle?: BundleConfig;
-	};
-}
-
 function AdminDiscountsPage() {
 	const [showForm, setShowForm] = useState(false);
-	const [discounts, setDiscounts] = useState<Discount[]>([]);
+	const [discounts, setDiscounts] = useState<TDiscount[]>([]);
 
-	const handleCreateDiscount = (newDiscount: Partial<Discount>) => {
-		const discount: Discount = {
-			...newDiscount,
-			id: Math.random().toString(36).substr(2, 9),
-			usageCount: 0,
-		} as Discount;
+	const appApi = useAppApi();
 
-		setDiscounts([...discounts, discount]);
+	const handleCreateDiscount = () => {
+		// const discount: TDiscount = {
+		// 	id: FirebaseApi.firestore.generateDocId("discounts"),
+		// 	...newDiscount,
+		// 	usageCount: 0,
+		// } as TDiscount;
+
+		// setDiscounts([...discounts, discount]);
 		setShowForm(false);
 	};
 
 	const handleDeleteDiscount = (id: string) => {
 		setDiscounts(discounts.filter((d) => d.id !== id));
 	};
+
+	useEffect(() => {
+		const unsubscribe = appApi.admin.subscribeToDiscounts(setDiscounts);
+
+		return () => unsubscribe?.();
+	}, []);
 
 	return (
 		<div className="container mx-auto p-6 max-w-7xl">

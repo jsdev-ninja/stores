@@ -13,6 +13,7 @@ export const storeCollections = {
 	favorites: "favorites",
 	payments: "payments",
 	settings: "settings",
+	discounts: "discounts",
 } as const;
 
 export const FirestoreApi = {

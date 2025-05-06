@@ -62,18 +62,18 @@ async function createV2<T extends { id?: string }>(data: {
 				const docSnapshot = await transaction.get(docRef);
 
 				if (docSnapshot.exists()) {
-					return { success: false };
+					return { success: false, docId: docRef.id };
 				} else {
 					// Document does not exist, proceed to create it
 					transaction.set(docRef, data.doc);
-					return { success: true };
+					return { success: true, docId: docRef.id };
 				}
 			},
 			{ maxAttempts: 1 }
 		);
 	} catch (error) {
 		console.error("Error adding document with transaction:", error);
-		return { success: false };
+		return { success: false, docId: "" };
 	}
 }
 
