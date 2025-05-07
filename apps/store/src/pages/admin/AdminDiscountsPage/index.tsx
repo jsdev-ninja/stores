@@ -24,10 +24,14 @@ import { useForm, Controller } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { DiscountSchema, TDiscount } from "@jsdev_ninja/core";
+import { DiscountSchema, TDiscount, TProduct } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
 import { useStore } from "src/domains/Store";
 import { useAppApi } from "src/appApi";
+
+import { AlgoliaClient } from "src/services";
+
+const productsIndex = AlgoliaClient.initIndex("products"); // Replace with your index name
 
 export const categories = [
 	{ id: "1", name: "Electronics" },
@@ -45,15 +49,6 @@ export const brands = [
 	{ id: "4", name: "Adidas" },
 	{ id: "5", name: "Sony" },
 	{ id: "6", name: "Levi's" },
-];
-
-export const products = [
-	{ id: "1", name: "iPhone 15", category: "Electronics", brand: "Apple", price: 999 },
-	{ id: "2", name: "MacBook Pro", category: "Electronics", brand: "Apple", price: 1299 },
-	{ id: "3", name: "Nike Air Max", category: "Clothing", brand: "Nike", price: 129 },
-	{ id: "4", name: "Levi's 501", category: "Clothing", brand: "Levi's", price: 69 },
-	{ id: "5", name: "The Great Gatsby", category: "Books", price: 15 },
-	{ id: "6", name: "Garden Tools Set", category: "Home & Garden", price: 89 },
 ];
 
 export const customerTypes = [
@@ -75,6 +70,8 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 		handleSubmit,
 		watch,
 		formState: { errors },
+		setValue,
+		getValues,
 	} = useForm<TDiscount>({
 		resolver: zodResolver(DiscountSchema),
 		defaultValues: {
@@ -86,13 +83,12 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 			name: [{ lang: "he", value: "" }],
 			variant: {
 				variantType: "bundle",
+				productsId: ["", ""],
 			},
 		},
 	});
 
 	const appApi = useAppApi();
-
-	const discountType = watch("variant.variantType");
 
 	const onFormSubmit = async (data: TDiscount) => {
 		console.log("data", data);
@@ -103,8 +99,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 		// onSubmit(data as any);
 	};
 
-	const isBundleType = discountType?.includes("bundle");
-	console.log("isBundleType", isBundleType);
+	const [products, setProducts] = useState<string[]>(["1aa", "2bb"]);
 
 	console.log("form", watch());
 
@@ -183,25 +178,33 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 								/>
 							)}
 						/>
-						<Controller
-							name="variant.productsId"
-							control={control}
-							render={({ field }) => (
-								<Autocomplete
-									label="Select Products for Bundle"
-									placeholder="Search products..."
-									defaultItems={products}
-									value={field.value}
-									onSelectionChange={(keys) => field.onChange(Array.from(keys as any))}
-									isRequired
-									multiple
+						{products.map((p, index) => (
+							<div key={p} className="flex items-center gap-2">
+								<Controller
+									name={`variant.productsId.${index}`}
+									control={control}
+									render={({ field }) => {
+										console.log("field", field.name, field);
+										return <ProductInput field={field} />;
+									}}
+								/>
+								<Button
+									onPress={() => {
+										setValue(
+											"variant.productsId",
+											getValues("variant.productsId").filter((_, i) => i !== index)
+										);
+										setProducts(products.filter((_p) => _p !== p));
+									}}
+									isIconOnly
 								>
-									{(product) => (
-										<AutocompleteItem key={product.id}>{product.name}</AutocompleteItem>
-									)}
-								</Autocomplete>
-							)}
-						/>
+									<Icon icon="lucide:x" />
+								</Button>
+							</div>
+						))}
+						<Button fullWidth onPress={() => setProducts([...products, crypto.randomUUID()])}>
+							add new item
+						</Button>
 					</div>
 
 					<Button
@@ -217,6 +220,79 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 		</Card>
 	);
 };
+
+function ProductInput({ field }: any) {
+	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+
+	console.log("searchResults", searchResults);
+
+	const handleSearch = async (value: string) => {
+		if (!value) {
+			setSearchResults([]);
+			return;
+		}
+
+		setIsLoading(true);
+		try {
+			const { hits } = await productsIndex.search<TProduct>(value);
+			console.log("hits", hits);
+
+			setSearchResults(hits);
+		} catch (error) {
+			console.error("Search error:", error);
+			setSearchResults([]);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	return (
+		<Autocomplete
+			onSelectionChange={(id) => {
+				console.log("onchage", id);
+				field.onChange(id);
+			}}
+			className="max-w-xl"
+			items={searchResults}
+			label="Search products"
+			variant="bordered"
+			color="primary"
+			size="lg"
+			onInputChange={handleSearch}
+			isLoading={isLoading}
+			startContent={<Icon icon="lucide:search" className="text-default-400" />}
+			inputProps={{
+				classNames: {
+					input: "text-base",
+				},
+			}}
+		>
+			{(item) => (
+				<AutocompleteItem
+					key={item.objectID}
+					textValue={item.name[0].value}
+					className="flex items-center gap-4 p-2"
+				>
+					<img
+						src={item.images?.[0]?.url}
+						alt={item.name[0]?.value}
+						className="w-12 h-12 rounded-md object-cover"
+					/>
+					<div className="flex flex-col gap-1">
+						<span className="text-default-900">{item.name[0].value}</span>
+						<div className="flex items-center gap-2">
+							<span className="text-default-600">${item.price}</span>
+							<Chip size="sm" variant="flat" color="primary">
+								{item.categoryNames[0]}
+							</Chip>
+						</div>
+					</div>
+				</AutocompleteItem>
+			)}
+		</Autocomplete>
+	);
+}
 
 interface DiscountListProps {
 	discounts: TDiscount[];
