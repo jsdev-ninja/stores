@@ -1,3 +1,4 @@
+import { Checkbox } from "@heroui/react";
 import { useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
@@ -27,7 +28,17 @@ function AdminSettingsPage() {
 					}}
 				/>
 			</div>
-			<div className="flex gap-4">
+			<div className="">
+				<Checkbox
+					onValueChange={(value) => {
+						console.log("onValueChange", value);
+					}}
+					isSelected={store?.isVatIncludedInPrice}
+				>
+					מחירים כוללים מעם
+				</Checkbox>
+			</div>
+			<div className="flex gap-4 mt-6">
 				<Button isDisabled={!logo} onPress={uploadLogo}>
 					Save
 				</Button>

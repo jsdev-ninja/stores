@@ -3160,7 +3160,8 @@ i.object({
   tenantId: i.string(),
   // firebase auth tenantId
   paymentType: i.enum(["external", "j5"]),
-  allowAnonymousClients: i.boolean()
+  allowAnonymousClients: i.boolean(),
+  isVatIncludedInPrice: i.boolean()
 });
 const Se = i.string().min(1), yr = i.object({
   type: i.literal("Discount"),
@@ -3172,7 +3173,7 @@ const Se = i.string().min(1), yr = i.object({
   variant: i.discriminatedUnion("variantType", [
     i.object({
       variantType: i.literal("bundle"),
-      productsId: i.array(i.string()),
+      productsId: i.array(i.string()).min(1),
       requiredQuantity: i.number().positive(),
       discountPrice: i.number().positive()
     })

@@ -11,7 +11,7 @@ export const DiscountSchema = z.object({
     variant: z.discriminatedUnion("variantType", [
         z.object({
             variantType: z.literal("bundle"),
-            productsId: z.array(z.string()),
+            productsId: z.array(z.string()).min(1),
             requiredQuantity: z.number().positive(),
             discountPrice: z.number().positive(),
         }),

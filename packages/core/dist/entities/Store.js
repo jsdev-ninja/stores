@@ -8,4 +8,5 @@ const StoreSchema = z.object({
     tenantId: z.string(), // firebase auth tenantId
     paymentType: z.enum(["external", "j5"]),
     allowAnonymousClients: z.boolean(),
+    isVatIncludedInPrice: z.boolean(),
 });
