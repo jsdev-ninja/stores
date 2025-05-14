@@ -55,6 +55,8 @@ export function CatalogPage() {
 							}}
 						>
 							{(products) => {
+								console.log("products", products);
+
 								return products.map((product) => {
 									return <ProductRender key={product.id} product={product} />;
 								});

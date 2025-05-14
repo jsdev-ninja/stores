@@ -9,6 +9,7 @@ import { StoreSlice } from "src/domains/Store";
 import { profileSlice } from "src/domains/profile";
 import { favoriteProductsSlice } from "src/domains/favoriteProducts";
 import { ordersSlice } from "src/domains/Order";
+import { DiscountsSlice } from "src/domains/Discounts/Discounts";
 
 const actions = {
 	cart: cartSlice.actions,
@@ -20,6 +21,7 @@ const actions = {
 	profile: profileSlice.actions,
 	favoriteProducts: favoriteProductsSlice.actions,
 	orders: ordersSlice.actions,
+	discounts: DiscountsSlice.actions,
 };
 export const useStoreActions = () => {
 	const dispatch = useAppDispatch();

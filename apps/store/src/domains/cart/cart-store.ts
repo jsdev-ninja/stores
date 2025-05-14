@@ -56,7 +56,7 @@ export const cartSlice = createSlice({
 	},
 	selectors: {
 		selectCart: (state) => {
-			return state.currentCart?.items;
+			return state.currentCart?.items ?? [];
 		},
 		selectCurrentCart: (state) => {
 			return state.currentCart;

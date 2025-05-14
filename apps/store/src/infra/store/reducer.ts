@@ -8,6 +8,7 @@ import { uiSlice } from "src/domains/ui";
 import { profileSlice } from "src/domains/profile";
 import { favoriteProductsSlice } from "src/domains/favoriteProducts";
 import { ordersSlice } from "src/domains/Order";
+import { DiscountsSlice } from "src/domains/Discounts/Discounts";
 
 export const reducer = {
 	[uiSlice.name]: uiSlice.reducer,
@@ -20,4 +21,5 @@ export const reducer = {
 	cart: cartSlice.reducer,
 	modals: modalsSlice.reducer,
 	[ordersSlice.name]: ordersSlice.reducer,
+	[DiscountsSlice.name]: DiscountsSlice.reducer,
 };

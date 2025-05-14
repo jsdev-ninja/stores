@@ -57,6 +57,15 @@ function App() {
 	}, [dir]);
 
 	useEffect(() => {
+		if (!appReady || !user) return;
+		appApi.system.getDiscounts().then((res) => {
+			if (res.success) {
+				actions.dispatch(actions.discounts.setDiscounts(res.data));
+			}
+		});
+	}, [appReady, user]);
+
+	useEffect(() => {
 		if (user && store) {
 			mixPanelApi.identify(user, { store, profile });
 		}

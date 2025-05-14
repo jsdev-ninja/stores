@@ -16,6 +16,7 @@ import FavoritesProductsPage from "./FavoritesProductsPage/FavoritesProductsPage
 import HomePage from "./HomePage/HomePage";
 import { ordersSlice } from "src/domains/Order";
 import TermsPage from "./TermsPage/TermsPage";
+import DiscountsPage from "./DiscountsPage/DiscountsPage";
 
 export default function StoreLayout() {
 	const appApi = useAppApi();
@@ -57,6 +58,9 @@ export default function StoreLayout() {
 				</Route>
 				<Route name="store.catalog">
 					<CatalogPage />
+				</Route>
+				<Route name="store.discounts">
+					<DiscountsPage />
 				</Route>
 
 				<Route name="store.product">

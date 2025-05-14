@@ -116,6 +116,17 @@ export const useAppApi = () => {
 		};
 
 		const system = {
+			getDiscounts: async () => {
+				if (!isValidUser) return { success: false, data: [], error: new Error("invalid user") };
+
+				return FirebaseApi.firestore.listV2<TDiscount>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "discounts",
+						companyId,
+						storeId,
+					}),
+				});
+			},
 			getProductById: async ({ id }: { id: TProduct["id"] }) => {
 				if (!isValid) return;
 

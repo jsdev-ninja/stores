@@ -27,6 +27,10 @@ export function AppBar() {
 			name: t("navLinks.saved"),
 			to: "store.favoritesProducts",
 		});
+		navLinks.push({
+			name: t("navLinks.discounts"),
+			to: "store.discounts",
+		});
 	}
 
 	const dropdownItems = [
@@ -44,6 +48,14 @@ export function AppBar() {
 			action: () =>
 				navigate({
 					to: "store.favoritesProducts",
+				}),
+		},
+		{
+			key: "discounts",
+			label: t("discounts"),
+			action: () =>
+				navigate({
+					to: "store.discounts",
 				}),
 		},
 		{

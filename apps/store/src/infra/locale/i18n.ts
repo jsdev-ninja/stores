@@ -97,6 +97,7 @@ export const resources = {
 			},
 			navLinks: {
 				saved: "שמורים",
+				discounts: "מבצעים",
 			},
 		},
 		auth: {

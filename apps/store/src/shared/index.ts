@@ -1,1 +1,1 @@
-export * from "./types/Card";
+export {};

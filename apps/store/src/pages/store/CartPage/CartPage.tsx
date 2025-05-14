@@ -5,11 +5,20 @@ import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { CartItem } from "./CartItem";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
+// import { TCart, TDiscount } from "@jsdev_ninja/core";
+import { getCartCost } from "src/utils/calculateCartPrice";
 
 function CartPage() {
 	const { t } = useTranslation(["common", "cart"]);
 
 	const cart = useAppSelector(cartSlice.selectors.selectCart);
+
+	const discounts = useDiscounts();
+
+	const cartCost = getCartCost({ cart, discounts: discounts });
+
+	console.log("cartCost", cartCost);
 
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
@@ -20,14 +29,14 @@ function CartPage() {
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
 					<div className="mx-auto w-full flex-none lg:max-w-2xl xl:max-w-4xl">
 						<div className="space-y-6">
-							{cart?.map((cartItem) => (
+							{cartCost.items?.map((cartItem) => (
 								<CartItem key={cartItem.product.id} cartItem={cartItem} />
 							))}
 						</div>
 					</div>
 					<PaymentSummary>
 						<Button
-							onClick={() =>
+							onPress={() =>
 								navigate({
 									to: "store.checkout",
 								})
@@ -37,7 +46,7 @@ function CartPage() {
 							{t("cart:proceedToCheckout")}
 						</Button>
 						<Button
-							onClick={() =>
+							onPress={() =>
 								navigate({
 									to: "store",
 								})

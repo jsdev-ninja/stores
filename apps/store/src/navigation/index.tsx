@@ -13,6 +13,10 @@ export const routes = {
 				path: "/catalog",
 				exact: false,
 			},
+			discounts: {
+				path: "/discounts",
+				exact: false,
+			},
 
 			product: {
 				path: "/products/:id",
