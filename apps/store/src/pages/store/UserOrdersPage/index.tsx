@@ -114,7 +114,7 @@ function OrderItem({ order }: { order: TOrder }) {
 							variant="solid"
 							color="danger"
 							isDisabled={!appApi.user.permissions.canCancelOrder({ order })}
-							onClick={() => {
+							onPress={() => {
 								appApi.user.cancelOrder({ order });
 							}}
 						>
@@ -125,7 +125,7 @@ function OrderItem({ order }: { order: TOrder }) {
 						<Button
 							variant="solid"
 							color="danger"
-							onClick={() => {
+							onPress={() => {
 								appApi.user.createCartFromOrder({ order });
 							}}
 						>

@@ -16,7 +16,6 @@ import {
 	TProfile,
 } from "@jsdev_ninja/core";
 import { TCart } from "src/domains/cart";
-import { CartService } from "src/domains/cart/CartService";
 import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
 import { LogPayload } from "src/lib/firebase/api";
@@ -361,7 +360,7 @@ export const useAppApi = () => {
 				);
 			},
 			async createCartFromOrder({ order }: { order: TOrder }) {
-				if (!user || !store || !order || !company) return;
+				if (!isValidUser) return;
 				if (user.isAnonymous && !allowAnonymousClients) {
 					modalApi.openModal("authModal");
 					return;
@@ -369,19 +368,34 @@ export const useAppApi = () => {
 
 				// mark currentCart as draft
 				if (cart?.id) {
-					await CartService.updateCart(cart.id, {
-						status: "draft",
-					});
+					return await FirebaseApi.firestore.set(
+						FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "cart",
+							id: cart.id,
+						}),
+						cart
+					);
 				}
 
-				await CartService.createCart({
-					status: "active",
-					items: order.cart.items,
-					companyId: company.id,
-					storeId: store.id,
-					type: "Cart",
-					userId: user.uid,
-				});
+				await FirebaseApi.firestore.set(
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "cart",
+						id: FirebaseApi.firestore.generateDocId("cart"),
+					}),
+					{
+						status: "active",
+						items: order.cart.items,
+						companyId: company?.id,
+						storeId: store.id,
+						type: "Cart",
+						userId: user.uid,
+					}
+				);
+
 				navigate({
 					to: "store.catalog",
 				});
