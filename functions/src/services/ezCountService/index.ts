@@ -20,11 +20,15 @@ export const ezCountService = {
 		order: TOrder,
 		{
 			ezcount_key,
+			ezcount_api,
 			clientEmail,
 			clientName,
-		}: { ezcount_key: string; clientName: string; clientEmail: string }
+		}: { ezcount_key: string; clientName: string; clientEmail: string; ezcount_api: string }
 	) {
 		try {
+			console.log("createDeliveryNote", clientEmail, clientName);
+			console.log("URLLLL", `${ezcount_api}/api/createDoc`);
+
 			const items = order.cart.items.map((item) => {
 				return {
 					// catalog_number: item.product.sku,
@@ -54,7 +58,7 @@ export const ezCountService = {
 			const res = await axios({
 				method: "post",
 				maxBodyLength: Infinity,
-				url: "https://api.ezcount.co.il/api/createDoc", //todo handle api vs demo
+				url: `${ezcount_api}/api/createDoc`, //todo handle api vs demo
 				headers: {
 					"Content-Type": "application/json",
 				},

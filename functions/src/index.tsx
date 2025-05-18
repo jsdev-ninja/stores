@@ -34,22 +34,6 @@ export const onOrderCreated = functions.firestore
 		const order = snap.data() as TOrder;
 		// todo validate order
 
-		const { displayName, email } = order.client;
-
-		// ezcount_key
-		const storePrivateData: any = (
-			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
-		).data();
-
-		console.log("storePrivateData", JSON.stringify(storePrivateData));
-
-		// create delivery note (when ready to delivery only)
-		await ezCountService.createDeliveryNote(order, {
-			ezcount_key: storePrivateData.ezcount_key,
-			clientName: displayName,
-			clientEmail: email,
-		});
-
 		// close cart
 		return admin
 			.firestore()
@@ -60,17 +44,43 @@ export const onOrderCreated = functions.firestore
 			});
 	});
 export const onOrderUpdate = functions.firestore
-	.document("/orders/{orderId}")
+	.document(FirebaseAPI.firestore.getDocPath("orders"))
 	.onUpdate(async (snap, context) => {
-		const { orderId } = context.params;
+		const { storeId, id } = context.params;
 		const after = snap.after.data() as TOrder;
 		const before = snap.before.data() as TOrder;
+
+		const { displayName, email } = after.client;
+
+		// ezcount_key
+		const storePrivateData: any = (
+			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
+		).data();
 
 		const orderIsPaid =
 			after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
 
+		const orderIsReady = before.status === "processing" && after.status === "in_delivery";
+
+		functionsV2.logger.write({
+			severity: "INFO",
+			message: "order status",
+			orderIsReady,
+		});
+
+		if (orderIsReady) {
+			// create delivery note (when ready to delivery only)
+
+			await ezCountService.createDeliveryNote(after, {
+				ezcount_key: storePrivateData.ezcount_key,
+				clientName: displayName,
+				clientEmail: email,
+				ezcount_api: storePrivateData.ezcount_api,
+			});
+		}
+
 		if (orderIsPaid) {
-			console.log("order paid", orderId);
+			console.log("order paid", id);
 			const html = await render(<OrderCreated order={after} />);
 
 			await emailService.sendEmail({
