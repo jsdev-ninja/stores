@@ -7,6 +7,7 @@ import { Cart } from "src/widgets/Cart/Cart";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
 import { ProductsWidget } from "src/widgets/Products";
 
+// todo why render twice when setSTATE
 export function CatalogPage() {
 	const { t } = useTranslation(["common"]);
 
@@ -41,7 +42,9 @@ export function CatalogPage() {
 					<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 				</div>
 				<div className="flex-grow p-6 flex flex-col justify-start items-start gap-4  ">
-					<div className="mx-auto  w-full">{/* <ProductsWidget.SearchBox /> */}</div>
+					<div className="mx-auto  w-full">
+						<ProductsWidget.SearchBox />{" "}
+					</div>
 					<div className="flex gap-4 w-full flex-wrap justify-center flex-grow">
 						<ProductsWidget.Products
 							emptyStateAction={() => {

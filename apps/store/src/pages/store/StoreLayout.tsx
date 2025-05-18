@@ -52,7 +52,6 @@ export default function StoreLayout() {
 			<main className="page-with-header flex flex-col">
 				<Route name="store" index>
 					<HomePage />
-					{/* <CatalogPage /> */}
 				</Route>
 				<Route name="store.terms">
 					<TermsPage />

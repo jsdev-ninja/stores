@@ -28,8 +28,8 @@ export function ProductsWidget({
 			searchClient={AlgoliaClient}
 			indexName={"products"}
 			future={{
-				preserveSharedStateOnUnmount: false,
-				persistHierarchicalRootCount: false,
+				preserveSharedStateOnUnmount: true,
+				persistHierarchicalRootCount: true,
 			}}
 		>
 			<Configure
@@ -88,6 +88,8 @@ export function Products({
 	}, [isLastPage, showMore]);
 
 	if (status === "loading" || status === "stalled" || !ready) return null; //todo
+
+	console.log("items", items);
 
 	if (!items.length) {
 		return (
