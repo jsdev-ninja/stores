@@ -25,6 +25,7 @@ export const ProductSchema = z.object({
         type: z.enum(["number", "percent", "none"]),
         value: z.number(),
     }),
+    isDiscountable: z.boolean({ description: "included in store discounts" }).optional(),
     weight: z.object({
         value: z.number(),
         unit: z.enum(["kg", "gram", "none"]),

@@ -3016,6 +3016,7 @@ const k = i.string().min(1, { message: "שדה חובה" }), or = i.string().reg
     type: i.enum(["number", "percent", "none"]),
     value: i.number()
   }),
+  isDiscountable: i.boolean({ description: "included in store discounts" }).optional(),
   weight: i.object({
     value: i.number(),
     unit: i.enum(["kg", "gram", "none"])

@@ -145,6 +145,10 @@ export function EditProductPage() {
 					<Form.Checkbox<TNewProduct> name="isPublished" label={"קיים במלאי"} />
 				</Flex.Item>
 
+				<Flex.Item grow="none" className="h-full">
+					<Form.Checkbox<TNewProduct> name="isDiscountable" label={"בר הנחה"} />
+				</Flex.Item>
+
 				<Flex>
 					<Form.TextArea<TNewProduct>
 						name="description[0].value"

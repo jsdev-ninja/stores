@@ -52,6 +52,7 @@ export declare const ProductSchema: z.ZodObject<{
         value: number;
         type: "number" | "percent" | "none";
     }>;
+    isDiscountable: z.ZodOptional<z.ZodBoolean>;
     weight: z.ZodObject<{
         value: z.ZodNumber;
         unit: z.ZodEnum<["kg", "gram", "none"]>;
@@ -253,6 +254,7 @@ export declare const ProductSchema: z.ZodObject<{
     categoryNames: string[];
     purchasePrice?: number | undefined;
     profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
 }, {
     type: "Product";
     id: string;
@@ -338,6 +340,7 @@ export declare const ProductSchema: z.ZodObject<{
     categoryNames: string[];
     purchasePrice?: number | undefined;
     profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
 }>;
 export type TProduct = z.infer<typeof ProductSchema>;
 export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
@@ -393,6 +396,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         value: number;
         type: "number" | "percent" | "none";
     }>;
+    isDiscountable: z.ZodOptional<z.ZodBoolean>;
     weight: z.ZodObject<{
         value: z.ZodNumber;
         unit: z.ZodEnum<["kg", "gram", "none"]>;
@@ -596,6 +600,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     categoryNames: string[];
     purchasePrice?: number | undefined;
     profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
     image?: File | undefined;
 }, {
     type: "Product";
@@ -682,6 +687,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     categoryNames: string[];
     purchasePrice?: number | undefined;
     profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
     image?: File | undefined;
 }>;
 export type TNewProduct = z.infer<typeof NewProductSchema>;

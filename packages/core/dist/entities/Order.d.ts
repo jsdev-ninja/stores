@@ -63,6 +63,7 @@ export declare const OrderSchema: z.ZodObject<{
                     value: number;
                     type: "number" | "percent" | "none";
                 }>;
+                isDiscountable: z.ZodOptional<z.ZodBoolean>;
                 weight: z.ZodObject<{
                     value: z.ZodNumber;
                     unit: z.ZodEnum<["kg", "gram", "none"]>;
@@ -264,6 +265,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             }, {
                 type: "Product";
                 id: string;
@@ -349,6 +351,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             }>;
             amount: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
@@ -437,6 +440,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             };
             amount: number;
         }, {
@@ -525,6 +529,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             };
             amount: number;
         }>, "many">;
@@ -619,6 +624,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             };
             amount: number;
         }[];
@@ -713,6 +719,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             };
             amount: number;
         }[];
@@ -908,6 +915,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             };
             amount: number;
         }[];
@@ -1040,6 +1048,7 @@ export declare const OrderSchema: z.ZodObject<{
                 categoryNames: string[];
                 purchasePrice?: number | undefined;
                 profitPercentage?: number | undefined;
+                isDiscountable?: boolean | undefined;
             };
             amount: number;
         }[];
