@@ -17,6 +17,7 @@ import HomePage from "./HomePage/HomePage";
 import { ordersSlice } from "src/domains/Order";
 import TermsPage from "./TermsPage/TermsPage";
 import DiscountsPage from "./DiscountsPage/DiscountsPage";
+import ClientOrderPage from "./ClientOrderPage";
 
 export default function StoreLayout() {
 	const appApi = useAppApi();
@@ -77,6 +78,9 @@ export default function StoreLayout() {
 
 				<Route name="store.orders">
 					<UserOrdersPage />
+				</Route>
+				<Route name="store.orderPage">
+					<ClientOrderPage />
 				</Route>
 
 				<Route name="store.orderSuccess">

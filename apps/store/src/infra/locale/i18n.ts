@@ -90,7 +90,7 @@ export const resources = {
 				pending: "בהמתנה",
 				processing: "בהכנה",
 				delivered: "הגיע",
-				canceled: "בוטל",
+				cancelled: "בוטל",
 				completed: "הסתיים בהצלחה",
 				refunded: "הוחזר",
 				in_delivery: "במשלוח",

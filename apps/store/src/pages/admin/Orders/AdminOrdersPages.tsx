@@ -64,7 +64,7 @@ function OrderRow({
 		draft: "default",
 		pending: "default",
 		processing: "secondary",
-		canceled: "danger",
+		cancelled: "danger",
 		refunded: "danger",
 		completed: "success",
 		delivered: "primary",

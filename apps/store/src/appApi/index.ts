@@ -286,6 +286,20 @@ export const useAppApi = () => {
 					});
 				},
 			},
+			getOrder: async ({ id }: { id: string }) => {
+				if (!isValidUser)
+					return { success: false, data: null, error: new Error("invalid user") };
+
+				return FirebaseApi.firestore.getV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					id: id,
+				});
+			},
+
 			async addProductToFavorite({ product }: { product: TProduct }) {
 				if (!product || !user || !company || !store || user.isAnonymous) return;
 				if (user.isAnonymous && !allowAnonymousClients) {
@@ -350,7 +364,7 @@ export const useAppApi = () => {
 				return FirebaseApi.firestore.update<TOrder>(
 					order.id,
 					{
-						status: "canceled",
+						status: "cancelled",
 					},
 					FirebaseAPI.firestore.getPath({
 						companyId,

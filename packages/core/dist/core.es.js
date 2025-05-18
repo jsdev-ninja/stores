@@ -3130,7 +3130,7 @@ const pr = i.object({
     "in_delivery",
     //
     "delivered",
-    "canceled",
+    "cancelled",
     "completed",
     "refunded"
   ]),

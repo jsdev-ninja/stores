@@ -54,7 +54,7 @@ function OrderItem({ order }: { order: TOrder }) {
 		draft: "default",
 		pending: "default",
 		processing: "secondary",
-		canceled: "danger",
+		cancelled: "danger",
 		refunded: "danger",
 		completed: "success",
 		in_delivery: "warning",

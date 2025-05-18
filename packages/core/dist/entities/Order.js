@@ -20,7 +20,7 @@ export const OrderSchema = z.object({
         "processing", // after admin approve
         "in_delivery", //
         "delivered",
-        "canceled",
+        "cancelled",
         "completed",
         "refunded",
     ]),
