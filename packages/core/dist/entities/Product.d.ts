@@ -104,49 +104,49 @@ export declare const ProductSchema: z.ZodObject<{
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     }, z.ZodTypeDef, {
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     }>, "many">;
     categories: z.ZodObject<{
@@ -223,25 +223,25 @@ export declare const ProductSchema: z.ZodObject<{
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     })[];
     categories: {
@@ -309,25 +309,25 @@ export declare const ProductSchema: z.ZodObject<{
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     })[];
     categories: {
@@ -448,49 +448,49 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     }, z.ZodTypeDef, {
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     }>, "many">;
     categories: z.ZodObject<{
@@ -569,25 +569,25 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     })[];
     categories: {
@@ -656,25 +656,25 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         id: string;
         companyId: string;
         storeId: string;
-        tag: string;
         locales: {
             value: string;
             lang: "he";
         }[];
         depth: number;
         parentId?: string | null | undefined;
+        tag?: string | undefined;
     } & {
         children: ({
             id: string;
             companyId: string;
             storeId: string;
-            tag: string;
             locales: {
                 value: string;
                 lang: "he";
             }[];
             depth: number;
             parentId?: string | null | undefined;
+            tag?: string | undefined;
         } & /*elided*/ any)[];
     })[];
     categories: {

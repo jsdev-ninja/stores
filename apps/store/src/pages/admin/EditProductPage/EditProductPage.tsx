@@ -130,7 +130,9 @@ export function EditProductPage() {
 				className="flex flex-wrap shadow flex-col gap-4 mx-auto mt-10  p-4 justify-center max-w-screen-md"
 				schema={NewProductSchema}
 				defaultValues={
-					product ? { ...product, profitPercentage: 0, purchasePrice: 0 } : undefined
+					product
+						? { isDiscountable: false, ...product, profitPercentage: 0, purchasePrice: 0 }
+						: undefined
 				}
 				onSubmit={async (data) => {
 					await appApi.admin.saveProduct(data);

@@ -4,7 +4,7 @@ export declare const BaseCategorySchema: z.ZodObject<{
     companyId: z.ZodString;
     storeId: z.ZodString;
     parentId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    tag: z.ZodString;
+    tag: z.ZodOptional<z.ZodString>;
     locales: z.ZodArray<z.ZodObject<{
         lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
@@ -20,24 +20,24 @@ export declare const BaseCategorySchema: z.ZodObject<{
     id: string;
     companyId: string;
     storeId: string;
-    tag: string;
     locales: {
         value: string;
         lang: "he";
     }[];
     depth: number;
     parentId?: string | null | undefined;
+    tag?: string | undefined;
 }, {
     id: string;
     companyId: string;
     storeId: string;
-    tag: string;
     locales: {
         value: string;
         lang: "he";
     }[];
     depth: number;
     parentId?: string | null | undefined;
+    tag?: string | undefined;
 }>;
 type Category = z.infer<typeof BaseCategorySchema> & {
     children: Category[];
@@ -51,7 +51,7 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     companyId: z.ZodString;
     storeId: z.ZodString;
     parentId: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    tag: z.ZodString;
+    tag: z.ZodOptional<z.ZodString>;
     locales: z.ZodArray<z.ZodObject<{
         lang: z.ZodEnum<["he"]>;
         value: z.ZodString;
@@ -72,7 +72,6 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     id: string;
     companyId: string;
     storeId: string;
-    tag: string;
     locales: {
         value: string;
         lang: "he";
@@ -81,12 +80,12 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     children: Category[];
     index: number;
     parentId?: string | null | undefined;
+    tag?: string | undefined;
     collapsed?: boolean | undefined;
 }, {
     id: string;
     companyId: string;
     storeId: string;
-    tag: string;
     locales: {
         value: string;
         lang: "he";
@@ -95,6 +94,7 @@ export declare const TFlattenCategorySchema: z.ZodObject<z.objectUtil.extendShap
     children: Category[];
     index: number;
     parentId?: string | null | undefined;
+    tag?: string | undefined;
     collapsed?: boolean | undefined;
 }>;
 export type TFlattenCategory = z.infer<typeof TFlattenCategorySchema>;

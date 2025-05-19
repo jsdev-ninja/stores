@@ -60,9 +60,6 @@ export function CategoryFormModal({ categoryId, onSave }: { categoryId: string; 
 								label="Name"
 							/>
 						</div>
-						<div className={className}>
-							<Form.Input<TCategory> name="tag" placeholder="tag" label="tag" />
-						</div>
 					</div>
 					<div className="flex items-center justify-between mt-8 mb-4">
 						<Button onPress={() => modalApi.closeModal("categoryFormModal")}>Cancel</Button>

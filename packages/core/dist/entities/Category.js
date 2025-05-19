@@ -5,7 +5,7 @@ export const BaseCategorySchema = z.object({
     companyId: z.string().min(1),
     storeId: z.string().min(1),
     parentId: z.string().nullish(),
-    tag: z.string().min(1),
+    tag: z.string().optional(),
     locales: z.array(LocaleSchema),
     depth: z.number(),
 });

@@ -17,7 +17,6 @@ export function AddCategoryPage() {
 				<Form
 					schema={z.object({
 						name: z.string(),
-						tag: z.string(),
 					})}
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					onSubmit={async (data: any) => {
@@ -28,7 +27,6 @@ export function AddCategoryPage() {
 							companyId: store.companyId,
 							id: crypto.randomUUID(),
 							locales: [{ lang: "he", value: data.name }],
-							tag: data.tag,
 							storeId: store.id,
 							parentId: "",
 							depth: 0,
@@ -44,9 +42,6 @@ export function AddCategoryPage() {
 				>
 					<div className="my-4">
 						<Form.Input name="name" label="Name" placeholder="Enter Category name" />
-					</div>
-					<div className="my-4">
-						<Form.Input name="tag" label="Tag" placeholder="Enter Category Tag" />
 					</div>
 
 					<div className="my-4">

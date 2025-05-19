@@ -2983,7 +2983,7 @@ const k = i.string().min(1, { message: "שדה חובה" }), or = i.string().reg
   companyId: i.string().min(1),
   storeId: i.string().min(1),
   parentId: i.string().nullish(),
-  tag: i.string().min(1),
+  tag: i.string().optional(),
   locales: i.array(J),
   depth: i.number()
 }), Oe = qe.extend({

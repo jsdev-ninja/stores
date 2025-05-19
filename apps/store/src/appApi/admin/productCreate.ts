@@ -61,7 +61,7 @@ export async function productCreate(newProduct: TNewProduct) {
 			doc: product,
 		});
 	} else {
-		console.log("validation.error", validation.error.issues);
+		console.error("validation.error", validation.error.issues);
 	}
 }
 
