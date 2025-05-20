@@ -802,7 +802,7 @@ export const useAppApi = () => {
 				// get transactionId
 
 				await FirebaseApi.api.chargeOrder({
-					orderId: order.id,
+					order: order,
 				});
 				return { success: true };
 				// create token

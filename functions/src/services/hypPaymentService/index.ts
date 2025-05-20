@@ -95,7 +95,7 @@ export const hypPaymentService = {
 				Tyear: cardValidityDate.year,
 				Order: params.orderId,
 				CC: tokenData.Token,
-				UserId: "203269535",
+				UserId: "",
 				ClientName: params.clientName,
 				ClientLName: params.clientLastName,
 				Token: "True",

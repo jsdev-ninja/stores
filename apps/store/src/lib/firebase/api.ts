@@ -62,11 +62,11 @@ async function createPayment({ order }: { order: TOrder }) {
 		return { success: false, data: null };
 	}
 }
-async function chargeOrder({ orderId }: { orderId: TOrder["id"] }) {
+async function chargeOrder({ order }: { order: TOrder }) {
 	try {
 		const func = httpsCallable(functions, "chargeOrder");
 
-		const response = await func({ orderId });
+		const response = await func({ order });
 		return { success: true, data: response.data };
 	} catch (error: any) {
 		const code = error.code;

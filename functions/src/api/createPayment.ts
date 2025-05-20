@@ -1,7 +1,8 @@
 import { TOrder, TProduct } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import { hypPaymentService } from "../services/hypPaymentService";
-// import admin from "firebase-admin";
+import admin from "firebase-admin";
+import { TStorePrivate } from "src/schema";
 
 const getProductFinalPrice = (product: TProduct) => {
 	if (!product) return 0;
@@ -49,12 +50,21 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 				}~${getProductFinalPrice(item.product)}]`
 		);
 
+		const storeId = order.storeId;
+		console.log("storeId", storeId);
+
+		const storePrivateData: TStorePrivate = (
+			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
+		).data() as TStorePrivate;
+
+		console.log("storePrivateData", JSON.stringify(storePrivateData));
+
 		const res = await hypPaymentService.createPaymentLink({
 			action: "APISign",
 			What: "SIGN",
-			KEY: "81057eb786ffc379de89d860031e8fea0e4d28f2",
-			PassP: "hyp1234",
-			Masof: "0010302921",
+			KEY: storePrivateData.hypData.KEY,
+			PassP: storePrivateData.hypData.password,
+			Masof: storePrivateData.hypData.masof,
 			Sign: "True",
 			Amount: order.cart.cartTotal.toString(),
 			J5: "True",
