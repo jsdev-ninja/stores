@@ -1,4 +1,4 @@
-import { TCartItemProduct, TOrder, TProduct, TStore } from "@jsdev_ninja/core";
+import { TOrder, TStore } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import { hypPaymentService } from "../services/hypPaymentService";
 import admin from "firebase-admin";
@@ -19,7 +19,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		).data() as TStore;
 
 		// todo
-		const _items = order.cart.items as TCartItemProduct[];
+		const _items = order.cart.items;
 		const items = _items.map(
 			(item) =>
 				`[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${item.finalPrice}]`

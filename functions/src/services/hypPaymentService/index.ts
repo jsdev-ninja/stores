@@ -128,6 +128,8 @@ export const hypPaymentService = {
 
 			const linkData = await signResponse.text();
 
+			console.log("linkData", linkData);
+
 			const paymentLink = `${baseUrl}?${linkData}`;
 
 			return { success: true, paymentLink };
