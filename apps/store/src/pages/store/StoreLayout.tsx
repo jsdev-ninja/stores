@@ -27,6 +27,7 @@ export default function StoreLayout() {
 	const actions = useStoreActions();
 
 	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
+	console.log("unPaidPendingOrder", unPaidPendingOrder);
 
 	useEffect(() => {
 		const unsubscribe = appApi.user.subscriptions.favoriteProductsSubscribe(
@@ -37,14 +38,14 @@ export default function StoreLayout() {
 		return () => unsubscribe?.();
 	}, [user]);
 
-	if (unPaidPendingOrder && user?.uid === unPaidPendingOrder.userId) {
-		return (
-			<>
-				<AppBar />
-				unPaidPendingOrder
-			</>
-		);
-	}
+	// if (unPaidPendingOrder && user?.uid === unPaidPendingOrder.userId) {
+	// 	return (
+	// 		<>
+	// 			<AppBar />
+	// 			unPaidPendingOrder
+	// 		</>
+	// 	);
+	// }
 
 	return (
 		<div className="flex flex-col">

@@ -47,17 +47,17 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			.collection(
 				FirebaseAPI.firestore.getPath({
 					collectionName: "payments",
-					companyId: "tester_company",
+					companyId: order.companyId,
 					storeId: context.auth?.token.storeId ?? "",
 				})
 			)
 			.doc(orderId)
 			.get();
 
-		console.log("paymentDoc", order, paymentDoc.id, paymentDoc.exists);
-
 		if (!paymentDoc.exists) {
 			// todo return err
+			console.log("paymentDoc.exists!!!!!!");
+
 			return;
 		}
 
@@ -100,8 +100,8 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 					{ merge: true }
 				);
 			console.log("order completed");
+			console.log("chargeJ5Transaction success");
 		}
-		console.log("chargeJ5Transaction success");
 		return { success: true };
 	} catch (error: any) {
 		console.error(error.message);
