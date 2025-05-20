@@ -1,13 +1,14 @@
-import { TOrder } from "@jsdev_ninja/core";
+import { getCartCost, TOrder } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Price } from "src/components/Price";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { OrderApi } from "src/domains/Order";
+import { useStore } from "src/domains/Store";
 import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
-import { calculateCartPrice } from "src/utils/calculateCartPrice";
 
 function getQueryParams(url: string): Record<string, string> {
 	const queryParams: Record<string, string> = {};
@@ -30,6 +31,9 @@ export function OrderSuccessPage() {
 
 	const user = useAppSelector((state) => state.user.user);
 
+	const discounts = useDiscounts();
+	const store = useStore();
+
 	const queryParams = getQueryParams(window.location.href);
 	useEffect(() => {
 		appApi.system.onOrderPaid(queryParams);
@@ -47,7 +51,9 @@ export function OrderSuccessPage() {
 		});
 	}, [queryParams.Order]);
 
-	const orderCost = calculateCartPrice(order?.cart.items ?? []);
+	if (!order || !store) return null;
+
+	const orderCost = getCartCost({ cart: order.cart.items, discounts, store });
 
 	return (
 		<div className="h-screen w-screen flex items-center justify-center p-4">

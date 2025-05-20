@@ -57,13 +57,13 @@ function App() {
 	}, [dir]);
 
 	useEffect(() => {
-		if (!appReady || !user) return;
+		if (!appReady || !user?.uid) return;
 		appApi.system.getDiscounts().then((res) => {
 			if (res.success) {
 				actions.dispatch(actions.discounts.setDiscounts(res.data));
 			}
 		});
-	}, [appReady, user]);
+	}, [appReady, user?.uid]);
 
 	useEffect(() => {
 		if (user && store) {

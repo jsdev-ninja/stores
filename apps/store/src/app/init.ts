@@ -26,8 +26,30 @@ export async function useAppInit() {
 	const company = companyResponse?.data?.[0];
 	const store = storeResponse?.data?.[0];
 
+	FirebaseApi.api.uiLogs({
+		message: "App init",
+		severity: "INFO",
+		company,
+		store,
+		companyId: company?.id,
+		storeId: store?.id,
+		tenantId: store?.tenantId,
+		url: window.location.href,
+	});
+
 	if (!company || !store) {
 		actions.dispatch(actions.ui.setAppReady(true));
+
+		FirebaseApi.api.uiLogs({
+			message: "App init error",
+			severity: "ERROR",
+			company,
+			store,
+			companyId: company?.id,
+			storeId: store?.id,
+			tenantId: store?.tenantId,
+			url: window.location.href,
+		});
 		return;
 	}
 

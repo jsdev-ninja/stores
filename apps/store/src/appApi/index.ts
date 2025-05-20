@@ -118,18 +118,22 @@ export const useAppApi = () => {
 			getDiscounts: async () => {
 				if (!isValidUser) return { success: false, data: [], error: new Error("invalid user") };
 
-				return FirebaseApi.firestore.listV2<TDiscount>({
+				const response = await FirebaseApi.firestore.listV2<TDiscount>({
 					collection: FirebaseAPI.firestore.getPath({
 						collectionName: "discounts",
 						companyId,
 						storeId,
 					}),
 				});
+
+				logger({ message: "fetch discounts", severity: "DEBUG", response });
+
+				return response;
 			},
 			getProductById: async ({ id }: { id: TProduct["id"] }) => {
 				if (!isValid) return;
 
-				return FirebaseApi.firestore.getV2<TProduct>({
+				const response = await FirebaseApi.firestore.getV2<TProduct>({
 					collection: FirebaseAPI.firestore.getPath({
 						companyId: company.id,
 						storeId: store.id,
@@ -137,6 +141,10 @@ export const useAppApi = () => {
 					}),
 					id,
 				});
+
+				logger({ message: "system.getProductById", severity: "DEBUG", response });
+
+				return response;
 			},
 			getUserOrders: async () => {
 				if (!isValidStoreData || !isValidUser) return;
