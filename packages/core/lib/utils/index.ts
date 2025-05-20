@@ -1,6 +1,8 @@
-import { TDiscount, TProduct, TStore } from "@jsdev_ninja/core";
-import { CONFIG } from "src/config";
-import { TCart } from "src/domains/cart";
+import { TCart, TDiscount, TProduct, TStore } from "../entities";
+
+const CONFIG = {
+	VAT: 18,
+};
 
 function calculateDiscount(product: TProduct) {
 	if (product.discount?.type === "percent") {

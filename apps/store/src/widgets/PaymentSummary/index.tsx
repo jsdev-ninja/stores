@@ -2,8 +2,10 @@ import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Price } from "src/components/Price";
 import { useCart } from "src/domains/cart";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { useStore } from "src/domains/Store";
 // import { useDiscounts } from "src/domains/Discounts/Discounts";
-import { calculateCartPrice } from "src/utils/calculateCartPrice";
+import { getCartCost } from "src/utils/calculateCartPrice";
 
 export function PaymentSummary({ children }: { children?: ReactNode }) {
 	const { t } = useTranslation(["common", "paymentSummary"]);
@@ -11,7 +13,15 @@ export function PaymentSummary({ children }: { children?: ReactNode }) {
 	const cart = useCart();
 	// const discounts = useDiscounts();
 
-	const cartCost = calculateCartPrice(cart?.items ?? []);
+	const discounts = useDiscounts();
+	const store = useStore();
+
+	if (!cart || !store) {
+		return null;
+	}
+
+	const cartCost = getCartCost({ cart: cart.items, discounts: discounts, store });
+	console.log("cartCost", cartCost);
 
 	return (
 		<div

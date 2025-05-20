@@ -8,6 +8,7 @@ import { CartItem } from "./CartItem";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 // import { TCart, TDiscount } from "@jsdev_ninja/core";
 import { getCartCost } from "src/utils/calculateCartPrice";
+import { useStore } from "src/domains/Store";
 
 function CartPage() {
 	const { t } = useTranslation(["common", "cart"]);
@@ -16,7 +17,12 @@ function CartPage() {
 
 	const discounts = useDiscounts();
 
-	const cartCost = getCartCost({ cart, discounts: discounts });
+	const store = useStore();
+	console.log("store", store);
+
+	if (!store) return null;
+
+	const cartCost = getCartCost({ cart, discounts: discounts, store });
 
 	console.log("cartCost", cartCost);
 
