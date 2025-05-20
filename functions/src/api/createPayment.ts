@@ -1,10 +1,10 @@
-import { TOrder, TProduct } from "@jsdev_ninja/core";
+import { TOrder, TProduct, TStore } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import { hypPaymentService } from "../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
 
-const getProductFinalPrice = (product: TProduct) => {
+const getProductFinalPrice = (product: TProduct, isVatIncludedInPrice: boolean) => {
 	if (!product) return 0;
 	const hasDiscount = product.discount.type !== "none";
 
@@ -20,7 +20,7 @@ const getProductFinalPrice = (product: TProduct) => {
 
 	price = product.price - discount;
 
-	if (product.vat) {
+	if (product.vat && !isVatIncludedInPrice) {
 		const productVatValue = (product.price * 18) / 100;
 		console.log("productVatValue", productVatValue, price);
 
@@ -43,15 +43,20 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		console.log("create payment data", JSON.stringify(data));
 
 		const { order } = data;
+
+		const storeId = order.storeId;
+		console.log("storeId", storeId);
+
+		const store: TStore = (
+			await admin.firestore().collection(`STORES`).doc(storeId).get()
+		).data() as TStore;
+
 		const items = order.cart.items.map(
 			(item) =>
 				`[${item.product.sku}~${item.product.name[0].value}~${
 					item.amount
-				}~${getProductFinalPrice(item.product)}]`
+				}~${getProductFinalPrice(item.product, store.isVatIncludedInPrice ?? false)}]`
 		);
-
-		const storeId = order.storeId;
-		console.log("storeId", storeId);
 
 		const storePrivateData: TStorePrivate = (
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()

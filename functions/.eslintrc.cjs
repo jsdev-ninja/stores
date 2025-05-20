@@ -22,7 +22,7 @@ module.exports = {
 		"/lib/**/*", // Ignore built files.
 	],
 	rules: {
-		quotes: ["error", "double"],
+		quotes: "off",
 		"import/no-unresolved": 0,
 		"no-tabs": "off",
 		"object-curly-spacing": 0,

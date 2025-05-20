@@ -6,7 +6,7 @@ import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
-import { calculateCartPrice } from "src/utils/calculateCartPrice";
+import { getCartCost } from "src/utils/calculateCartPrice";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 
@@ -52,8 +52,9 @@ function CheckoutPage() {
 		paymentType: "default",
 	};
 
-	const cartCost = calculateCartPrice(cart.items);
+	const cartCost = getCartCost({ cart: cart.items, discounts: [], store });
 	console.log("store", store);
+	console.log("cartCost", cartCost);
 
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16 px-4">
