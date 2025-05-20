@@ -69,6 +69,12 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			// todo
 		}
 
+		const _items = order.cart.items;
+		const items = _items.map(
+			(item) =>
+				`[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${item.finalPrice}]`
+		);
+
 		const [clientName, clientLastName] = (payment.payment.Fild1 ?? "").split(" ");
 		const res = await hypPaymentService.chargeJ5Transaction({
 			actualAmount: order.cart.cartTotal.toFixed(2) as any, // todo
@@ -81,6 +87,9 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			transactionUID: payment.payment.UID ?? "",
 			clientName,
 			clientLastName,
+			email: order.client.email,
+			heshDesc: items.join(""),
+			Pritim: "True",
 		});
 		if (res.success) {
 			await admin

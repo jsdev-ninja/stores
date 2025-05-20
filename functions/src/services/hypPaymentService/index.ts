@@ -43,6 +43,9 @@ type chargeJ5TransactionParams = {
 	transactionUID: string;
 	clientName: string;
 	clientLastName: string;
+	email: string;
+	heshDesc: string;
+	Pritim: string;
 };
 
 // parse hyp text response
@@ -98,10 +101,15 @@ export const hypPaymentService = {
 				UserId: "000000000",
 				ClientName: params.clientName,
 				ClientLName: params.clientLastName,
+				email: params.email,
 				Token: "True",
 				FixTash: "True",
 				sendemail: "True",
+				heshDesc: params.heshDesc,
+				Pritim: params.Pritim,
 			});
+			console.log("transParams", transParams);
+
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
 			const transactionData = await transactionCommit.text();
 			console.log("actualAmount", params.actualAmount.toString());
