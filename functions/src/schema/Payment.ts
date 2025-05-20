@@ -40,6 +40,7 @@ export const HypSoftTransactionRequestSchema = PayProtocolGeneralSchema.extend({
 	ClientName: textSchema,
 	ClientLName: textSchema,
 	Token: z.literal("True"),
+	sendemail: z.string().optional(),
 	// CC2
 	// Coin
 });

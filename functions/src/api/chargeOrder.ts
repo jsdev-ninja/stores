@@ -29,7 +29,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			.collection(
 				FirebaseAPI.firestore.getPath({
 					collectionName: "orders",
-					companyId: "tester_company",
+					companyId: data.order.companyId,
 					storeId: context.auth?.token.storeId ?? "",
 				})
 			)
@@ -88,7 +88,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 				.collection(
 					FirebaseAPI.firestore.getPath({
 						collectionName: "orders",
-						companyId: "tester_company",
+						companyId: data.order.companyId,
 						storeId: context.auth?.token.storeId ?? "",
 					})
 				)
