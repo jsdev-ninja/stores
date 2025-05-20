@@ -353,6 +353,9 @@ export declare const OrderSchema: z.ZodObject<{
                 profitPercentage?: number | undefined;
                 isDiscountable?: boolean | undefined;
             }>;
+            originalPrice: z.ZodOptional<z.ZodNumber>;
+            finalPrice: z.ZodOptional<z.ZodNumber>;
+            finalDiscount: z.ZodOptional<z.ZodNumber>;
             amount: z.ZodNumber;
         }, "strip", z.ZodTypeAny, {
             product: {
@@ -443,6 +446,9 @@ export declare const OrderSchema: z.ZodObject<{
                 isDiscountable?: boolean | undefined;
             };
             amount: number;
+            originalPrice?: number | undefined;
+            finalPrice?: number | undefined;
+            finalDiscount?: number | undefined;
         }, {
             product: {
                 type: "Product";
@@ -532,6 +538,9 @@ export declare const OrderSchema: z.ZodObject<{
                 isDiscountable?: boolean | undefined;
             };
             amount: number;
+            originalPrice?: number | undefined;
+            finalPrice?: number | undefined;
+            finalDiscount?: number | undefined;
         }>, "many">;
         cartDiscount: z.ZodNumber;
         cartTotal: z.ZodNumber;
@@ -627,6 +636,9 @@ export declare const OrderSchema: z.ZodObject<{
                 isDiscountable?: boolean | undefined;
             };
             amount: number;
+            originalPrice?: number | undefined;
+            finalPrice?: number | undefined;
+            finalDiscount?: number | undefined;
         }[];
         cartDiscount: number;
         cartTotal: number;
@@ -722,6 +734,9 @@ export declare const OrderSchema: z.ZodObject<{
                 isDiscountable?: boolean | undefined;
             };
             amount: number;
+            originalPrice?: number | undefined;
+            finalPrice?: number | undefined;
+            finalDiscount?: number | undefined;
         }[];
         cartDiscount: number;
         cartTotal: number;
@@ -918,6 +933,9 @@ export declare const OrderSchema: z.ZodObject<{
                 isDiscountable?: boolean | undefined;
             };
             amount: number;
+            originalPrice?: number | undefined;
+            finalPrice?: number | undefined;
+            finalDiscount?: number | undefined;
         }[];
         cartDiscount: number;
         cartTotal: number;
@@ -1051,6 +1069,9 @@ export declare const OrderSchema: z.ZodObject<{
                 isDiscountable?: boolean | undefined;
             };
             amount: number;
+            originalPrice?: number | undefined;
+            finalPrice?: number | undefined;
+            finalDiscount?: number | undefined;
         }[];
         cartDiscount: number;
         cartTotal: number;

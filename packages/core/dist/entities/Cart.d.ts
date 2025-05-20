@@ -1,5 +1,5 @@
 import { z } from "zod";
-declare const CartItemProductSchema: z.ZodObject<{
+export declare const CartItemProductSchema: z.ZodObject<{
     product: z.ZodObject<{
         type: z.ZodLiteral<"Product">;
         storeId: z.ZodString;
@@ -1275,5 +1275,4 @@ export declare const CartSchema: z.ZodObject<{
     }[];
 }>;
 export type TCart = z.infer<typeof CartSchema>;
-export {};
 //# sourceMappingURL=Cart.d.ts.map

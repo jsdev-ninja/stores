@@ -1,42 +1,9 @@
-import { TOrder, TProduct, TStore } from "@jsdev_ninja/core";
+import { TCartItemProduct, TOrder, TProduct, TStore } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import { hypPaymentService } from "../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
 
-const getProductFinalPrice = (product: TProduct, isVatIncludedInPrice: boolean) => {
-	if (!product) return 0;
-	const hasDiscount = product.discount.type !== "none";
-
-	const discount = hasDiscount
-		? product.discount.type === "number"
-			? product.discount.value
-			: (product.price * product.discount.value) / 100
-		: 0;
-
-	console.log("discount", discount);
-
-	let price = 0;
-
-	price = product.price - discount;
-
-	if (product.vat && !isVatIncludedInPrice) {
-		const productVatValue = (product.price * 18) / 100;
-		console.log("productVatValue", productVatValue, price);
-
-		price += productVatValue;
-	}
-	return parseFloat(price.toFixed(2));
-};
-
-// HYP BUGS
-// 1) success pay twice on same order
-// 2) F5 not works
-
-// 5326105300985614
-// 12/25
-// 125
-// 890108566
 export const createPayment = functions.https.onCall(async (data: { order: TOrder }, context) => {
 	try {
 		console.log("createPayment", context.rawRequest.headers.origin);
@@ -51,11 +18,11 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			await admin.firestore().collection(`STORES`).doc(storeId).get()
 		).data() as TStore;
 
-		const items = order.cart.items.map(
+		// todo
+		const _items = order.cart.items as TCartItemProduct[];
+		const items = _items.map(
 			(item) =>
-				`[${item.product.sku}~${item.product.name[0].value}~${
-					item.amount
-				}~${getProductFinalPrice(item.product, store.isVatIncludedInPrice ?? false)}]`
+				`[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${item.finalPrice}]`
 		);
 
 		const storePrivateData: TStorePrivate = (

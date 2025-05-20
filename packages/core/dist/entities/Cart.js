@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ProductSchema } from "./Product";
-const CartItemProductSchema = z.object({
+export const CartItemProductSchema = z.object({
     product: ProductSchema,
     originalPrice: z.number().optional(),
     finalPrice: z.number().optional(),
