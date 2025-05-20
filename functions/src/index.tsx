@@ -70,6 +70,7 @@ export const onOrderUpdate = functions.firestore
 
 		if (orderIsReady) {
 			// create delivery note (when ready to delivery only)
+			console.log("createDeliveryNote", email, displayName);
 
 			await ezCountService.createDeliveryNote(after, {
 				ezcount_key: storePrivateData.ezcount_key,
