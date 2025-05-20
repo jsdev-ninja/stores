@@ -8,6 +8,7 @@ import { Icon } from "src/components";
 import { useTranslation } from "react-i18next";
 import { TProduct } from "@jsdev_ninja/core";
 import { EmptyState } from "src/components/EmptyState/EmptyState";
+import { useStore } from "src/domains/Store";
 
 export function Badge({ children }: any) {
 	return (
@@ -63,7 +64,11 @@ function CartItem({
 }) {
 	const { product, amount } = cartItem;
 
-	const totalPrice = Number((getProductFinalPrice(product) * amount).toFixed(2));
+	const store = useStore();
+
+	if (!store) return null;
+
+	const totalPrice = Number((getProductFinalPrice(product, store) * amount).toFixed(2));
 
 	return (
 		<Product product={product}>

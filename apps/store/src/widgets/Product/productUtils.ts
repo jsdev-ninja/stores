@@ -1,7 +1,7 @@
-import { TProduct } from "@jsdev_ninja/core";
+import { TProduct, TStore } from "@jsdev_ninja/core";
 import { CONFIG } from "src/config";
 
-export const getProductFinalPrice = (product: TProduct) => {
+export const getProductFinalPrice = (product: TProduct, store: TStore) => {
 	if (!product) return 0;
 	const hasDiscount = product.discount.type !== "none";
 
@@ -15,7 +15,7 @@ export const getProductFinalPrice = (product: TProduct) => {
 
 	price = product.price - discount;
 
-	if (product.vat) {
+	if (product.vat && !store.isVatIncludedInPrice) {
 		const productVatValue = (product.price * CONFIG.VAT) / 100;
 
 		price += productVatValue;
