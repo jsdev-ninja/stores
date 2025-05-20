@@ -107,7 +107,10 @@ export const hypPaymentService = {
 			console.log("originalAmount", params.originalAmount.toString());
 			console.log("transactionData", transactionData);
 
-			return { success: true };
+			const transactionResult: any = parseQueryString(transactionData);
+			console.log("JSON.stringify(transactionResult)", JSON.stringify(transactionResult));
+
+			return { success: Number(transactionResult.CCode) === 0 };
 		} catch (error: any) {
 			console.log(error);
 			return { success: false, errMessage: error.message };

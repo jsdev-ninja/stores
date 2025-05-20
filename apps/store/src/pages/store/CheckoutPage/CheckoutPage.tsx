@@ -9,6 +9,7 @@ import { OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
 import { getCartCost } from "src/utils/calculateCartPrice";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout"]);
@@ -21,6 +22,7 @@ function CheckoutPage() {
 
 	const cart = useAppSelector((state) => state.cart.currentCart);
 	const store = useAppSelector((state) => state.store.data);
+	const discounts = useDiscounts();
 
 	if (!store || !user || !cart) {
 		return null;
@@ -52,7 +54,7 @@ function CheckoutPage() {
 		paymentType: "default",
 	};
 
-	const cartCost = getCartCost({ cart: cart.items, discounts: [], store });
+	const cartCost = getCartCost({ cart: cart.items, discounts: discounts, store });
 	console.log("store", store);
 	console.log("cartCost", cartCost);
 
@@ -72,7 +74,7 @@ function CheckoutPage() {
 					client: _profile,
 					cart: {
 						id: cart.id,
-						items: cart.items,
+						items: cartCost.items,
 						cartDiscount: cartCost.discount,
 						cartTotal: cartCost.finalCost,
 						cartVat: cartCost.vat,

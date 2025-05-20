@@ -2967,7 +2967,7 @@ var i = /* @__PURE__ */ Object.freeze({
   quotelessJson: Ye,
   ZodError: Z
 });
-const k = i.string().min(1, { message: "שדה חובה" }), or = i.string().regex(/^\d+$/, "Must be a numeric string"), rr = i.object({
+const k = i.string().min(1, { message: "שדה חובה" }), dr = i.string().regex(/^\d+$/, "Must be a numeric string"), rr = i.object({
   country: k,
   city: k,
   street: k,
@@ -2978,7 +2978,7 @@ const k = i.string().min(1, { message: "שדה חובה" }), or = i.string().reg
 }), J = i.object({
   lang: i.enum(["he"]),
   value: i.string()
-}), dr = i.array(J), qe = i.object({
+}), cr = i.array(J), qe = i.object({
   id: i.string().min(1),
   companyId: i.string().min(1),
   storeId: i.string().min(1),
@@ -2988,7 +2988,7 @@ const k = i.string().min(1, { message: "שדה חובה" }), or = i.string().reg
   depth: i.number()
 }), Oe = qe.extend({
   children: i.lazy(() => Oe.array())
-}), cr = qe.extend({
+}), ur = qe.extend({
   index: i.number(),
   depth: i.number(),
   collapsed: i.boolean().optional(),
@@ -3046,33 +3046,34 @@ const k = i.string().min(1, { message: "שדה חובה" }), or = i.string().reg
   }),
   // @deprecated
   categoryNames: i.array(i.string())
-}), ur = je.extend({
+}), lr = je.extend({
   image: i.instanceof(File).optional()
-}), lr = i.object({
+}), nr = i.object({
+  product: je,
+  originalPrice: i.number().optional(),
+  finalPrice: i.number().optional(),
+  finalDiscount: i.number().optional(),
+  amount: i.number().int().positive({ message: "Quantity must be a positive integer." })
+}), fr = i.object({
   type: i.literal("Cart"),
   id: i.string().uuid(),
   companyId: i.string().uuid(),
   storeId: i.string().uuid(),
   userId: i.string().uuid(),
   status: i.enum(["active", "draft", "completed"]),
-  items: i.array(
-    i.object({
-      product: je,
-      amount: i.number().int().positive({ message: "Quantity must be a positive integer." })
-    })
-  )
-}), fr = i.object({
+  items: i.array(nr)
+}), hr = i.object({
   id: i.string(),
   name: i.string(),
   websiteDomains: i.array(i.string())
-}), hr = i.object({
+}), mr = i.object({
   type: i.literal("FavoriteProduct"),
   id: i.string().uuid(),
   companyId: i.string().uuid(),
   storeId: i.string().uuid(),
   userId: i.string().uuid(),
   productId: i.string().uuid()
-}), Je = i.enum(["default", "delayed"]), nr = i.object({
+}), Je = i.enum(["default", "delayed"]), sr = i.object({
   type: i.literal("Profile"),
   id: k,
   companyId: k,
@@ -3088,7 +3089,7 @@ const k = i.string().min(1, { message: "שדה חובה" }), or = i.string().reg
   lastActivityDate: i.number(),
   paymentType: Je
 });
-function mr() {
+function pr() {
   return {
     type: "Profile",
     id: "",
@@ -3114,7 +3115,7 @@ function mr() {
     paymentType: Je.Values.default
   };
 }
-const pr = i.object({
+const yr = i.object({
   type: i.literal("Order"),
   id: k,
   companyId: k,
@@ -3150,7 +3151,7 @@ const pr = i.object({
   date: i.number(),
   deliveryDate: i.number().optional(),
   createdAt: i.number().optional(),
-  client: nr.required({})
+  client: sr.required({})
 });
 i.object({
   id: i.string(),
@@ -3164,7 +3165,7 @@ i.object({
   allowAnonymousClients: i.boolean(),
   isVatIncludedInPrice: i.boolean()
 });
-const Se = i.string().min(1), yr = i.object({
+const Se = i.string().min(1), gr = i.object({
   type: i.literal("Discount"),
   storeId: Se,
   companyId: Se,
@@ -3179,10 +3180,10 @@ const Se = i.string().min(1), yr = i.object({
       discountPrice: i.number().positive()
     })
   ])
-}), sr = {
+}), ar = {
   stores: "STORES",
   companies: "COMPANIES"
-}, ar = {
+}, ir = {
   products: "products",
   profiles: "profiles",
   cart: "cart",
@@ -3193,9 +3194,9 @@ const Se = i.string().min(1), yr = i.object({
   payments: "payments",
   settings: "settings",
   discounts: "discounts"
-}, ir = {
-  systemCollections: sr,
-  storeCollections: ar,
+}, or = {
+  systemCollections: ar,
+  storeCollections: ir,
   // for client
   getPath: ({
     companyId: r,
@@ -3205,28 +3206,28 @@ const Se = i.string().min(1), yr = i.object({
   }) => `${r}/${e}/${t}${n ? `/${n}` : ""}`,
   // for backend
   getDocPath: (r) => `{companyId}/{storeId}/${r}/{id}`
-}, gr = {
-  firestore: ir
+}, vr = {
+  firestore: or
 };
 export {
   rr as AddressSchema,
   qe as BaseCategorySchema,
-  lr as CartSchema,
+  fr as CartSchema,
   Oe as CategorySchema,
-  fr as CompanySchema,
-  yr as DiscountSchema,
-  hr as FavoriteProductSchema,
-  gr as FirebaseAPI,
+  hr as CompanySchema,
+  gr as DiscountSchema,
+  mr as FavoriteProductSchema,
+  vr as FirebaseAPI,
   J as LocaleSchema,
-  dr as LocaleValueSchema,
-  ur as NewProductSchema,
-  pr as OrderSchema,
+  cr as LocaleValueSchema,
+  lr as NewProductSchema,
+  yr as OrderSchema,
   je as ProductSchema,
   Je as ProfilePaymentTypeSchema,
-  nr as ProfileSchema,
-  cr as TFlattenCategorySchema,
-  mr as createEmptyProfile,
+  sr as ProfileSchema,
+  ur as TFlattenCategorySchema,
+  pr as createEmptyProfile,
   k as notEmptyTextSchema,
-  or as numericTextSchema
+  dr as numericTextSchema
 };
 //# sourceMappingURL=core.es.js.map

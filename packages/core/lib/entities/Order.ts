@@ -2,6 +2,7 @@ import { z } from "zod";
 import { ProfileSchema } from "./Profile";
 import { ProductSchema } from "./Product";
 import { notEmptyTextSchema } from "./Atoms";
+import { CartItemProductSchema } from "./Cart";
 
 // pending - order created / by user
 // processing order accepted by store by admin
@@ -30,7 +31,7 @@ export const OrderSchema = z.object({
 	paymentStatus: z.enum(["pending", "pending_j5", "completed", "failed", "refunded"]), //todo check if hyp support partial refund
 	cart: z.object({
 		id: z.string(),
-		items: z.array(z.object({ product: ProductSchema, amount: z.number() })),
+		items: z.array(CartItemProductSchema),
 		cartDiscount: z.number(),
 		cartTotal: z.number(),
 		cartVat: z.number(),

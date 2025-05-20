@@ -115,6 +115,8 @@ function OrderRow({
 						onPress={async () => {
 							// charge for order
 							const res = await appApi.admin.chargeOrder({ order });
+							console.log("res", res);
+
 							if (!res?.success) {
 								return;
 							}
