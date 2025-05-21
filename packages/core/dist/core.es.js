@@ -3080,6 +3080,7 @@ const T = o.string().min(1, { message: "שדה חובה" }), br = o.string().reg
   storeId: T,
   tenantId: T,
   clientType: o.enum(["user", "company"]),
+  companyName: o.string().optional(),
   displayName: T,
   email: o.string().email(),
   phoneNumber: T.optional(),

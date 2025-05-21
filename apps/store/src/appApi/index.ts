@@ -563,8 +563,15 @@ export const useAppApi = () => {
 					productName: product.name[0].value, //todo get correct lang
 				});
 			},
-			signup: async (newUser: { email: string; password: string; fullName: string }) => {
+			signup: async (newUser: {
+				email: string;
+				password: string;
+				fullName: string;
+				companyName?: string;
+			}) => {
 				if (!isValidStoreData) return;
+
+				console.log("signup", newUser);
 
 				const profile: TProfile = {
 					id: "",
@@ -572,8 +579,10 @@ export const useAppApi = () => {
 					storeId: store.id,
 					tenantId: store.tenantId,
 					displayName: newUser.fullName,
+					companyName: newUser.companyName,
 					email: newUser.email,
 					isAnonymous: false,
+					phoneNumber: "",
 					address: {
 						apartmentEnterNumber: "",
 						apartmentNumber: "",
@@ -583,7 +592,7 @@ export const useAppApi = () => {
 						street: "",
 						streetNumber: "",
 					},
-					clientType: "user",
+					clientType: newUser.companyName ? "company" : "user",
 					createdDate: Date.now(),
 					lastActivityDate: Date.now(),
 					type: "Profile",

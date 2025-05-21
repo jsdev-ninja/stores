@@ -754,6 +754,7 @@ export declare const OrderSchema: z.ZodObject<{
         storeId: z.ZodString;
         tenantId: z.ZodString;
         clientType: z.ZodEnum<["user", "company"]>;
+        companyName: z.ZodOptional<z.ZodString>;
         displayName: z.ZodString;
         email: z.ZodString;
         phoneNumber: z.ZodOptional<z.ZodString>;
@@ -799,6 +800,7 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: number;
         lastActivityDate: number;
         paymentType: "default" | "delayed";
+        companyName?: string | undefined;
         phoneNumber?: string | undefined;
         address?: {
             country: string;
@@ -822,6 +824,7 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: number;
         lastActivityDate: number;
         paymentType: "default" | "delayed";
+        companyName?: string | undefined;
         phoneNumber?: string | undefined;
         address?: {
             country: string;
@@ -954,6 +957,7 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: number;
         lastActivityDate: number;
         paymentType: "default" | "delayed";
+        companyName?: string | undefined;
         phoneNumber?: string | undefined;
         address?: {
             country: string;
@@ -1090,6 +1094,7 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: number;
         lastActivityDate: number;
         paymentType: "default" | "delayed";
+        companyName?: string | undefined;
         phoneNumber?: string | undefined;
         address?: {
             country: string;

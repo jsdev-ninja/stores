@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Card, CardBody, CardHeader, Link } from "@heroui/react";
 // import { Icon } from "@iconify/react";
 import gsap from "gsap";
@@ -10,6 +10,7 @@ import { i18n, useStoreActions } from "src/infra";
 import { useTranslation } from "react-i18next";
 import { modalApi } from "src/infra/modals";
 import { Icon } from "src/components";
+import { useStore } from "src/domains/Store";
 
 function getError(error: unknown) {
 	if (error instanceof FirebaseError) {
@@ -21,14 +22,6 @@ function getError(error: unknown) {
 
 	return "global";
 }
-const loginSchema = z.object({
-	fullName: z.string({}).min(1, {}),
-	companyName: z.string({}).min(1, {}),
-	email: z.string().email({ message: i18n.t("auth:form.errors.invalidEmail") }),
-	password: z.string({}).min(1, {}),
-});
-
-type TLoginForm = z.infer<typeof loginSchema>;
 
 export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 	const formRef = React.useRef<HTMLDivElement>(null);
@@ -36,6 +29,27 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 	const actions = useStoreActions();
 
 	const appApi = useAppApi();
+
+	const store = useStore();
+
+	const loginSchema = useMemo(() => {
+		const isOnlyCompanyAlloew =
+			store?.clientTypes.includes("company") && store.clientTypes.length === 1;
+
+		console.log("isOnlyCompanyAlloew", isOnlyCompanyAlloew);
+
+		const loginSchema = z.object({
+			fullName: z.string({}).min(1, {}),
+			companyName: isOnlyCompanyAlloew
+				? z.string({}).min(1, {})
+				: z.string({}).min(1, {}).optional(),
+			email: z.string().email({ message: i18n.t("auth:form.errors.invalidEmail") }),
+			password: z.string({}).min(1, {}),
+		});
+		return loginSchema;
+	}, [store]);
+
+	type TLoginForm = z.infer<typeof loginSchema>;
 
 	const { t } = useTranslation(["common", "auth"]);
 
@@ -48,6 +62,12 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 			);
 		}
 	}, []);
+
+	const isCompanyFlow = store?.clientTypes.includes("company");
+
+	console.log(store);
+
+	if (!store) return null;
 
 	return (
 		<div className="min-h-[80vh] w-full flex items-center justify-center px-4 py-12">
@@ -73,6 +93,7 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 									email: data.email,
 									fullName: data.fullName,
 									password: data.password,
+									companyName: data.companyName,
 								});
 								if (!result?.success) {
 									form.setError("global", { message: getError(result) });
@@ -87,12 +108,14 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 							}}
 							className="flex flex-col gap-4 h-full"
 						>
-							<Form.Input<TLoginForm>
-								name="companyName"
-								type="text"
-								label={t("common:companyName")}
-								placeholder={t("common:companyName")}
-							/>
+							{!!isCompanyFlow && (
+								<Form.Input<TLoginForm>
+									name="companyName"
+									type="text"
+									label={t("common:companyName")}
+									placeholder={t("common:companyName")}
+								/>
+							)}
 							<Form.Input<TLoginForm>
 								name="fullName"
 								type="text"

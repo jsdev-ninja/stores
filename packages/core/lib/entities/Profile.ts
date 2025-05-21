@@ -12,6 +12,7 @@ export const ProfileSchema = z.object({
 	storeId: notEmptyTextSchema,
 	tenantId: notEmptyTextSchema,
 	clientType: z.enum(["user", "company"]),
+	companyName: z.string().optional(),
 	displayName: notEmptyTextSchema,
 	email: z.string().email(),
 	phoneNumber: notEmptyTextSchema.optional(),

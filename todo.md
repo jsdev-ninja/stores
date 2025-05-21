@@ -8,6 +8,13 @@ Fake Card - 5326105300985614
 CVV 125
 date - 12/25
 
+<!-- AUTH FEATURE -->
+
+signup form - company name base on store config
+allow anonymous users buy - base on store config
+
+<!-- AUTH FEATURE END -->
+
 TODO
 
 1. add active discounts to order object
