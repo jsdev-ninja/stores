@@ -36,7 +36,7 @@ export function Input<T extends object>(props: Props<T>) {
 		<div className="flex flex-col w-full gap-2">
 			{!!label && (
 				<label
-					className="block text-sm font-medium text-gray-900 dark:text-white"
+					className="block text-sm text-start font-medium text-gray-900 dark:text-white"
 					htmlFor={name}
 				>
 					{label}

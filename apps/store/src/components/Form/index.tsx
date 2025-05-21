@@ -38,8 +38,6 @@ export function Form<T extends FieldValues>(props: FormProps<T>) {
 		defaultValues,
 	});
 
-	console.log("DATA", form.watch());
-
 	return (
 		<FormProvider<T> {...form}>
 			<form

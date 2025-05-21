@@ -1,4 +1,5 @@
 import { z } from "zod";
+const clientTypesSchema = z.enum(["individual", "company"]);
 const StoreSchema = z.object({
     id: z.string(),
     companyId: z.string(),
@@ -9,4 +10,5 @@ const StoreSchema = z.object({
     paymentType: z.enum(["external", "j5"]),
     allowAnonymousClients: z.boolean(),
     isVatIncludedInPrice: z.boolean(),
+    clientTypes: z.array(clientTypesSchema),
 });
