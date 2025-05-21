@@ -231,6 +231,9 @@ export const resources = {
 		},
 		store: {},
 		admin: {
+			discountsPage: {
+				title: "ניהול מבצעים",
+			},
 			clientsPage: {
 				title: "לקוחות",
 				addClient: "הוסף לקוח",

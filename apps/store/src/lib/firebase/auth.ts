@@ -39,9 +39,6 @@ export const Auth = {
 	},
 	login: async (email: string, password: string) => {
 		try {
-			if (email === "philipbrodovsky@gmail.com") {
-				auth.tenantId = null;
-			}
 			const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
 			const claims = await Auth.getClaims();
