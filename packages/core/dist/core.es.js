@@ -3181,7 +3181,8 @@ const Ae = o.string().min(1), Ar = o.object({
       requiredQuantity: o.number().positive(),
       discountPrice: o.number().positive()
     })
-  ])
+  ]),
+  image: o.object({ url: o.string().url(), id: o.string() }).optional()
 }), ve = {
   VAT: 18
 };

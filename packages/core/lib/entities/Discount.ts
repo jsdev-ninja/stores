@@ -18,5 +18,6 @@ export const DiscountSchema = z.object({
 			discountPrice: z.number().positive(),
 		}),
 	]),
+	image: z.object({ url: z.string().url(), id: z.string() }).optional(),
 });
 export type TDiscount = z.infer<typeof DiscountSchema>;

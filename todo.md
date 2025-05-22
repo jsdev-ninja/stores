@@ -16,8 +16,8 @@ allow anonymous users buy - base on store config
 <!-- AUTH FEATURE END -->
 
 TODO
-
 1. add active discounts to order object
+2. add super admin for every store
 
 <!-- packages -->
 

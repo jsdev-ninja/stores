@@ -624,7 +624,7 @@ export const useAppApi = () => {
 			createDiscount: async (discount: TDiscount) => {
 				if (!isValidAdmin) return;
 
-				return FirebaseApi.firestore.createV2<TDiscount>({
+				const res = await FirebaseApi.firestore.createV2<TDiscount>({
 					collection: FirebaseAPI.firestore.getPath({
 						collectionName: "discounts",
 						companyId,
@@ -632,6 +632,15 @@ export const useAppApi = () => {
 					}),
 					doc: discount,
 				});
+
+				logger({
+					message: "create discount",
+					severity: res.success ? "INFO" : "ERROR",
+					res,
+					discount,
+				});
+
+				return;
 			},
 			subscribeToDiscounts: (callback: (discounts: TDiscount[]) => void) => {
 				if (!isValidAdmin) return () => {};

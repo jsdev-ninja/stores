@@ -27,6 +27,7 @@ export const resources = {
 			positive: "ערך חייב להיות גדול מ 0",
 		},
 		common: {
+			cancel: "ביטול",
 			companyName: "שם חברה",
 			discounts: "מבצעים",
 			admin: "מערכת ניהול",
@@ -34,6 +35,8 @@ export const resources = {
 			addToCart: "הוסף לעגלה",
 			favorites: "שמורים",
 			orders: "הזמנות",
+			addProduct: "הוסף מוצר",
+			searchProduct: "חפש מוצר",
 			profile: "חשבון",
 			logout: "התנתק",
 			goToCart: "מעבר לעגלה",
@@ -100,6 +103,8 @@ export const resources = {
 				saved: "שמורים",
 				discounts: "מבצעים",
 			},
+			bundle: "חבילה",
+			discountName: "שם מצבע",
 		},
 		auth: {
 			welcome: {
@@ -233,6 +238,17 @@ export const resources = {
 		admin: {
 			discountsPage: {
 				title: "ניהול מבצעים",
+				description: "נהל את מצבעים של חנות שלך כאן",
+				createDiscount: "צור מצבע",
+				discountType: "סוג מצבע",
+				prodcutQuantity: "מספר המוצרים הנדרש",
+				discountFinalPrice: "מחיר סופי של המצבע",
+				tableHeader: {
+					name: 'שם מצבע',
+					type: 'סוג מצבע',
+					status: 'סטטוס',
+					actions: 'פעולות',
+				},
 			},
 			clientsPage: {
 				title: "לקוחות",

@@ -30,6 +30,7 @@ import { useStore } from "src/domains/Store";
 import { useAppApi } from "src/appApi";
 
 import { AlgoliaClient } from "src/services";
+import { useTranslation } from "react-i18next";
 
 const productsIndex = AlgoliaClient.initIndex("products"); // Replace with your index name
 
@@ -64,6 +65,8 @@ interface DiscountFormProps {
 
 export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 	const store = useStore();
+
+	const { t } = useTranslation(["common", "admin"]);
 
 	const {
 		control,
@@ -115,13 +118,13 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 								return (
 									<Select
 										{...field}
-										label="Discount Type"
+										label={t("admin:discountsPage.discountType")}
 										selectedKeys={field.value ? new Set([field.value]) : []}
 										onChange={(e) => field.onChange(e.target.value)}
 										isRequired
 										isDisabled
 									>
-										<SelectItem key="bundle">bundle</SelectItem>
+										<SelectItem key="bundle">{t("common:bundle")}</SelectItem>
 									</Select>
 								);
 							}}
@@ -132,8 +135,8 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 							render={({ field }) => (
 								<Input
 									{...field}
-									label="Discount Name"
-									placeholder="3 for $10 Bundle"
+									label={t("common:discountName")}
+									placeholder="למשל 3 מוצרי חלב ב10"
 									isInvalid={!!errors.name}
 									errorMessage={errors.name?.message}
 									isRequired
@@ -150,8 +153,8 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 									onChange={(e) => field.onChange(+e.target.value)}
 									value={field.value as any}
 									type="number"
-									label="Bundle Quantity"
-									placeholder="3"
+									label={t("admin:discountsPage.prodcutQuantity")}
+									placeholder="הזן מספר"
 									description="Number of items in the bundle"
 									isInvalid={!!errors?.variant?.requiredQuantity}
 									errorMessage={errors?.variant?.requiredQuantity?.message}
@@ -168,7 +171,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 									onChange={(e) => field.onChange(+e.target.value)}
 									value={field.value as any}
 									type="number"
-									label="Bundle Price"
+									label={t("admin:discountsPage.discountFinalPrice")}
 									placeholder="10.00"
 									startContent="$"
 									description="Total price for the bundle"
@@ -203,7 +206,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 							</div>
 						))}
 						<Button fullWidth onPress={() => setProducts([...products, crypto.randomUUID()])}>
-							add new item
+							{t("addProduct")}
 						</Button>
 					</div>
 
@@ -213,7 +216,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 						startContent={<Icon icon="lucide:plus" />}
 						className="w-full"
 					>
-						Create Discount
+						{t("admin:discountsPage.createDiscount")}
 					</Button>
 				</form>
 			</CardBody>
@@ -225,9 +228,14 @@ function ProductInput({ field }: any) {
 	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 
+	const { t } = useTranslation(["common", "admin"]);
+
+	const store = useStore();
+
 	console.log("searchResults", searchResults);
 
 	const handleSearch = async (value: string) => {
+		if (!store) return;
 		if (!value) {
 			setSearchResults([]);
 			return;
@@ -235,7 +243,10 @@ function ProductInput({ field }: any) {
 
 		setIsLoading(true);
 		try {
-			const { hits } = await productsIndex.search<TProduct>(value);
+			// todo
+			const { hits } = await productsIndex.search<TProduct>(value, {
+				filters: `storeId:${store.id} AND companyId:${store.companyId}`,
+			});
 			console.log("hits", hits);
 
 			setSearchResults(hits);
@@ -255,7 +266,7 @@ function ProductInput({ field }: any) {
 			}}
 			className="max-w-xl"
 			items={searchResults}
-			label="Search products"
+			label={t("common:searchProduct")}
 			variant="bordered"
 			color="primary"
 			size="lg"
@@ -296,17 +307,18 @@ function ProductInput({ field }: any) {
 
 interface DiscountListProps {
 	discounts: TDiscount[];
-	onDelete: (id: string) => void;
 }
 
-export const DiscountList: React.FC<DiscountListProps> = ({ discounts, onDelete }) => {
+export const DiscountList: React.FC<DiscountListProps> = ({ discounts }) => {
+	const { t } = useTranslation(["common", "admin"]);
+
 	return (
 		<Table aria-label="Active Discounts">
 			<TableHeader>
-				<TableColumn>NAME</TableColumn>
-				<TableColumn>TYPE</TableColumn>
-				<TableColumn>status</TableColumn>
-				<TableColumn>actions</TableColumn>
+				<TableColumn>{t("admin:discountsPage.tableHeader.name")}</TableColumn>
+				<TableColumn>{t("admin:discountsPage.tableHeader.type")}</TableColumn>
+				<TableColumn>{t("admin:discountsPage.tableHeader.status")}</TableColumn>
+				<TableColumn>{t("admin:discountsPage.tableHeader.actions")}</TableColumn>
 			</TableHeader>
 			<TableBody>
 				{discounts.map((discount) => (
@@ -323,20 +335,18 @@ export const DiscountList: React.FC<DiscountListProps> = ({ discounts, onDelete 
 							</Chip>
 						</TableCell>
 						<TableCell>
-							<Button
-								isIconOnly
-								color="danger"
-								variant="shadow"
-								onPress={() => onDelete(discount.id)}
-							>
+							<Button isIconOnly color="danger" variant="shadow" onPress={() => {}}>
 								view
 							</Button>
 							<Tooltip content="Delete Discount">
 								<Button
+									className=""
 									isIconOnly
 									color="danger"
 									variant="light"
-									onPress={() => onDelete(discount.id)}
+									onPress={() => {
+										// handle delete
+									}}
 								>
 									<Icon icon="lucide:trash-2" />
 								</Button>
@@ -353,21 +363,12 @@ function AdminDiscountsPage() {
 	const [showForm, setShowForm] = useState(false);
 	const [discounts, setDiscounts] = useState<TDiscount[]>([]);
 
+	const { t } = useTranslation(["common", "admin"]);
+
 	const appApi = useAppApi();
 
 	const handleCreateDiscount = () => {
-		// const discount: TDiscount = {
-		// 	id: FirebaseApi.firestore.generateDocId("discounts"),
-		// 	...newDiscount,
-		// 	usageCount: 0,
-		// } as TDiscount;
-
-		// setDiscounts([...discounts, discount]);
 		setShowForm(false);
-	};
-
-	const handleDeleteDiscount = (id: string) => {
-		setDiscounts(discounts.filter((d) => d.id !== id));
 	};
 
 	useEffect(() => {
@@ -381,15 +382,15 @@ function AdminDiscountsPage() {
 			<Card>
 				<CardHeader className="flex justify-between items-center">
 					<div>
-						<h1 className="text-2xl font-bold">Discount Management</h1>
-						<p className="text-default-500">Manage your store's discounts and promotions</p>
+						<h1 className="text-2xl font-bold">{t("admin:discountsPage.title")}</h1>
+						<p className="text-default-500">{t("admin:discountsPage.description")}</p>
 					</div>
 					<Button
 						color="primary"
 						startContent={<Icon icon={showForm ? "lucide:x" : "lucide:plus"} />}
 						onPress={() => setShowForm(!showForm)}
 					>
-						{showForm ? "Cancel" : "New Discount"}
+						{showForm ? t("common:cancel") : t("admin:discountsPage.createDiscount")}
 					</Button>
 				</CardHeader>
 				<Divider />
@@ -397,7 +398,7 @@ function AdminDiscountsPage() {
 					{showForm ? (
 						<DiscountForm onSubmit={handleCreateDiscount} />
 					) : (
-						<DiscountList discounts={discounts} onDelete={handleDeleteDiscount} />
+						<DiscountList discounts={discounts} />
 					)}
 				</CardBody>
 			</Card>

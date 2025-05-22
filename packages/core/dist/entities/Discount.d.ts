@@ -31,6 +31,16 @@ export declare const DiscountSchema: z.ZodObject<{
         requiredQuantity: number;
         discountPrice: number;
     }>]>;
+    image: z.ZodOptional<z.ZodObject<{
+        url: z.ZodString;
+        id: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        id: string;
+        url: string;
+    }, {
+        id: string;
+        url: string;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     type: "Discount";
     id: string;
@@ -47,6 +57,10 @@ export declare const DiscountSchema: z.ZodObject<{
         requiredQuantity: number;
         discountPrice: number;
     };
+    image?: {
+        id: string;
+        url: string;
+    } | undefined;
 }, {
     type: "Discount";
     id: string;
@@ -63,6 +77,10 @@ export declare const DiscountSchema: z.ZodObject<{
         requiredQuantity: number;
         discountPrice: number;
     };
+    image?: {
+        id: string;
+        url: string;
+    } | undefined;
 }>;
 export type TDiscount = z.infer<typeof DiscountSchema>;
 //# sourceMappingURL=Discount.d.ts.map
