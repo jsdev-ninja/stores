@@ -14,6 +14,7 @@ export const CompanyPrivateSchema = z.object({
 		}),
 	}),
 });
+
 export type TCompanyPrivate = z.infer<typeof CompanyPrivateSchema>;
 
 export const StorePrivateScheme = z.object({

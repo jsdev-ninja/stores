@@ -18,6 +18,9 @@ allow anonymous users buy - base on store config
 TODO
 1. add active discounts to order object
 2. add super admin for every store
+3. client handle order that created and not paid !!
+4. checkout loading state
+4. checkout save user address if not exits
 
 <!-- packages -->
 

@@ -6,7 +6,7 @@ import algoliasearch from "algoliasearch";
 import { emailService } from "./services/email";
 import { render } from "@react-email/render";
 import OrderCreated from "./emails/OrderCreated";
-import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder, TStore } from "@jsdev_ninja/core";
 import { ezCountService } from "./services/ezCountService";
 
 const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
@@ -29,19 +29,44 @@ export { chargeOrder } from "./api/chargeOrder";
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
 	.onCreate(async (snap, context) => {
-		const { storeId, companyId } = context.params;
+		const { storeId, companyId, id } = context.params;
+
+		functionsV2.logger.write({
+			severity: "INFO",
+			message: `new order created, orderId:${id} ${storeId} ${companyId}`,
+			order: snap.data(),
+			orderId: id,
+			storeId,
+			companyId,
+		});
 
 		const order = snap.data() as TOrder;
 		// todo validate order
 
+		const storePrivateData: any = (
+			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
+		).data();
+
+		if (!storePrivateData) {
+			console.log("storePrivateData not exits");
+		}
 		// close cart
-		return admin
+		await admin
 			.firestore()
 			.collection(FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }))
 			.doc(order.cart.id)
 			.update({
 				status: "completed",
 			});
+
+		// send email
+
+		const html = await render(<OrderCreated order={order} />);
+
+		await emailService.sendEmail({
+			html,
+			email: storePrivateData?.storeEmail ?? "",
+		});
 	});
 export const onOrderUpdate = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
@@ -57,8 +82,8 @@ export const onOrderUpdate = functions.firestore
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
 		).data();
 
-		const orderIsPaid =
-			after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
+		// const orderIsPaid =
+		// 	after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
 
 		const orderIsReady = before.status === "processing" && after.status === "in_delivery";
 
@@ -77,15 +102,6 @@ export const onOrderUpdate = functions.firestore
 				clientName: displayName,
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
-			});
-		}
-
-		if (orderIsPaid) {
-			console.log("order paid", id);
-			const html = await render(<OrderCreated order={after} />);
-
-			await emailService.sendEmail({
-				html,
 			});
 		}
 

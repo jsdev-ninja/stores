@@ -1,13 +1,14 @@
 import { Resend } from "resend";
 
-const resend = new Resend("re_5QmkymZm_zfaxB8R8LvptFfjg5BCHX6DM");
+const resend = new Resend("re_F3H4Tm8h_Q8m7N31uJKDSuL56ENkHL6C8");
 
 class EmailService {
-	async sendEmail({ html }: any) {
+	async sendEmail({ html, email }: any) {
 		const res = await resend.emails.send({
-			from: "onboarding@resend.dev",
-			to: "philip@jsdev.ninja",
-			subject: "Hello World",
+			// todo
+			from: "philip@jsdev.ninja",
+			to: email,
+			subject: "new order created",
 			html: html,
 		});
 
