@@ -3136,7 +3136,7 @@ const Ir = o.object({
     "completed",
     "refunded"
   ]),
-  paymentStatus: o.enum(["pending", "pending_j5", "completed", "failed", "refunded"]),
+  paymentStatus: o.enum(["pending", "pending_j5", "external", "completed", "failed", "refunded"]),
   //todo check if hyp support partial refund
   cart: o.object({
     id: o.string(),
@@ -3165,7 +3165,9 @@ o.object({
   paymentType: o.enum(["external", "j5"]),
   allowAnonymousClients: o.boolean(),
   isVatIncludedInPrice: o.boolean(),
-  clientTypes: o.array(yr)
+  clientTypes: o.array(yr),
+  minimumOrder: o.number().optional(),
+  freeOrderPrice: o.number().optional()
 });
 const Ae = o.string().min(1), Ar = o.object({
   type: o.literal("Discount"),

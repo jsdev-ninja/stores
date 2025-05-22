@@ -1,4 +1,3 @@
-import { Card } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { useAppSelector } from "src/infra";
@@ -6,29 +5,6 @@ import { navigate } from "src/navigation";
 
 function HomePage() {
 	const { t } = useTranslation(["common", "homePage"]);
-
-	const services = [
-		{
-			title: t("homePage:services.shipping.title"),
-			description: t("homePage:services.shipping.description"),
-			icon: "/delivery.svg",
-		},
-		{
-			title: t("homePage:services.support.title"),
-			description: t("homePage:services.support.description"),
-			icon: "/sapport.svg",
-		},
-		{
-			title: t("homePage:services.payment.title"),
-			description: t("homePage:services.payment.description"),
-			icon: "/shopping.svg",
-		},
-		{
-			title: t("homePage:services.moneyBack.title"),
-			description: t("homePage:services.moneyBack.description"),
-			icon: "/package.svg",
-		},
-	] as const;
 
 	const categories = useAppSelector((state) => state.category.categories);
 
@@ -73,7 +49,7 @@ function HomePage() {
 				</div>
 			</div>
 
-			<Card className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+			{/* <Card className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
 				{services.map((service) => {
 					return (
 						<div
@@ -88,7 +64,7 @@ function HomePage() {
 						</div>
 					);
 				})}
-			</Card>
+			</Card> */}
 
 			<div className="flex flex-col gap-4">
 				<div className="text-2xl font-semibold">{t("homePage:popularCategories")}</div>

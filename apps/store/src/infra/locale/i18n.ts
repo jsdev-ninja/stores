@@ -152,7 +152,7 @@ export const resources = {
 		// dynamic
 
 		homePage: {
-			title: "כל מה שמשרד שלך צריך",
+			title: "כל מה שהמשרד שלך צריך",
 			description: "על איכות במשרד לא מתפשרים",
 			action: "מעבר לחנות",
 
@@ -245,7 +245,7 @@ export const resources = {
 		admin: {
 			discountsPage: {
 				title: "ניהול מבצעים",
-				description: "נהל את מצבעים של חנות שלך כאן",
+				description: "נהל את מבצעים של חנות שלך כאן",
 				createDiscount: "צור מצבע",
 				discountType: "סוג מצבע",
 				prodcutQuantity: "מספר המוצרים הנדרש",

@@ -85,7 +85,7 @@ function CheckoutPage() {
 					companyId: store.companyId,
 					storeId: store.id,
 					status: "draft",
-					paymentStatus: "pending",
+					paymentStatus: store.paymentType === "external" ? "external" : "pending",
 					client: _profile,
 					cart: {
 						id: cart?.id,

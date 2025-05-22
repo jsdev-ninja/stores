@@ -9,7 +9,7 @@ export default function DiscountsPage() {
 	return (
 		<section className="py-12 px-4 max-w-7xl mx-auto">
 			<div className="flex items-center justify-between mb-8">
-				<h2 className="text-2xl font-bold text-default-900">מצבעים</h2>
+				<h2 className="text-2xl font-bold text-default-900">מבצעים</h2>
 			</div>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

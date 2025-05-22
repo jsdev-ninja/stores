@@ -10,6 +10,8 @@ declare const StoreSchema: z.ZodObject<{
     allowAnonymousClients: z.ZodBoolean;
     isVatIncludedInPrice: z.ZodBoolean;
     clientTypes: z.ZodArray<z.ZodEnum<["individual", "company"]>, "many">;
+    minimumOrder: z.ZodOptional<z.ZodNumber>;
+    freeOrderPrice: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     companyId: string;
@@ -21,6 +23,8 @@ declare const StoreSchema: z.ZodObject<{
     allowAnonymousClients: boolean;
     isVatIncludedInPrice: boolean;
     clientTypes: ("company" | "individual")[];
+    minimumOrder?: number | undefined;
+    freeOrderPrice?: number | undefined;
 }, {
     id: string;
     companyId: string;
@@ -32,6 +36,8 @@ declare const StoreSchema: z.ZodObject<{
     allowAnonymousClients: boolean;
     isVatIncludedInPrice: boolean;
     clientTypes: ("company" | "individual")[];
+    minimumOrder?: number | undefined;
+    freeOrderPrice?: number | undefined;
 }>;
 export type TStore = z.infer<typeof StoreSchema>;
 export {};

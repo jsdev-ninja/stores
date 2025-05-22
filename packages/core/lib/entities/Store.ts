@@ -12,5 +12,7 @@ const StoreSchema = z.object({
 	allowAnonymousClients: z.boolean(),
 	isVatIncludedInPrice: z.boolean(),
 	clientTypes: z.array(clientTypesSchema),
+	minimumOrder: z.number().optional(),
+	freeOrderPrice: z.number().optional(),
 });
 export type TStore = z.infer<typeof StoreSchema>;

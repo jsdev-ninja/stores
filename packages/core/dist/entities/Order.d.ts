@@ -6,7 +6,7 @@ export declare const OrderSchema: z.ZodObject<{
     storeId: z.ZodString;
     userId: z.ZodString;
     status: z.ZodEnum<["draft", "pending", "processing", "in_delivery", "delivered", "cancelled", "completed", "refunded"]>;
-    paymentStatus: z.ZodEnum<["pending", "pending_j5", "completed", "failed", "refunded"]>;
+    paymentStatus: z.ZodEnum<["pending", "pending_j5", "external", "completed", "failed", "refunded"]>;
     cart: z.ZodObject<{
         id: z.ZodString;
         items: z.ZodArray<z.ZodObject<{
@@ -844,7 +844,7 @@ export declare const OrderSchema: z.ZodObject<{
     companyId: string;
     storeId: string;
     userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "failed";
+    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "external" | "failed";
     cart: {
         id: string;
         items: {
@@ -981,7 +981,7 @@ export declare const OrderSchema: z.ZodObject<{
     companyId: string;
     storeId: string;
     userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "failed";
+    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "external" | "failed";
     cart: {
         id: string;
         items: {

@@ -22,6 +22,9 @@ TODO
 4. checkout loading state
 5. checkout save user address if not exits
 5. fix laoding state appAPi
+6. save charges by admin (after j5)
+7. admin manage clients page
+8. fetch orders per client id
 
 <!-- packages -->
 

@@ -18,6 +18,7 @@ import { ordersSlice } from "src/domains/Order";
 import TermsPage from "./TermsPage/TermsPage";
 import DiscountsPage from "./DiscountsPage/DiscountsPage";
 import ClientOrderPage from "./ClientOrderPage";
+import { UnPaidPendingOrder } from "src/widgets/UnPaidPendingOrder/UnPaidPendingOrder";
 
 export default function StoreLayout() {
 	const appApi = useAppApi();
@@ -38,14 +39,14 @@ export default function StoreLayout() {
 		return () => unsubscribe?.();
 	}, [user]);
 
-	// if (unPaidPendingOrder && user?.uid === unPaidPendingOrder.userId) {
-	// 	return (
-	// 		<>
-	// 			<AppBar />
-	// 			unPaidPendingOrder
-	// 		</>
-	// 	);
-	// }
+	if (unPaidPendingOrder && user?.uid === unPaidPendingOrder.userId) {
+		return (
+			<>
+				<AppBar />
+				<UnPaidPendingOrder />
+			</>
+		);
+	}
 
 	return (
 		<div className="flex flex-col">
