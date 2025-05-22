@@ -10,6 +10,7 @@ import { getCartCost } from "src/utils/calculateCartPrice";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { useEffect } from "react";
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout"]);
@@ -20,12 +21,22 @@ function CheckoutPage() {
 
 	const appApi = useAppApi();
 
-	const cart = useAppSelector((state) => state.cart.currentCart);
+	const cartData = useAppSelector((state) => state.cart);
+	const cart = cartData.currentCart;
+	console.log("CART", cart);
+
 	const store = useAppSelector((state) => state.store.data);
 	const discounts = useDiscounts();
 
-	if (!store || !user || !cart) {
-		return null;
+	useEffect(() => {
+		if (cartData.isReady && !cart) {
+			navigate({ to: "store.catalog" });
+		}
+	}, [cartData, cart]);
+
+	if (!store || !user || (!cartData.isReady && !cart)) {
+		// todo
+		return;
 	}
 
 	const emptyAddress: TProfile["address"] = {
@@ -54,9 +65,13 @@ function CheckoutPage() {
 		paymentType: "default",
 	};
 
-	const cartCost = getCartCost({ cart: cart.items, discounts: discounts, store });
+	const cartCost = getCartCost({ cart: cart?.items ?? [], discounts: discounts, store });
 	console.log("store", store);
 	console.log("cartCost", cartCost);
+
+	if (cartData.isReady && !cart) {
+		return null;
+	}
 
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16 px-4">
@@ -73,7 +88,7 @@ function CheckoutPage() {
 					paymentStatus: "pending",
 					client: _profile,
 					cart: {
-						id: cart.id,
+						id: cart?.id,
 						items: cartCost.items,
 						cartDiscount: cartCost.discount,
 						cartTotal: cartCost.finalCost,

@@ -47,17 +47,25 @@ export const onOrderCreated = functions.firestore
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
 		).data();
 
+		const store: TStore = (
+			await admin.firestore().collection(`STORES`).doc(storeId).get()
+		).data() as TStore;
+
 		if (!storePrivateData) {
 			console.log("storePrivateData not exits");
 		}
-		// close cart
-		await admin
-			.firestore()
-			.collection(FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }))
-			.doc(order.cart.id)
-			.update({
-				status: "completed",
-			});
+		if (store.paymentType === "external") {
+			// close cart
+			await admin
+				.firestore()
+				.collection(
+					FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId })
+				)
+				.doc(order.cart.id)
+				.update({
+					status: "completed",
+				});
+		}
 
 		// send email
 
@@ -71,7 +79,7 @@ export const onOrderCreated = functions.firestore
 export const onOrderUpdate = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
 	.onUpdate(async (snap, context) => {
-		const { storeId, id } = context.params;
+		const { storeId, companyId, id } = context.params;
 		const after = snap.after.data() as TOrder;
 		const before = snap.before.data() as TOrder;
 
@@ -82,8 +90,12 @@ export const onOrderUpdate = functions.firestore
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
 		).data();
 
-		// const orderIsPaid =
-		// 	after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
+		const store: TStore = (
+			await admin.firestore().collection(`STORES`).doc(storeId).get()
+		).data() as TStore;
+
+		const orderIsPaidByClient =
+			after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
 
 		const orderIsReady = before.status === "processing" && after.status === "in_delivery";
 
@@ -103,6 +115,19 @@ export const onOrderUpdate = functions.firestore
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
 			});
+		}
+
+		if (orderIsPaidByClient) {
+			// close cart
+			await admin
+				.firestore()
+				.collection(
+					FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId })
+				)
+				.doc(after.cart.id)
+				.update({
+					status: "completed",
+				});
 		}
 
 		return;

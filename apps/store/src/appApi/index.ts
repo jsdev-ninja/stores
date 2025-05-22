@@ -200,7 +200,7 @@ export const useAppApi = () => {
 					navigate({
 						to: "store",
 					});
-					actions.dispatch(actions.cart.setCart(null));
+					actions.dispatch(actions.cart.setCart({ cart: null, isReady: false }));
 					actions.dispatch(actions.orders.setOrders([]));
 					actions.dispatch(actions.favoriteProducts.setFavoriteProducts([]));
 					actions.dispatch(actions.profile.setProfile(null));

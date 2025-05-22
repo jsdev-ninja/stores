@@ -4,17 +4,19 @@ import { useAppSelector } from "src/infra";
 import { TCart } from "./types";
 import { TProduct } from "@jsdev_ninja/core";
 
-const initialState: { currentCart: TCart | null; carts: TCart[] } = {
+const initialState: { currentCart: TCart | null; carts: TCart[]; isReady: boolean } = {
 	currentCart: null,
 	carts: [],
+	isReady: false,
 };
 
 export const cartSlice = createSlice({
 	name: "cart",
 	initialState: initialState,
 	reducers: {
-		setCart: (state, action: PayloadAction<TCart | null>) => {
-			state.currentCart = action.payload;
+		setCart: (state, action: PayloadAction<{ cart: TCart | null; isReady?: boolean }>) => {
+			state.currentCart = action.payload.cart;
+			state.isReady = action.payload.isReady ?? false;
 		},
 		addItem: (state, action: PayloadAction<TProduct>) => {
 			if (!state.currentCart) return;
