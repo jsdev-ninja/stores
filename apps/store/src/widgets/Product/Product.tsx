@@ -72,9 +72,7 @@ Product.Price = function Price() {
 		currency: product.currency,
 	}).format(finalPrice);
 
-	return (
-		<p className="text-base font-bold text-primary-500 dark:text-white">{finalPriceView}</p>
-	);
+	return <p className="text-base font-bold text-primary-500 dark:text-white">{finalPriceView}</p>;
 };
 Product.Currency = function Currency() {
 	const { product } = useProduct();

@@ -27,6 +27,13 @@ export const resources = {
 			positive: "ערך חייב להיות גדול מ 0",
 		},
 		common: {
+			units: {
+				kg: "ק״ג",
+				gram: "",
+				liter: "",
+				ml: "",
+				unit: "",
+			},
 			cancel: "ביטול",
 			companyName: "שם חברה",
 			discounts: "מבצעים",
@@ -244,10 +251,10 @@ export const resources = {
 				prodcutQuantity: "מספר המוצרים הנדרש",
 				discountFinalPrice: "מחיר סופי של המצבע",
 				tableHeader: {
-					name: 'שם מצבע',
-					type: 'סוג מצבע',
-					status: 'סטטוס',
-					actions: 'פעולות',
+					name: "שם מצבע",
+					type: "סוג מצבע",
+					status: "סטטוס",
+					actions: "פעולות",
 				},
 			},
 			clientsPage: {
