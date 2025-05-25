@@ -40,12 +40,13 @@ export default function StoreLayout() {
 	}, [user]);
 
 	if (unPaidPendingOrder && user?.uid === unPaidPendingOrder.userId) {
-		return (
-			<>
-				<AppBar />
-				<UnPaidPendingOrder />
-			</>
-		);
+		// todo dont show when no needed
+		// return (
+		// 	<>
+		// 		<AppBar />
+		// 		<UnPaidPendingOrder />
+		// 	</>
+		// );
 	}
 
 	return (
