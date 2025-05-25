@@ -6,15 +6,13 @@ import legacy from "@vitejs/plugin-legacy";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [
-		legacy({ polyfills: true }),
-		react(),
-		tsconfigPaths(),
-		sentryVitePlugin({
-			org: "jsdev-s7",
-			project: "javascript-react",
-		}),
-	],
+	plugins: [legacy({ polyfills: true }), react(), tsconfigPaths(), sentryVitePlugin({
+        org: "jsdev-s7",
+        project: "javascript-react",
+    }), sentryVitePlugin({
+        org: "jsdev-s7",
+        project: "stores"
+    })],
 
 	resolve: {
 		alias: {
