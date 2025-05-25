@@ -18,7 +18,7 @@ import { ordersSlice } from "src/domains/Order";
 import TermsPage from "./TermsPage/TermsPage";
 import DiscountsPage from "./DiscountsPage/DiscountsPage";
 import ClientOrderPage from "./ClientOrderPage";
-import { UnPaidPendingOrder } from "src/widgets/UnPaidPendingOrder/UnPaidPendingOrder";
+// import { UnPaidPendingOrder } from "src/widgets/UnPaidPendingOrder/UnPaidPendingOrder";
 
 export default function StoreLayout() {
 	const appApi = useAppApi();
