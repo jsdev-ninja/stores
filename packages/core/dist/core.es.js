@@ -3150,7 +3150,7 @@ const Ir = o.object({
   actualAmount: o.number().positive().optional(),
   // what store charge
   date: o.number(),
-  deliveryDate: o.number().optional(),
+  deliveryDate: o.coerce.number().optional(),
   createdAt: o.number().optional(),
   client: mr.required({})
 }), yr = o.enum(["individual", "company"]);

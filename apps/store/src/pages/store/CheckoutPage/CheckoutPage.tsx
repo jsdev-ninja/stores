@@ -176,6 +176,13 @@ function CheckoutPage() {
 									label={t("common:apartmentNumber")}
 								/>
 							</div>
+							<div className="">
+								<Form.Input<TOrder>
+									name="deliveryDate"
+									type="date"
+									label={"בחירת יום הזמנה"}
+								/>
+							</div>
 						</div>
 					</div>
 					<PaymentSummary>

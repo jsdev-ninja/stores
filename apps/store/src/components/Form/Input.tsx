@@ -53,6 +53,8 @@ export function Input<T extends object>(props: Props<T>) {
 					id={name}
 					{...methods.register(name, {
 						valueAsNumber: type === "number",
+						setValueAs:
+							type === "date" ? (value: string) => new Date(value).getTime() : undefined,
 					})}
 					step=".01"
 					placeholder={placeholder}
