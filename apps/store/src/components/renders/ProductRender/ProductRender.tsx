@@ -13,6 +13,7 @@ const RENDER_CONFIG: Record<
 		productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 } as const;
+console.log(RENDER_CONFIG);
 
 const DefaultProductCard = lazy(() => import("../../../websites/default/DefaultProductCard"));
 
