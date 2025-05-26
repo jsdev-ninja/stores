@@ -245,6 +245,24 @@ export function AddProductPage() {
 						<Form.Input<TNewProduct> type="number" name="volume.value" />
 					</Flex.Item>
 				</Flex>
+
+				<Flex wrap gap={"4"} align={"end"}>
+					<Flex.Item>
+						<Form.Select<TNewProduct>
+							label={t("common:discount")}
+							name="discount.type"
+							placeholder={t("common:discount")}
+						>
+							<Form.Select.Item value="none">אין</Form.Select.Item>
+							<Form.Select.Item value="number">מספר</Form.Select.Item>
+							<Form.Select.Item value="percent">אחוז</Form.Select.Item>
+						</Form.Select>
+					</Flex.Item>
+					<Flex.Item>
+						<Form.Input<TNewProduct> type="number" name="discount.value" />
+					</Flex.Item>
+				</Flex>
+
 				<Flex>
 					<Flex.Item>
 						<Form.CategorySelect<TNewProduct>

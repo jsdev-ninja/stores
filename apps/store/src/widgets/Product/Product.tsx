@@ -15,6 +15,7 @@ import { ProductManufacturer } from "./ProductManufacturer";
 import { ProductSupplier } from "./ProductSupplier";
 import { TProduct } from "@jsdev_ninja/core";
 import { ProductAddToFavorite } from "./ProductAddToFavorite";
+import { formatter } from "src/utils/formatter";
 
 export type ProductProps = {
 	product: TProduct;
@@ -65,14 +66,26 @@ Product.Price = function Price() {
 
 	if (!product) return null;
 
+	console.log("AAA", product, product.name[0].value);
+
 	const finalPrice = getPriceAfterDiscount(product);
 
-	const finalPriceView = new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency: product.currency,
-	}).format(finalPrice);
+	return (
+		<p className="text-lg font-bold text-primary-500 dark:text-white">
+			{formatter.price(finalPrice)}
+		</p>
+	);
+};
+Product.OriginalPrice = function Price() {
+	const { product } = useProduct();
 
-	return <p className="text-base font-bold text-primary-500 dark:text-white">{finalPriceView}</p>;
+	if (!product || !product.discount || product.discount.type === "none") return null;
+
+	return (
+		<p className="text-sm font-bold line-through text-gray-400">
+			{formatter.price(product.price)}
+		</p>
+	);
 };
 Product.Currency = function Currency() {
 	const { product } = useProduct();

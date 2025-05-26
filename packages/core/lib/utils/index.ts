@@ -9,7 +9,7 @@ function calculateDiscount(product: TProduct) {
 		return (product.price * (product.discount.value ?? 100)) / 100;
 	}
 	if (product.discount?.type === "number") {
-		return product.price - (product.discount.value ?? 0);
+		return product.discount.value ?? 0;
 	}
 	return 0;
 }
@@ -42,8 +42,8 @@ export function getCartCost({
 			amount: item.amount,
 			product: { ...item.product },
 			originalPrice: item.product.price,
-			finalPrice: item.product.price,
-			finalDiscount: 0,
+			finalPrice: getPriceAfterDiscount(item.product),
+			finalDiscount: calculateDiscount(item.product),
 		};
 	});
 
@@ -98,12 +98,7 @@ export function getCartCost({
 			const originalPrice = productsTotal * price;
 			const discountPriceFinal = originalPrice - totalDiscount;
 
-			console.log("totalDiscount", totalDiscount);
-
-			console.log("discountPriceFinal", discountPriceFinal, originalPrice);
-
 			const averagePrice = Number((discountPriceFinal / productsTotal).toFixed(2));
-			console.log("averagePrice", averagePrice);
 
 			result = result.map((item) => {
 				if (discount.variant.productsId.includes(item.product.id)) {
@@ -112,49 +107,38 @@ export function getCartCost({
 						finalPrice: averagePrice,
 						originalPrice: item.product.price,
 						discountPrice: price,
-						finalDiscount: item.product.price - averagePrice,
+						finalDiscount: item.finalDiscount + (item.product.price - averagePrice),
 					};
 				}
 				return item;
 			});
 
-			console.log("averagePrice", averagePrice);
-
-			console.log(
-				"yes",
-				times,
-				discount.variant.requiredQuantity,
-				discount.variant.discountPrice
-			);
-
-			console.log("dis", productsTotal, products);
-
 			// find average price
 		}
 	});
 
-	console.log("result", result);
-
 	const cartDetails = result.reduce(
 		(acc, item) => {
 			const { product, amount, finalPrice, finalDiscount } = item;
-			console.log("isVatIncludedInPrice", isVatIncludedInPrice);
 
 			let productVatValue: number = 0;
 			if (product.vat) {
+				let vat = 0;
+
 				if (isVatIncludedInPrice) {
 					const vat_amount = finalPrice * (CONFIG.VAT / (100 + CONFIG.VAT));
 					productVatValue = Number(vat_amount.toFixed(2));
 					productVatValue = productVatValue * amount;
 
-					acc.vat += Number(productVatValue.toFixed(2));
+					vat = Number(productVatValue.toFixed(2));
 				} else {
 					productVatValue = (finalPrice * CONFIG.VAT) / 100;
 					productVatValue = productVatValue * amount;
-					acc.vat += Number(productVatValue.toFixed(2));
+					vat = Number(productVatValue.toFixed(2));
 				}
+
+				acc.vat = Number((acc.vat + vat).toFixed(2));
 			}
-			console.log("finalDiscount", finalDiscount);
 
 			acc.cost += amount * finalPrice;
 			acc.discount += finalDiscount ? amount * finalDiscount : finalDiscount;

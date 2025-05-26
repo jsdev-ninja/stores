@@ -24,8 +24,8 @@ function DefaultProductCard({ product }: { product: TProduct }) {
 				</div>
 				<div className="flex flex-col gap-1 mt-4">
 					<Product.Name />
-					<div className="flex gap-2">
-						<Product.Price /> <Product.PriceType /> 
+					<div className="flex gap-2 items-center">
+						<Product.Price /> <Product.OriginalPrice /> <Product.PriceType />
 					</div>
 
 					<div className="flex items-center gap-2">

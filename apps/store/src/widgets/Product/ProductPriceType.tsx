@@ -12,7 +12,7 @@ export function ProductPriceType() {
 
 	return (
 		<div className="text-gray-400">
-			{t(`units.${product.priceType.type}`)} {product.priceType.value}
+			ל {t(`units.${product.priceType.type}`)} {product.priceType.value}
 		</div>
 	);
 }
