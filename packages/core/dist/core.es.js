@@ -3152,7 +3152,9 @@ const Ir = o.object({
   date: o.number(),
   deliveryDate: o.coerce.number().optional(),
   createdAt: o.number().optional(),
-  client: hr.required({})
+  client: hr.required({}),
+  nameOnInvoice: o.string().optional(),
+  clientComment: o.string().optional()
 }), pr = o.enum(["individual", "company"]);
 o.object({
   id: o.string(),

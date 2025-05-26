@@ -8,6 +8,11 @@ Fake Card - 5326105300985614
 CVV 125
 date - 12/25
 
+itayna@hyp.co.il תמיכה
+support@hyp.co.il
+
+*6488 
+
 <!-- AUTH FEATURE -->
 
 signup form - company name base on store config
@@ -16,16 +21,17 @@ allow anonymous users buy - base on store config
 <!-- AUTH FEATURE END -->
 
 TODO
+
 1. add active discounts to order object
 2. add super admin for every store
 3. client handle order that created and not paid !!
 4. checkout loading state
 5. checkout save user address if not exits
-5. fix laoding state appAPi
-6. save charges by admin (after j5)
-7. admin manage clients page
+6. fix laoding state appAPi
+7. save charges by admin (after j5)
+8. admin manage clients page
 9. fetch orders per client id
-10. handle admin charge in DB
+10.   handle admin charge in DB
 
 <!-- packages -->
 

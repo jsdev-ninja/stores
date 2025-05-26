@@ -42,6 +42,8 @@ export const OrderSchema = z.object({
 	deliveryDate: z.coerce.number().optional(),
 	createdAt: z.number().optional(),
 	client: ProfileSchema.required({}),
+	nameOnInvoice: z.string().optional(),
+	clientComment: z.string().optional(),
 });
 
 export type TOrder = z.infer<typeof OrderSchema>;

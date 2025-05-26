@@ -836,6 +836,8 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentNumber: string;
         } | undefined;
     }>;
+    nameOnInvoice: z.ZodOptional<z.ZodString>;
+    clientComment: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     type: "Order";
     status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "cancelled" | "refunded";
@@ -973,6 +975,8 @@ export declare const OrderSchema: z.ZodObject<{
     actualAmount?: number | undefined;
     deliveryDate?: number | undefined;
     createdAt?: number | undefined;
+    nameOnInvoice?: string | undefined;
+    clientComment?: string | undefined;
 }, {
     type: "Order";
     status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "cancelled" | "refunded";
@@ -1110,6 +1114,8 @@ export declare const OrderSchema: z.ZodObject<{
     actualAmount?: number | undefined;
     deliveryDate?: number | undefined;
     createdAt?: number | undefined;
+    nameOnInvoice?: string | undefined;
+    clientComment?: string | undefined;
 }>;
 export type TOrder = z.infer<typeof OrderSchema>;
 //# sourceMappingURL=Order.d.ts.map

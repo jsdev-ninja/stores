@@ -175,13 +175,13 @@ function CheckoutPage() {
 									placeholder={t("common:apartmentNumber")}
 									label={t("common:apartmentNumber")}
 								/>
-								<div className="">
-									<Form.Input<TOrder>
-										name="deliveryDate"
-										type="date"
-										label={"בחירת יום הזמנה"}
-									/>
-								</div>
+								<Form.Input<TOrder>
+									name="deliveryDate"
+									type="date"
+									label={"בחירת יום הזמנה"}
+								/>
+								<Form.Input<TOrder> name="nameOnInvoice" label={"שם על חשבונית"} />
+								<Form.TextArea<TOrder> name="clientComment" label={"הערות לחנות"} />
 							</div>
 							<div className="">
 								<MinimumOrderAlert />

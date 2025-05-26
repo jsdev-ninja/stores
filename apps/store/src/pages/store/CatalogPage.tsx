@@ -1,8 +1,13 @@
+import { getCartCost } from "@jsdev_ninja/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
+import { useCart } from "src/domains/cart";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
+import { formatter } from "src/utils/formatter";
 import { Cart } from "src/widgets/Cart/Cart";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
 import { ProductsWidget } from "src/widgets/Products";
@@ -10,6 +15,8 @@ import { ProductsWidget } from "src/widgets/Products";
 // todo why render twice when setSTATE
 export function CatalogPage() {
 	const { t } = useTranslation(["common"]);
+
+	const store = useStore();
 
 	const [selectedCategory, setSelectedCategory] = useState<{
 		0: string;
@@ -27,6 +34,13 @@ export function CatalogPage() {
 
 	const topCategory = Object.values(selectedCategory);
 	const index = topCategory.findLastIndex((el) => !!el);
+
+	const cart = useCart();
+	const discounts = useDiscounts();
+
+	if (!store) return null;
+
+	const cartCost = getCartCost({ cart: cart?.items ?? [], discounts, store });
 
 	const categoryName =
 		selectedCategory[index.toString() as unknown as keyof typeof selectedCategory];
@@ -73,6 +87,7 @@ export function CatalogPage() {
 					</div>
 					<div className="p-4 flex-shrink-0 mt-auto border-t">
 						<Button
+							isDisabled={!cartCost?.items?.length}
 							fullWidth
 							onPress={() =>
 								navigate({
@@ -80,7 +95,7 @@ export function CatalogPage() {
 								})
 							}
 						>
-							{t("common:goToCart")}
+							{t("common:goToCart")} {formatter.price(cartCost.finalCost)}
 						</Button>
 					</div>
 				</div>
