@@ -108,6 +108,18 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 					},
 					{ merge: true }
 				);
+
+			await admin
+				.firestore()
+				.collection(
+					FirebaseAPI.firestore.getPath({
+						collectionName: "payments",
+						companyId: data.order.companyId,
+						storeId: context.auth?.token.storeId ?? "",
+					})
+				)
+				.doc(orderId + "_charged")
+				.set(res.data, { merge: true });
 			console.log("order completed");
 			console.log("chargeJ5Transaction success");
 		}

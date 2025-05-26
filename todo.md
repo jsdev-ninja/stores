@@ -32,6 +32,9 @@ TODO
 8. admin manage clients page
 9. fetch orders per client id
 10.   handle admin charge in DB
+11. track any entity update with diff before and after
+12. fix email
+13. fix sync data between order and payments (user can edit data on payment)
 
 <!-- packages -->
 

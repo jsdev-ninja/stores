@@ -119,10 +119,10 @@ export const hypPaymentService = {
 			const transactionResult: any = parseQueryString(transactionData);
 			console.log("JSON.stringify(transactionResult)", JSON.stringify(transactionResult));
 
-			return { success: Number(transactionResult.CCode) === 0 };
+			return { success: Number(transactionResult.CCode) === 0, data: transactionResult };
 		} catch (error: any) {
 			console.log(error);
-			return { success: false, errMessage: error.message };
+			return { success: false, errMessage: error.message, data: null };
 		}
 	},
 	async createPaymentLink(params: TPaymentLinkRequest) {
