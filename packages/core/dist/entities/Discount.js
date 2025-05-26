@@ -16,5 +16,5 @@ export const DiscountSchema = z.object({
             discountPrice: z.number().positive(),
         }),
     ]),
-    image: z.object({ url: z.string().url(), id: z.string() }).optional(),
+    images: z.array(z.string().nonempty()).optional(),
 });

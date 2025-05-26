@@ -88,6 +88,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 				variantType: "bundle",
 				productsId: ["", ""],
 			},
+			images: [],
 		},
 	});
 
@@ -95,6 +96,13 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 
 	const onFormSubmit = async (data: TDiscount) => {
 		console.log("data", data);
+		if (data.variant.variantType === "bundle") {
+			//todo default image from product
+			const product = await appApi.system.getProductById({ id: data.variant.productsId[0] });
+			if (product?.data?.images?.[0]?.url) {
+				data.images?.push(product?.data?.images?.[0]?.url);
+			}
+		}
 		const res = await appApi.admin.createDiscount(data);
 		console.log("appApi", res);
 		onSubmit(data);

@@ -30,7 +30,7 @@ export default function DiscountsPage() {
 
 							</Badge> */}
 							<img
-								src={"No-Image-Placeholder.png"}
+								src={discount.images?.[0] ?? "No-Image-Placeholder.png"}
 								alt={""}
 								className="w-full h-48 object-cover"
 							/>
