@@ -180,7 +180,7 @@ function CheckoutPage() {
 									type="date"
 									label={"בחירת יום הזמנה"}
 								/>
-								<Form.Input<TOrder> name="nameOnInvoice" label={"שם על חשבונית"} />
+								<Form.Input<TOrder> name="nameOnInvoice" label={"שם שיוצג בחשבונית"} />
 								<Form.TextArea<TOrder> name="clientComment" label={"הערות לחנות"} />
 							</div>
 							<div className="">

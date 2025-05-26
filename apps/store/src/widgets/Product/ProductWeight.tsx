@@ -10,7 +10,7 @@ export function ProductWeight() {
 
 	if (!product || product?.weight?.unit === "none" || !product.weight?.value) return null;
 
-	return <div className="text-gray-300 flex-shrink-0">{formatWeightKg(i18n.language, product.weight)}</div>;
+	return <div className="text-gray-400 flex-shrink-0">{formatWeightKg(i18n.language, product.weight)}</div>;
 }
 
 function formatWeightKg(lang: string, weight: TProduct["weight"]) {
