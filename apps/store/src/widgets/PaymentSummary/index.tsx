@@ -1,3 +1,4 @@
+import { getCartCost } from "@jsdev_ninja/core";
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Price } from "src/components/Price";
@@ -5,7 +6,6 @@ import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
 // import { useDiscounts } from "src/domains/Discounts/Discounts";
-import { getCartCost } from "src/utils/calculateCartPrice";
 
 export function PaymentSummary({ children }: { children?: ReactNode }) {
 	const { t } = useTranslation(["common", "paymentSummary"]);
@@ -38,6 +38,7 @@ export function PaymentSummary({ children }: { children?: ReactNode }) {
 					<div className="space-y-2">
 						<LineItem label={t("products")} value={cartCost.cost} />
 						<LineItem label={t("discount")} value={cartCost.discount} />
+						<LineItem label={t("deliveryPrice")} value={cartCost.deliveryPrice} />
 						<LineItem label={t("vat")} value={cartCost.vat} />
 					</div>
 					<dl className="border-t border-gray-200 pt-2 dark:border-gray-700">

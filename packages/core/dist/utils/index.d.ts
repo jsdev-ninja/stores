@@ -8,6 +8,8 @@ export declare function getCartCost({ cart, discounts, store, }: {
     cost: number;
     finalCost: number;
     vat: number;
+    productsCost: number;
+    deliveryPrice: number;
     items: {
         amount: number;
         product: {
@@ -101,11 +103,5 @@ export declare function getCartCost({ cart, discounts, store, }: {
         finalPrice: number;
         finalDiscount: number;
     }[];
-};
-export declare function calculateCartPrice(items: TCart["items"]): {
-    cost: number;
-    discount: number;
-    vat: number;
-    finalCost: number;
 };
 //# sourceMappingURL=index.d.ts.map

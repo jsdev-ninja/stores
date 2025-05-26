@@ -20,8 +20,9 @@ import {
 import { Trash2 } from "lucide-react";
 import { navigate, useParams } from "src/navigation";
 import { useAppApi } from "src/appApi";
-import { TOrder } from "@jsdev_ninja/core";
-import { calculateCartPrice } from "src/utils/calculateCartPrice";
+import { getCartCost, TOrder } from "@jsdev_ninja/core";
+import { useStore } from "src/domains/Store";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
 interface OrderItemsTableProps {
 	items: TOrder["cart"]["items"];
 	onUpdateItem: (itemId: string, field: keyof TOrder["cart"]["items"][number], value: any) => void;
@@ -89,6 +90,9 @@ export default function AdminOrderPage() {
 	const appApi = useAppApi();
 	const { id } = useParams("admin.order");
 
+	const store = useStore();
+	const discounts = useDiscounts();
+
 	async function save() {
 		if (!order) return;
 
@@ -109,6 +113,8 @@ export default function AdminOrderPage() {
 	}, [id]);
 
 	const updateOrderItem = (itemId: string, field: any, value: any) => {
+		if (!store) return;
+
 		setOrder((prev) => {
 			if (!prev) return prev;
 
@@ -120,7 +126,11 @@ export default function AdminOrderPage() {
 				return item;
 			});
 
-			const cartCost = calculateCartPrice(updatedItems ?? []);
+			const cartCost = getCartCost({
+				cart: updatedItems,
+				discounts: discounts,
+				store: store,
+			});
 
 			return {
 				...prev,
@@ -136,11 +146,17 @@ export default function AdminOrderPage() {
 	};
 
 	const removeOrderItem = (itemId: string) => {
+		if (!store) return;
+
 		setOrder((prev) => {
 			if (!prev) return prev;
 			const updatedItems = prev.cart.items.filter((item) => item.product.id !== itemId);
 
-			const cartCost = calculateCartPrice(updatedItems ?? []);
+			const cartCost = getCartCost({
+				cart: updatedItems,
+				discounts: discounts,
+				store: store,
+			});
 
 			return {
 				...prev,

@@ -111,6 +111,7 @@ export function getCartCost({
 						...item,
 						finalPrice: averagePrice,
 						originalPrice: item.product.price,
+						discountPrice: price,
 						finalDiscount: item.product.price - averagePrice,
 					};
 				}
@@ -158,6 +159,7 @@ export function getCartCost({
 			acc.cost += amount * finalPrice;
 			acc.discount += finalDiscount ? amount * finalDiscount : finalDiscount;
 			acc.finalCost += amount * finalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+			acc.productsCost += amount * finalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
 
 			return acc;
 		},
@@ -166,40 +168,18 @@ export function getCartCost({
 			cost: 0,
 			finalCost: 0,
 			vat: 0,
+			productsCost: 0,
+			deliveryPrice: store?.deliveryPrice ?? 0,
 		}
 	);
+
+	if (cartDetails.deliveryPrice && cartDetails.productsCost >= (store.freeDeliveryPrice ?? 0)) {
+		cartDetails.deliveryPrice = 0;
+	} else {
+		cartDetails.finalCost += cartDetails.deliveryPrice;
+	}
 
 	console.log("cartDetails", cartDetails);
 
 	return { items: result, ...cartDetails };
-}
-
-export function calculateCartPrice(items: TCart["items"]) {
-	return (items ?? []).reduce(
-		(acc, item) => {
-			const { product, amount } = item;
-			const productPrice = getPriceAfterDiscount(product);
-			const discount = calculateDiscount(product);
-
-			const realPrice = product.price - discount;
-
-			let productVatValue: number = 0;
-			if (product.vat) {
-				productVatValue = (realPrice * CONFIG.VAT) / 100;
-				productVatValue = productVatValue * amount;
-				acc.vat += productVatValue;
-			}
-			acc.cost += amount * product.price;
-			acc.discount += discount ? amount * discount : discount;
-			acc.finalCost += amount * productPrice + productVatValue;
-
-			return acc;
-		},
-		{
-			cost: 0,
-			discount: 0,
-			vat: 0,
-			finalCost: 0,
-		}
-	);
 }

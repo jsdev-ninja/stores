@@ -21,6 +21,14 @@ export const resources = {
 				action: "נקה סינון",
 			},
 		},
+		minimumOrderAlert: {
+			title: "יש ",
+			description: "",
+		},
+		deliveryDiscount: {
+			title: "תקנה ב {{amount}} ש״ח ותקבל  המשלוח בחינם",
+			description: "חסר לך עוד {{amount}} ש״ח כדי לקבל משלוח בחינם",
+		},
 		// static
 		errors: {
 			required_error: "שדה חובה",
@@ -35,6 +43,7 @@ export const resources = {
 				unit: "",
 			},
 			cancel: "ביטול",
+			deliveryPrice: "משלוח",
 			companyName: "שם חברה",
 			discounts: "מבצעים",
 			admin: "מערכת ניהול",
@@ -148,6 +157,7 @@ export const resources = {
 		paymentSummary: {
 			title: "סיכום ההזמנה",
 			totalCost: "מחיר סופי",
+			deliveryPrice: "משלוח",
 		},
 		// dynamic
 

@@ -5,7 +5,6 @@ import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Price } from "src/components/Price";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
-import { OrderApi } from "src/domains/Order";
 import { useStore } from "src/domains/Store";
 import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
@@ -40,7 +39,9 @@ export function OrderSuccessPage() {
 	}, [window.location.href]);
 
 	useEffect(() => {
-		OrderApi.getOrder(queryParams.Order).then((res) => {
+		appApi.user.getOrder({ id: queryParams.Order }).then((res) => {
+			console.log("RES", res);
+
 			if (res.success) {
 				setOrder(res.data);
 			} else {
@@ -51,6 +52,9 @@ export function OrderSuccessPage() {
 		});
 	}, [queryParams.Order]);
 
+	console.log("ORDER", order);
+
+	// todo
 	if (!order || !store) return null;
 
 	const orderCost = getCartCost({ cart: order.cart.items, discounts, store });

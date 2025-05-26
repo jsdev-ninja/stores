@@ -222,6 +222,8 @@ export const useAppApi = () => {
 					return;
 				}
 
+				// todo handle already paid order
+
 				// todo handle duplicate payment and page refresh
 
 				await FirebaseApi.firestore.setV2<Partial<TOrder>>({
@@ -232,7 +234,7 @@ export const useAppApi = () => {
 					}),
 					doc: {
 						id: payment.Order,
-						paymentStatus: "pending_j5",
+						paymentStatus: store?.paymentType === "external" ? "external" : "pending_j5",
 						status: "pending",
 					},
 				});

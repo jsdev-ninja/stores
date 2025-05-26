@@ -7,8 +7,8 @@ import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { CartItem } from "./CartItem";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 // import { TCart, TDiscount } from "@jsdev_ninja/core";
-import { getCartCost } from "src/utils/calculateCartPrice";
 import { useStore } from "src/domains/Store";
+import { getCartCost } from "@jsdev_ninja/core";
 
 function CartPage() {
 	const { t } = useTranslation(["common", "cart"]);

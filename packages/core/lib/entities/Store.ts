@@ -13,6 +13,7 @@ const StoreSchema = z.object({
 	isVatIncludedInPrice: z.boolean(),
 	clientTypes: z.array(clientTypesSchema),
 	minimumOrder: z.number().optional(),
-	freeOrderPrice: z.number().optional(),
+	freeDeliveryPrice: z.number().optional(),
+	deliveryPrice: z.number().optional(),
 });
 export type TStore = z.infer<typeof StoreSchema>;

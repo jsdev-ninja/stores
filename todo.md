@@ -24,7 +24,8 @@ TODO
 5. fix laoding state appAPi
 6. save charges by admin (after j5)
 7. admin manage clients page
-8. fetch orders per client id
+9. fetch orders per client id
+10. handle admin charge in DB
 
 <!-- packages -->
 

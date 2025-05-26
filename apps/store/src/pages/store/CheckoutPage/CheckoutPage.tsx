@@ -5,12 +5,12 @@ import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
-import { OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
-import { getCartCost } from "src/utils/calculateCartPrice";
+import { getCartCost, OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useEffect } from "react";
+import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout"]);
@@ -175,13 +175,16 @@ function CheckoutPage() {
 									placeholder={t("common:apartmentNumber")}
 									label={t("common:apartmentNumber")}
 								/>
+								<div className="">
+									<Form.Input<TOrder>
+										name="deliveryDate"
+										type="date"
+										label={"בחירת יום הזמנה"}
+									/>
+								</div>
 							</div>
 							<div className="">
-								<Form.Input<TOrder>
-									name="deliveryDate"
-									type="date"
-									label={"בחירת יום הזמנה"}
-								/>
+								<MinimumOrderAlert />
 							</div>
 						</div>
 					</div>
