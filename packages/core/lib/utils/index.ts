@@ -26,6 +26,10 @@ function getPriceAfterDiscount(product: TProduct) {
 	return product.price;
 }
 
+// mark product that used in discount
+// get final price for product and discount id
+// filter better discount
+
 // main
 export function getCartCost({
 	cart,

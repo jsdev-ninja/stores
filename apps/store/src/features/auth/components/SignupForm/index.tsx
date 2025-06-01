@@ -36,8 +36,6 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 		const isOnlyCompanyAlloew =
 			store?.clientTypes.includes("company") && store.clientTypes.length === 1;
 
-		console.log("isOnlyCompanyAlloew", isOnlyCompanyAlloew);
-
 		const loginSchema = z.object({
 			fullName: z.string({}).min(1, {}),
 			companyName: isOnlyCompanyAlloew
@@ -89,7 +87,7 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 						<Form<z.infer<typeof loginSchema>>
 							schema={loginSchema}
 							onSubmit={async (data, form) => {
-								const result = await appApi.user.signup({
+								const result = await appApi.auth.signup({
 									email: data.email,
 									fullName: data.fullName,
 									password: data.password,

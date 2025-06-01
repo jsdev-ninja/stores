@@ -566,61 +566,6 @@ export const useAppApi = () => {
 					productName: product.name[0].value, //todo get correct lang
 				});
 			},
-			signup: async (newUser: {
-				email: string;
-				password: string;
-				fullName: string;
-				companyName?: string;
-			}) => {
-				if (!isValidStoreData) return;
-
-				console.log("signup", newUser);
-
-				const profile: TProfile = {
-					id: "",
-					companyId: store.companyId,
-					storeId: store.id,
-					tenantId: store.tenantId,
-					displayName: newUser.fullName,
-					companyName: newUser.companyName,
-					email: newUser.email,
-					isAnonymous: false,
-					phoneNumber: "",
-					address: {
-						apartmentEnterNumber: "",
-						apartmentNumber: "",
-						city: "",
-						country: "",
-						floor: "",
-						street: "",
-						streetNumber: "",
-					},
-					clientType: newUser.companyName ? "company" : "user",
-					createdDate: Date.now(),
-					lastActivityDate: Date.now(),
-					type: "Profile",
-					paymentType: "default",
-				};
-
-				const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);
-				if (!res.success) {
-					logger({ severity: "CRITICAL", message: `fail sign up`, ...res });
-					return res;
-				}
-
-				profile.id = res.user?.uid ?? "";
-
-				const newProfile = await FirebaseApi.firestore.setV2<Partial<TProfile>>({
-					collection: FirebaseAPI.firestore.getPath({
-						collectionName: "profiles",
-						companyId,
-						storeId,
-					}),
-					doc: profile,
-				});
-
-				return { user: res.user, profile: newProfile, success: true };
-			},
 		};
 
 		const admin = {
@@ -968,7 +913,108 @@ export const useAppApi = () => {
 			},
 		};
 
-		return { orders, admin, system, user: userApi, superAdmin };
+		const auth = {
+			signup: async (newUser: {
+				email: string;
+				password: string;
+				fullName: string;
+				companyName?: string;
+			}) => {
+				if (!isValidStoreData) return;
+
+				mixPanelApi.track("AUTH_USER_SIGNUP", {
+					storeId: store.id,
+					companyId: companyId,
+					userEmail: newUser.email,
+					tenantId: store.tenantId,
+				});
+
+				const profile: TProfile = {
+					id: "",
+					companyId: store.companyId,
+					storeId: store.id,
+					tenantId: store.tenantId,
+					displayName: newUser.fullName,
+					companyName: newUser.companyName,
+					email: newUser.email,
+					isAnonymous: false,
+					phoneNumber: "",
+					address: {
+						apartmentEnterNumber: "",
+						apartmentNumber: "",
+						city: "",
+						country: "",
+						floor: "",
+						street: "",
+						streetNumber: "",
+					},
+					clientType: newUser.companyName ? "company" : "user",
+					createdDate: Date.now(),
+					lastActivityDate: Date.now(),
+					type: "Profile",
+					paymentType: "default",
+				};
+
+				const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);
+				if (!res.success) {
+					logger({ severity: "CRITICAL", message: `fail sign up`, ...res });
+					return res;
+				}
+
+				profile.id = res.user?.uid ?? "";
+
+				const newProfile = await FirebaseApi.firestore.setV2<Partial<TProfile>>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						companyId,
+						storeId,
+					}),
+					doc: profile,
+				});
+
+				logger({
+					severity: "INFO",
+					message: "new user sign up",
+					user,
+					profile,
+				});
+
+				return { user: res.user, profile: newProfile, success: true };
+			},
+			login: async (data: { email: string; password: string }) => {
+				if (!isValidStoreData) return;
+
+				mixPanelApi.track("AUTH_USER_LOGIN", {
+					storeId: store.id,
+					companyId: companyId,
+					userEmail: data.email,
+					tenantId: store.tenantId,
+				});
+				return await FirebaseApi.auth.login(data.email, data.password);
+			},
+
+			logout: async () => {
+				if (!isValid) return;
+
+				mixPanelApi.track("AUTH_USER_LOGOUT", {
+					storeId: store.id,
+					companyId: company.id,
+					userId: user.uid,
+					userEmail: user.email,
+					tenantId: store.tenantId,
+				});
+				await FirebaseApi.auth.logout();
+				navigate({
+					to: "store",
+				});
+				actions.dispatch(actions.cart.setCart({ cart: null, isReady: false }));
+				actions.dispatch(actions.orders.setOrders([]));
+				actions.dispatch(actions.favoriteProducts.setFavoriteProducts([]));
+				actions.dispatch(actions.profile.setProfile(null));
+			},
+		};
+
+		return { orders, admin, system, user: userApi, superAdmin, auth };
 	}, [store, cart, user]);
 
 	return api;

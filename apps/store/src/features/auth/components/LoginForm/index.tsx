@@ -9,10 +9,10 @@ import { useTranslation } from "react-i18next";
 import { Form } from "src/components/Form";
 import { i18n, useStoreActions } from "src/infra";
 import { modalApi } from "src/infra/modals";
-import { FirebaseApi } from "src/lib/firebase";
 import { z } from "zod";
 import { Icon } from "src/components";
 import { navigate } from "src/navigation";
+import { useAppApi } from "src/appApi";
 
 function getError(error: unknown) {
 	if (error instanceof FirebaseError) {
@@ -36,6 +36,8 @@ export const LoginForm = ({ changeForm }: { changeForm: () => void }) => {
 	const formRef = React.useRef<HTMLDivElement>(null);
 
 	const actions = useStoreActions();
+
+	const appApi = useAppApi();
 
 	const { t } = useTranslation(["common", "auth"]);
 
@@ -69,8 +71,8 @@ export const LoginForm = ({ changeForm }: { changeForm: () => void }) => {
 						<Form<z.infer<typeof loginSchema>>
 							schema={loginSchema}
 							onSubmit={async (data, form) => {
-								const result = await FirebaseApi.auth.login(data.email, data.password);
-								if (!result.success) {
+								const result = await appApi.auth.login(data);
+								if (!result?.success) {
 									form.setError("global", { message: getError(result) });
 									return;
 								}
