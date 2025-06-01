@@ -392,33 +392,34 @@ export const useAppApi = () => {
 
 				// mark currentCart as draft
 				if (cart?.id) {
-					return await FirebaseApi.firestore.set(
-						FirebaseAPI.firestore.getPath({
+					await FirebaseApi.firestore.setV2<TCart>({
+						collection: FirebaseAPI.firestore.getPath({
 							companyId,
 							storeId,
 							collectionName: "cart",
-							id: cart.id,
 						}),
-						cart
-					);
+						doc: { ...cart, status: "draft" },
+					});
 				}
 
-				await FirebaseApi.firestore.set(
-					FirebaseAPI.firestore.getPath({
+				await FirebaseApi.firestore.setV2({
+					collection: FirebaseAPI.firestore.getPath({
 						companyId,
 						storeId,
 						collectionName: "cart",
-						id: FirebaseApi.firestore.generateDocId("cart"),
 					}),
-					{
+					doc: {
+						id: FirebaseApi.firestore.generateDocId("cart"),
 						status: "active",
 						items: order.cart.items,
 						companyId: company?.id,
 						storeId: store.id,
 						type: "Cart",
 						userId: user.uid,
-					}
-				);
+					},
+				});
+
+				logger({ severity: "INFO", message: "user create cart from order", order });
 
 				navigate({
 					to: "store.catalog",

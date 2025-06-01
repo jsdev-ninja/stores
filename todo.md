@@ -36,6 +36,7 @@ TODO
 12. fix email
 13. fix sync data between order and payments (user can edit data on payment)
 14. clean products when remove category
+15. store backend validation for cart cost and order
 <!-- packages -->
 
 3 in 10 per product
