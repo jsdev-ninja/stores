@@ -35,6 +35,17 @@ export const resources = {
 			positive: "ערך חייב להיות גדול מ 0",
 		},
 		common: {
+			anonymousUser: "משתמש אנונימי",
+			paymentType: "סוג תשלום",
+			paymentTypes: {
+				delayed: "חיוב עתידי",
+				default: "חיוב רגיל",
+			},
+			company: "חברה",
+			individual: "לקוח פרטי",
+			clientType: "סוג לקוח",
+			emptyField: "לא קיים מידע",
+
 			units: {
 				kg: "ק״ג",
 				gram: "",
@@ -195,6 +206,12 @@ export const resources = {
 
 		profilePage: {
 			title: "חשבון משתמש",
+			editProfile: "ערוך חשבון",
+			subTitleView: "פרטי חשבון",
+			subTitleEdit: "עריכה פרטי חשבון",
+			basicInfo: "מידע כללי",
+			addressInfo: "כתובת",
+			systemInfo: "מידע מערכת",
 			columns: {
 				client: "לקוח",
 				address: "כתובת",

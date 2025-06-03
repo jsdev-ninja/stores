@@ -15,7 +15,7 @@ export const ProfileSchema = z.object({
 	companyName: z.string().optional(),
 	displayName: notEmptyTextSchema,
 	email: z.string().email(),
-	phoneNumber: notEmptyTextSchema.optional(),
+	phoneNumber: z.string().optional(),
 	address: AddressSchema.optional(),
 	isAnonymous: z.boolean(),
 	createdDate: z.number(),
