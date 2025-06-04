@@ -3257,6 +3257,13 @@
   resolved "https://registry.npmjs.org/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
+"@jsdev_ninja/core@^0.11.2":
+  version "0.11.9"
+  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.11.9.tgz#dfc5554c31022a1feb239e91294c34d198a5326c"
+  integrity sha512-sWE0rUwxClRaRhVQd2uf/ZefFpTQyOgMFmLLUKRaBlpObRPoHCRt7W/LZ6vKus3ucVSp/WsKOY3lg0WKlbbSRA==
+  dependencies:
+    zod "^3.23.8"
+
 "@mdn/browser-compat-data@^5.5.35", "@mdn/browser-compat-data@^5.6.19":
   version "5.6.42"
   resolved "https://registry.npmjs.org/@mdn/browser-compat-data/-/browser-compat-data-5.6.42.tgz"
