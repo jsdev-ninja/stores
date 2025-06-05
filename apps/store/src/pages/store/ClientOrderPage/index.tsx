@@ -197,9 +197,9 @@ export default function ClientOrderPage() {
 										</div>
 									</div>
 								</TableCell>
-								<TableCell>${item.product.price.toFixed(2)}</TableCell>
+								<TableCell>{item.product.price.toFixed(2)}</TableCell>
 								<TableCell>{item.amount}</TableCell>
-								<TableCell>${(item.product.price * item.amount).toFixed(2)}</TableCell>
+								<TableCell>{(item.product.price * item.amount).toFixed(2)}</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
@@ -208,7 +208,7 @@ export default function ClientOrderPage() {
 					<div className="w-full max-w-xs">
 						<div className="flex justify-between py-2">
 							<span className="text-default-600">Subtotal</span>
-							<span>${order.cart.cartTotal.toFixed(2)}</span>
+							<span>{order.cart.cartTotal.toFixed(2)}</span>
 						</div>
 						{/* <div className="flex justify-between py-2">
 							<span className="text-default-600">Shipping</span>
@@ -216,12 +216,12 @@ export default function ClientOrderPage() {
 						</div> */}
 						<div className="flex justify-between py-2">
 							<span className="text-default-600">Tax</span>
-							<span>${order.cart.cartTotal.toFixed(2)}</span>
+							<span>{order.cart.cartVat.toFixed(2)}</span>
 						</div>
 						<Divider className="my-2" />
 						<div className="flex justify-between py-2">
 							<span className="font-bold">Total</span>
-							<span className="font-bold">${order.cart.cartTotal.toFixed(2)}</span>
+							<span className="font-bold">{order.cart.cartTotal.toFixed(2)}</span>
 						</div>
 					</div>
 				</CardFooter>

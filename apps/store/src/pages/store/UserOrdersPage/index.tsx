@@ -100,7 +100,18 @@ function OrderItem({ order }: { order: TOrder }) {
 				</dd>
 			</dl>
 			{!!user && !user.isAnonymous && (
-				<div className="w-full grid sm:grid-cols-2 lg:flex lg:w-64 lg:items-center lg:justify-end gap-4">
+				<div className="w-full grid sm:grid-cols-2 lg:flex lg:w-72 lg:items-center lg:justify-end gap-4">
+					{order.paymentStatus === "pending" && (
+						<Button
+							color="secondary"
+							onPress={async () => {
+								const payment = await appApi.user.createPaymentLink({ order: order });
+								window.location.href = payment.data.paymentLink;
+							}}
+						>
+							המשך לתשלום
+						</Button>
+					)}
 					<Button
 						color="primary"
 						onPress={() => {
@@ -109,7 +120,7 @@ function OrderItem({ order }: { order: TOrder }) {
 					>
 						{t("ordersPage:actions.viewOrder")}
 					</Button>
-					{order.status !== "completed" && (
+					{/* {order.status !== "completed" && (
 						<Button
 							variant="solid"
 							color="danger"
@@ -120,7 +131,7 @@ function OrderItem({ order }: { order: TOrder }) {
 						>
 							{t("ordersPage:actions.cancelOrder")}
 						</Button>
-					)}
+					)} */}
 					{true && (
 						<Button
 							variant="solid"

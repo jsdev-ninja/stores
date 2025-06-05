@@ -85,7 +85,9 @@ export function OrderItemsTable({ items, onUpdateItem, onRemoveItem }: OrderItem
 export default function AdminOrderPage() {
 	const [order, setOrder] = React.useState<TOrder | null>(null);
 
-	console.log("order", order);
+	console.log(JSON.stringify(order?.cart.items));
+	console.log("order", order?.cart);
+	// 1617.95; //
 
 	const appApi = useAppApi();
 	const { id } = useParams("admin.order");

@@ -34,30 +34,32 @@ export function OrderSuccessPage() {
 	const store = useStore();
 
 	const queryParams = getQueryParams(window.location.href);
-	useEffect(() => {
-		appApi.system.onOrderPaid(queryParams);
-	}, [window.location.href]);
 
 	useEffect(() => {
-		appApi.user.getOrder({ id: queryParams.Order }).then((res) => {
-			console.log("RES", res);
+		async function load() {
+			await appApi.system.onOrderPaid(queryParams);
 
-			if (res.success) {
-				setOrder(res.data);
-			} else {
-				navigate({
-					to: "store",
-				});
-			}
-		});
-	}, [queryParams.Order]);
+			appApi.user.getOrder({ id: queryParams.Order }).then((res) => {
+				console.log("RES", res);
+
+				if (res.success) {
+					setOrder(res.data);
+				} else {
+					navigate({
+						to: "store",
+					});
+				}
+			});
+		}
+		load();
+	}, [queryParams.Order, window.location.href]);
 
 	console.log("ORDER", order);
 
 	// todo
 	if (!order || !store) return null;
 
-	const orderCost = getCartCost({ cart: order.cart.items, discounts, store });
+	const orderCost = getCartCost({ cart: order.cart?.items ?? [], discounts, store });
 
 	return (
 		<div className="h-screen w-screen flex items-center justify-center p-4">

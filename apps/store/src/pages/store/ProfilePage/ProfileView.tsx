@@ -4,25 +4,6 @@ import { Icon } from "@iconify/react";
 import { TProfile } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
 
-function formatDate(timestamp: number): string {
-	if (!timestamp) return "Not available";
-
-	const date = new Date(timestamp);
-
-	// Check if the date is valid
-	if (isNaN(date.getTime())) {
-		return "Invalid date";
-	}
-
-	return new Intl.DateTimeFormat("en-US", {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
-	}).format(date);
-}
-
 interface ProfileViewProps {
 	profile: TProfile;
 }

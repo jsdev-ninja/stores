@@ -89,7 +89,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			clientLastName,
 			email: order.client.email,
 			heshDesc: items.join(""),
-			Pritim: "True",
+			Pritim: "False",
 		});
 		if (res.success) {
 			await admin

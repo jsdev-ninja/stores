@@ -9,11 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useProfile } from "src/domains/profile";
 import { useAppApi } from "src/appApi";
 
-interface UserProfilePageProps {
-	onProfileUpdate: (profile: TProfile) => void;
-}
-
-const ProfilePage: React.FC<UserProfilePageProps> = ({ onProfileUpdate }) => {
+const ProfilePage = () => {
 	const [isEditing, setIsEditing] = React.useState(false);
 	const [isSaving, setIsSaving] = React.useState(false);
 	const { t } = useTranslation(["profilePage", "common"]);

@@ -82,7 +82,7 @@ export function CatalogPage() {
 					</div>
 				</div>
 				<div className="hidden  md:flex min-w-[280px] flex-grow max-w-[300px] flex-col sticky top-0 h-[calc(100vh-64px)]">
-					<div className="flex-grow">
+					<div className="flex-grow h-full">
 						<Cart />
 					</div>
 					<div className="p-4 flex-shrink-0 mt-auto border-t">

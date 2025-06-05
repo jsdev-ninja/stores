@@ -138,12 +138,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 						onChange={(e) => handleChange("paymentType", e.target.value)}
 						className="col-span-full md:col-span-1"
 					>
-						<SelectItem key="default" value="default">
-							Default Payment
-						</SelectItem>
-						<SelectItem key="delayed" value="delayed">
-							Delayed Payment
-						</SelectItem>
+						<SelectItem key="default">Default Payment</SelectItem>
+						<SelectItem key="delayed">Delayed Payment</SelectItem>
 					</Select>
 
 					<div className="col-span-full">
