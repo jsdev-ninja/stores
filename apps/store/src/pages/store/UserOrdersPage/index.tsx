@@ -8,6 +8,7 @@ import { navigate } from "src/navigation";
 import { useUser } from "src/domains/user";
 import { TOrder } from "@jsdev_ninja/core";
 import { useAppSelector } from "src/infra";
+import { useState } from "react";
 
 function UserOrdersPage() {
 	const { t } = useTranslation(["common", "ordersPage"]);
@@ -49,6 +50,8 @@ function OrderItem({ order }: { order: TOrder }) {
 	const appApi = useAppApi();
 
 	const user = useUser();
+
+	const [loading, setLoading] = useState(false);
 
 	const chipColors: Record<TOrder["status"], ChipProps["color"]> = {
 		draft: "default",
@@ -104,9 +107,17 @@ function OrderItem({ order }: { order: TOrder }) {
 					{order.paymentStatus === "pending" && (
 						<Button
 							color="secondary"
+							isLoading={loading}
 							onPress={async () => {
-								const payment = await appApi.user.createPaymentLink({ order: order });
-								window.location.href = payment.data.paymentLink;
+								try {
+									setLoading(true);
+									const payment = await appApi.user.createPaymentLink({ order: order });
+									setLoading(false);
+									window.location.href = payment.data.paymentLink;
+								} catch (error) {
+									console.log(error);
+									setLoading(false);
+								}
 							}}
 						>
 							המשך לתשלום

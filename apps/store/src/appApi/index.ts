@@ -364,6 +364,12 @@ export const useAppApi = () => {
 				}
 
 				const payment: any = await FirebaseApi.api.createPayment({ order: order });
+				logger({
+					message: "client create payment link",
+					severity: "INFO",
+					payment,
+					userId: user.uid,
+				});
 				return payment;
 			},
 			async cancelOrder({ order }: { order: TOrder }) {
