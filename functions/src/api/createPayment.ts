@@ -44,7 +44,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			Order: order.id,
 			// client data
 			cell: order.client.phoneNumber,
-			ClientName: order.client.displayName,
+			ClientName: order?.nameOnInvoice || order.client.displayName,
 			ClientLName: order.client.displayName,
 			email: order.client.email,
 			street: order.client.address?.street,
