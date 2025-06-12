@@ -123,7 +123,7 @@ async function getV2<T extends object>(data: { collection: string; id: string })
 		const querySnapshot = await getDoc(q);
 
 		if (!querySnapshot.exists()) {
-			return { success: true, data: null };
+			return { success: false, data: null };
 		}
 
 		const result: T = { ...querySnapshot.data(), id: querySnapshot.id } as T;

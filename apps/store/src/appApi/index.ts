@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FirebaseAPI, TCategory, TDiscount } from "@jsdev_ninja/core";
+import { FirebaseAPI, getCartCost, TCategory, TDiscount } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
 import { useStoreActions } from "src/infra";
@@ -769,13 +769,31 @@ export const useAppApi = () => {
 				// mixPanelApi.track("", {
 				// 	order,
 				// });
+
+				const cartCost = getCartCost({
+					cart: order.cart.items ?? [],
+					discounts: [],
+					store: store,
+				});
+
+				const newOrder: TOrder = {
+					...order,
+					cart: {
+						...order.cart,
+						items: cartCost.items,
+						cartDiscount: cartCost.discount,
+						cartTotal: cartCost.finalCost,
+						cartVat: cartCost.vat,
+					},
+				};
+
 				return FirebaseApi.firestore.setV2<TOrder>({
 					collection: FirebaseAPI.firestore.getPath({
 						companyId,
 						storeId,
 						collectionName: "orders",
 					}),
-					doc: order,
+					doc: newOrder,
 				});
 			},
 			async chargeOrder({ order }: { order: TOrder }) {
