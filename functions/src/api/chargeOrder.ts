@@ -85,7 +85,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			orderId: order.id,
 			transactionId: payment.payment.Id,
 			transactionUID: payment.payment.UID ?? "",
-			clientName,
+			clientName: order?.nameOnInvoice || clientName,
 			clientLastName,
 			email: order.client.email,
 			heshDesc: items.join(""),

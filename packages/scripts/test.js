@@ -2,7 +2,7 @@ const url = "https://apiqa.invoice4u.co.il/Services/ApiService.svc/ProcessApiReq
 const email = "Test@test.com";
 const password = "Test@test.com";
 
-const API_KEY = "6663fdbb-957b-4046-8166-59d02c52e0df";
+const API_KEY = "b57bcbb3-091c-4d70-b131-6bc9c90e1070";
 
 async function clearingRequest() {
 	try {
@@ -37,12 +37,12 @@ async function clearingRequest() {
 					IsGeneralClient: "true",
 					IsAutoCreateCustomer: "true",
 					ReturnUrl: "https://www.invoice4u.co.il/",
-					AddToken: "false",
 					AddTokenAndCharge: "false",
-					ChargeWithToken: "false",
 					Refund: "false",
 					IsStandingOrderClearance: "false",
 					StandingOrderDuration: "0",
+					ChargeWithToken: "true",
+					AddToken: "true",
 				},
 			}),
 		});
