@@ -41,7 +41,7 @@ async function clearingRequest() {
 					Refund: "false",
 					IsStandingOrderClearance: "false",
 					StandingOrderDuration: "0",
-					ChargeWithToken: "true",
+					ChargeWithToken: "false",
 					AddToken: "true",
 				},
 			}),
