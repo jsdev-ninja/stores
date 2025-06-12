@@ -111,7 +111,7 @@ export const onOrderUpdate = functions.firestore
 
 			await ezCountService.createDeliveryNote(after, {
 				ezcount_key: storePrivateData.ezcount_key,
-				clientName: displayName,
+				clientName: after?.nameOnInvoice || displayName,
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
 			});
