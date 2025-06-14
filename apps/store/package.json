@@ -51,6 +51,7 @@
 		"i18next": "^23.10.1",
 		"lodash": "^4.17.21",
 		"lucide-react": "^0.479.0",
+		"microdiff": "^1.5.0",
 		"mixpanel-browser": "^2.55.0",
 		"react": "^18.2.0",
 		"react-aria-components": "^1.2.0",

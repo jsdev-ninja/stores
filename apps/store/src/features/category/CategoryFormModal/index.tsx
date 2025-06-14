@@ -39,7 +39,7 @@ export function CategoryFormModal({ categoryId, onSave }: { categoryId: string; 
 						if (c.id !== data.id) return c;
 						return data;
 					});
-					await appApi.admin.category.update(buildTree(newCategories as any));
+					await appApi.admin.category.update(buildTree(newCategories as any), categories);
 					onSave?.(buildTree(newCategories as any));
 					modalApi.closeModal("categoryFormModal");
 				}}

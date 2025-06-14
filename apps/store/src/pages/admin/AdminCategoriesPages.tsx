@@ -5,11 +5,14 @@ import { navigate } from "src/navigation";
 import { CategoryTree } from "src/widgets/Category/CategoryTree/CategoryTree";
 import { isEqual } from "lodash";
 import { useAppApi } from "src/appApi";
+import { useTranslation } from "react-i18next";
 
 export function AdminCategoriesPages() {
 	const appApi = useAppApi();
 	const [categories, setCategories] = useState<TCategory[]>([]);
 	const [categoriesToEdit, setCategoriesToEdit] = useState<TCategory[]>([]);
+
+	const { t } = useTranslation(["common", "admin"]);
 
 	useEffect(() => {
 		setCategoriesToEdit(structuredClone(categories));
@@ -30,7 +33,9 @@ export function AdminCategoriesPages() {
 	const noChanged = isEqual(categories, categoriesToEdit);
 
 	async function save() {
-		await appApi.admin.category.update(categoriesToEdit);
+		console.log("saved");
+
+		await appApi.admin.category.update(categoriesToEdit, categories);
 		setCategories(categoriesToEdit);
 	}
 
@@ -40,12 +45,17 @@ export function AdminCategoriesPages() {
 			<div className="border w-80 p-4 flex flex-col sticky top-20 h-[80vh] self-start">
 				<div className="">
 					<Button fullWidth onPress={addCategory}>
-						Add Category
+						{t("admin:createCategory")}
 					</Button>
 				</div>
 				<div className="mt-auto">
-					<Button onPress={save} color="danger" isDisabled={noChanged}>
-						Save
+					<Button
+						isLoading={appApi.loading["admin.category.update"]}
+						onPress={save}
+						color="danger"
+						isDisabled={noChanged}
+					>
+						{t("save")}
 					</Button>
 				</div>
 			</div>

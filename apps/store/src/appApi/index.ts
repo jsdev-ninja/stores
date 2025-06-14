@@ -21,6 +21,7 @@ import { TStoreStats } from "src/types";
 import { LogPayload } from "src/lib/firebase/api";
 import { useApiState } from "./useApiState";
 import { modalApi } from "src/infra/modals";
+import diff from "microdiff";
 
 function productInCart(cart: TCart | null, product: TProduct) {
 	return !!cart?.items?.find((item) => item.product.id === product.id);
@@ -476,10 +477,22 @@ export const useAppApi = () => {
 
 					return res;
 				},
-				update: async (categories: TCategory[]) => {
+				update: async (categories: TCategory[], currentCategories: TCategory[]) => {
 					if (!isValidAdmin) return;
 
-					return await FirebaseApi.firestore.setV2({
+					const changes = diff(currentCategories, categories);
+
+					logger({
+						message: `admin try update category`,
+						severity: "INFO",
+						categories,
+						changes,
+					});
+					updateLoading({
+						"admin.category.update": true,
+					});
+
+					const res = await FirebaseApi.firestore.setV2({
 						collection: FirebaseAPI.firestore.getPath({
 							companyId,
 							storeId,
@@ -489,6 +502,17 @@ export const useAppApi = () => {
 							id: "categories",
 							categories: categories,
 						},
+					});
+
+					logger({
+						message: `admin ${res.success ? "success" : "fail"}  update category`,
+						severity: res.success ? "INFO" : "ALERT",
+						data: categories ?? {},
+						changes,
+					});
+
+					updateLoading({
+						"admin.category.update": false,
 					});
 				},
 			},
