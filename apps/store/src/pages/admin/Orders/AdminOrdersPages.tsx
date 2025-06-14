@@ -28,7 +28,7 @@ function AdminOrdersPages() {
 			}
 			setOrders(res.data);
 		});
-	}, [appApi]);
+	}, []);
 
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">

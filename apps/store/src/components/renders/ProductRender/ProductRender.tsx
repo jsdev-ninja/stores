@@ -9,11 +9,10 @@ const RENDER_CONFIG: Record<
 	tester_store: {
 		// productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
-	"opal-market-store": {
+	"balasistore_store": {
 		productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 } as const;
-console.log(RENDER_CONFIG);
 
 const DefaultProductCard = lazy(() => import("../../../websites/default/DefaultProductCard"));
 
@@ -21,13 +20,15 @@ export function ProductRender({ product }: { product: TProduct }) {
 	const store = useStore();
 
 	if (!store) return null;
-	// const Component = RENDER_CONFIG[store.id]?.productCard;
+	const Component = RENDER_CONFIG[store.id]?.productCard;
+
+	console.log("Component", Component, store.id);
 
 	// todo
 	return (
 		<Suspense fallback="">
 			<DefaultProductCard product={product} />
-			{/* {Component ? <Component product={product} /> : <DefaultProductCard product={product} />} */}
+			{Component ? <Component product={product} /> : <DefaultProductCard product={product} />}
 		</Suspense>
 	);
 }

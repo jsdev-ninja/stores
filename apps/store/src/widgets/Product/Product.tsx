@@ -66,8 +66,6 @@ Product.Price = function Price() {
 
 	if (!product) return null;
 
-	console.log("AAA", product, product.name[0].value);
-
 	const finalPrice = getPriceAfterDiscount(product);
 
 	return (
