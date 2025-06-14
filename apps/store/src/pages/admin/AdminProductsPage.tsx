@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { navigate } from "src/navigation";
@@ -9,6 +10,8 @@ import { ProductsWidget } from "src/widgets/Products";
 
 export function AdminProductsPage() {
 	const appApi = useAppApi();
+
+	const { t } = useTranslation(["common", "admin"]);
 
 	const [selectedCategory, setSelectedCategory] = useState<{
 		0: string;
@@ -64,7 +67,6 @@ export function AdminProductsPage() {
 		selectedCategory[index.toString() as unknown as keyof typeof selectedCategory];
 
 	const filter = categoryName ? `categoryIds:'${decodeURIComponent(categoryName)}'` : "";
-	console.log("filter", filter);
 
 	return (
 		<ProductsWidget filter={filter}>
@@ -80,15 +82,15 @@ export function AdminProductsPage() {
 									to: "admin.addProduct",
 								})
 							}
+							color="primary"
 						>
-							Create Product
+							{t("admin:productsPage.addProduct")}
 						</Button>
 					</div>
 				</div>
 
 				<div className="flex">
 					<div id="SideNavigator" className="w-[240px] flex-shrink-0 max-h-full">
-						{/* <ProductsWidget.Filter /> */}
 						<CategoryMenu value={selectedCategory} onValueChange={setSelectedCategory} />
 					</div>
 					<div className="flex-grow p-4 flex flex-wrap gap-4">

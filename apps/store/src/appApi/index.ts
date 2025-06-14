@@ -41,6 +41,12 @@ export const useAppApi = () => {
 		Partial<Record<SubNestedKeys<Omit<typeof api, "loading">>, boolean | undefined>>
 	>({});
 
+	function updateLoading(
+		update: Partial<Record<SubNestedKeys<Omit<typeof api, "loading">>, boolean | undefined>>
+	) {
+		setLoading({ ...loading, ...update });
+	}
+
 	const isValidStoreData = companyId && storeId && tenantId;
 	const isValidUser = !!user && userId && isValidStoreData;
 
@@ -437,7 +443,16 @@ export const useAppApi = () => {
 				create: async (category: TCategory) => {
 					if (!isValidAdmin) return;
 
-					return await FirebaseApi.firestore.setV2({
+					logger({
+						message: `admin try create category`,
+						severity: "INFO",
+						category,
+					});
+					updateLoading({
+						"admin.category.create": true,
+					});
+
+					const res = await FirebaseApi.firestore.setV2({
 						collection: FirebaseAPI.firestore.getPath({
 							companyId,
 							storeId,
@@ -448,6 +463,18 @@ export const useAppApi = () => {
 							categories: FirebaseApi.firestore.arrayUnion(category),
 						},
 					});
+
+					logger({
+						message: `admin ${res.success ? "success" : "fail"}  create category`,
+						severity: res.success ? "INFO" : "ALERT",
+						data: category ?? {},
+					});
+
+					updateLoading({
+						"admin.category.create": false,
+					});
+
+					return res;
 				},
 				update: async (categories: TCategory[]) => {
 					if (!isValidAdmin) return;

@@ -270,6 +270,7 @@ export const resources = {
 		},
 		store: {},
 		admin: {
+			createCategory: "הוסף קטגוריה",
 			discountsPage: {
 				title: "ניהול מבצעים",
 				description: "נהל את מבצעים של חנות שלך כאן",
@@ -290,6 +291,9 @@ export const resources = {
 			},
 			addProductPage: {
 				title: "הוסף מוצר",
+			},
+			productsPage: {
+				addProduct: "הוסף מוצר",
 			},
 			productForm: {
 				edit: {
