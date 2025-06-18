@@ -77,11 +77,11 @@ export declare const ProductSchema: z.ZodObject<{
         url: z.ZodString;
         id: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        id: string;
         url: string;
+        id: string;
     }, {
-        id: string;
         url: string;
+        id: string;
     }>, "many">;
     manufacturer: z.ZodString;
     brand: z.ZodString;
@@ -205,8 +205,8 @@ export declare const ProductSchema: z.ZodObject<{
         unit: "liter" | "ml" | "none";
     };
     images: {
-        id: string;
         url: string;
+        id: string;
     }[];
     manufacturer: string;
     brand: string;
@@ -291,8 +291,8 @@ export declare const ProductSchema: z.ZodObject<{
         unit: "liter" | "ml" | "none";
     };
     images: {
-        id: string;
         url: string;
+        id: string;
     }[];
     manufacturer: string;
     brand: string;
@@ -421,11 +421,11 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         url: z.ZodString;
         id: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        id: string;
         url: string;
+        id: string;
     }, {
-        id: string;
         url: string;
+        id: string;
     }>, "many">;
     manufacturer: z.ZodString;
     brand: z.ZodString;
@@ -551,8 +551,8 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         unit: "liter" | "ml" | "none";
     };
     images: {
-        id: string;
         url: string;
+        id: string;
     }[];
     manufacturer: string;
     brand: string;
@@ -638,8 +638,8 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         unit: "liter" | "ml" | "none";
     };
     images: {
-        id: string;
         url: string;
+        id: string;
     }[];
     manufacturer: string;
     brand: string;

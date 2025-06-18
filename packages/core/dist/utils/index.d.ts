@@ -48,8 +48,8 @@ export declare function getCartCost({ cart, discounts, store, }: {
                 unit: "liter" | "ml" | "none";
             };
             images: {
-                id: string;
                 url: string;
+                id: string;
             }[];
             manufacturer: string;
             brand: string;

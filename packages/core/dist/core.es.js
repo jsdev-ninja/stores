@@ -2975,10 +2975,14 @@ const hr = i.object({
   floor: i.string(),
   apartmentEnterNumber: i.string(),
   apartmentNumber: i.string()
-}), D = i.string().min(1, { message: "שדה חובה" }), br = i.string().regex(/^\d+$/, "Must be a numeric string"), H = i.object({
+}), D = i.string().min(1, { message: "שדה חובה" }), br = i.string().regex(/^\d+$/, "Must be a numeric string"), xr = i.object({ url: i.string().url(), id: i.string() });
+function kr(r) {
+  return !!(r != null && r.url);
+}
+const H = i.object({
   lang: i.enum(["he"]),
   value: i.string()
-}), xr = i.array(H), Ke = i.object({
+}), wr = i.array(H), Ke = i.object({
   id: i.string().min(1),
   companyId: i.string().min(1),
   storeId: i.string().min(1),
@@ -2988,7 +2992,7 @@ const hr = i.object({
   depth: i.number()
 }), Pe = Ke.extend({
   children: i.lazy(() => Pe.array())
-}), kr = Ke.extend({
+}), Tr = Ke.extend({
   index: i.number(),
   depth: i.number(),
   collapsed: i.boolean().optional(),
@@ -3046,7 +3050,7 @@ const hr = i.object({
   }),
   // @deprecated
   categoryNames: i.array(i.string())
-}), wr = et.extend({
+}), Cr = et.extend({
   image: i.instanceof(File).optional()
 }), tt = i.object({
   product: et,
@@ -3054,7 +3058,7 @@ const hr = i.object({
   finalPrice: i.number().optional(),
   finalDiscount: i.number().optional(),
   amount: i.number().int().positive({ message: "Quantity must be a positive integer." })
-}), Tr = i.object({
+}), Sr = i.object({
   type: i.literal("Cart"),
   id: i.string().uuid(),
   companyId: i.string().uuid(),
@@ -3062,11 +3066,11 @@ const hr = i.object({
   userId: i.string().uuid(),
   status: i.enum(["active", "draft", "completed"]),
   items: i.array(tt)
-}), Cr = i.object({
+}), Zr = i.object({
   id: i.string(),
   name: i.string(),
   websiteDomains: i.array(i.string())
-}), Sr = i.object({
+}), Ir = i.object({
   type: i.literal("FavoriteProduct"),
   id: i.string().uuid(),
   companyId: i.string().uuid(),
@@ -3090,7 +3094,7 @@ const hr = i.object({
   lastActivityDate: i.number(),
   paymentType: rt
 });
-function Zr() {
+function Ar() {
   return {
     type: "Profile",
     id: "",
@@ -3116,7 +3120,7 @@ function Zr() {
     paymentType: rt.Values.default
   };
 }
-const Ir = i.object({
+const Nr = i.object({
   type: i.literal("Order"),
   id: D,
   companyId: D,
@@ -3172,7 +3176,7 @@ i.object({
   freeDeliveryPrice: i.number().optional(),
   deliveryPrice: i.number().optional()
 });
-const Ie = i.string().min(1), Ar = i.object({
+const Ie = i.string().min(1), Or = i.object({
   type: i.literal("Discount"),
   storeId: Ie,
   companyId: Ie,
@@ -3203,7 +3207,7 @@ function Fe(r) {
   }
   return ((t = r.discount) == null ? void 0 : t.type) === "number" ? r.price - r.discount.value : r.price;
 }
-function Nr({
+function jr({
   cart: r,
   discounts: e,
   store: t
@@ -3290,29 +3294,31 @@ const yr = {
   }) => `${r}/${e}/${t}${n ? `/${n}` : ""}`,
   // for backend
   getDocPath: (r) => `{companyId}/{storeId}/${r}/{id}`
-}, Or = {
+}, Er = {
   firestore: vr
 };
 export {
   hr as AddressSchema,
   Ke as BaseCategorySchema,
   tt as CartItemProductSchema,
-  Tr as CartSchema,
+  Sr as CartSchema,
   Pe as CategorySchema,
-  Cr as CompanySchema,
-  Ar as DiscountSchema,
-  Sr as FavoriteProductSchema,
-  Or as FirebaseAPI,
+  Zr as CompanySchema,
+  Or as DiscountSchema,
+  Ir as FavoriteProductSchema,
+  xr as FileSchema,
+  Er as FirebaseAPI,
   H as LocaleSchema,
-  xr as LocaleValueSchema,
-  wr as NewProductSchema,
-  Ir as OrderSchema,
+  wr as LocaleValueSchema,
+  Cr as NewProductSchema,
+  Nr as OrderSchema,
   et as ProductSchema,
   rt as ProfilePaymentTypeSchema,
   pr as ProfileSchema,
-  kr as TFlattenCategorySchema,
-  Zr as createEmptyProfile,
-  Nr as getCartCost,
+  Tr as TFlattenCategorySchema,
+  Ar as createEmptyProfile,
+  jr as getCartCost,
+  kr as isFile,
   D as notEmptyTextSchema,
   br as numericTextSchema
 };

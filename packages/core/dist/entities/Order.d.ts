@@ -88,11 +88,11 @@ export declare const OrderSchema: z.ZodObject<{
                     url: z.ZodString;
                     id: z.ZodString;
                 }, "strip", z.ZodTypeAny, {
-                    id: string;
                     url: string;
+                    id: string;
                 }, {
-                    id: string;
                     url: string;
+                    id: string;
                 }>, "many">;
                 manufacturer: z.ZodString;
                 brand: z.ZodString;
@@ -216,8 +216,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;
@@ -302,8 +302,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;
@@ -394,8 +394,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;
@@ -486,8 +486,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;
@@ -584,8 +584,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;
@@ -682,8 +682,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;
@@ -841,8 +841,8 @@ export declare const OrderSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     type: "Order";
     status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "cancelled" | "refunded";
-    date: number;
     id: string;
+    date: number;
     companyId: string;
     storeId: string;
     userId: string;
@@ -886,8 +886,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;
@@ -980,8 +980,8 @@ export declare const OrderSchema: z.ZodObject<{
 }, {
     type: "Order";
     status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "cancelled" | "refunded";
-    date: number;
     id: string;
+    date: number;
     companyId: string;
     storeId: string;
     userId: string;
@@ -1025,8 +1025,8 @@ export declare const OrderSchema: z.ZodObject<{
                     unit: "liter" | "ml" | "none";
                 };
                 images: {
-                    id: string;
                     url: string;
+                    id: string;
                 }[];
                 manufacturer: string;
                 brand: string;

@@ -1,9 +1,9 @@
-import { Button } from "@heroui/react";
 import { NewProductSchema, TCategory, TNewProduct, TProduct } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
+import { FileUpload } from "src/components/FIleUpload/FileUpload";
 import { Flex } from "src/components/Flex";
 import { Form } from "src/components/Form";
 import { TFlattenCategory } from "src/domains/Category";
@@ -263,21 +263,7 @@ export function EditProductPage() {
 						<Form.ErrorMessage<TNewProduct> name="supplier" />
 					</Flex.Item>
 				</Flex>
-				<div className="my-4 flex flex-col gap-4">
-					<Form.File<TNewProduct> name="image" label="Product image" />
-					{!!product.images?.[0] && (
-						<Button
-							onPress={() => {
-								appApi.admin.removeProductImage({ product });
-							}}
-							size="md"
-							className="w-40"
-						>
-							remove image
-						</Button>
-					)}
-					<ImagePreview productImage={product.images?.[0]} />
-				</div>
+				<ImageSection />
 				<div className="my-4">
 					<Form.Submit>Save product</Form.Submit>
 				</div>
@@ -285,16 +271,28 @@ export function EditProductPage() {
 		</div>
 	);
 }
+function ImageSection() {
+	const methods = useFormContext<TNewProduct>();
 
-function ImagePreview({ productImage }: { productImage?: any }) {
-	const form = useFormContext();
-	const newImage = form.watch("image");
+	const image = methods.watch("image");
+	const images = methods.watch("images");
 
-	// newImage ? URL.createObjectURL(images) :
-	const url = newImage ? URL.createObjectURL(newImage) : productImage ? productImage.url : null;
+	const existsImage = images?.[0];
 
 	return (
-		<div className="h-40 w-40">{url && <img src={url} className="w-full h-full" alt="" />}</div>
+		<div className="my-4 flex flex-col gap-4">
+			<FileUpload
+				value={existsImage ?? image}
+				onChange={(change) => {
+					console.log("change", change);
+					if (existsImage) {
+						methods.setValue("images", []);
+					}
+
+					methods.setValue("image", change.value);
+				}}
+			/>
+		</div>
 	);
 }
 

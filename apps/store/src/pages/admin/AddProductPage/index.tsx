@@ -11,6 +11,7 @@ import { TCategory } from "@jsdev_ninja/core";
 import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
 import { flatten } from "src/utils/flatten";
+import { FileUpload } from "src/components/FIleUpload/FileUpload";
 
 function isValidValue(number: number): boolean {
 	return !isNaN(number) && number > 0;
@@ -310,10 +311,8 @@ export function AddProductPage() {
 						<Form.ErrorMessage<TNewProduct> name="supplier" />
 					</Flex.Item>
 				</Flex>
-				<div className="my-4 flex flex-col gap-4">
-					<Form.File<TNewProduct> name="image" label="Product image" />
-					<ImagePreview />
-				</div>
+				<ImageSection />
+
 				<div className="my-4">
 					<Form.Submit>Add product</Form.Submit>
 				</div>
@@ -322,13 +321,20 @@ export function AddProductPage() {
 	);
 }
 
-function ImagePreview() {
-	const form = useFormContext();
-	const images = form.watch("images");
+function ImageSection() {
+	const methods = useFormContext<TNewProduct>();
 
-	const url = images?.[0] ? URL.createObjectURL(images?.[0]) : null;
-
-	return <div className="h-40 w-40">{url && <img src={url} className="" alt="" />}</div>;
+	const image = methods.watch("image");
+	return (
+		<div className="my-4 flex flex-col gap-4">
+			<FileUpload
+				value={image}
+				onChange={(change) => {
+					methods.setValue("image", change.value);
+				}}
+			/>
+		</div>
+	);
 }
 
 function NameDetails() {
