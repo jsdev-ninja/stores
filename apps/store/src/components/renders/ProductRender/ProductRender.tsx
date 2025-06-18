@@ -28,7 +28,7 @@ export function ProductRender({ product }: { product: TProduct }) {
 	return (
 		<Suspense fallback="">
 			<DefaultProductCard product={product} />
-			{Component ? <Component product={product} /> : <DefaultProductCard product={product} />}
+			{/* {Component ? <Component product={product} /> : <DefaultProductCard product={product} />} */}
 		</Suspense>
 	);
 }
