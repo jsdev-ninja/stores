@@ -394,6 +394,7 @@ export default function AdminClientProfile() {
 	console.log("loading", loading, setLoading);
 
 	useEffect(() => {
+		if (!clientId) return;
 		appApi.admin.getClient(clientId).then((res) => {
 			console.log("res", res);
 			if (res?.success) {
