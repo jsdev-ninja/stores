@@ -21,7 +21,7 @@ export type AllParams<Path extends string> = Path extends `${infer SegmentA}/${i
 export type RouteParams<Path extends string> = AllParams<Path> extends never
 	? never
 	: {
-			[Key in AllParams<Path>]: string;
+			[Key in AllParams<Path>]?: string;
 	  };
 
 export type RouteKeys<T> = {

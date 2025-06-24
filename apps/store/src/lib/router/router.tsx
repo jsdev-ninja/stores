@@ -58,7 +58,7 @@ export function createRouter<T extends Routes>(routes: T) {
 	}
 
 	function matchRoute(routeData: RouteData, pathname: string): { match: boolean; exact: boolean } {
-		const exactMatch = comparePathWithRoutePath(pathname, routeData.fullPath);
+		const exactMatch = comparePathWithRoutePath(pathname, routeData.fullPath, routeData.exact);
 
 		const isContain = pathname.includes(routeData.fullPath);
 

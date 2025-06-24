@@ -9,8 +9,8 @@ const RENDER_CONFIG: Record<
 	tester_store: {
 		// productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
-	"balasistore_store": {
-		productCard: lazy(() => import("../../../websites/balasistore/index")),
+	balasistore_store: {
+		// productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 } as const;
 
@@ -22,13 +22,10 @@ export function ProductRender({ product }: { product: TProduct }) {
 	if (!store) return null;
 	const Component = RENDER_CONFIG[store.id]?.productCard;
 
-	console.log("Component", Component, store.id);
-
 	// todo
 	return (
 		<Suspense fallback="">
-			<DefaultProductCard product={product} />
-			{/* {Component ? <Component product={product} /> : <DefaultProductCard product={product} />} */}
+			{Component ? <Component product={product} /> : <DefaultProductCard product={product} />}
 		</Suspense>
 	);
 }

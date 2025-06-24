@@ -10,7 +10,7 @@ export const routes = {
 				exact: true,
 			},
 			catalog: {
-				path: "/catalog",
+				path: "/catalog/:category1/:category2/:category3/:category4/:category5",
 				exact: false,
 			},
 			discounts: {
@@ -58,10 +58,11 @@ export const routes = {
 				path: "/addProduct",
 			},
 			products: {
-				path: "/products",
+				path: "/products/:category1/:category2/:category3/:category4/:category5",
+				exact: false,
 			},
 			editProduct: {
-				path: "/products/:id",
+				path: "/editProduct/:id",
 			},
 			productsByCategory: {
 				path: "/products/category/:categoryName",

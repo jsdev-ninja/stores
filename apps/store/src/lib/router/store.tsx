@@ -89,9 +89,10 @@ export function createStore(routes: Routes) {
 
 function update() {
 	if (!document.startViewTransition) return emitChange();
-	document.startViewTransition?.(async () => {
+	const transition = document.startViewTransition?.(() => {
 		emitChange();
 	});
+	transition.finished.then(() => {});
 }
 
 function getRouteFromPath(routes: Routes, path: string) {

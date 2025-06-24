@@ -1,7 +1,7 @@
 import { TProduct } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ProductService } from "src/domains/product/productService";
+import { useAppApi } from "src/appApi";
 import { useParams } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
@@ -10,19 +10,22 @@ export function ProductPage() {
 
 	const { t } = useTranslation();
 
+	const appApi = useAppApi();
+
 	const [product, setProduct] = useState<TProduct | null>(() => {
 		const state = history.state?.product;
 		if (state) {
-			history.replaceState({}, window.location.pathname);
+			// todo history.replaceState({}, window.location.pathname);
 		}
 		return state ?? null;
 	});
 
 	useEffect(() => {
 		if (!params.id || !!product) return;
-
-		ProductService.get(params.id).then((result) => {
-			setProduct(result.data as TProduct);
+		appApi.system.getProductById({ id: params.id }).then((res) => {
+			if (res?.success) {
+				setProduct(res.data);
+			}
 		});
 	}, [params.id]);
 

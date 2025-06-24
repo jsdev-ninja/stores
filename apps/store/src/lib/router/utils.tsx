@@ -1,13 +1,22 @@
 export function replaceParamsInPath(path: string, params?: object) {
-	if (!params) return path;
+	console.log(path, params);
+
+	if (!params) return removeDynamicSegments(path);
 
 	let newPath = path;
 
 	Object.entries(params).forEach(([paramName, paramValue]) => {
+		if (!paramValue) return;
 		newPath = newPath.replace(`:${paramName}`, paramValue);
 	});
 
-	return newPath;
+	return removeDynamicSegments(newPath);
+}
+
+function removeDynamicSegments(url: string) {
+	const [base, ...segments] = url.split("/");
+	const filtered = segments.filter((seg) => !seg.startsWith(":"));
+	return [base, ...filtered].join("/");
 }
 
 export function comparePathWithRoutePath(path: string, routePath: string, exact?: boolean) {

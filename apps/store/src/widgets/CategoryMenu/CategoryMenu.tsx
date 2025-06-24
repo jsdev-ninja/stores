@@ -4,38 +4,35 @@ import { useAppSelector } from "src/infra";
 import * as Accordion from "@radix-ui/react-accordion";
 import { TCategory } from "@jsdev_ninja/core";
 import classNames from "classnames";
+import { navigate, useParams } from "src/navigation";
 
-export function CategoryMenu({
-	value,
-	onValueChange,
-}: {
-	value: {
-		0: string;
-		1: string;
-		2: string;
-		3: string;
-		4: string;
-	};
-	onValueChange:
-		| ((value: { 0: string; 1: string; 2: string; 3: string; 4: string }) => void)
-		| undefined;
-}) {
+export function CategoryMenu({ isAdmin }: { isAdmin?: boolean }) {
 	const categories = useAppSelector(CategorySlice.selectors.selectCategories);
 
+	const params = useParams(isAdmin ? "admin.products" : "store.catalog");
+	console.log("params", params);
+
 	function onChange(name: string, depth: number) {
-		const isSelected = (value as any)[depth] === name;
+		console.log("on", name, depth);
 
-		let newValue = { ...value };
+		const isSelected = params[`category${(depth + 1) as 1 | 2 | 3 | 4 | 5}`] === name;
 
-		for (let i = depth + 1; i < 4; i++) {
-			newValue[i as keyof typeof value] = "";
+		// clean children
+		const newParams: any = {};
+		for (let i = depth + 2; i <= 5; i++) {
+			newParams[`category${i}`] = "";
 		}
 
-		onValueChange?.({
-			...newValue,
-			[depth]: isSelected ? "" : name,
+		navigate({
+			to: isAdmin ? "admin.products" : "store.catalog",
+			params: {
+				...params,
+				[`category${depth + 1}`]: isSelected ? "" : name,
+				...newParams,
+			},
 		});
 	}
+	console.log("categories", categories);
 
 	return (
 		<Accordion.Root
@@ -45,11 +42,16 @@ export function CategoryMenu({
 			type="single"
 			className="flex flex-col gap-2"
 			collapsible
-			value={value[0]}
+			value={params.category1}
 		>
 			{categories.map((category) => {
 				return (
-					<Category key={category.id} value={value} onChange={onChange} category={category} />
+					<Category
+						isAdmin={isAdmin}
+						key={category.id}
+						onChange={onChange}
+						category={category}
+					/>
 				);
 			})}
 		</Accordion.Root>
@@ -58,21 +60,18 @@ export function CategoryMenu({
 
 function Category({
 	category,
-	value,
 	onChange,
+	isAdmin,
 }: {
+	isAdmin?: boolean;
 	category: TCategory;
-	value: {
-		0: string;
-		1: string;
-		2: string;
-		3: string;
-		4: string;
-	};
+
 	onChange: (name: string, depth: number) => void;
 }) {
-	const selected = value[category.depth as keyof typeof value] as string;
-	const isSelected = selected === category.id;
+	const params = useParams(isAdmin ? "admin.products" : "store.catalog");
+	const key: keyof typeof params = `category${(category.depth + 1) as 1 | 2 | 3 | 4 | 5}`; //todo
+	const value = params[key];
+	const isSelected = value === category.id;
 
 	return (
 		<Accordion.Item key={category.id} value={category.id}>
@@ -87,9 +86,9 @@ function Category({
 				<Accordion.Content className="mt-4">
 					<div className="flex flex-col gap-2">
 						<Accordion.Root
-							value={value[category.depth as keyof typeof value]}
-							onValueChange={(value) => {
-								onChange(value, category.depth + 1);
+							value={value}
+							onValueChange={(id) => {
+								onChange(id, category.depth + 1);
 							}}
 							type="single"
 							collapsible
@@ -98,7 +97,7 @@ function Category({
 							{category.children.map((childCategory) => {
 								return (
 									<Category
-										value={value}
+										isAdmin={isAdmin}
 										onChange={onChange}
 										category={childCategory}
 										key={childCategory.id}
