@@ -1,4 +1,4 @@
-import { Configure, InstantSearch, useInfiniteHits, useInstantSearch } from "react-instantsearch";
+import { Configure, InstantSearch, useInfiniteHits } from "react-instantsearch";
 import { AlgoliaClient } from "src/services";
 import { ReactNode, useEffect, useRef } from "react";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
@@ -23,11 +23,7 @@ export function ProductsWidget({
 	const topCategory = Object.values(params);
 	const index = topCategory.findLastIndex((el) => !!el);
 
-	console.log("topCategory", topCategory);
-
 	const categoryName = params[`category${(index + 1) as 1 | 2 | 3 | 4 | 5}`];
-
-	console.log("categoryName", categoryName);
 
 	const filter = categoryName
 		? `(categoryIds:'${decodeURIComponent(categoryName)}'  AND isPublished:true)`
@@ -126,7 +122,6 @@ export function Products({
 	emptyStateAction: () => void;
 }) {
 	const { showMore, items, isLastPage } = useInfiniteHits<TProduct>({});
-	const { status } = useInstantSearch();
 
 	const { t } = useTranslation(["emptyState"]);
 
@@ -134,13 +129,16 @@ export function Products({
 
 	useEffect(() => {
 		if (sentinelRef.current !== null) {
-			const observer = new IntersectionObserver((entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting && !isLastPage) {
-						showMore();
-					}
-				});
-			});
+			const observer = new IntersectionObserver(
+				(entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting && !isLastPage) {
+							showMore();
+						}
+					});
+				},
+				{ threshold: 1 }
+			);
 
 			observer.observe(sentinelRef.current);
 
@@ -148,9 +146,7 @@ export function Products({
 				observer.disconnect();
 			};
 		}
-	}, [isLastPage, showMore]);
-
-	if (status === "loading" || status === "stalled") return null; //todo
+	}, [isLastPage, items.length, showMore]);
 
 	if (!items.length) {
 		return (
@@ -170,7 +166,7 @@ export function Products({
 	return (
 		<>
 			{children(items)}
-			{/* <div aria-hidden="true" className="w-full" ref={sentinelRef}></div> */}
+			<div aria-hidden="true" className="w-full" ref={sentinelRef}></div>
 		</>
 	);
 }
