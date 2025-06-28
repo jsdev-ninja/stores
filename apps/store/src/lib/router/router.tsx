@@ -142,6 +142,10 @@ export function createRouter<T extends Routes>(routes: T) {
 		if (!route) {
 			return {} as Result;
 		}
+		const isMatch = matchRoute(route, pathname);
+		if (!isMatch.match) {
+			return {} as Result;
+		}
 
 		const result: { [key: string]: string } = {};
 
