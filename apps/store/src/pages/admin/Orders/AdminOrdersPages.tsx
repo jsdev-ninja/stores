@@ -109,24 +109,26 @@ function OrderRow({
 					</Button>
 				);
 			}
-			return (
-				<>
-					<Button
-						onPress={async () => {
-							// charge for order
-							const res = await appApi.admin.chargeOrder({ order });
-							console.log("res", res);
+			if (order.paymentStatus !== "completed") {
+				return (
+					<>
+						<Button
+							onPress={async () => {
+								// charge for order
+								const res = await appApi.admin.chargeOrder({ order });
+								console.log("res", res);
 
-							if (!res?.success) {
-								return;
-							}
-							// updateOrder(order.id, "completed");
-						}}
-					>
-						{t("ordersPage:actions.chargeOrder")}
-					</Button>
-				</>
-			);
+								if (!res?.success) {
+									return;
+								}
+								// updateOrder(order.id, "completed");
+							}}
+						>
+							{t("ordersPage:actions.chargeOrder")}
+						</Button>
+					</>
+				);
+			}
 		}
 		if (order.status === "processing") {
 			return (
