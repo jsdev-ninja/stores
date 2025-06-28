@@ -187,6 +187,7 @@ export const useAppApi = () => {
 							value: companyId,
 						},
 					],
+					sort: [{ name: "date", value: "desc" }],
 				});
 			},
 			removeProductImage: async ({ product }: { product: TProduct }) => {
@@ -624,8 +625,6 @@ export const useAppApi = () => {
 				if (!isValidUser) {
 					return;
 				}
-
-				// todo handle already paid order
 
 				// todo handle duplicate payment and page refresh
 

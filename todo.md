@@ -11,7 +11,7 @@ date - 12/25
 itayna@hyp.co.il תמיכה
 support@hyp.co.il
 
-*6488 
+\*6488
 
 <!-- AUTH FEATURE -->
 
@@ -32,11 +32,11 @@ TODO
 8. admin manage clients page
 9. fetch orders per client id
 10.   handle admin charge in DB
-11. track any entity update with diff before and after
-12. fix email
-13. fix sync data between order and payments (user can edit data on payment)
-14. clean products when remove category
-15. store backend validation for cart cost and order
+11.   track any entity update with diff before and after
+12.   fix email
+13.   fix sync data between order and payments (user can edit data on payment)
+14.   clean products when remove category
+15.   store backend validation for cart cost and order
 <!-- packages -->
 
 3 in 10 per product
@@ -52,11 +52,6 @@ TODO
 
 <!-- company discount (exclude products) -->
 <!-- new product field can be discound -->
-
-// todo
-
-<!-- category by  url -->
-<!-- barcode is private -->
 
 ORDER FLOW
 
