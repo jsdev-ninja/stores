@@ -37,12 +37,11 @@ TODO
 13.   fix sync data between order and payments (user can edit data on payment)
 14.   clean products when remove category
 15.   store backend validation for cart cost and order
-<!-- packages -->
 
-3 in 10 per product
-
-1. order client details HP, addional contact
-2. store working dates details
+<!-- payment types -->
+1. j5
+2. external
+<!-- payment types end -->
 
 <!-- by brand by category -->
 
