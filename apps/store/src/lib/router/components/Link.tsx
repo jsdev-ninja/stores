@@ -47,7 +47,8 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 		  };
 
 	function Link<K extends TTo>(props: Props<K> & TUiLinkProps) {
-		const routeConfig = getRouteData(props.to ?? "", routes);
+		const { to, state, ...rest } = props;
+		const routeConfig = getRouteData(to ?? "", routes);
 
 		const p = "params" in props ? props.params : {};
 
@@ -55,12 +56,11 @@ export function createLink<T extends Routes>(routes: T, store: any) {
 
 		return (
 			<UiLink
+				{...rest}
 				onPress={() => {
-					_navigate({ path, state: props.state });
+					_navigate({ path, state: state });
 				}}
-			>
-				{props.children}
-			</UiLink>
+			/>
 		);
 	}
 

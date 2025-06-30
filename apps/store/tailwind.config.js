@@ -1,25 +1,288 @@
-const { heroui } = require("@heroui/react");
+import { heroui } from "@heroui/react";
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-	darkMode: ["class"],
+export default {
 	content: [
-		"./pages/**/*.{ts,tsx}",
-		"./components/**/*.{ts,tsx}",
-		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
+		"./index.html",
+		"./src/**/*.{js,ts,jsx,tsx}",
 		"./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
-		"../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
 	],
-	prefix: "",
 	theme: {
-		container: {
-			center: true,
-			padding: "2rem",
+		extend: {
+			colors: {
+				primary: {
+					50: "#e8eff9",
+					100: "#e9f2fa",
+					200: "#eff4f9",
+					300: "#2f93f6",
+					400: "#35a7fd",
+					500: "#009ef7",
+					600: "#134266",
+					700: "#212e48",
+					800: "#0d121e",
+					900: "#0c0f17",
+					DEFAULT: "#009ef7",
+				},
+				success: {
+					50: "#ebfdef",
+					100: "#99d1a6",
+					200: "#50cd89",
+					300: "#22c38f",
+					400: "#02bd84",
+					500: "#0bb27c",
+					600: "#22c38f",
+					700: "#0bb27c",
+					800: "#02bd84",
+					900: "#0bb27c",
+					DEFAULT: "#50cd89",
+				},
+				danger: {
+					50: "#ffefe7",
+					100: "#ffa071",
+					200: "#fc424a",
+					300: "#ef305e",
+					400: "#ec1d25",
+					500: "#ec1d25",
+					600: "#ef305e",
+					700: "#ec1d25",
+					800: "#ef305e",
+					900: "#ec1d25",
+					DEFAULT: "#fc424a",
+				},
+				warning: {
+					DEFAULT: "#fea73e",
+				},
+				dark: {
+					50: "#f1f1f1",
+					100: "#dadada",
+					200: "#c4c4c4",
+					300: "#cdcdd3",
+					400: "#92929f",
+					500: "#737676",
+					600: "#494b74",
+					700: "#323248",
+					800: "#1e1e2d",
+					900: "#151521",
+					DEFAULT: "#1e1e2d",
+				},
+			},
+			fontFamily: {
+				sans: ['"Inter"', "ui-sans-serif", "system-ui", "sans-serif"],
+			},
+			spacing: {
+				sidebar: "16rem",
+				"sidebar-collapsed": "4rem",
+			},
+			transitionProperty: {
+				spacing: "margin, padding, width, height",
+			},
 			screens: {
-				"2xl": "1400px",
+				"3xl": "1920px",
+			},
+			boxShadow: {
+				"dashboard-card": "0 0 20px 0 rgba(76, 87, 125, 0.02)",
 			},
 		},
 	},
-	plugins: [require("tailwindcss-animate"), heroui()],
+	darkMode: "class",
+	plugins: [
+		heroui({
+			layout: {
+				dividerWeight: "1px",
+				disabledOpacity: 0.45,
+				fontSize: {
+					tiny: "0.75rem", // 12px
+					small: "0.875rem", // 14px
+					medium: "0.9375rem", // 15px
+					large: "1.125rem", // 18px
+				},
+				lineHeight: {
+					tiny: "1rem",
+					small: "1.25rem",
+					medium: "1.5rem",
+					large: "1.75rem",
+				},
+				radius: {
+					small: "6px",
+					medium: "8px",
+					large: "12px",
+				},
+				borderWidth: {
+					small: "1px",
+					medium: "1px",
+					large: "2px",
+				},
+			},
+			themes: {
+				light: {
+					colors: {
+						background: {
+							DEFAULT: "#FFFFFF",
+						},
+						foreground: {
+							DEFAULT: "#0c0c0c",
+						},
+						primary: {
+							50: "#e8eff9",
+							100: "#e9f2fa",
+							200: "#eff4f9",
+							300: "#2f93f6",
+							400: "#35a7fd",
+							500: "#009ef7",
+							600: "#134266",
+							700: "#212e48",
+							800: "#0d121e",
+							900: "#0c0f17",
+							DEFAULT: "#009ef7",
+							foreground: "#ffffff",
+						},
+						success: {
+							50: "#ebfdef",
+							100: "#99d1a6",
+							200: "#50cd89",
+							300: "#22c38f",
+							400: "#02bd84",
+							500: "#0bb27c",
+							600: "#22c38f",
+							700: "#0bb27c",
+							800: "#02bd84",
+							900: "#0bb27c",
+							DEFAULT: "#50cd89",
+							foreground: "#ffffff",
+						},
+						danger: {
+							50: "#ffefe7",
+							100: "#ffa071",
+							200: "#fc424a",
+							300: "#ef305e",
+							400: "#ec1d25",
+							500: "#ec1d25",
+							600: "#ef305e",
+							700: "#ec1d25",
+							800: "#ef305e",
+							900: "#ec1d25",
+							DEFAULT: "#fc424a",
+							foreground: "#ffffff",
+						},
+						warning: {
+							DEFAULT: "#fea73e",
+							foreground: "#ffffff",
+						},
+						default: {
+							50: "#f6f6f6",
+							100: "#f6f4f5",
+							200: "#e8e9ea",
+							300: "#e8eaf1",
+							400: "#cdcdd3",
+							500: "#949ca9",
+							600: "#929ca8",
+							700: "#7a828a",
+							800: "#858b9b",
+							900: "#4b4b4b",
+							DEFAULT: "#e8e9ea",
+							foreground: "#0c0c0c",
+						},
+						content1: {
+							DEFAULT: "#ffffff",
+							foreground: "#0c0c0c",
+						},
+						content2: {
+							DEFAULT: "#f6f6f6",
+							foreground: "#0c0c0c",
+						},
+						content3: {
+							DEFAULT: "#e8e9ea",
+							foreground: "#0c0c0c",
+						},
+					},
+				},
+				dark: {
+					colors: {
+						background: {
+							DEFAULT: "#151521",
+						},
+						foreground: {
+							DEFAULT: "#f6f6f6",
+						},
+						primary: {
+							50: "#0c0f17",
+							100: "#0d121e",
+							200: "#212e48",
+							300: "#134266",
+							400: "#009ef7",
+							500: "#35a7fd",
+							600: "#2f93f6",
+							700: "#e9f2fa",
+							800: "#e8eff9",
+							900: "#eff4f9",
+							DEFAULT: "#009ef7",
+							foreground: "#ffffff",
+						},
+						success: {
+							50: "#0bb27c",
+							100: "#02bd84",
+							200: "#0bb27c",
+							300: "#22c38f",
+							400: "#50cd89",
+							500: "#99d1a6",
+							600: "#ebfdef",
+							700: "#ebfdef",
+							800: "#ebfdef",
+							900: "#ebfdef",
+							DEFAULT: "#50cd89",
+							foreground: "#ffffff",
+						},
+						danger: {
+							50: "#ec1d25",
+							100: "#ef305e",
+							200: "#ec1d25",
+							300: "#ef305e",
+							400: "#fc424a",
+							500: "#ffa071",
+							600: "#ffefe7",
+							700: "#ffefe7",
+							800: "#ffefe7",
+							900: "#ffefe7",
+							DEFAULT: "#fc424a",
+							foreground: "#ffffff",
+						},
+						warning: {
+							DEFAULT: "#fea73e",
+							foreground: "#ffffff",
+						},
+						default: {
+							50: "#4b4b4b",
+							100: "#858b9b",
+							200: "#7a828a",
+							300: "#929ca8",
+							400: "#949ca9",
+							500: "#cdcdd3",
+							600: "#e8eaf1",
+							700: "#e8e9ea",
+							800: "#f6f4f5",
+							900: "#f6f6f6",
+							DEFAULT: "#323248",
+							foreground: "#ffffff",
+						},
+						content1: {
+							DEFAULT: "#1e1e2d",
+							foreground: "#f6f6f6",
+						},
+						content2: {
+							DEFAULT: "#2b2b40",
+							foreground: "#f6f6f6",
+						},
+						content3: {
+							DEFAULT: "#323248",
+							foreground: "#f6f6f6",
+						},
+						content4: {
+							DEFAULT: "#2b2b43",
+							foreground: "#f6f6f6",
+						},
+					},
+				},
+			},
+		}),
+	],
 };
