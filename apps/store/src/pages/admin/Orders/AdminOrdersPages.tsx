@@ -102,7 +102,7 @@ function OrderRow({
 							if (!res?.success) {
 								return;
 							}
-							// updateOrder(order.id, "completed");
+							updateOrder(order.id, "completed");
 						}}
 					>
 						{t("ordersPage:actions.endOrder")}
@@ -121,7 +121,8 @@ function OrderRow({
 								if (!res?.success) {
 									return;
 								}
-								// updateOrder(order.id, "completed");
+								updateOrder(order.id, "completed");
+								updateOrder(order.paymentStatus, "completed");
 							}}
 						>
 							{t("ordersPage:actions.chargeOrder")}
