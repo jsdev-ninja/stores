@@ -1,6 +1,12 @@
-import { Configure, InstantSearch, useInfiniteHits } from "react-instantsearch";
+import {
+	ClearRefinements,
+	Configure,
+	InstantSearch,
+	useInfiniteHits,
+	useInstantSearch,
+} from "react-instantsearch";
 import { AlgoliaClient } from "src/services";
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
 import { SearchBox } from "./SearchBox";
 import { useStore } from "src/domains/Store";
@@ -26,7 +32,7 @@ export function ProductsWidget({
 	const categoryName = params[`category${(index + 1) as 1 | 2 | 3 | 4 | 5}`];
 
 	const filter = categoryName
-		? `(categoryIds:'${decodeURIComponent(categoryName)}'  AND isPublished:true)`
+		? `(categoryIds:'${decodeURIComponent(categoryName)}' AND isPublished:true)`
 		: "isPublished:true";
 
 	if (!store?.companyId || !store.id) return null;
@@ -46,6 +52,7 @@ export function ProductsWidget({
 				persistHierarchicalRootCount: true,
 			}}
 		>
+			<RestPage filters={filters} />
 			<Configure
 				queryLanguages={["he", "en"]}
 				{...(filters ? { filters: filters } : {})}
@@ -76,13 +83,11 @@ export function ProductsWidgetAdmin({
 		? `(categoryIds:'${decodeURIComponent(categoryName)}'  AND isPublished:true)`
 		: "isPublished:true";
 
-	if (!store?.companyId || !store.id) return null;
-
 	const _filter = filter ? `AND ${filter}` : "";
 
-	console.log("_filter", _filter);
+	const filters = `companyId:${store?.companyId} AND storeId:${store?.id} ${_filter}`;
 
-	const filters = `companyId:${store.companyId} AND storeId:${store.id} ${_filter}`;
+	if (!store?.companyId || !store.id) return null;
 
 	return (
 		<InstantSearch
@@ -93,11 +98,13 @@ export function ProductsWidgetAdmin({
 				persistHierarchicalRootCount: true,
 			}}
 		>
+			<RestPage filters={filters} />
 			<Configure
 				queryLanguages={["he", "en"]}
 				{...(filters ? { filters: filters } : {})}
 				attributesToHighlight={[]}
 			/>
+			<ClearRefinements />
 			{children}
 		</InstantSearch>
 	);
@@ -112,6 +119,25 @@ ProductsWidget.SearchBox = SearchBox;
 ProductsWidgetAdmin.Filter = ProductFilter;
 ProductsWidgetAdmin.Products = Products;
 ProductsWidgetAdmin.SearchBox = SearchBox;
+
+// todo
+function RestPage({ filters }: { filters: string }) {
+	const { setUiState } = useInstantSearch();
+
+	const [ready, setReady] = useState(false);
+
+	useEffect(() => {
+		if (!ready) return setReady(true);
+		setUiState((prev) => ({
+			...prev,
+			products: {
+				...prev.products,
+				page: 0, // reset page when filters change
+			},
+		}));
+	}, [filters]);
+	return null;
+}
 
 export function Products({
 	children,
