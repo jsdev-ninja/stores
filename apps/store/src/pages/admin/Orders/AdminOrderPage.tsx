@@ -205,7 +205,19 @@ export default function AdminOrderPage() {
 				<CardBody className="flex flex-col gap-6">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Input label="Customer Name" value={order.client.displayName} isDisabled />
-						<Input label="Email" value={order.client.email} />
+						<Input label="Email" value={order.client.email} isDisabled />
+						<Input
+							isDisabled
+							label="Name on Invoice"
+							value={order.nameOnInvoice || ""}
+							placeholder="Name that will appear on invoice"
+						/>
+						<Input
+							isDisabled
+							label="Client Comment"
+							value={order.clientComment || ""}
+							placeholder="Client's comment for the store"
+						/>
 						<Select
 							label="Status"
 							selectedKeys={[order.status]}
@@ -223,9 +235,39 @@ export default function AdminOrderPage() {
 						</Select>
 						<Input
 							label="Order Date"
-							value={order.date?.toString()}
-							onChange={(e) => setOrder({ ...order, date: e.target.value as any })}
+							value={order.date ? new Date(order.date).toLocaleDateString() : ""}
+							isDisabled
 						/>
+						<Input
+							label="Delivery Date"
+							type="date"
+							value={
+								order.deliveryDate
+									? new Date(order.deliveryDate).toISOString().split("T")[0]
+									: ""
+							}
+						/>
+					</div>
+
+					{/* Customer Address Section */}
+					<div className="flex flex-col gap-2">
+						<h2 className="text-lg font-semibold">Customer Address</h2>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<Input label="City" value={order.client.address?.city || ""} isDisabled />
+							<Input label="Street" value={order.client.address?.street || ""} isDisabled />
+							<Input
+								label="Street Number"
+								value={order.client.address?.streetNumber || ""}
+								isDisabled
+							/>
+							<Input label="Floor" value={order.client.address?.floor || ""} isDisabled />
+							<Input
+								label="Apartment Number"
+								value={order.client.address?.apartmentNumber || ""}
+								isDisabled
+							/>
+							<Input label="Phone" value={order.client.phoneNumber || ""} isDisabled />
+						</div>
 					</div>
 
 					<div className="flex flex-col gap-2">
