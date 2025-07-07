@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Card,
 	CardHeader,
@@ -16,13 +16,23 @@ import {
 	TableRow,
 	TableCell,
 	Button,
+	Modal,
+	ModalContent,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	useDisclosure,
+	Autocomplete,
+	AutocompleteItem,
 } from "@heroui/react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import { navigate, useParams } from "src/navigation";
 import { useAppApi } from "src/appApi";
-import { getCartCost, TOrder } from "@jsdev_ninja/core";
+import { getCartCost, TOrder, TProduct } from "@jsdev_ninja/core";
 import { useStore } from "src/domains/Store";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
+import algoliasearch from "algoliasearch/lite";
+
 interface OrderItemsTableProps {
 	items: TOrder["cart"]["items"];
 	onUpdateItem: (itemId: string, field: keyof TOrder["cart"]["items"][number], value: any) => void;
@@ -84,6 +94,11 @@ export function OrderItemsTable({ items, onUpdateItem, onRemoveItem }: OrderItem
 
 export default function AdminOrderPage() {
 	const [order, setOrder] = React.useState<TOrder | null>(null);
+	const [selectedProduct, setSelectedProduct] = useState<string>("");
+	const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
+	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
+	const [isSearching, setIsSearching] = useState(false);
+	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	console.log(JSON.stringify(order?.cart.items));
 	console.log("order", order?.cart);
@@ -95,6 +110,10 @@ export default function AdminOrderPage() {
 	const store = useStore();
 	const discounts = useDiscounts();
 
+	const algoliaClient = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
+
+	const productsIndex = algoliaClient.initIndex("products");
+
 	async function save() {
 		if (!order) return;
 
@@ -102,6 +121,85 @@ export default function AdminOrderPage() {
 		if (res?.success) {
 			navigate({ to: "admin.orders" });
 		}
+	}
+
+
+
+	async function handleProductSearch(query: string) {
+		if (!query || query.length < 2) {
+			setSearchResults([]);
+			return;
+		}
+		setIsSearching(true);
+		try {
+			const { hits } = await productsIndex.search<TProduct>(query, {
+				filters: `storeId:${store?.id} AND companyId:${store?.companyId}`,
+				hitsPerPage: 10,
+			});
+			setSearchResults(hits);
+		} catch (error) {
+			setSearchResults([]);
+		} finally {
+			setIsSearching(false);
+		}
+	}
+
+	function addProductToOrder() {
+		if (!order || !selectedProduct || selectedQuantity <= 0) return;
+		const product = searchResults.find((p) => p.id === selectedProduct);
+		if (!product) return;
+
+		// Check if product already exists in order
+		const existingItemIndex = order.cart.items.findIndex(
+			(item) => item.product.id === selectedProduct
+		);
+
+		setOrder((prev) => {
+			if (!prev) return prev;
+
+			const updatedItems = [...prev.cart.items];
+
+			if (existingItemIndex >= 0) {
+				// Update existing item quantity
+				updatedItems[existingItemIndex] = {
+					...updatedItems[existingItemIndex],
+					amount: updatedItems[existingItemIndex].amount + selectedQuantity,
+				};
+			} else {
+				// Add new item
+				const newItem = {
+					product: product,
+					originalPrice: product.price,
+					finalPrice: product.price,
+					finalDiscount: 0,
+					amount: selectedQuantity,
+				};
+				updatedItems.push(newItem);
+			}
+
+			const cartCost = getCartCost({
+				cart: updatedItems,
+				discounts: discounts,
+				store: store!,
+			});
+
+			return {
+				...prev,
+				cart: {
+					...prev.cart,
+					items: updatedItems,
+					cartDiscount: cartCost.discount,
+					cartTotal: cartCost.finalCost,
+					cartVat: cartCost.vat,
+				},
+			};
+		});
+
+		// Reset form
+		setSelectedProduct("");
+		setSelectedQuantity(1);
+		setSearchResults([]);
+		onClose();
 	}
 
 	useEffect(() => {
@@ -271,13 +369,72 @@ export default function AdminOrderPage() {
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<h2 className="text-lg font-semibold">Order Items</h2>
+						<div className="flex items-center justify-between">
+							<h2 className="text-lg font-semibold">Order Items</h2>
+							<Button
+								color="primary"
+								startContent={<Plus />}
+								onPress={() => {
+									onOpen();
+								}}
+							>
+								Add Product
+							</Button>
+						</div>
 						<OrderItemsTable
 							items={order.cart.items}
 							onUpdateItem={updateOrderItem}
 							onRemoveItem={removeOrderItem}
 						/>
 					</div>
+
+					{/* Add Product Modal */}
+					<Modal isOpen={isOpen} onClose={onClose} size="2xl">
+						<ModalContent>
+							<ModalHeader>Add Product to Order</ModalHeader>
+							<ModalBody>
+								<div className="space-y-4">
+									<Autocomplete
+										label="Search and Select Product"
+										placeholder="Type to search products..."
+										items={searchResults}
+										onInputChange={handleProductSearch}
+										onSelectionChange={(key) => setSelectedProduct(key as string)}
+										isLoading={isSearching}
+										allowsCustomValue={false}
+									>
+										{(product) => (
+											<AutocompleteItem key={product.id} textValue={product.name[0].value}>
+												<div className="flex flex-col">
+													<span className="font-medium">{product.name[0].value}</span>
+													<span className="text-sm text-gray-500">₪{product.price}</span>
+												</div>
+											</AutocompleteItem>
+										)}
+									</Autocomplete>
+									<Input
+										label="Quantity"
+										type="number"
+										min={1}
+										value={selectedQuantity.toString()}
+										onChange={(e) => setSelectedQuantity(parseInt(e.target.value) || 1)}
+									/>
+								</div>
+							</ModalBody>
+							<ModalFooter>
+								<Button variant="flat" onPress={onClose}>
+									Cancel
+								</Button>
+								<Button
+									color="primary"
+									onPress={addProductToOrder}
+									isDisabled={!selectedProduct || selectedQuantity <= 0}
+								>
+									Add to Order
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
 				</CardBody>
 				<Divider />
 				<CardFooter>
