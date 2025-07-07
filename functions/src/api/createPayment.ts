@@ -31,6 +31,8 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 
 		console.log("storePrivateData", JSON.stringify(storePrivateData));
 
+		const nameOnInvoice = order.nameOnInvoice;
+
 		const res = await hypPaymentService.createPaymentLink({
 			action: "APISign",
 			What: "SIGN",
@@ -44,8 +46,8 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			Order: order.id,
 			// client data
 			cell: order.client.phoneNumber,
-			ClientName: order?.nameOnInvoice || order.client.displayName,
-			ClientLName: order.client.displayName,
+			ClientName: nameOnInvoice ?? "",
+			ClientLName: "",
 			email: order.client.email,
 			street: order.client.address?.street,
 			city: order.client.address?.city,
