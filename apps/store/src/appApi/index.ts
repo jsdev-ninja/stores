@@ -973,6 +973,60 @@ export const useAppApi = () => {
 					productName: product.name[0].value, //todo get correct lang
 				});
 			},
+			async updateCartItemAmount({ product, amount }: { product: TProduct; amount: number }) {
+				if (!isValidUser) {
+					return;
+				}
+
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
+
+				logger({
+					message: "user update cart item amount",
+					severity: "INFO",
+				});
+
+				const cartItems = cart?.items ?? [];
+
+				const productIndex = cartItems.findIndex(
+					(cartItem) => cartItem.product.id === product.id
+				);
+				const productInCart = productIndex !== -1;
+				if (!productInCart) return;
+
+				const items = structuredClone(cartItems);
+
+				if (amount <= 0) {
+					// Remove item if amount is 0 or negative
+					items.splice(productIndex, 1);
+				} else {
+					// Update amount
+					items[productIndex].amount = amount;
+				}
+
+				FirebaseApi.firestore.setV2<TCart>({
+					collection: FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "cart",
+					}),
+					doc: {
+						...actualCart,
+						items,
+					},
+				});
+
+				// Update local state
+				actions.dispatch(actions.cart.updateItemAmount({ product, amount }));
+
+				mixPanelApi.track("USER_UPDATE_CART_ITEM_AMOUNT", {
+					productId: product.id,
+					productName: product.name[0].value,
+					amount,
+				});
+			},
 		},
 		superAdmin: {
 			getAllStores: async () => {

@@ -3057,7 +3057,7 @@ const H = i.object({
   originalPrice: i.number().optional(),
   finalPrice: i.number().optional(),
   finalDiscount: i.number().optional(),
-  amount: i.number().int().positive({ message: "Quantity must be a positive integer." })
+  amount: i.number().positive({ message: "Quantity must be a positive number." })
 }), Sr = i.object({
   type: i.literal("Cart"),
   id: i.string().uuid(),
@@ -3155,7 +3155,6 @@ const Nr = i.object({
   // what store charge
   date: i.number(),
   deliveryDate: i.coerce.number().optional(),
-  createdAt: i.number().optional(),
   client: pr.required({}),
   nameOnInvoice: i.string().optional(),
   clientComment: i.string().optional()

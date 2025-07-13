@@ -746,7 +746,6 @@ export declare const OrderSchema: z.ZodObject<{
     actualAmount: z.ZodOptional<z.ZodNumber>;
     date: z.ZodNumber;
     deliveryDate: z.ZodOptional<z.ZodNumber>;
-    createdAt: z.ZodOptional<z.ZodNumber>;
     client: z.ZodObject<{
         type: z.ZodLiteral<"Profile">;
         id: z.ZodString;
@@ -974,7 +973,6 @@ export declare const OrderSchema: z.ZodObject<{
     originalAmount?: number | undefined;
     actualAmount?: number | undefined;
     deliveryDate?: number | undefined;
-    createdAt?: number | undefined;
     nameOnInvoice?: string | undefined;
     clientComment?: string | undefined;
 }, {
@@ -1113,7 +1111,6 @@ export declare const OrderSchema: z.ZodObject<{
     originalAmount?: number | undefined;
     actualAmount?: number | undefined;
     deliveryDate?: number | undefined;
-    createdAt?: number | undefined;
     nameOnInvoice?: string | undefined;
     clientComment?: string | undefined;
 }>;

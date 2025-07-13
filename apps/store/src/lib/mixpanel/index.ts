@@ -6,6 +6,7 @@ import { TProfile, TStore } from "@jsdev_ninja/core";
 type events =
 	| "USER_ADD_ITEM_TO_CART"
 	| "USER_REMOVE_ITEM_FROM_CART"
+	| "USER_UPDATE_CART_ITEM_AMOUNT"
 	| "USER_PURCHASE"
 	| "AUTH_USER_LOGOUT"
 	| "AUTH_USER_LOGIN"

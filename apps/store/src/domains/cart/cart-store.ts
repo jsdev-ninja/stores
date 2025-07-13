@@ -50,6 +50,24 @@ export const cartSlice = createSlice({
 			}
 			state.currentCart.items.splice(productIndex, 1);
 		},
+		updateItemAmount: (state, action: PayloadAction<{ product: TProduct; amount: number }>) => {
+			if (!state.currentCart) return;
+
+			const { product, amount } = action.payload;
+			const productIndex = state.currentCart.items.findIndex(
+				(cartItem) => cartItem.product.id === product.id
+			);
+			const productInCart = productIndex !== -1;
+			if (!productInCart) return;
+
+			if (amount <= 0) {
+				// Remove item if amount is 0 or negative
+				state.currentCart.items.splice(productIndex, 1);
+			} else {
+				// Update amount
+				state.currentCart.items[productIndex].amount = amount;
+			}
+		},
 		clear: (state) => {
 			if (!state.currentCart) return;
 

@@ -5,7 +5,7 @@ export const CartItemProductSchema = z.object({
     originalPrice: z.number().optional(),
     finalPrice: z.number().optional(),
     finalDiscount: z.number().optional(),
-    amount: z.number().int().positive({ message: "Quantity must be a positive integer." }),
+    amount: z.number().positive({ message: "Quantity must be a positive number." }),
 });
 export const CartSchema = z.object({
     type: z.literal("Cart"),
