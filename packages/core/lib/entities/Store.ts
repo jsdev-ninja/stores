@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-const clientTypesSchema = z.enum(["individual", "company"]);
-const StoreSchema = z.object({
+export const clientTypesSchema = z.enum(["individual", "company"]);
+
+export const StoreSchema = z.object({
 	id: z.string(),
 	companyId: z.string(),
 	name: z.string(),
@@ -16,4 +17,5 @@ const StoreSchema = z.object({
 	freeDeliveryPrice: z.number().optional(),
 	deliveryPrice: z.number().optional(),
 });
+
 export type TStore = z.infer<typeof StoreSchema>;

@@ -1,5 +1,6 @@
 import { z } from "zod";
-declare const StoreSchema: z.ZodObject<{
+export declare const clientTypesSchema: z.ZodEnum<["individual", "company"]>;
+export declare const StoreSchema: z.ZodObject<{
     id: z.ZodString;
     companyId: z.ZodString;
     name: z.ZodString;
@@ -43,5 +44,4 @@ declare const StoreSchema: z.ZodObject<{
     deliveryPrice?: number | undefined;
 }>;
 export type TStore = z.infer<typeof StoreSchema>;
-export {};
 //# sourceMappingURL=Store.d.ts.map

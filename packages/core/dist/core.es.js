@@ -102,7 +102,7 @@ const h = b.arrayToEnum([
   "not_multiple_of",
   "not_finite"
 ]), at = (r) => JSON.stringify(r, null, 2).replace(/"([^"]+)":/g, "$1:");
-class S extends Error {
+class C extends Error {
   get errors() {
     return this.issues;
   }
@@ -139,7 +139,7 @@ class S extends Error {
     return s(this), n;
   }
   static assert(e) {
-    if (!(e instanceof S))
+    if (!(e instanceof C))
       throw new Error(`Not a ZodError: ${e}`);
   }
   toString() {
@@ -161,7 +161,7 @@ class S extends Error {
     return this.flatten();
   }
 }
-S.create = (r) => new S(r);
+C.create = (r) => new C(r);
 const G = (r, e) => {
   let t;
   switch (r.code) {
@@ -307,7 +307,7 @@ class T {
 }
 const g = Object.freeze({
   status: "aborted"
-}), Y = (r) => ({ status: "dirty", value: r }), C = (r) => ({ status: "valid", value: r }), Oe = (r) => r.status === "aborted", je = (r) => r.status === "dirty", B = (r) => r.status === "valid", se = (r) => typeof Promise < "u" && r instanceof Promise;
+}), Y = (r) => ({ status: "dirty", value: r }), S = (r) => ({ status: "valid", value: r }), Oe = (r) => r.status === "aborted", je = (r) => r.status === "dirty", B = (r) => r.status === "valid", se = (r) => typeof Promise < "u" && r instanceof Promise;
 function be(r, e, t, n) {
   if (typeof e == "function" ? r !== e || !0 : !e.has(r)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
   return e.get(r);
@@ -339,7 +339,7 @@ const Me = (r, e) => {
     get error() {
       if (this._error)
         return this._error;
-      const t = new S(r.common.issues);
+      const t = new C(r.common.issues);
       return this._error = t, this._error;
     }
   };
@@ -591,10 +591,10 @@ function Je(r) {
   const t = [];
   return t.push(r.local ? "Z?" : "Z"), r.offset && t.push("([+-]\\d{2}:?\\d{2})"), e = `${e}(${t.join("|")})`, new RegExp(`^${e}$`);
 }
-function Ct(r, e) {
+function St(r, e) {
   return !!((e === "v4" || !e) && gt.test(r) || (e === "v6" || !e) && _t.test(r));
 }
-function St(r, e) {
+function Ct(r, e) {
   if (!ht.test(r))
     return !1;
   try {
@@ -739,11 +739,11 @@ class I extends _ {
         validation: "duration",
         code: d.invalid_string,
         message: a.message
-      }), n.dirty()) : a.kind === "ip" ? Ct(e.data, a.version) || (s = this._getOrReturnCtx(e, s), f(s, {
+      }), n.dirty()) : a.kind === "ip" ? St(e.data, a.version) || (s = this._getOrReturnCtx(e, s), f(s, {
         validation: "ip",
         code: d.invalid_string,
         message: a.message
-      }), n.dirty()) : a.kind === "jwt" ? St(e.data, a.alg) || (s = this._getOrReturnCtx(e, s), f(s, {
+      }), n.dirty()) : a.kind === "jwt" ? Ct(e.data, a.alg) || (s = this._getOrReturnCtx(e, s), f(s, {
         validation: "jwt",
         code: d.invalid_string,
         message: a.message
@@ -1316,7 +1316,7 @@ class ae extends _ {
         received: n.parsedType
       }), g;
     }
-    return C(e.data);
+    return S(e.data);
   }
 }
 ae.create = (r) => new ae({
@@ -1412,7 +1412,7 @@ class xe extends _ {
         received: n.parsedType
       }), g;
     }
-    return C(e.data);
+    return S(e.data);
   }
 }
 xe.create = (r) => new xe({
@@ -1429,7 +1429,7 @@ class ie extends _ {
         received: n.parsedType
       }), g;
     }
-    return C(e.data);
+    return S(e.data);
   }
 }
 ie.create = (r) => new ie({
@@ -1446,7 +1446,7 @@ class oe extends _ {
         received: n.parsedType
       }), g;
     }
-    return C(e.data);
+    return S(e.data);
   }
 }
 oe.create = (r) => new oe({
@@ -1458,7 +1458,7 @@ class X extends _ {
     super(...arguments), this._any = !0;
   }
   _parse(e) {
-    return C(e.data);
+    return S(e.data);
   }
 }
 X.create = (r) => new X({
@@ -1470,7 +1470,7 @@ class U extends _ {
     super(...arguments), this._unknown = !0;
   }
   _parse(e) {
-    return C(e.data);
+    return S(e.data);
   }
 }
 U.create = (r) => new U({
@@ -1501,7 +1501,7 @@ class ke extends _ {
         received: n.parsedType
       }), g;
     }
-    return C(e.data);
+    return S(e.data);
   }
 }
 ke.create = (r) => new ke({
@@ -1894,7 +1894,7 @@ class ce extends _ {
       for (const o of a)
         if (o.result.status === "dirty")
           return t.common.issues.push(...o.ctx.common.issues), o.result;
-      const c = a.map((o) => new S(o.ctx.common.issues));
+      const c = a.map((o) => new C(o.ctx.common.issues));
       return f(t, {
         code: d.invalid_union,
         unionErrors: c
@@ -1941,7 +1941,7 @@ class ce extends _ {
       }
       if (a)
         return t.common.issues.push(...a.ctx.common.issues), a.result;
-      const o = c.map((l) => new S(l));
+      const o = c.map((l) => new C(l));
       return f(t, {
         code: d.invalid_union,
         unionErrors: o
@@ -1958,7 +1958,7 @@ ce.create = (r, e) => new ce({
   ...v(e)
 });
 const P = (r) => r instanceof le ? P(r.schema) : r instanceof N ? P(r.innerType()) : r instanceof fe ? [r.value] : r instanceof z ? r.options : r instanceof he ? b.objectValues(r.enum) : r instanceof pe ? P(r._def.innerType) : r instanceof ie ? [void 0] : r instanceof oe ? [null] : r instanceof j ? [void 0, ...P(r.unwrap())] : r instanceof F ? [null, ...P(r.unwrap())] : r instanceof Re || r instanceof ye ? P(r.unwrap()) : r instanceof me ? P(r._def.innerType) : [];
-class Ce extends _ {
+class Se extends _ {
   _parse(e) {
     const { ctx: t } = this._processInputParams(e);
     if (t.parsedType !== h.object)
@@ -2011,7 +2011,7 @@ class Ce extends _ {
         s.set(o, a);
       }
     }
-    return new Ce({
+    return new Se({
       typeName: y.ZodDiscriminatedUnion,
       discriminator: e,
       options: t,
@@ -2334,8 +2334,8 @@ class Q extends _ {
     const a = { errorMap: t.common.contextualErrorMap }, c = t.data;
     if (this._def.returns instanceof K) {
       const o = this;
-      return C(async function(...l) {
-        const u = new S([]), p = await o._def.args.parseAsync(l, a).catch((w) => {
+      return S(async function(...l) {
+        const u = new C([]), p = await o._def.args.parseAsync(l, a).catch((w) => {
           throw u.addIssue(n(l, w)), u;
         }), x = await Reflect.apply(c, this, p);
         return await o._def.returns._def.type.parseAsync(x, a).catch((w) => {
@@ -2344,13 +2344,13 @@ class Q extends _ {
       });
     } else {
       const o = this;
-      return C(function(...l) {
+      return S(function(...l) {
         const u = o._def.args.safeParse(l, a);
         if (!u.success)
-          throw new S([n(l, u.error)]);
+          throw new C([n(l, u.error)]);
         const p = Reflect.apply(c, this, u.data), x = o._def.returns.safeParse(p, a);
         if (!x.success)
-          throw new S([s(p, x.error)]);
+          throw new C([s(p, x.error)]);
         return x.data;
       });
     }
@@ -2451,7 +2451,7 @@ class z extends _ {
         options: n
       }), g;
     }
-    return C(e.data);
+    return S(e.data);
   }
   get options() {
     return this._def.values;
@@ -2511,7 +2511,7 @@ class he extends _ {
         options: s
       }), g;
     }
-    return C(e.data);
+    return S(e.data);
   }
   get enum() {
     return this._def.values;
@@ -2536,7 +2536,7 @@ class K extends _ {
         received: t.parsedType
       }), g;
     const n = t.parsedType === h.promise ? t.data : Promise.resolve(t.data);
-    return C(n.then((s) => this._def.type.parseAsync(s, {
+    return S(n.then((s) => this._def.type.parseAsync(s, {
       path: t.path,
       errorMap: t.common.contextualErrorMap
     })));
@@ -2638,7 +2638,7 @@ N.createWithPreprocess = (r, e, t) => new N({
 });
 class j extends _ {
   _parse(e) {
-    return this._getType(e) === h.undefined ? C(void 0) : this._def.innerType._parse(e);
+    return this._getType(e) === h.undefined ? S(void 0) : this._def.innerType._parse(e);
   }
   unwrap() {
     return this._def.innerType;
@@ -2651,7 +2651,7 @@ j.create = (r, e) => new j({
 });
 class F extends _ {
   _parse(e) {
-    return this._getType(e) === h.null ? C(null) : this._def.innerType._parse(e);
+    return this._getType(e) === h.null ? S(null) : this._def.innerType._parse(e);
   }
   unwrap() {
     return this._def.innerType;
@@ -2701,7 +2701,7 @@ class me extends _ {
       status: "valid",
       value: a.status === "valid" ? a.value : this._def.catchValue({
         get error() {
-          return new S(n.common.issues);
+          return new C(n.common.issues);
         },
         input: n.data
       })
@@ -2709,7 +2709,7 @@ class me extends _ {
       status: "valid",
       value: s.status === "valid" ? s.value : this._def.catchValue({
         get error() {
-          return new S(n.common.issues);
+          return new C(n.common.issues);
         },
         input: n.data
       })
@@ -2841,7 +2841,7 @@ var y;
 })(y || (y = {}));
 const Ot = (r, e = {
   message: `Input not instance of ${r.name}`
-}) => Qe((t) => t instanceof r, e), He = I.create, Ge = V.create, jt = Te.create, Et = L.create, Xe = ae.create, Rt = q.create, Pt = xe.create, $t = ie.create, Dt = oe.create, Mt = X.create, Vt = U.create, Lt = M.create, zt = ke.create, Ft = A.create, Ut = k.create, Bt = k.strictCreate, qt = ce.create, Wt = Ce.create, Jt = de.create, Yt = R.create, Qt = ue.create, Ht = we.create, Gt = W.create, Xt = Q.create, Kt = le.create, er = fe.create, tr = z.create, rr = he.create, nr = K.create, Le = N.create, sr = j.create, ar = F.create, ir = N.createWithPreprocess, or = ge.create, cr = () => He().optional(), dr = () => Ge().optional(), ur = () => Xe().optional(), lr = {
+}) => Qe((t) => t instanceof r, e), He = I.create, Ge = V.create, jt = Te.create, Et = L.create, Xe = ae.create, Rt = q.create, Pt = xe.create, $t = ie.create, Dt = oe.create, Mt = X.create, Vt = U.create, Lt = M.create, zt = ke.create, Ft = A.create, Ut = k.create, Bt = k.strictCreate, qt = ce.create, Wt = Se.create, Jt = de.create, Yt = R.create, Qt = ue.create, Ht = we.create, Gt = W.create, Xt = Q.create, Kt = le.create, er = fe.create, tr = z.create, rr = he.create, nr = K.create, Le = N.create, sr = j.create, ar = F.create, ir = N.createWithPreprocess, or = ge.create, cr = () => He().optional(), dr = () => Ge().optional(), ur = () => Xe().optional(), lr = {
   string: (r) => I.create({ ...r, coerce: !0 }),
   number: (r) => V.create({ ...r, coerce: !0 }),
   boolean: (r) => ae.create({
@@ -2862,7 +2862,7 @@ var i = /* @__PURE__ */ Object.freeze({
   ParseStatus: T,
   INVALID: g,
   DIRTY: Y,
-  OK: C,
+  OK: S,
   isAborted: Oe,
   isDirty: je,
   isValid: B,
@@ -2892,7 +2892,7 @@ var i = /* @__PURE__ */ Object.freeze({
   ZodArray: A,
   ZodObject: k,
   ZodUnion: ce,
-  ZodDiscriminatedUnion: Ce,
+  ZodDiscriminatedUnion: Se,
   ZodIntersection: de,
   ZodTuple: R,
   ZodRecord: ue,
@@ -2965,7 +2965,7 @@ var i = /* @__PURE__ */ Object.freeze({
   NEVER: fr,
   ZodIssueCode: d,
   quotelessJson: at,
-  ZodError: S
+  ZodError: C
 });
 const hr = i.object({
   country: i.string(),
@@ -3050,7 +3050,7 @@ const H = i.object({
   }),
   // @deprecated
   categoryNames: i.array(i.string())
-}), Cr = et.extend({
+}), Sr = et.extend({
   image: i.instanceof(File).optional()
 }), tt = i.object({
   product: et,
@@ -3058,7 +3058,7 @@ const H = i.object({
   finalPrice: i.number().optional(),
   finalDiscount: i.number().optional(),
   amount: i.number().positive({ message: "Quantity must be a positive number." })
-}), Sr = i.object({
+}), Cr = i.object({
   type: i.literal("Cart"),
   id: i.string().uuid(),
   companyId: i.string().uuid(),
@@ -3158,8 +3158,7 @@ const Nr = i.object({
   client: pr.required({}),
   nameOnInvoice: i.string().optional(),
   clientComment: i.string().optional()
-}), mr = i.enum(["individual", "company"]);
-i.object({
+}), mr = i.enum(["individual", "company"]), Or = i.object({
   id: i.string(),
   companyId: i.string(),
   name: i.string(),
@@ -3174,8 +3173,7 @@ i.object({
   minimumOrder: i.number().optional(),
   freeDeliveryPrice: i.number().optional(),
   deliveryPrice: i.number().optional()
-});
-const Ie = i.string().min(1), Or = i.object({
+}), Ie = i.string().min(1), jr = i.object({
   type: i.literal("Discount"),
   storeId: Ie,
   companyId: Ie,
@@ -3206,7 +3204,7 @@ function Fe(r) {
   }
   return ((t = r.discount) == null ? void 0 : t.type) === "number" ? r.price - r.discount.value : r.price;
 }
-function jr({
+function Er({
   cart: r,
   discounts: e,
   store: t
@@ -3227,10 +3225,10 @@ function jr({
         (Z) => o.variant.productsId.includes(Z.product.id)
       ), x = (p == null ? void 0 : p.reduce((Z, De) => (o.variant.productsId.includes(De.product.id) && (Z += De.amount), Z), 0)) ?? 0, O = Math.floor(x / o.variant.requiredQuantity), w = Fe((l = p[0]) == null ? void 0 : l.product), ee = ze((u = p[0]) == null ? void 0 : u.product);
       console.log("price", w, ee);
-      const Se = Number(
+      const Ce = Number(
         (o.variant.discountPrice / o.variant.requiredQuantity).toFixed(2)
       ) * 1;
-      console.log("discountPrice", Se);
+      console.log("discountPrice", Ce);
       const nt = (w * o.variant.requiredQuantity - o.variant.discountPrice) * O, st = x * w - nt, $e = Number((st / x).toFixed(2));
       s = s.map((Z) => o.variant.productsId.includes(Z.product.id) ? {
         ...Z,
@@ -3248,8 +3246,8 @@ function jr({
       if (u.vat) {
         let ee = 0;
         if (n) {
-          const Se = x * (Ae.VAT / (100 + Ae.VAT));
-          w = Number(Se.toFixed(2)), w = w * p, ee = Number(w.toFixed(2));
+          const Ce = x * (Ae.VAT / (100 + Ae.VAT));
+          w = Number(Ce.toFixed(2)), w = w * p, ee = Number(w.toFixed(2));
         } else
           w = x * Ae.VAT / 100, w = w * p, ee = Number(w.toFixed(2));
         o.vat = Number((o.vat + ee).toFixed(2));
@@ -3293,30 +3291,32 @@ const yr = {
   }) => `${r}/${e}/${t}${n ? `/${n}` : ""}`,
   // for backend
   getDocPath: (r) => `{companyId}/{storeId}/${r}/{id}`
-}, Er = {
+}, Rr = {
   firestore: vr
 };
 export {
   hr as AddressSchema,
   Ke as BaseCategorySchema,
   tt as CartItemProductSchema,
-  Sr as CartSchema,
+  Cr as CartSchema,
   Pe as CategorySchema,
   Zr as CompanySchema,
-  Or as DiscountSchema,
+  jr as DiscountSchema,
   Ir as FavoriteProductSchema,
   xr as FileSchema,
-  Er as FirebaseAPI,
+  Rr as FirebaseAPI,
   H as LocaleSchema,
   wr as LocaleValueSchema,
-  Cr as NewProductSchema,
+  Sr as NewProductSchema,
   Nr as OrderSchema,
   et as ProductSchema,
   rt as ProfilePaymentTypeSchema,
   pr as ProfileSchema,
+  Or as StoreSchema,
   Tr as TFlattenCategorySchema,
+  mr as clientTypesSchema,
   Ar as createEmptyProfile,
-  jr as getCartCost,
+  Er as getCartCost,
   kr as isFile,
   D as notEmptyTextSchema,
   br as numericTextSchema
