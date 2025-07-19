@@ -38,19 +38,19 @@ export function getCartCost({
 	store: TStore;
 }) {
 	const { isVatIncludedInPrice } = store;
-	
+
 	// Convert cart items to the format expected by the discount engine
-	const cartForEngine = cart.map(item => ({
+	const cartForEngine = cart.map((item) => ({
 		amount: item.amount,
 		product: {
 			id: item.product.id,
 			price: item.product.price,
 		},
 	}));
-	
+
 	// Apply discounts using the new discount engine
 	const discountResult = DiscountEngine.calculateDiscounts(cartForEngine, discounts);
-	
+
 	// Map the results back to the original format with additional product info
 	const result = cart.map((item, index) => {
 		const engineItem = discountResult.items[index];
@@ -86,10 +86,20 @@ export function getCartCost({
 				acc.vat = Number((acc.vat + vat).toFixed(2));
 			}
 
-			acc.cost += amount * finalPrice;
+			// Round finalPrice to prevent floating point errors from discount engine
+			const roundedFinalPrice = Number(finalPrice.toFixed(2));
+
+			acc.cost += amount * roundedFinalPrice;
 			acc.discount += finalDiscount ? amount * finalDiscount : finalDiscount;
-			acc.finalCost += amount * finalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
-			acc.productsCost += amount * finalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+			acc.finalCost += amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+			acc.productsCost +=
+				amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+
+			// Round all accumulated values to prevent floating point errors
+			acc.cost = Number(acc.cost.toFixed(2));
+			acc.discount = Number(acc.discount.toFixed(2));
+			acc.finalCost = Number(acc.finalCost.toFixed(2));
+			acc.productsCost = Number(acc.productsCost.toFixed(2));
 
 			return acc;
 		},

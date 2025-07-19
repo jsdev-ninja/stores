@@ -111,6 +111,12 @@ export const cartSlice = createSlice({
 					acc.discount += discount ? amount * discount : discount;
 					acc.finalCost += amount * productPrice + productVatValue;
 
+					// Round all values to 2 decimal places
+					acc.cost = Number(acc.cost.toFixed(2));
+					acc.discount = Number(acc.discount.toFixed(2));
+					acc.finalCost = Number(acc.finalCost.toFixed(2));
+					acc.vat = Number(acc.vat.toFixed(2));
+
 					return acc;
 				},
 				{
@@ -152,6 +158,12 @@ export const useCartCost = () =>
 					acc.cost += amount * product.price;
 					acc.discount += discount ? amount * discount : discount;
 					acc.finalCost += amount * productPrice + productVatValue;
+
+					// Round all values to 2 decimal places
+					acc.cost = Number(acc.cost.toFixed(2));
+					acc.discount = Number(acc.discount.toFixed(2));
+					acc.finalCost = Number(acc.finalCost.toFixed(2));
+					acc.vat = Number(acc.vat.toFixed(2));
 
 					return acc;
 				},

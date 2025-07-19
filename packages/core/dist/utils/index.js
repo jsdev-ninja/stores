@@ -35,6 +35,7 @@ export function getCartCost({ cart, discounts, store, }) {
     }));
     // Apply discounts using the new discount engine
     const discountResult = DiscountEngine.calculateDiscounts(cartForEngine, discounts);
+    console.log("discountResult", discountResult);
     // Map the results back to the original format with additional product info
     const result = cart.map((item, index) => {
         const engineItem = discountResult.items[index];
@@ -64,10 +65,17 @@ export function getCartCost({ cart, discounts, store, }) {
             }
             acc.vat = Number((acc.vat + vat).toFixed(2));
         }
-        acc.cost += amount * finalPrice;
+        // Round finalPrice to prevent floating point errors from discount engine
+        const roundedFinalPrice = Number(finalPrice.toFixed(2));
+        acc.cost += amount * roundedFinalPrice;
         acc.discount += finalDiscount ? amount * finalDiscount : finalDiscount;
-        acc.finalCost += amount * finalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
-        acc.productsCost += amount * finalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+        acc.finalCost += amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+        acc.productsCost += amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+        // Round all accumulated values to prevent floating point errors
+        acc.cost = Number(acc.cost.toFixed(2));
+        acc.discount = Number(acc.discount.toFixed(2));
+        acc.finalCost = Number(acc.finalCost.toFixed(2));
+        acc.productsCost = Number(acc.productsCost.toFixed(2));
         return acc;
     }, {
         discount: 0,
