@@ -1,6 +1,6 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.12.6",
+	"version": "0.12.7",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
 	"types": "dist/index.d.ts",
@@ -12,15 +12,16 @@
 		"build": "vite build && tsc -b",
 		"lint": "eslint .",
 		"preview": "vite preview",
-		"publish_core": "yarn publish --non-interactive"
+		"publish_core": "yarn publish --non-interactive",
+		"test": "vitest",
+		"test:run": "vitest run"
 	},
 	"dependencies": {
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
 		"@eslint/js": "^9.9.0",
+		"@types/node": "^24.0.15",
 		"@types/react": "^18.3.3",
 		"@types/react-dom": "^18.3.0",
 		"@vitejs/plugin-react-swc": "^3.5.0",
@@ -28,8 +29,12 @@
 		"eslint-plugin-react-hooks": "^5.1.0-rc.0",
 		"eslint-plugin-react-refresh": "^0.4.9",
 		"globals": "^15.9.0",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"ts-node": "^10.9.2",
 		"typescript": "^5.5.3",
 		"typescript-eslint": "^8.0.1",
-		"vite": "^5.4.1"
+		"vite": "^5.4.1",
+		"vitest": "^3.2.4"
 	}
 }
