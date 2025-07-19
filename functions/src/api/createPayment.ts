@@ -61,7 +61,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			UTF8out: "True",
 			sendemail: "True",
 			SendHesh: "True",
-			heshDesc: items.join(""),
+			// heshDesc: items.join(""),
 			Pritim: "False",
 		});
 

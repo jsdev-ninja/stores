@@ -55,7 +55,7 @@ export function CatalogPage() {
 							})
 						}
 					>
-						{t("common:goToCart")} {formatter.price(cartCost.finalCost)}
+						{t("common:goToCart")} {formatter.price(cartCost.productsCost)}
 					</Button>
 				</div>
 			</div>

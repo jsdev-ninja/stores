@@ -44,7 +44,7 @@ type chargeJ5TransactionParams = {
 	clientName: string;
 	clientLastName: string;
 	email: string;
-	heshDesc: string;
+	heshDesc?: string;
 	Pritim: string;
 };
 
@@ -106,7 +106,7 @@ export const hypPaymentService = {
 				Token: "True",
 				FixTash: "True",
 				sendemail: "True",
-				heshDesc: params.heshDesc,
+				// heshDesc: params.heshDesc,
 				Pritim: params.Pritim,
 			});
 			console.log("transParams", transParams);
@@ -116,7 +116,6 @@ export const hypPaymentService = {
 			console.log("actualAmount", params.actualAmount.toString());
 			console.log("originalAmount", params.originalAmount.toString());
 			console.log("transactionData", transactionData);
-
 			const transactionResult: any = parseQueryString(transactionData);
 			console.log("JSON.stringify(transactionResult)", JSON.stringify(transactionResult));
 
