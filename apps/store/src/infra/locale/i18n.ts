@@ -132,6 +132,14 @@ export const resources = {
 			},
 			bundle: "חבילה",
 			discountName: "שם מצבע",
+			noDiscountsAvailable: "אין מבצעים זמינים",
+			checkBackLater: "בדוק מאוחר יותר למבצעים חדשים",
+			active: "פעיל",
+			off: "הנחה",
+			items: "פריטים",
+			for: "במחיר",
+			included: "כלול",
+			viewProducts: "צפה במוצרים",
 		},
 		auth: {
 			welcome: {
@@ -220,6 +228,10 @@ export const resources = {
 				clientAuth: "לקוח רשום",
 				actions: "פעולות",
 			},
+		},
+		discountsPage: {
+			noDiscountsAvailable: "אין מבצעים זמינים",
+			checkBackLater: "בואו נחזור בעוד מספר ימים",
 		},
 
 		cart: {
