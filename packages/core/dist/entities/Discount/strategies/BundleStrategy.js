@@ -16,7 +16,7 @@ export class BundleDiscountStrategy {
         }
         const { productsId, requiredQuantity, bundlePrice } = discount.variant;
         // Get applicable items (only the products in the bundle)
-        const applicableItems = context.cart.filter(item => productsId.includes(item.product.id));
+        const applicableItems = context.cart.filter((item) => productsId.includes(item.product.id));
         const totalQuantity = this.getTotalQuantity(context.cart, productsId);
         const bundleCount = Math.floor(totalQuantity / requiredQuantity);
         if (bundleCount === 0) {
@@ -38,17 +38,15 @@ export class BundleDiscountStrategy {
     }
     isDiscountActive(discount) {
         const now = Date.now();
-        return discount.active &&
-            discount.startDate <= now &&
-            discount.endDate >= now;
+        return discount.active && discount.startDate <= now && discount.endDate >= now;
     }
     getTotalQuantity(cart, productIds) {
         return cart
-            .filter(item => productIds.includes(item.product.id))
+            .filter((item) => productIds.includes(item.product.id))
             .reduce((sum, item) => sum + item.amount, 0);
     }
     calculateOriginalPrice(items) {
-        return items.reduce((sum, item) => sum + (item.product.price * item.amount), 0);
+        return items.reduce((sum, item) => sum + item.product.price * item.amount, 0);
     }
     calculateDiscountedPrice(originalPrice, bundlePrice, bundleCount, requiredQuantity, totalQuantity) {
         // For bundle discounts, we pay the bundle price for each complete bundle
@@ -66,13 +64,13 @@ export class BundleDiscountStrategy {
     }
     distributeDiscount(items, totalDiscount, originalPrice) {
         const discountRatio = totalDiscount / originalPrice;
-        return items.map(item => {
-            const itemDiscount = (item.product.price * item.amount) * discountRatio;
+        return items.map((item) => {
+            const itemDiscount = item.product.price * item.amount * discountRatio;
             return {
                 productId: item.product.id,
                 quantity: item.amount,
                 originalPrice: Number(item.product.price.toFixed(2)),
-                discountedPrice: Number((item.product.price - (itemDiscount / item.amount)).toFixed(2)),
+                discountedPrice: Number((item.product.price - itemDiscount / item.amount).toFixed(2)),
                 discountAmount: Number(itemDiscount.toFixed(2)),
             };
         });

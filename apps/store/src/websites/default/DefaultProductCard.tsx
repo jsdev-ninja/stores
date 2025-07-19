@@ -16,6 +16,7 @@ function DefaultProductCard({ product }: { product: TProduct }) {
 					});
 				}}
 			>
+				<Product.DiscountBadge />
 				<div className="absolute top-0 end-0">
 					<Product.ProductAddToFavorite />
 				</div>

@@ -15,6 +15,7 @@ import { ProductManufacturer } from "./ProductManufacturer";
 import { ProductSupplier } from "./ProductSupplier";
 import { TProduct } from "@jsdev_ninja/core";
 import { ProductAddToFavorite } from "./ProductAddToFavorite";
+import { ProductDiscountBadge } from "./ProductDiscountBadge";
 import { formatter } from "src/utils/formatter";
 
 export type ProductProps = {
@@ -97,6 +98,7 @@ Product.Sku = ProductSku;
 Product.Vat = ProductVat;
 Product.PriceType = ProductPriceType;
 Product.Discount = ProductDiscount;
+Product.DiscountBadge = ProductDiscountBadge;
 Product.Volume = ProductVolume;
 Product.Weight = ProductWeight;
 Product.ProductBrand = ProductBrand;
