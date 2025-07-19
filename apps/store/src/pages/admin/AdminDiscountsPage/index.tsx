@@ -86,9 +86,9 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 			name: [{ lang: "he", value: "" }],
 			variant: {
 				variantType: "bundle",
-				productsId: ["", ""],
-				requiredQuantity: 3,
-				bundlePrice: 25,
+				productsId: [],
+				requiredQuantity: 0,
+				bundlePrice: 0,
 			},
 			conditions: {
 				stackable: false,
@@ -103,11 +103,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 	const onFormSubmit = async (data: TDiscount) => {
 		console.log("data", data);
 		if (data.variant.variantType === "bundle") {
-			//todo default image from product
-			const product = await appApi.system.getProductById({ id: data.variant.productsId[0] });
-			if (product?.data?.images?.[0]?.url) {
-				data.images?.push(product?.data?.images?.[0]?.url);
-			}
+			//todo default image from product - removed from new schema
 		}
 		const res = await appApi.admin.createDiscount(data);
 		console.log("appApi", res);
@@ -115,8 +111,6 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 
 		// onSubmit(data as any);
 	};
-
-	const [products, setProducts] = useState<string[]>(["1aa", "2bb"]);
 
 	console.log("form", watch());
 
@@ -135,7 +129,6 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 										label={t("admin:discountsPage.discountType")}
 										selectedKeys={field.value ? new Set([field.value]) : []}
 										onChange={(e) => field.onChange(e.target.value)}
-										isRequired
 										isDisabled
 									>
 										<SelectItem key="bundle">{t("common:bundle")}</SelectItem>
@@ -153,7 +146,6 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 									placeholder="למשל 3 מוצרי חלב ב10"
 									isInvalid={!!errors.name}
 									errorMessage={errors.name?.message}
-									isRequired
 								/>
 							)}
 						/>
@@ -195,31 +187,38 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 								/>
 							)}
 						/>
-						{products.map((p, index) => (
-							<div key={p} className="flex items-center gap-2">
+						{watch("variant.productsId")?.map((productId, index) => (
+							<div key={productId} className="flex items-center gap-2">
 								<Controller
 									name={`variant.productsId.${index}`}
 									control={control}
 									render={({ field }) => {
-										console.log("field", field.name, field);
 										return <ProductInput field={field} />;
 									}}
 								/>
 								<Button
 									onPress={() => {
+										const currentProducts = getValues("variant.productsId");
 										setValue(
 											"variant.productsId",
-											getValues("variant.productsId").filter((_, i) => i !== index)
+											currentProducts.filter((_, i) => i !== index)
 										);
-										setProducts(products.filter((_p) => _p !== p));
 									}}
+									size="lg"
+									color="danger"
 									isIconOnly
 								>
 									<Icon icon="lucide:x" />
 								</Button>
 							</div>
 						))}
-						<Button fullWidth onPress={() => setProducts([...products, crypto.randomUUID()])}>
+						<Button
+							fullWidth
+							onPress={() => {
+								const currentProducts = getValues("variant.productsId") || [];
+								setValue("variant.productsId", [...currentProducts, ""]);
+							}}
+						>
 							{t("addProduct")}
 						</Button>
 					</div>
@@ -246,8 +245,6 @@ function ProductInput({ field }: any) {
 
 	const store = useStore();
 
-	console.log("searchResults", searchResults);
-
 	const handleSearch = async (value: string) => {
 		if (!store) return;
 		if (!value) {
@@ -261,7 +258,6 @@ function ProductInput({ field }: any) {
 			const { hits } = await productsIndex.search<TProduct>(value, {
 				filters: `storeId:${store.id} AND companyId:${store.companyId}`,
 			});
-			console.log("hits", hits);
 
 			setSearchResults(hits);
 		} catch (error) {
@@ -275,7 +271,6 @@ function ProductInput({ field }: any) {
 	return (
 		<Autocomplete
 			onSelectionChange={(id) => {
-				console.log("onchage", id);
 				field.onChange(id);
 			}}
 			className="max-w-xl"
@@ -283,7 +278,7 @@ function ProductInput({ field }: any) {
 			label={t("common:searchProduct")}
 			variant="bordered"
 			color="primary"
-			size="lg"
+			size="sm"
 			onInputChange={handleSearch}
 			isLoading={isLoading}
 			startContent={<Icon icon="lucide:search" className="text-default-400" />}
@@ -321,10 +316,13 @@ function ProductInput({ field }: any) {
 
 interface DiscountListProps {
 	discounts: TDiscount[];
+	setDiscounts: (discounts: TDiscount[]) => void;
 }
 
-export const DiscountList: React.FC<DiscountListProps> = ({ discounts }) => {
+export const DiscountList: React.FC<DiscountListProps> = ({ discounts, setDiscounts }) => {
 	const { t } = useTranslation(["common", "admin"]);
+
+	const appApi = useAppApi();
 
 	return (
 		<Table aria-label="Active Discounts">
@@ -358,8 +356,13 @@ export const DiscountList: React.FC<DiscountListProps> = ({ discounts }) => {
 									isIconOnly
 									color="danger"
 									variant="light"
-									onPress={() => {
+									onPress={async () => {
 										// handle delete
+										const res = await appApi.admin.deleteDiscount(discount.id);
+										console.log("res", res);
+										if (res?.success) {
+											setDiscounts(discounts.filter((d) => d.id !== discount.id));
+										}
 									}}
 								>
 									<Icon icon="lucide:trash-2" />
@@ -412,7 +415,7 @@ function AdminDiscountsPage() {
 					{showForm ? (
 						<DiscountForm onSubmit={handleCreateDiscount} />
 					) : (
-						<DiscountList discounts={discounts} />
+						<DiscountList setDiscounts={setDiscounts} discounts={discounts} />
 					)}
 				</CardBody>
 			</Card>

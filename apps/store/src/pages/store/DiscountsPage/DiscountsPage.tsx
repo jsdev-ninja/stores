@@ -29,11 +29,11 @@ export default function DiscountsPage() {
 								/>
 
 							</Badge> */}
-							<img
+							{/* <img
 								src={discount.images?.[0] ?? "No-Image-Placeholder.png"}
 								alt={""}
 								className="w-full h-48 object-cover"
-							/>
+							/> */}
 						</CardBody>
 						<CardFooter className="flex flex-col items-start gap-2">
 							<h3 className="font-semibold text-default-900">{discount.name[0].value}</h3>

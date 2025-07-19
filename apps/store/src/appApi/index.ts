@@ -121,6 +121,18 @@ export const useAppApi = () => {
 			},
 		},
 		admin: {
+			deleteDiscount: async (id: string) => {
+				if (!isValidAdmin) return;
+
+				return await FirebaseApi.firestore.remove({
+					id,
+					collectionName: FirebaseAPI.firestore.getPath({
+						collectionName: "discounts",
+						companyId,
+						storeId,
+					}),
+				});
+			},
 			createDiscount: async (discount: TDiscount) => {
 				if (!isValidAdmin) return;
 

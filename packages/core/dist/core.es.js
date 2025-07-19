@@ -3182,7 +3182,7 @@ const Rr = i.object({
 }).optional(), pr = i.discriminatedUnion("variantType", [
   i.object({
     variantType: i.literal("bundle"),
-    productsId: i.array(i.string()).min(1),
+    productsId: i.array(i.string().nonempty()).min(1),
     // Which products are included
     requiredQuantity: i.number().positive(),
     // How many items needed (e.g., 3)
@@ -3194,7 +3194,7 @@ const Rr = i.object({
   storeId: i.string().min(1),
   companyId: i.string().min(1),
   id: i.string().min(1),
-  name: i.array(i.object({ lang: i.enum(["he"]), value: i.string() })),
+  name: i.array(i.object({ lang: i.enum(["he"]), value: i.string().nonempty() })),
   active: i.boolean(),
   startDate: i.number(),
   endDate: i.number(),
