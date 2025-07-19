@@ -79,14 +79,14 @@ export declare const DiscountSchema: z.ZodObject<{
         lang: "he";
     }[];
     active: boolean;
+    startDate: number;
+    endDate: number;
     variant: {
         variantType: "bundle";
         productsId: string[];
         requiredQuantity: number;
         bundlePrice: number;
     };
-    startDate: number;
-    endDate: number;
     conditions?: {
         stackable: boolean;
         minSpend?: number | undefined;
@@ -101,14 +101,14 @@ export declare const DiscountSchema: z.ZodObject<{
         lang: "he";
     }[];
     active: boolean;
+    startDate: number;
+    endDate: number;
     variant: {
         variantType: "bundle";
         productsId: string[];
         requiredQuantity: number;
         bundlePrice: number;
     };
-    startDate: number;
-    endDate: number;
     conditions?: {
         minSpend?: number | undefined;
         stackable?: boolean | undefined;

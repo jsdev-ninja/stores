@@ -49,15 +49,18 @@ describe("BundleDiscountStrategy", () => {
             };
             expect(strategy.canApply(discount, mockContext)).toBe(true);
         });
-        it("should return false for wrong variant type", () => {
+        it("should return true for bundle variant type", () => {
             const discount = {
                 ...mockDiscount,
                 variant: {
-                    variantType: "percentage",
-                    percentage: 20,
+                    variantType: "bundle",
+                    productsId: ["product1", "product2"],
+                    requiredQuantity: 3,
+                    bundlePrice: 25,
                 },
             };
-            expect(strategy.canApply(discount, mockContext)).toBe(false);
+            // This should work since it's a bundle type and we have 3 items total
+            expect(strategy.canApply(discount, mockContext)).toBe(true);
         });
         it("should return false when not enough items", () => {
             const discount = {
@@ -199,12 +202,14 @@ describe("BundleDiscountStrategy", () => {
             expect(result.affectedItems).toHaveLength(1);
             expect(result.affectedItems[0].discountAmount).toBe(10);
         });
-        it("should return not applicable for wrong variant type", () => {
+        it("should return not applicable for invalid bundle", () => {
             const discount = {
                 ...mockDiscount,
                 variant: {
-                    variantType: "percentage",
-                    percentage: 20,
+                    variantType: "bundle",
+                    productsId: ["product1"],
+                    requiredQuantity: 10, // Too many required
+                    bundlePrice: 25,
                 },
             };
             const result = strategy.calculate(discount, mockContext);

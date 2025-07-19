@@ -87,8 +87,14 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 			variant: {
 				variantType: "bundle",
 				productsId: ["", ""],
+				requiredQuantity: 3,
+				bundlePrice: 25,
 			},
-			images: [],
+			conditions: {
+				stackable: false,
+			},
+			startDate: Date.now(),
+			endDate: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
 		},
 	});
 
@@ -171,7 +177,7 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 							)}
 						/>
 						<Controller
-							name="variant.discountPrice"
+							name="variant.bundlePrice"
 							control={control}
 							render={({ field }) => (
 								<Input
@@ -183,8 +189,8 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 									placeholder="10.00"
 									startContent="$"
 									description="Total price for the bundle"
-									isInvalid={!!errors?.variant?.discountPrice}
-									errorMessage={errors?.variant?.discountPrice?.message}
+									isInvalid={!!errors?.variant?.bundlePrice}
+									errorMessage={errors?.variant?.bundlePrice?.message}
 									isRequired
 								/>
 							)}

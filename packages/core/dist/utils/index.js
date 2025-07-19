@@ -1,3 +1,4 @@
+import { DiscountEngine } from "../entities/Discount/engine";
 const CONFIG = {
     VAT: 18,
 };
@@ -21,76 +22,29 @@ function getPriceAfterDiscount(product) {
     }
     return product.price;
 }
-// mark product that used in discount
-// get final price for product and discount id
-// filter better discount
 // main
 export function getCartCost({ cart, discounts, store, }) {
     const { isVatIncludedInPrice } = store;
-    let result = cart.map((item) => {
+    // Convert cart items to the format expected by the discount engine
+    const cartForEngine = cart.map(item => ({
+        amount: item.amount,
+        product: {
+            id: item.product.id,
+            price: item.product.price,
+        },
+    }));
+    // Apply discounts using the new discount engine
+    const discountResult = DiscountEngine.calculateDiscounts(cartForEngine, discounts);
+    // Map the results back to the original format with additional product info
+    const result = cart.map((item, index) => {
+        const engineItem = discountResult.items[index];
         return {
             amount: item.amount,
             product: { ...item.product },
             originalPrice: item.product.price,
-            finalPrice: getPriceAfterDiscount(item.product),
-            finalDiscount: calculateDiscount(item.product),
+            finalPrice: engineItem ? engineItem.finalPrice : getPriceAfterDiscount(item.product),
+            finalDiscount: engineItem ? engineItem.finalDiscount : calculateDiscount(item.product),
         };
-    });
-    // calculate delivery price before
-    // check if cart cost is greater than free delivery price
-    const activeDiscounts = discounts.filter((discount) => {
-        if (discount.variant.variantType === "bundle") {
-            const productsTotal = cart?.reduce((total, item) => {
-                if (discount.variant.productsId.includes(item.product.id)) {
-                    total += item.amount;
-                    return total;
-                }
-                return total;
-            }, 0) ?? 0;
-            if (productsTotal >= discount.variant.requiredQuantity) {
-                // const times = Math.floor(productsTotal / discount.variant.requiredQuantity);
-                // console.log("yes", times, discount.variant.discountPrice);
-                return true;
-            }
-        }
-        return false;
-    });
-    console.log("activeDiscounts", activeDiscounts);
-    activeDiscounts.forEach((discount) => {
-        if (discount.variant.variantType === "bundle") {
-            // get all products in cart
-            const products = cart.filter((item) => discount.variant.productsId.includes(item.product.id));
-            const productsTotal = products?.reduce((total, item) => {
-                if (discount.variant.productsId.includes(item.product.id)) {
-                    total += item.amount;
-                    return total;
-                }
-                return total;
-            }, 0) ?? 0;
-            const times = Math.floor(productsTotal / discount.variant.requiredQuantity);
-            const price = getPriceAfterDiscount(products[0]?.product);
-            const _discount = calculateDiscount(products[0]?.product);
-            console.log("price", price, _discount);
-            const discountPrice = Number((discount.variant.discountPrice / discount.variant.requiredQuantity).toFixed(2)) * 1;
-            console.log("discountPrice", discountPrice);
-            const totalDiscount = (price * discount.variant.requiredQuantity - discount.variant.discountPrice) * times;
-            const originalPrice = productsTotal * price;
-            const discountPriceFinal = originalPrice - totalDiscount;
-            const averagePrice = Number((discountPriceFinal / productsTotal).toFixed(2));
-            result = result.map((item) => {
-                if (discount.variant.productsId.includes(item.product.id)) {
-                    return {
-                        ...item,
-                        finalPrice: averagePrice,
-                        originalPrice: item.product.price,
-                        discountPrice: price,
-                        finalDiscount: item.finalDiscount + (item.product.price - averagePrice),
-                    };
-                }
-                return item;
-            });
-            // find average price
-        }
     });
     const cartDetails = result.reduce((acc, item) => {
         const { product, amount, finalPrice, finalDiscount } = item;
