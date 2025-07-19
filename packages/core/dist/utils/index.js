@@ -36,6 +36,8 @@ export function getCartCost({ cart, discounts, store, }) {
             finalDiscount: calculateDiscount(item.product),
         };
     });
+    // calculate delivery price before
+    // check if cart cost is greater than free delivery price
     const activeDiscounts = discounts.filter((discount) => {
         if (discount.variant.variantType === "bundle") {
             const productsTotal = cart?.reduce((total, item) => {
