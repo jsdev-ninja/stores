@@ -58,10 +58,11 @@ export function OrderItemsTable({ items, onUpdateItem, onRemoveItem }: OrderItem
 						<TableCell>
 							<Input
 								type="number"
-								min={1}
+								min={0.01}
+								step={0.01}
 								value={item.amount.toString()}
 								onChange={(e) =>
-									onUpdateItem(item.product.id, "amount", parseInt(e.target.value))
+									onUpdateItem(item.product.id, "amount", parseFloat(e.target.value) || 0)
 								}
 							/>
 						</TableCell>
