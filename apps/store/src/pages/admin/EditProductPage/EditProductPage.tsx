@@ -21,16 +21,37 @@ function PriceSection() {
 
 	const { t } = useTranslation(["admin", "common"]);
 
+	const price = form.watch("price") ?? 0;
 	const purchasePrice = form.watch("purchasePrice") ?? 0;
 	const profitPercentage = form.watch("profitPercentage") ?? 0;
 
 	useEffect(() => {
-		if (isValidValue(profitPercentage ?? 0) && isValidValue(purchasePrice ?? 0)) {
-			const result = purchasePrice / ((100 - profitPercentage) / 100);
-			const fixed = result.toFixed(2);
-			form.setValue("price", parseFloat(fixed));
+		// Count how many valid values we have
+		const validValues = [
+			isValidValue(price),
+			isValidValue(purchasePrice),
+			isValidValue(profitPercentage)
+		].filter(Boolean).length;
+
+		// Only calculate if we have exactly 2 valid values
+		if (validValues === 2) {
+			// Case 1: price and purchasePrice exist, calculate profitPercentage
+			if (isValidValue(price) && isValidValue(purchasePrice) && !isValidValue(profitPercentage)) {
+				const calculatedProfit = ((price - purchasePrice) / price) * 100;
+				form.setValue("profitPercentage", parseFloat(calculatedProfit.toFixed(2)));
+			}
+			// Case 2: price and profitPercentage exist, calculate purchasePrice
+			else if (isValidValue(price) && isValidValue(profitPercentage) && !isValidValue(purchasePrice)) {
+				const calculatedPurchasePrice = price * (1 - profitPercentage / 100);
+				form.setValue("purchasePrice", parseFloat(calculatedPurchasePrice.toFixed(2)));
+			}
+			// Case 3: purchasePrice and profitPercentage exist, calculate price
+			else if (isValidValue(purchasePrice) && isValidValue(profitPercentage) && !isValidValue(price)) {
+				const calculatedPrice = purchasePrice / ((100 - profitPercentage) / 100);
+				form.setValue("price", parseFloat(calculatedPrice.toFixed(2)));
+			}
 		}
-	}, [profitPercentage, purchasePrice]);
+	}, [price, purchasePrice, profitPercentage, form]);
 
 	return (
 		<Flex gap={"4"} wrap align={"start"}>
