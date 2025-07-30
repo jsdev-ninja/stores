@@ -78,7 +78,7 @@ export const hypPaymentService = {
 
 			// todo Tmonth=mm&Tyear=yyyy
 
-			const originalAmount = Number(params.originalAmount) * 100;
+			const originalAmount = Math.round(Number(params.originalAmount) * 100);
 
 			const transParams = objectToQueryParams<THypSoftTransactionRequest>({
 				action: "soft",
