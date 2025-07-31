@@ -88,7 +88,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			clientName: order?.nameOnInvoice || clientName,
 			clientLastName,
 			email: order.client.email,
-			// heshDesc: items.join(""),
+			heshDesc: items.join(""),
 			Pritim: "False",
 		});
 		if (res.success) {

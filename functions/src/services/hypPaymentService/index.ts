@@ -44,7 +44,7 @@ type chargeJ5TransactionParams = {
 	clientName: string;
 	clientLastName: string;
 	email: string;
-	heshDesc?: string;
+	heshDesc: string;
 	Pritim: string;
 };
 
@@ -106,7 +106,7 @@ export const hypPaymentService = {
 				Token: "True",
 				FixTash: "True",
 				sendemail: "True",
-				// heshDesc: params.heshDesc,
+				heshDesc: params.heshDesc,
 				Pritim: params.Pritim,
 			});
 			console.log("transParams", transParams);
