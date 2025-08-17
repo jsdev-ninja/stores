@@ -2,7 +2,9 @@ import { z } from "zod";
 import { AddressSchema } from "./Address";
 import { notEmptyTextSchema } from "./Atoms";
 
-export const ProfilePaymentTypeSchema = z.enum(["default", "delayed"]);
+export const ProfilePaymentTypeSchema = z.enum(["default", "delayed"], {
+	description: "delayed is J5 transaction",
+});
 export type TProfilePaymentType = z.infer<typeof ProfilePaymentTypeSchema>;
 
 export const ProfileSchema = z.object({

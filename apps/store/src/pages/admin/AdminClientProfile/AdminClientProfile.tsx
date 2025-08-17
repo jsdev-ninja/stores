@@ -4,7 +4,6 @@ import {
 	CardBody,
 	Input,
 	Button,
-	Checkbox,
 	Select,
 	SelectItem,
 	Avatar,
@@ -21,6 +20,7 @@ import { Icon } from "@iconify/react";
 import { TProfile } from "@jsdev_ninja/core";
 import { useParams } from "src/navigation";
 import { useAppApi } from "src/appApi";
+import { useTranslation } from "react-i18next";
 
 interface AddressFormProps {
 	address?: TProfile["address"];
@@ -28,11 +28,12 @@ interface AddressFormProps {
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({ address, onChange }) => {
+	const { t } = useTranslation(["common", "admin"]);
 	const [formData, setFormData] = React.useState<TProfile["address"]>(
 		address || {
 			street: "",
 			city: "",
-			country: "israel",
+			country: "",
 			apartmentEnterNumber: "",
 			apartmentNumber: "",
 			floor: "",
@@ -53,36 +54,48 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onChange }) => {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 			<Input
-				label="Street Address"
-				value={formData?.street}
+				label={t("common:street")}
+				value={formData?.street || ""}
 				onChange={(e) => handleChange("street", e.target.value)}
 				className="md:col-span-2"
 			/>
 
 			<Input
-				label="City"
-				value={formData?.city}
+				label={t("common:city")}
+				value={formData?.city || ""}
 				onChange={(e) => handleChange("city", e.target.value)}
 			/>
 
-			{/* <Select
-				label="Country"
-				selectedKeys={[formData.country]}
-				onChange={(e) => handleChange("country", e.target.value)}
-			>
-				{COUNTRIES.map((country) => (
-					<SelectItem key={country.code} value={country.code}>
-						{country.name}
-					</SelectItem>
-				))}
-			</Select> */}
+			<Input
+				label={t("common:streetNumber")}
+				value={formData?.streetNumber || ""}
+				onChange={(e) => handleChange("streetNumber", e.target.value)}
+			/>
+
+			<Input
+				label={t("common:apartmentEnterNumber")}
+				value={formData?.apartmentEnterNumber || ""}
+				onChange={(e) => handleChange("apartmentEnterNumber", e.target.value)}
+			/>
+
+			<Input
+				label={t("common:apartmentNumber")}
+				value={formData?.apartmentNumber || ""}
+				onChange={(e) => handleChange("apartmentNumber", e.target.value)}
+			/>
+
+			<Input
+				label={t("common:floor")}
+				value={formData?.floor || ""}
+				onChange={(e) => handleChange("floor", e.target.value)}
+			/>
 		</div>
 	);
 };
 
 const formatDate = (timestamp: number): string => {
 	const date = new Date(timestamp);
-	return new Intl.DateTimeFormat("en-US", {
+	return new Intl.DateTimeFormat("he-IL", {
 		year: "numeric",
 		month: "short",
 		day: "numeric",
@@ -97,6 +110,7 @@ interface ClientProfileHeaderProps {
 }
 
 const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ profile, onRemove }) => {
+	const { t } = useTranslation(["common", "admin"]);
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
 	const [isDeleting, setIsDeleting] = React.useState(false);
 
@@ -139,13 +153,13 @@ const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ profile, onRe
 				<div className="flex flex-col gap-2">
 					<div className="flex items-center gap-2">
 						<Badge color={profile.clientType === "company" ? "primary" : "secondary"}>
-							{profile.clientType === "company" ? "Company" : "Individual"}
+							{t(`common:clientTypes.${profile.clientType}`)}
 						</Badge>
-						{profile.isAnonymous && <Badge color="warning">Anonymous</Badge>}
+						{profile.isAnonymous && <Badge color="warning">{t("admin:clientProfile.anonymous")}</Badge>}
 					</div>
 					<div className="text-sm text-default-500">
-						<div>Created: {formatDate(profile.createdDate)}</div>
-						<div>Last Activity: {formatDate(profile.lastActivityDate)}</div>
+						<div>{t("admin:clientProfile.created")}: {formatDate(profile.createdDate)}</div>
+						<div>{t("admin:clientProfile.lastActivity")}: {formatDate(profile.lastActivityDate)}</div>
 					</div>
 				</div>
 
@@ -155,7 +169,7 @@ const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ profile, onRe
 					startContent={<Icon icon="lucide:trash-2" />}
 					onPress={onOpen}
 				>
-					Remove Client
+					{t("admin:clientProfile.removeClient")}
 				</Button>
 			</div>
 
@@ -163,19 +177,21 @@ const ClientProfileHeader: React.FC<ClientProfileHeaderProps> = ({ profile, onRe
 				<ModalContent>
 					{(onClose) => (
 						<>
-							<ModalHeader className="flex flex-col gap-1">Confirm Removal</ModalHeader>
+							<ModalHeader className="flex flex-col gap-1">
+								{t("admin:clientProfile.confirmRemoval")}
+							</ModalHeader>
 							<ModalBody>
 								<p>
-									Are you sure you want to remove <strong>{profile.displayName}</strong>?
-									This action cannot be undone.
+									{t("admin:clientProfile.removeConfirmMessage")} <strong>{profile.displayName}</strong>?
+									{t("admin:clientProfile.actionCannotBeUndone")}
 								</p>
 							</ModalBody>
 							<ModalFooter>
 								<Button variant="light" onPress={onClose}>
-									Cancel
+									{t("common:cancel")}
 								</Button>
 								<Button color="danger" onPress={handleRemove} isLoading={isDeleting}>
-									Remove Client
+									{t("admin:clientProfile.removeClient")}
 								</Button>
 							</ModalFooter>
 						</>
@@ -192,6 +208,7 @@ interface ClientProfileFormProps {
 }
 
 const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit }) => {
+	const { t } = useTranslation(["common", "admin"]);
 	const [formData, setFormData] = React.useState<TProfile>(profile);
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 	const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -215,17 +232,17 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 		const newErrors: Record<string, string> = {};
 
 		if (!formData.displayName.trim()) {
-			newErrors.displayName = "Display name is required";
+			newErrors.displayName = t("admin:clientProfile.displayNameRequired");
 		}
 
 		if (!formData.email.trim()) {
-			newErrors.email = "Email is required";
+			newErrors.email = t("admin:clientProfile.emailRequired");
 		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-			newErrors.email = "Invalid email format";
+			newErrors.email = t("admin:clientProfile.invalidEmailFormat");
 		}
 
 		if (formData.phoneNumber && formData.phoneNumber.trim() === "") {
-			newErrors.phoneNumber = "Phone number cannot be empty";
+			newErrors.phoneNumber = t("admin:clientProfile.phoneCannotBeEmpty");
 		}
 
 		setErrors(newErrors);
@@ -253,10 +270,10 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 		<form onSubmit={handleSubmit}>
 			<Card className="mb-6">
 				<CardBody>
-					<h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+					<h2 className="text-xl font-semibold mb-4">{t("admin:clientProfile.basicInformation")}</h2>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Input
-							label="Display Name"
+							label={t("common:name")}
 							value={formData.displayName}
 							onChange={(e) => handleChange("displayName", e.target.value)}
 							isRequired
@@ -265,7 +282,7 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 						/>
 
 						<Input
-							label="Email"
+							label={t("common:email")}
 							type="email"
 							value={formData.email}
 							onChange={(e) => handleChange("email", e.target.value)}
@@ -275,7 +292,7 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 						/>
 
 						<Input
-							label="Phone Number"
+							label={t("common:phone")}
 							value={formData.phoneNumber || ""}
 							onChange={(e) => handleChange("phoneNumber", e.target.value)}
 							isInvalid={!!errors.phoneNumber}
@@ -283,34 +300,46 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 						/>
 
 						<Select
-							label="Client Type"
+							label={t("common:clientType")}
 							selectedKeys={[formData.clientType]}
 							onChange={(e) => handleChange("clientType", e.target.value)}
 							isRequired
 						>
-							<SelectItem key="user">Individual</SelectItem>
-							<SelectItem key="company">Company</SelectItem>
+							<SelectItem key="user">{t("common:clientTypes.user")}</SelectItem>
+							<SelectItem key="company">{t("common:clientTypes.company")}</SelectItem>
 						</Select>
 
 						<Select
-							label="Payment Type"
+							label={t("common:paymentType")}
 							selectedKeys={[formData.paymentType]}
 							onChange={(e) => handleChange("paymentType", e.target.value)}
 							isRequired
 						>
-							<SelectItem key="credit_card">Credit Card</SelectItem>
-							<SelectItem key="paypal">PayPal</SelectItem>
-							<SelectItem key="bank_transfer">Bank Transfer</SelectItem>
-							<SelectItem key="crypto">Cryptocurrency</SelectItem>
+							<SelectItem key="default">{t("common:paymentTypes.default")}</SelectItem>
+							<SelectItem key="delayed">{t("common:paymentTypes.delayed")}</SelectItem>
 						</Select>
 
+						{formData.clientType === "company" && (
+							<Input
+								label={t("common:companyName")}
+								value={formData.companyName || ""}
+								onChange={(e) => handleChange("companyName", e.target.value)}
+							/>
+						)}
+
 						<div className="flex items-center h-full">
-							<Checkbox
-								isSelected={formData.isAnonymous}
-								onValueChange={(value) => handleChange("isAnonymous", value)}
-							>
-								Anonymous Account
-							</Checkbox>
+							<div className="flex flex-col gap-2">
+								<span className="text-sm font-medium">{t("admin:clientProfile.accountStatus")}</span>
+								<Badge 
+									color={formData.isAnonymous ? "warning" : "success"}
+									variant="flat"
+								>
+									{formData.isAnonymous 
+										? t("admin:clientProfile.anonymous") 
+										: t("admin:clientProfile.registered")
+									}
+								</Badge>
+							</div>
 						</div>
 					</div>
 				</CardBody>
@@ -318,7 +347,7 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 
 			<Card className="mb-6">
 				<CardBody>
-					<h2 className="text-xl font-semibold mb-4">Address Information</h2>
+					<h2 className="text-xl font-semibold mb-4">{t("admin:clientProfile.addressInformation")}</h2>
 					<AddressForm
 						address={formData.address}
 						onChange={(address) => handleChange("address", address)}
@@ -326,36 +355,65 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 				</CardBody>
 			</Card>
 
-			<Card>
+			<Card className="bg-gray-50 dark:bg-gray-900">
 				<CardBody>
-					<h2 className="text-xl font-semibold mb-4">System Information</h2>
+					<h2 className="text-xl font-semibold mb-2 text-gray-600 dark:text-gray-400">
+						{t("admin:clientProfile.systemInformation")}
+					</h2>
+					<p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+						{t("admin:clientProfile.systemInfoDescription")}
+					</p>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Input
-							label="Client ID"
+							label={t("admin:clientProfile.clientId")}
 							value={formData.id}
 							isReadOnly
+							isDisabled
+							variant="flat"
 							startContent={<Icon icon="lucide:fingerprint" className="text-default-400" />}
+							classNames={{
+								input: "text-gray-500 cursor-not-allowed",
+								inputWrapper: "bg-gray-100 dark:bg-gray-800"
+							}}
 						/>
 
 						<Input
-							label="Company ID"
+							label={t("admin:clientProfile.companyId")}
 							value={formData.companyId}
 							isReadOnly
+							isDisabled
+							variant="flat"
 							startContent={<Icon icon="lucide:building" className="text-default-400" />}
+							classNames={{
+								input: "text-gray-500 cursor-not-allowed",
+								inputWrapper: "bg-gray-100 dark:bg-gray-800"
+							}}
 						/>
 
 						<Input
-							label="Store ID"
+							label={t("admin:clientProfile.storeId")}
 							value={formData.storeId}
 							isReadOnly
+							isDisabled
+							variant="flat"
 							startContent={<Icon icon="lucide:store" className="text-default-400" />}
+							classNames={{
+								input: "text-gray-500 cursor-not-allowed",
+								inputWrapper: "bg-gray-100 dark:bg-gray-800"
+							}}
 						/>
 
 						<Input
-							label="Tenant ID"
+							label={t("admin:clientProfile.tenantId")}
 							value={formData.tenantId}
 							isReadOnly
+							isDisabled
+							variant="flat"
 							startContent={<Icon icon="lucide:layers" className="text-default-400" />}
+							classNames={{
+								input: "text-gray-500 cursor-not-allowed",
+								inputWrapper: "bg-gray-100 dark:bg-gray-800"
+							}}
 						/>
 					</div>
 				</CardBody>
@@ -363,7 +421,7 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 
 			<div className="mt-6 flex justify-end gap-2">
 				<Button variant="flat" color="default">
-					Cancel
+					{t("common:cancel")}
 				</Button>
 				<Button
 					color="primary"
@@ -371,7 +429,7 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 					isLoading={isSubmitting}
 					startContent={!isSubmitting && <Icon icon="lucide:save" />}
 				>
-					Save Changes
+					{t("admin:clientProfile.saveChanges")}
 				</Button>
 			</div>
 		</form>
@@ -379,31 +437,45 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 };
 
 export default function AdminClientProfile() {
-	function updateProfile() {}
-	function removeProfile() {}
-	const error = null;
-
+	const { t } = useTranslation(["common", "admin"]);
 	const params = useParams("admin.clientProfile");
 	const clientId = params.id;
-	console.log("clientId", clientId);
-
 	const appApi = useAppApi();
 
 	const [client, setClient] = useState<TProfile | null>(null);
-	const [loading, setLoading] = useState(false);
-	console.log("loading", loading, setLoading);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	function updateProfile(updatedProfile: TProfile) {
+		// TODO: Implement profile update logic
+		console.log("Updating profile:", updatedProfile);
+	}
+
+	function removeProfile() {
+		// TODO: Implement profile removal logic
+		console.log("Removing profile");
+	}
 
 	useEffect(() => {
 		if (!clientId) return;
+		
+		setLoading(true);
 		appApi.admin.getClient(clientId).then((res) => {
-			console.log("res", res);
 			if (res?.success) {
 				setClient(res.data);
+				setError(null);
+			} else {
+				setError(t("admin:clientProfile.clientProfileNotFound"));
 			}
+		}).catch((err) => {
+			console.error("Error fetching client:", err);
+			setError(t("admin:clientProfile.errorLoadingProfile"));
+		}).finally(() => {
+			setLoading(false);
 		});
 	}, [clientId]);
 
-	if (false) {
+	if (loading) {
 		return (
 			<div className="flex items-center justify-center min-h-screen">
 				<Spinner size="lg" color="primary" />
@@ -414,8 +486,8 @@ export default function AdminClientProfile() {
 	if (error || !client) {
 		return (
 			<div className="flex flex-col items-center justify-center min-h-screen p-4">
-				<h2 className="text-2xl font-bold text-danger mb-2">Error Loading Profile</h2>
-				<p className="text-default-600">{error || "Client profile not found"}</p>
+				<h2 className="text-2xl font-bold text-danger mb-2">{t("admin:clientProfile.errorLoadingProfile")}</h2>
+				<p className="text-default-600">{error || t("admin:clientProfile.clientProfileNotFound")}</p>
 			</div>
 		);
 	}

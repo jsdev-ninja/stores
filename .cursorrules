@@ -1,0 +1,22 @@
+# Cursor Rules for @jsdev-store
+
+## Hook Dependencies
+- Never include `appApi` or any of its properties (like `appApi.admin`) in React hook dependency arrays
+- appApi instances are stable and don't need to be included in useEffect, useMemo, useCallback dependencies
+- Use empty dependency array `[]` instead when appApi is the only dependency
+
+## Examples
+```typescript
+// ❌ Bad - Don't do this
+useEffect(() => {
+  appApi.admin.getStoreClients().then(handleResponse);
+}, [appApi.admin]);
+
+// ✅ Good - Do this instead  
+useEffect(() => {
+  appApi.admin.getStoreClients().then(handleResponse);
+}, []);
+```
+
+## Reasoning
+appApi is a stable API instance that doesn't change between renders, so including it in dependencies creates unnecessary re-runs and potential infinite loops. 

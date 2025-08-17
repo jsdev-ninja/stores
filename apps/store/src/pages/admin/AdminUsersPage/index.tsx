@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
@@ -26,88 +25,48 @@ export function capitalize(str?: string) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "address", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "address", "phone", "clientType", "paymentType", "actions"];
 
-const columns = [
-	{ name: "NAME", uid: "name", sortable: true },
-	{ name: "address", uid: "address", sortable: true },
-	{ name: "phone", uid: "phone" },
-	{ name: "clientType", uid: "clientType" },
-	{ name: "paymentType", uid: "paymentType" },
-	{ name: "ACTIONS", uid: "actions" },
-];
-
-const statusOptions = [
-	{ name: "Active", uid: "active" },
-	{ name: "Paused", uid: "paused" },
-	{ name: "Vacation", uid: "vacation" },
+const getColumns = (t: any) => [
+	{ name: t("admin:clientsPage.columns.name"), uid: "name", sortable: true },
+	{ name: t("admin:clientsPage.columns.address"), uid: "address", sortable: true },
+	{ name: t("admin:clientsPage.columns.phone"), uid: "phone" },
+	{ name: t("admin:clientsPage.columns.clientType"), uid: "clientType" },
+	{ name: t("admin:clientsPage.columns.paymentType"), uid: "paymentType" },
+	{ name: t("admin:clientsPage.columns.actions"), uid: "actions" },
 ];
 
 function AdminUsersPage() {
 	const appApi = useAppApi();
-
 	const { t } = useTranslation(["common", "admin"]);
-
 	const [clients, setClients] = useState<TProfile[]>([]);
-
-	const [filterValue, setFilterValue] = React.useState("");
-	const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-	const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
-	const [statusFilter, setStatusFilter] = React.useState("all");
-	const [rowsPerPage, setRowsPerPage] = React.useState(5);
-	const [sortDescriptor, setSortDescriptor] = React.useState({
-		column: "age",
-		direction: "ascending",
-	});
-	const [page, setPage] = React.useState(1);
-
-	const hasSearchFilter = Boolean(filterValue);
+	const [filterValue] = React.useState("");
+	const [rowsPerPage] = React.useState(10);
+	const [page] = React.useState(1);
 
 	const headerColumns = React.useMemo(() => {
-		return columns;
-		if (visibleColumns === "all") return columns;
-
-		return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
-	}, [visibleColumns]);
+		const columns = getColumns(t);
+		return columns.filter((column) => INITIAL_VISIBLE_COLUMNS.includes(column.uid));
+	}, [t]);
 
 	const filteredItems = React.useMemo(() => {
-		return clients;
-		// let filteredUsers = [...clients];
+		let filteredUsers = [...clients];
 
-		// if (hasSearchFilter) {
-		// 	filteredUsers = filteredUsers.filter((user) =>
-		// 		user.name.toLowerCase().includes(filterValue.toLowerCase())
-		// 	);
-		// }
-		// if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-		// 	filteredUsers = filteredUsers.filter((user) =>
-		// 		Array.from(statusFilter).includes(user.status)
-		// 	);
-		// }
+		if (filterValue) {
+			filteredUsers = filteredUsers.filter((user) =>
+				user.displayName?.toLowerCase().includes(filterValue.toLowerCase()) ||
+				user.email?.toLowerCase().includes(filterValue.toLowerCase())
+			);
+		}
 
-		// return filteredUsers;
-	}, [clients, filterValue, statusFilter]);
-
-	// const pages = Math.ceil(filteredItems.length / rowsPerPage);
+		return filteredUsers;
+	}, [clients, filterValue]);
 
 	const items = React.useMemo(() => {
 		const start = (page - 1) * rowsPerPage;
 		const end = start + rowsPerPage;
-
 		return filteredItems.slice(start, end);
 	}, [page, filteredItems, rowsPerPage]);
-
-	const sortedItems = React.useMemo(() => {
-		return items;
-
-		// return [...items].sort((a, b) => {
-		// 	const first = a[sortDescriptor.column];
-		// 	const second = b[sortDescriptor.column];
-		// 	const cmp = first < second ? -1 : first > second ? 1 : 0;
-
-		// 	return sortDescriptor.direction === "descending" ? -cmp : cmp;
-		// });
-	}, [sortDescriptor, items]);
 
 	useEffect(() => {
 		appApi.admin.getStoreClients().then((res) => {
@@ -117,7 +76,91 @@ function AdminUsersPage() {
 		});
 	}, []);
 
-	console.log("clients", clients);
+	const renderCell = React.useCallback((user: TProfile, columnKey: React.Key) => {
+		switch (columnKey) {
+			case "name":
+				return (
+					<User
+						avatarProps={{ radius: "lg", src: "" }}
+						description={user.email}
+						name={user.displayName}
+					>
+						{user.email}
+					</User>
+				);
+			case "address":
+				return user.address ? (
+					<div>
+						{user.address.city}, {user.address.street} {user.address.streetNumber}
+						<br />
+						{user.address.apartmentEnterNumber && (
+							<>
+								{t("common:apartmentEnterNumber")} ({user.address.apartmentEnterNumber})
+								<br />
+							</>
+						)}
+						{user.address.apartmentNumber && (
+							<>
+								{t("common:apartmentNumber")} {user.address.apartmentNumber}
+								{user.address.floor && `, ${t("common:floor")} ${user.address.floor}`}
+							</>
+						)}
+					</div>
+				) : (
+					t("common:emptyField")
+				);
+			case "phone":
+				return user.phoneNumber || t("common:emptyField");
+			case "clientType":
+				return user.clientType ? t(`common:clientTypes.${user.clientType}`) : t("common:emptyField");
+			case "paymentType":
+				return user.paymentType ? t(`common:paymentTypes.${user.paymentType}`) : t("common:emptyField");
+			case "actions":
+				return (
+					<div className="relative flex justify-end items-center gap-2">
+						<Dropdown>
+							<DropdownTrigger>
+								<Button isIconOnly size="sm" variant="light">
+									<svg
+										className="text-default-500"
+										aria-hidden="true"
+										fill="none"
+										focusable="false"
+										height={24}
+										role="presentation"
+										viewBox="0 0 24 24"
+										width={24}
+									>
+										<path
+											d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+											fill="currentColor"
+										/>
+									</svg>
+								</Button>
+							</DropdownTrigger>
+							<DropdownMenu
+								onAction={(key) => {
+									if (key === "view") {
+										navigate({
+											to: "admin.clientProfile",
+											params: { id: user.id },
+										});
+									}
+									// Add other actions here as needed
+								}}
+							>
+								<DropdownItem key="view">{t("admin:clientsPage.actions.view")}</DropdownItem>
+								<DropdownItem key="delete" className="text-danger" color="danger">
+									{t("admin:clientsPage.actions.delete")}
+								</DropdownItem>
+							</DropdownMenu>
+						</Dropdown>
+					</div>
+				);
+			default:
+				return null;
+		}
+	}, [t]);
 
 	return (
 		<>
@@ -142,18 +185,12 @@ function AdminUsersPage() {
 							</div>
 							<Table
 								isHeaderSticky
-								// bottomContent={bottomContent}
 								bottomContentPlacement="outside"
 								classNames={{
-									wrapper: "max-h-[382px]",
+									wrapper: "max-h-[500px]",
 								}}
-								// selectedKeys={selectedKeys}
-								selectionMode="multiple"
-								// sortDescriptor={sortDescriptor}
-								// topContent={topContent}
+								selectionMode="none"
 								topContentPlacement="outside"
-								// onSelectionChange={setSelectedKeys}
-								// onSortChange={setSortDescriptor}
 							>
 								<TableHeader columns={headerColumns}>
 									{(column) => (
@@ -166,72 +203,12 @@ function AdminUsersPage() {
 										</TableColumn>
 									)}
 								</TableHeader>
-								<TableBody emptyContent={"No users found"} items={sortedItems}>
+								<TableBody emptyContent={t("admin:clientsPage.noUsersFound")} items={items}>
 									{(user) => (
 										<TableRow key={user.id}>
-											<TableCell>
-												<User
-													avatarProps={{ radius: "lg", src: "" }}
-													description={user.email}
-													name={user.displayName}
-												>
-													{user.email}
-												</User>
-											</TableCell>
-											<TableCell>
-												{user.address.city}, {user.address.street}{" "}
-												{user.address.streetNumber}
-												<br />
-												{t("common:apartmentEnterNumber")} (
-												{user.address.apartmentEnterNumber})
-												<br />
-												{t("apartmentNumber")} {user.address.apartmentNumber},{" "}
-												{t("common:floor")} {user.address.floor}
-											</TableCell>
-											<TableCell>{user.phoneNumber}</TableCell>
-											<TableCell>{user.clientType}</TableCell>
-											<TableCell>{user.paymentType}</TableCell>
-											<TableCell>
-												<div className="relative flex justify-end items-center gap-2">
-													<Dropdown>
-														<DropdownTrigger>
-															<Button isIconOnly size="sm" variant="light">
-																<svg
-																	className="text-default-300"
-																	aria-hidden="true"
-																	fill="none"
-																	focusable="false"
-																	height={24}
-																	role="presentation"
-																	viewBox="0 0 24 24"
-																	width={24}
-																>
-																	<path
-																		d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
-																		fill="currentColor"
-																	/>
-																</svg>
-															</Button>
-														</DropdownTrigger>
-														<DropdownMenu
-															onAction={(key) => {
-																console.log("key", key);
-																if (key === "view") {
-																	navigate({
-																		to: "admin.clientProfile",
-																		params: { id: user.id },
-																	});
-																	return;
-																}
-															}}
-														>
-															<DropdownItem key={"view"}>View</DropdownItem>
-															<DropdownItem>Edit</DropdownItem>
-															<DropdownItem>Delete</DropdownItem>
-														</DropdownMenu>
-													</Dropdown>
-												</div>
-											</TableCell>
+											{(columnKey) => (
+												<TableCell>{renderCell(user, columnKey)}</TableCell>
+											)}
 										</TableRow>
 									)}
 								</TableBody>
