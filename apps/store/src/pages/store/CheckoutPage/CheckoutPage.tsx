@@ -28,6 +28,15 @@ function CheckoutPage() {
 	const store = useAppSelector((state) => state.store.data);
 	const discounts = useDiscounts();
 
+	// Date constraints for delivery date
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+	const twoWeeksFromToday = new Date();
+	twoWeeksFromToday.setDate(twoWeeksFromToday.getDate() + 14);
+	
+	const minDate = tomorrow.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+	const maxDate = twoWeeksFromToday.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
 	useEffect(() => {
 		if (cartData.isReady && !cart) {
 			navigate({ to: "store.catalog" });
@@ -178,10 +187,13 @@ function CheckoutPage() {
 								<Form.Input<TOrder>
 									name="deliveryDate"
 									type="date"
-									label={"בחירת יום הזמנה"}
+									label={t("common:deliveryDate")}
+									min={minDate}
+									max={maxDate}
+									defaultValue={minDate}
 								/>
-								<Form.Input<TOrder> name="nameOnInvoice" label={"שם שיוצג בחשבונית"} />
-								<Form.TextArea<TOrder> name="clientComment" label={"הערות לחנות"} />
+								<Form.Input<TOrder> name="nameOnInvoice" label={t("common:nameOnInvoice")} />
+								<Form.TextArea<TOrder> name="clientComment" label={t("common:clientComment")} />
 							</div>
 							<div className="">
 								<MinimumOrderAlert />

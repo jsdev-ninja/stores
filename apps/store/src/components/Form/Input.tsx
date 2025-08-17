@@ -13,6 +13,9 @@ type Props<T extends object> = {
 	disabled?: boolean;
 	startAdornment?: ReactNode;
 	endAdornment?: ReactNode;
+	min?: string;
+	max?: string;
+	defaultValue?: string;
 };
 
 const style = tv({
@@ -28,7 +31,7 @@ const style = tv({
 });
 
 export function Input<T extends object>(props: Props<T>) {
-	const { name, label, placeholder, type, disabled, startAdornment, endAdornment } = props;
+	const { name, label, placeholder, type, disabled, startAdornment, endAdornment, min, max, defaultValue } = props;
 
 	const methods = useFormContext();
 
@@ -54,11 +57,16 @@ export function Input<T extends object>(props: Props<T>) {
 					{...methods.register(name, {
 						valueAsNumber: type === "number",
 						setValueAs:
-							type === "date" ? (value: string) => new Date(value).getTime() : undefined,
+							type === "date" 
+								? (value: string) => value ? new Date(value).getTime() : ""
+								: undefined,
 					})}
+					defaultValue={defaultValue}
 					step=".01"
 					placeholder={placeholder}
 					type={type}
+					min={min}
+					max={max}
 					className={style({
 						withStartAdornment: !!startAdornment,
 						withEndAdornment: !!endAdornment,

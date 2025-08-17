@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { ProfileSchema } from "./Profile";
-import { ProductSchema } from "./Product";
 import { notEmptyTextSchema } from "./Atoms";
 import { CartItemProductSchema } from "./Cart";
 
@@ -39,7 +38,7 @@ export const OrderSchema = z.object({
 	originalAmount: z.number().positive().optional(), // what client pay
 	actualAmount: z.number().positive().optional(), // what store charge
 	date: z.number(),
-	deliveryDate: z.coerce.number().optional(),
+	deliveryDate: z.coerce.number(),
 	client: ProfileSchema.required({}),
 	nameOnInvoice: z.string().optional(),
 	clientComment: z.string().optional(),

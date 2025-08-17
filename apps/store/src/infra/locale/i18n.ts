@@ -144,6 +144,9 @@ export const resources = {
 			for: "במחיר",
 			included: "כלול",
 			viewProducts: "צפה במוצרים",
+			deliveryDate: "תאריך משלוח מועדף",
+			nameOnInvoice: "שם בחשבונית",
+			clientComment: "הערות ללקוח",
 		},
 		auth: {
 			welcome: {
