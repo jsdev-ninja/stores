@@ -56,7 +56,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			zip: "",
 			Tash: "1",
 			FixTash: "True",
-			Info: "balasi store",
+			Info: order.id,
 			UTF8: "True",
 			UTF8out: "True",
 			sendemail: "True",
