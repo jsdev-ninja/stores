@@ -101,6 +101,16 @@ export default function AdminOrderPage() {
 	const [isSearching, setIsSearching] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
+	// External product modal state
+	const {
+		isOpen: isExternalOpen,
+		onOpen: onExternalOpen,
+		onClose: onExternalClose,
+	} = useDisclosure();
+	const [externalProductName, setExternalProductName] = useState<string>("");
+	const [externalProductPrice, setExternalProductPrice] = useState<number>(0);
+	const [externalProductQuantity, setExternalProductQuantity] = useState<number>(1);
+
 	console.log(JSON.stringify(order?.cart.items));
 	console.log("order", order?.cart);
 	// 1617.95; //
@@ -123,8 +133,6 @@ export default function AdminOrderPage() {
 			navigate({ to: "admin.orders" });
 		}
 	}
-
-
 
 	async function handleProductSearch(query: string) {
 		if (!query || query.length < 2) {
@@ -201,6 +209,85 @@ export default function AdminOrderPage() {
 		setSelectedQuantity(1);
 		setSearchResults([]);
 		onClose();
+	}
+
+	function addExternalProductToOrder() {
+		if (
+			!order ||
+			!externalProductName.trim() ||
+			externalProductPrice <= 0 ||
+			externalProductQuantity <= 0
+		)
+			return;
+
+		const id = `external-${Date.now()}-${Math.random()}`;
+		// Create a mock product object for external products
+		const externalProduct: TProduct = {
+			type: "Product",
+			id: id,
+			objectID: id,
+			sku: `EXT-${Date.now()}`,
+			name: [{ value: externalProductName, lang: "he" }],
+			description: [{ value: "External product", lang: "he" }],
+			price: externalProductPrice,
+			storeId: store?.id || "",
+			companyId: store?.companyId || "",
+			isPublished: true,
+			vat: true,
+			priceType: { type: "unit", value: 1 },
+			currency: "ILS",
+			discount: { type: "none", value: 0 },
+			weight: { value: 0, unit: "none" },
+			volume: { value: 0, unit: "none" },
+			images: [],
+			manufacturer: "",
+			brand: "",
+			importer: "",
+			supplier: "",
+			ingredients: [],
+			created_at: Date.now(),
+			updated_at: Date.now(),
+			categoryIds: [],
+		};
+
+		setOrder((prev) => {
+			if (!prev) return prev;
+
+			const updatedItems = [...prev.cart.items];
+
+			// Add external product as new item
+			const newItem = {
+				product: externalProduct,
+				originalPrice: externalProductPrice,
+				finalPrice: externalProductPrice,
+				finalDiscount: 0,
+				amount: externalProductQuantity,
+			};
+			updatedItems.push(newItem);
+
+			const cartCost = getCartCost({
+				cart: updatedItems,
+				discounts: discounts,
+				store: store!,
+			});
+
+			return {
+				...prev,
+				cart: {
+					...prev.cart,
+					items: updatedItems,
+					cartDiscount: cartCost.discount,
+					cartTotal: cartCost.finalCost,
+					cartVat: cartCost.vat,
+				},
+			};
+		});
+
+		// Reset form
+		setExternalProductName("");
+		setExternalProductPrice(0);
+		setExternalProductQuantity(1);
+		onExternalClose();
 	}
 
 	useEffect(() => {
@@ -372,15 +459,25 @@ export default function AdminOrderPage() {
 					<div className="flex flex-col gap-2">
 						<div className="flex items-center justify-between">
 							<h2 className="text-lg font-semibold">Order Items</h2>
-							<Button
-								color="primary"
-								startContent={<Plus />}
-								onPress={() => {
-									onOpen();
-								}}
-							>
-								Add Product
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									color="primary"
+									startContent={<Plus />}
+									onPress={() => {
+										onOpen();
+									}}
+								>
+									Add Product
+								</Button>
+								<Button
+									color="secondary"
+									variant="bordered"
+									startContent={<Plus />}
+									onPress={onExternalOpen}
+								>
+									Add External Product
+								</Button>
+							</div>
 						</div>
 						<OrderItemsTable
 							items={order.cart.items}
@@ -405,10 +502,15 @@ export default function AdminOrderPage() {
 										allowsCustomValue={false}
 									>
 										{(product) => (
-											<AutocompleteItem key={product.id} textValue={product.name[0].value}>
+											<AutocompleteItem
+												key={product.id}
+												textValue={product.name[0].value}
+											>
 												<div className="flex flex-col">
 													<span className="font-medium">{product.name[0].value}</span>
-													<span className="text-sm text-gray-500">₪{product.price}</span>
+													<span className="text-sm text-gray-500">
+														₪{product.price}
+													</span>
 												</div>
 											</AutocompleteItem>
 										)}
@@ -430,6 +532,60 @@ export default function AdminOrderPage() {
 									color="primary"
 									onPress={addProductToOrder}
 									isDisabled={!selectedProduct || selectedQuantity <= 0}
+								>
+									Add to Order
+								</Button>
+							</ModalFooter>
+						</ModalContent>
+					</Modal>
+
+					{/* Add External Product Modal */}
+					<Modal isOpen={isExternalOpen} onClose={onExternalClose} size="lg">
+						<ModalContent>
+							<ModalHeader>Add External Product to Order</ModalHeader>
+							<ModalBody>
+								<div className="space-y-4">
+									<Input
+										label="Product Name"
+										placeholder="Enter product name..."
+										value={externalProductName}
+										onChange={(e) => setExternalProductName(e.target.value)}
+									/>
+									<Input
+										label="Price (₪)"
+										type="number"
+										min={0}
+										step={0.01}
+										placeholder="0.00"
+										value={externalProductPrice.toString()}
+										onChange={(e) =>
+											setExternalProductPrice(parseFloat(e.target.value) || 0)
+										}
+									/>
+									<Input
+										label="Quantity"
+										type="number"
+										min={1}
+										step={0.01}
+										value={externalProductQuantity.toString()}
+										onChange={(e) =>
+											setExternalProductQuantity(parseFloat(e.target.value) || 1)
+										}
+									/>
+								</div>
+							</ModalBody>
+							<ModalFooter>
+								<Button variant="flat" onPress={onExternalClose}>
+									Cancel
+								</Button>
+								<Button
+									color="primary"
+									onPress={addExternalProductToOrder}
+									isDisabled={
+										!externalProductName.trim() ||
+										externalProductPrice <= 0 ||
+										externalProductQuantity <= 0
+									}
 								>
 									Add to Order
 								</Button>

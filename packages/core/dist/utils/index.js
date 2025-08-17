@@ -26,7 +26,7 @@ function getPriceAfterDiscount(product) {
 export function getCartCost({ cart, discounts, store, }) {
     const { isVatIncludedInPrice } = store;
     // Convert cart items to the format expected by the discount engine
-    const cartForEngine = cart.map(item => ({
+    const cartForEngine = cart.map((item) => ({
         amount: item.amount,
         product: {
             id: item.product.id,
@@ -35,7 +35,6 @@ export function getCartCost({ cart, discounts, store, }) {
     }));
     // Apply discounts using the new discount engine
     const discountResult = DiscountEngine.calculateDiscounts(cartForEngine, discounts);
-    console.log("discountResult", discountResult);
     // Map the results back to the original format with additional product info
     const result = cart.map((item, index) => {
         const engineItem = discountResult.items[index];
@@ -70,7 +69,8 @@ export function getCartCost({ cart, discounts, store, }) {
         acc.cost += amount * roundedFinalPrice;
         acc.discount += finalDiscount ? amount * finalDiscount : finalDiscount;
         acc.finalCost += amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
-        acc.productsCost += amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
+        acc.productsCost +=
+            amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue);
         // Round all accumulated values to prevent floating point errors
         acc.cost = Number(acc.cost.toFixed(2));
         acc.discount = Number(acc.discount.toFixed(2));

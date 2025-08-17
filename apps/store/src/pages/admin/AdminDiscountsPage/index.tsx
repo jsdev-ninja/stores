@@ -304,7 +304,7 @@ function ProductInput({ field }: any) {
 						<div className="flex items-center gap-2">
 							<span className="text-default-600">${item.price}</span>
 							<Chip size="sm" variant="flat" color="primary">
-								{item.categoryNames[0]}
+								{item.categoryNames?.[0] || "No category"}
 							</Chip>
 						</div>
 					</div>

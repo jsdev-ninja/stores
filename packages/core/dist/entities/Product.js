@@ -44,7 +44,7 @@ export const ProductSchema = z.object({
     updated_at: z.number(),
     categoryIds: z.array(z.string().nonempty()),
     // @deprecated
-    categoryList: z.array(CategorySchema),
+    categoryList: z.array(CategorySchema).optional(),
     // @deprecated
     categories: z.object({
         lvl0: z.array(z.string()),
@@ -52,9 +52,9 @@ export const ProductSchema = z.object({
         lvl2: z.array(z.string()),
         lvl3: z.array(z.string()),
         lvl4: z.array(z.string()),
-    }),
+    }).optional(),
     // @deprecated
-    categoryNames: z.array(z.string()),
+    categoryNames: z.array(z.string()).optional(),
 });
 export const NewProductSchema = ProductSchema.extend({
     image: z.instanceof(File).optional(),

@@ -1,5 +1,10 @@
 # Cursor Rules for @jsdev-store
 
+
+# Admin features
+- admin can add/edit/remove product in order
+- admin can add/edit/remove external product in order
+
 ## Hook Dependencies
 - Never include `appApi` or any of its properties (like `appApi.admin`) in React hook dependency arrays
 - appApi instances are stable and don't need to be included in useEffect, useMemo, useCallback dependencies

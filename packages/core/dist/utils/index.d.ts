@@ -62,7 +62,10 @@ export declare function getCartCost({ cart, discounts, store, }: {
             created_at: number;
             updated_at: number;
             categoryIds: string[];
-            categoryList: ({
+            purchasePrice?: number | undefined;
+            profitPercentage?: number | undefined;
+            isDiscountable?: boolean | undefined;
+            categoryList?: ({
                 id: string;
                 companyId: string;
                 storeId: string;
@@ -86,18 +89,15 @@ export declare function getCartCost({ cart, discounts, store, }: {
                     parentId?: string | null | undefined;
                     tag?: string | undefined;
                 } & /*elided*/ any)[];
-            })[];
-            categories: {
+            })[] | undefined;
+            categories?: {
                 lvl0: string[];
                 lvl1: string[];
                 lvl2: string[];
                 lvl3: string[];
                 lvl4: string[];
-            };
-            categoryNames: string[];
-            purchasePrice?: number | undefined;
-            profitPercentage?: number | undefined;
-            isDiscountable?: boolean | undefined;
+            } | undefined;
+            categoryNames?: string[] | undefined;
         };
         originalPrice: number;
         finalPrice: number;

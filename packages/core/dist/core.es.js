@@ -3042,7 +3042,7 @@ const re = i.object({
   updated_at: i.number(),
   categoryIds: i.array(i.string().nonempty()),
   // @deprecated
-  categoryList: i.array(Re),
+  categoryList: i.array(Re).optional(),
   // @deprecated
   categories: i.object({
     lvl0: i.array(i.string()),
@@ -3050,9 +3050,9 @@ const re = i.object({
     lvl2: i.array(i.string()),
     lvl3: i.array(i.string()),
     lvl4: i.array(i.string())
-  }),
+  }).optional(),
   // @deprecated
-  categoryNames: i.array(i.string())
+  categoryNames: i.array(i.string()).optional()
 }), Zr = He.extend({
   image: i.instanceof(File).optional()
 }), Ge = i.object({
@@ -3080,7 +3080,9 @@ const re = i.object({
   storeId: i.string().uuid(),
   userId: i.string().uuid(),
   productId: i.string().uuid()
-}), Xe = i.enum(["default", "delayed"]), hr = i.object({
+}), Xe = i.enum(["default", "delayed"], {
+  description: "delayed is J5 transaction"
+}), hr = i.object({
   type: i.literal("Profile"),
   id: M,
   companyId: M,
@@ -3157,7 +3159,7 @@ const Pr = i.object({
   actualAmount: i.number().positive().optional(),
   // what store charge
   date: i.number(),
-  deliveryDate: i.coerce.number().optional(),
+  deliveryDate: i.coerce.number(),
   client: hr.required({}),
   nameOnInvoice: i.string().optional(),
   clientComment: i.string().optional()
@@ -3369,9 +3371,7 @@ function Lr({
       id: d.product.id,
       price: d.product.price
     }
-  })), a = vr.calculateDiscounts(s, e);
-  console.log("discountResult", a);
-  const o = r.map((d, l) => {
+  })), a = vr.calculateDiscounts(s, e), o = r.map((d, l) => {
     const m = a.items[l];
     return {
       amount: d.amount,

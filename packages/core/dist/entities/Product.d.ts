@@ -100,7 +100,7 @@ export declare const ProductSchema: z.ZodObject<{
     created_at: z.ZodNumber;
     updated_at: z.ZodNumber;
     categoryIds: z.ZodArray<z.ZodString, "many">;
-    categoryList: z.ZodArray<z.ZodType<{
+    categoryList: z.ZodOptional<z.ZodArray<z.ZodType<{
         id: string;
         companyId: string;
         storeId: string;
@@ -148,8 +148,8 @@ export declare const ProductSchema: z.ZodObject<{
             parentId?: string | null | undefined;
             tag?: string | undefined;
         } & /*elided*/ any)[];
-    }>, "many">;
-    categories: z.ZodObject<{
+    }>, "many">>;
+    categories: z.ZodOptional<z.ZodObject<{
         lvl0: z.ZodArray<z.ZodString, "many">;
         lvl1: z.ZodArray<z.ZodString, "many">;
         lvl2: z.ZodArray<z.ZodString, "many">;
@@ -167,8 +167,8 @@ export declare const ProductSchema: z.ZodObject<{
         lvl2: string[];
         lvl3: string[];
         lvl4: string[];
-    }>;
-    categoryNames: z.ZodArray<z.ZodString, "many">;
+    }>>;
+    categoryNames: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
     type: "Product";
     id: string;
@@ -219,7 +219,10 @@ export declare const ProductSchema: z.ZodObject<{
     created_at: number;
     updated_at: number;
     categoryIds: string[];
-    categoryList: ({
+    purchasePrice?: number | undefined;
+    profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
+    categoryList?: ({
         id: string;
         companyId: string;
         storeId: string;
@@ -243,18 +246,15 @@ export declare const ProductSchema: z.ZodObject<{
             parentId?: string | null | undefined;
             tag?: string | undefined;
         } & /*elided*/ any)[];
-    })[];
-    categories: {
+    })[] | undefined;
+    categories?: {
         lvl0: string[];
         lvl1: string[];
         lvl2: string[];
         lvl3: string[];
         lvl4: string[];
-    };
-    categoryNames: string[];
-    purchasePrice?: number | undefined;
-    profitPercentage?: number | undefined;
-    isDiscountable?: boolean | undefined;
+    } | undefined;
+    categoryNames?: string[] | undefined;
 }, {
     type: "Product";
     id: string;
@@ -305,7 +305,10 @@ export declare const ProductSchema: z.ZodObject<{
     created_at: number;
     updated_at: number;
     categoryIds: string[];
-    categoryList: ({
+    purchasePrice?: number | undefined;
+    profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
+    categoryList?: ({
         id: string;
         companyId: string;
         storeId: string;
@@ -329,18 +332,15 @@ export declare const ProductSchema: z.ZodObject<{
             parentId?: string | null | undefined;
             tag?: string | undefined;
         } & /*elided*/ any)[];
-    })[];
-    categories: {
+    })[] | undefined;
+    categories?: {
         lvl0: string[];
         lvl1: string[];
         lvl2: string[];
         lvl3: string[];
         lvl4: string[];
-    };
-    categoryNames: string[];
-    purchasePrice?: number | undefined;
-    profitPercentage?: number | undefined;
-    isDiscountable?: boolean | undefined;
+    } | undefined;
+    categoryNames?: string[] | undefined;
 }>;
 export type TProduct = z.infer<typeof ProductSchema>;
 export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
@@ -444,7 +444,7 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     created_at: z.ZodNumber;
     updated_at: z.ZodNumber;
     categoryIds: z.ZodArray<z.ZodString, "many">;
-    categoryList: z.ZodArray<z.ZodType<{
+    categoryList: z.ZodOptional<z.ZodArray<z.ZodType<{
         id: string;
         companyId: string;
         storeId: string;
@@ -492,8 +492,8 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
             parentId?: string | null | undefined;
             tag?: string | undefined;
         } & /*elided*/ any)[];
-    }>, "many">;
-    categories: z.ZodObject<{
+    }>, "many">>;
+    categories: z.ZodOptional<z.ZodObject<{
         lvl0: z.ZodArray<z.ZodString, "many">;
         lvl1: z.ZodArray<z.ZodString, "many">;
         lvl2: z.ZodArray<z.ZodString, "many">;
@@ -511,8 +511,8 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
         lvl2: string[];
         lvl3: string[];
         lvl4: string[];
-    }>;
-    categoryNames: z.ZodArray<z.ZodString, "many">;
+    }>>;
+    categoryNames: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, {
     image: z.ZodOptional<z.ZodType<File, z.ZodTypeDef, File>>;
 }>, "strip", z.ZodTypeAny, {
@@ -565,7 +565,10 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     created_at: number;
     updated_at: number;
     categoryIds: string[];
-    categoryList: ({
+    purchasePrice?: number | undefined;
+    profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
+    categoryList?: ({
         id: string;
         companyId: string;
         storeId: string;
@@ -589,18 +592,15 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
             parentId?: string | null | undefined;
             tag?: string | undefined;
         } & /*elided*/ any)[];
-    })[];
-    categories: {
+    })[] | undefined;
+    categories?: {
         lvl0: string[];
         lvl1: string[];
         lvl2: string[];
         lvl3: string[];
         lvl4: string[];
-    };
-    categoryNames: string[];
-    purchasePrice?: number | undefined;
-    profitPercentage?: number | undefined;
-    isDiscountable?: boolean | undefined;
+    } | undefined;
+    categoryNames?: string[] | undefined;
     image?: File | undefined;
 }, {
     type: "Product";
@@ -652,7 +652,10 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
     created_at: number;
     updated_at: number;
     categoryIds: string[];
-    categoryList: ({
+    purchasePrice?: number | undefined;
+    profitPercentage?: number | undefined;
+    isDiscountable?: boolean | undefined;
+    categoryList?: ({
         id: string;
         companyId: string;
         storeId: string;
@@ -676,18 +679,15 @@ export declare const NewProductSchema: z.ZodObject<z.objectUtil.extendShape<{
             parentId?: string | null | undefined;
             tag?: string | undefined;
         } & /*elided*/ any)[];
-    })[];
-    categories: {
+    })[] | undefined;
+    categories?: {
         lvl0: string[];
         lvl1: string[];
         lvl2: string[];
         lvl3: string[];
         lvl4: string[];
-    };
-    categoryNames: string[];
-    purchasePrice?: number | undefined;
-    profitPercentage?: number | undefined;
-    isDiscountable?: boolean | undefined;
+    } | undefined;
+    categoryNames?: string[] | undefined;
     image?: File | undefined;
 }>;
 export type TNewProduct = z.infer<typeof NewProductSchema>;

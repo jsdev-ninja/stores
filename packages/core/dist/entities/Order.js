@@ -35,7 +35,7 @@ export const OrderSchema = z.object({
     originalAmount: z.number().positive().optional(), // what client pay
     actualAmount: z.number().positive().optional(), // what store charge
     date: z.number(),
-    deliveryDate: z.coerce.number().optional(),
+    deliveryDate: z.coerce.number(),
     client: ProfileSchema.required({}),
     nameOnInvoice: z.string().optional(),
     clientComment: z.string().optional(),
