@@ -1,6 +1,7 @@
 import React from "react";
 import { Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { Link, routes, useLocation } from "src/navigation";
 import { RouteKeys } from "src/lib/router";
 
@@ -12,23 +13,47 @@ interface SidebarItemProps {
 	isCollapsed?: boolean;
 }
 
-const items: Array<{ name: string; path: RouteKeys<typeof routes>; params?: any }> = [
+const items: Array<{ 
+	name: string; 
+	path: RouteKeys<typeof routes>; 
+	icon: string;
+	params?: any 
+}> = [
 	{
 		name: "dashboard",
 		path: "admin",
+		icon: "lucide:layout-dashboard",
 	},
 	{
 		name: "users",
 		path: "admin.users",
+		icon: "lucide:users",
 	},
 	{
 		name: "products",
 		path: "admin.products",
+		icon: "lucide:package",
 	},
-	{ name: "categories", path: "admin.categories" },
-	{ name: "discounts", path: "admin.discounts" },
-	{ name: "orders", path: "admin.orders" },
-	{ name: "settings", path: "admin.settings" },
+	{ 
+		name: "categories", 
+		path: "admin.categories",
+		icon: "lucide:folder-tree",
+	},
+	{ 
+		name: "discounts", 
+		path: "admin.discounts",
+		icon: "lucide:percent",
+	},
+	{ 
+		name: "orders", 
+		path: "admin.orders",
+		icon: "lucide:shopping-cart",
+	},
+	{ 
+		name: "settings", 
+		path: "admin.settings",
+		icon: "lucide:settings",
+	},
 ] as const;
 
 const SidebarItem: React.FC<SidebarItemProps> = ({
@@ -77,6 +102,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen }: SidebarProps) {
+	const { t } = useTranslation(["common"]);
 	const direction = "rtl"; //todo
 	const isCollapsed = !isOpen && window.innerWidth >= 1024;
 
@@ -102,8 +128,8 @@ export function Sidebar({ isOpen }: SidebarProps) {
 						return (
 							<SidebarItem
 								key={item.path}
-								icon="lucide:layout-dashboard"
-								label={item.name}
+								icon={item.icon}
+								label={t(item.name as any)}
 								to={item.path}
 								isCollapsed={isCollapsed}
 							/>
