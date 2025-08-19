@@ -23,6 +23,11 @@ import { app } from "./app";
 
 const db = getFirestore(app);
 
+// remove all undefined fields from object
+function removeUndefinedFields(obj: any) {
+	return Object.fromEntries(Object.entries(obj).filter(([_, value]) => value !== undefined));
+}
+
 async function remove({ id, collectionName }: { id: string; collectionName: string }) {
 	try {
 		await deleteDoc(doc(db, collectionName, id));
@@ -30,7 +35,7 @@ async function remove({ id, collectionName }: { id: string; collectionName: stri
 		return { success: true, data: id };
 	} catch (error) {
 		console.error(error);
-		return { success: false };
+		return { success: false, error };
 	}
 }
 
@@ -65,7 +70,7 @@ async function createV2<T extends { id?: string }>(data: {
 					return { success: false, docId: docRef.id };
 				} else {
 					// Document does not exist, proceed to create it
-					transaction.set(docRef, data.doc);
+					transaction.set(docRef, removeUndefinedFields(data.doc));
 					return { success: true, docId: docRef.id };
 				}
 			},

@@ -13,6 +13,7 @@ export const storeCollections = {
     payments: "payments",
     settings: "settings",
     discounts: "discounts",
+    organizations: "organizations",
 };
 export const FirestoreApi = {
     systemCollections,

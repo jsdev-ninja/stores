@@ -11,6 +11,7 @@ import AdminUsersPage from "../AdminUsersPage";
 import AdminOrderPage from "../Orders/AdminOrderPage";
 import AdminDiscountsPage from "../AdminDiscountsPage";
 import AdminClientProfile from "../AdminClientProfile/AdminClientProfile";
+import { AdminOrganizationsPage } from "../AdminOrganizationsPage";
 import { useEffect, useRef, useState } from "react";
 
 import { Header } from "./Header";
@@ -114,6 +115,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.clientProfile">
 						<AdminClientProfile />
+					</Route>
+					<Route name="admin.organizations">
+						<AdminOrganizationsPage />
 					</Route>
 				</main>
 			</div>

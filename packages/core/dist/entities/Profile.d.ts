@@ -41,6 +41,7 @@ export declare const ProfileSchema: z.ZodObject<{
     createdDate: z.ZodNumber;
     lastActivityDate: z.ZodNumber;
     paymentType: z.ZodEnum<["default", "delayed"]>;
+    organizationId: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     type: "Profile";
     id: string;
@@ -65,6 +66,7 @@ export declare const ProfileSchema: z.ZodObject<{
         apartmentEnterNumber: string;
         apartmentNumber: string;
     } | undefined;
+    organizationId?: string | undefined;
 }, {
     type: "Profile";
     id: string;
@@ -89,6 +91,7 @@ export declare const ProfileSchema: z.ZodObject<{
         apartmentEnterNumber: string;
         apartmentNumber: string;
     } | undefined;
+    organizationId?: string | undefined;
 }>;
 export type TProfile = z.infer<typeof ProfileSchema>;
 export declare function createEmptyProfile(): TProfile;

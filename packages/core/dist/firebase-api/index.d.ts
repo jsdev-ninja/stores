@@ -13,6 +13,7 @@ export declare const storeCollections: {
     readonly payments: "payments";
     readonly settings: "settings";
     readonly discounts: "discounts";
+    readonly organizations: "organizations";
 };
 export declare const FirestoreApi: {
     systemCollections: {
@@ -30,6 +31,7 @@ export declare const FirestoreApi: {
         readonly payments: "payments";
         readonly settings: "settings";
         readonly discounts: "discounts";
+        readonly organizations: "organizations";
     };
     getPath: ({ companyId, storeId, collectionName, id, }: {
         companyId: string;
@@ -56,6 +58,7 @@ export declare const FirebaseAPI: {
             readonly payments: "payments";
             readonly settings: "settings";
             readonly discounts: "discounts";
+            readonly organizations: "organizations";
         };
         getPath: ({ companyId, storeId, collectionName, id, }: {
             companyId: string;

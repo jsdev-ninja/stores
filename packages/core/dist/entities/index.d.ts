@@ -10,4 +10,5 @@ export * from "./Product";
 export * from "./Profile";
 export * from "./Store";
 export * from "./Discount";
+export * from "./Organization";
 //# sourceMappingURL=index.d.ts.map

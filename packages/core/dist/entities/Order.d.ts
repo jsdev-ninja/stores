@@ -786,6 +786,7 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: z.ZodNumber;
         lastActivityDate: z.ZodNumber;
         paymentType: z.ZodEnum<["default", "delayed"]>;
+        organizationId: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         type: "Profile";
         id: string;
@@ -810,6 +811,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
+        organizationId?: string | undefined;
     }, {
         type: "Profile";
         id: string;
@@ -834,6 +836,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
+        organizationId?: string | undefined;
     }>;
     nameOnInvoice: z.ZodOptional<z.ZodString>;
     clientComment: z.ZodOptional<z.ZodString>;
@@ -970,6 +973,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
+        organizationId?: string | undefined;
     };
     originalAmount?: number | undefined;
     actualAmount?: number | undefined;
@@ -1108,6 +1112,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
+        organizationId?: string | undefined;
     };
     originalAmount?: number | undefined;
     actualAmount?: number | undefined;

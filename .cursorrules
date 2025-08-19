@@ -1,27 +1,52 @@
 # Cursor Rules for @jsdev-store
 
+# Project structure
+
+## project used yarn workspaces
+
+## tech stack - react, firebase, hero ui, tailwindcss
 
 # Admin features
-- admin can add/edit/remove product in order
-- admin can add/edit/remove external product in order
+
+-  admin can add/edit/remove product in order
+-  admin can add/edit/remove external product in order
+-  admin can view/create/edit/remove organization
+
+# Admin features
+
+-  client can view organization he belong to
+-  client can edit only following fields:
+   -  nameOnInvoice
+
+# Entities in app
+
+# Organization - is company that admin can manage and link multiple client to same organization
 
 ## Hook Dependencies
-- Never include `appApi` or any of its properties (like `appApi.admin`) in React hook dependency arrays
-- appApi instances are stable and don't need to be included in useEffect, useMemo, useCallback dependencies
-- Use empty dependency array `[]` instead when appApi is the only dependency
+
+-  Never include `appApi` or any of its properties (like `appApi.admin`) in React hook dependency arrays
+-  appApi instances are stable and don't need to be included in useEffect, useMemo, useCallback dependencies
+-  Use empty dependency array `[]` instead when appApi is the only dependency
 
 ## Examples
+
 ```typescript
 // ❌ Bad - Don't do this
 useEffect(() => {
-  appApi.admin.getStoreClients().then(handleResponse);
+	appApi.admin.getStoreClients().then(handleResponse);
 }, [appApi.admin]);
 
-// ✅ Good - Do this instead  
+// ✅ Good - Do this instead
 useEffect(() => {
-  appApi.admin.getStoreClients().then(handleResponse);
+	appApi.admin.getStoreClients().then(handleResponse);
 }, []);
 ```
 
 ## Reasoning
-appApi is a stable API instance that doesn't change between renders, so including it in dependencies creates unnecessary re-runs and potential infinite loops. 
+
+appApi is a stable API instance that doesn't change between renders, so including it in dependencies creates unnecessary re-runs and potential infinite loops.
+
+# always use translation
+
+
+# all app api should be implement via appApi methods

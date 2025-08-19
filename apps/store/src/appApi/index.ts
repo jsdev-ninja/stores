@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { FirebaseAPI, getCartCost, TCategory, TDiscount } from "@jsdev_ninja/core";
+import {
+	FirebaseAPI,
+	getCartCost,
+	NewOrganizationSchema,
+	TCategory,
+	TDiscount,
+} from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
 import { useStoreActions } from "src/infra";
@@ -14,7 +20,15 @@ import {
 	TNewProduct,
 	TProduct,
 	TProfile,
+	TNewOrganization,
 } from "@jsdev_ninja/core";
+// Temporary type definition until core package exports are available
+type TOrganization = {
+	id: string;
+	name: string;
+	discountPercentage?: number;
+	nameOnInvoice?: string;
+};
 import { TCart } from "src/domains/cart";
 import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
@@ -528,6 +542,108 @@ export const useAppApi = () => {
 						"admin.category.update": false,
 					});
 				},
+			},
+			// Organization management
+			createOrganization: async (organization: TNewOrganization) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.createOrganization": true });
+
+				const validation = NewOrganizationSchema.safeParse(organization);
+				if (!validation.success) {
+					logger({
+						message: "create organization",
+						severity: "ERROR",
+						error: validation.error,
+						organization,
+					});
+					return { success: false, error: validation.error };
+				}
+
+				const doc = validation.data;
+
+				console.log("doc", doc);
+
+				const result = await FirebaseApi.firestore.createV2<TNewOrganization & { id?: string }>(
+					{
+						collection: FirebaseAPI.firestore.getPath({
+							storeId,
+							companyId,
+							collectionName: "organizations",
+						}),
+						doc: doc,
+					}
+				);
+				updateLoading({ "admin.createOrganization": false });
+
+				logger({
+					message: "create organization",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					organization,
+				});
+
+				return result;
+			},
+			updateOrganization: async (organization: TOrganization) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				const result = await FirebaseApi.firestore.update<TOrganization>(
+					organization.id,
+					organization,
+					FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "organizations",
+					})
+				);
+				logger({
+					message: "update organization",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					organization,
+				});
+
+				return result;
+			},
+			deleteOrganization: async (organizationId: string) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.deleteOrganization": true });
+				const result = await FirebaseApi.firestore.remove({
+					id: organizationId,
+					collectionName: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "organizations",
+					}),
+				});
+				updateLoading({ "admin.deleteOrganization": false });
+
+				logger({
+					message: "delete organization",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					organizationId,
+				});
+
+				return result;
+			},
+			listOrganizations: async () => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.listOrganizations": true });
+				const result = await FirebaseApi.firestore.listV2<TOrganization>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "organizations",
+					}),
+					sort: [{ name: "name", value: "asc" }],
+				});
+				updateLoading({ "admin.listOrganizations": false });
+
+				return result;
 			},
 		},
 		system: {

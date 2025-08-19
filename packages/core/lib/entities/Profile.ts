@@ -23,6 +23,7 @@ export const ProfileSchema = z.object({
 	createdDate: z.number(),
 	lastActivityDate: z.number(),
 	paymentType: ProfilePaymentTypeSchema,
+	organizationId: z.string().optional(),
 });
 
 export type TProfile = z.infer<typeof ProfileSchema>;

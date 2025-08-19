@@ -9,58 +9,92 @@ interface SidebarItemProps {
 	icon: string;
 	label: string;
 	to: RouteKeys<typeof routes>;
-	hasNotification?: boolean;
 	isCollapsed?: boolean;
 }
 
-const items: Array<{ 
-	name: string; 
-	path: RouteKeys<typeof routes>; 
-	icon: string;
-	params?: any 
-}> = [
+interface SidebarCategoryProps {
+	titleKey: string;
+	items: Array<{
+		name: string;
+		path: RouteKeys<typeof routes>;
+		icon: string;
+		params?: any;
+	}>;
+	isCollapsed: boolean;
+}
+
+const sidebarCategories = [
 	{
-		name: "dashboard",
-		path: "admin",
-		icon: "lucide:layout-dashboard",
+		titleKey: "dashboard",
+		items: [
+			{
+				name: "dashboard",
+				path: "admin" as RouteKeys<typeof routes>,
+				icon: "lucide:layout-dashboard",
+			},
+		],
 	},
 	{
-		name: "users",
-		path: "admin.users",
-		icon: "lucide:users",
+		titleKey: "manageStore",
+		items: [
+			{
+				name: "products",
+				path: "admin.products" as RouteKeys<typeof routes>,
+				icon: "lucide:package",
+			},
+			{
+				name: "categories",
+				path: "admin.categories" as RouteKeys<typeof routes>,
+				icon: "lucide:folder-tree",
+			},
+			{
+				name: "discounts",
+				path: "admin.discounts" as RouteKeys<typeof routes>,
+				icon: "lucide:percent",
+			},
+		],
 	},
 	{
-		name: "products",
-		path: "admin.products",
-		icon: "lucide:package",
+		titleKey: "manageUsers",
+		items: [
+			{
+				name: "users",
+				path: "admin.users" as RouteKeys<typeof routes>,
+				icon: "lucide:users",
+			},
+			{
+				name: "organizations",
+				path: "admin.organizations" as RouteKeys<typeof routes>,
+				icon: "lucide:building-2",
+			},
+		],
 	},
-	{ 
-		name: "categories", 
-		path: "admin.categories",
-		icon: "lucide:folder-tree",
+	{
+		titleKey: "manageOrders",
+		items: [
+			{
+				name: "orders",
+				path: "admin.orders" as RouteKeys<typeof routes>,
+				icon: "lucide:shopping-cart",
+			},
+		],
 	},
-	{ 
-		name: "discounts", 
-		path: "admin.discounts",
-		icon: "lucide:percent",
+	{
+		titleKey: "adminSettings",
+		items: [
+			{
+				name: "settings",
+				path: "admin.settings" as RouteKeys<typeof routes>,
+				icon: "lucide:settings",
+			},
+		],
 	},
-	{ 
-		name: "orders", 
-		path: "admin.orders",
-		icon: "lucide:shopping-cart",
-	},
-	{ 
-		name: "settings", 
-		path: "admin.settings",
-		icon: "lucide:settings",
-	},
-] as const;
+];
 
 const SidebarItem: React.FC<SidebarItemProps> = ({
 	icon,
 	label,
 	to,
-	hasNotification = false,
 	isCollapsed = false,
 }) => {
 	const [location] = useLocation();
@@ -87,13 +121,52 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 			>
 				<div className="relative">
 					<Icon icon={icon} width={20} height={20} />
-					{hasNotification && (
-						<span className="absolute -top-1 end-[-4px] w-2 h-2 bg-danger rounded-full"></span>
-					)}
 				</div>
 				{!isCollapsed && <span className="ms-2">{label}</span>}
 			</Link>
 		</Tooltip>
+	);
+};
+
+const SidebarCategory: React.FC<SidebarCategoryProps> = ({ titleKey, items, isCollapsed }) => {
+	const { t } = useTranslation(["common"]);
+
+	if (isCollapsed) {
+		// When collapsed, show items without category headers
+		return (
+			<>
+				{items.map((item) => (
+					<SidebarItem
+						key={item.path}
+						icon={item.icon}
+						label={t(item.name as any)}
+						to={item.path}
+						isCollapsed={isCollapsed}
+					/>
+				))}
+			</>
+		);
+	}
+
+	return (
+		<div className="mb-6">
+			<div className="px-3 mb-2">
+				<h3 className="text-xs font-semibold text-foreground-500 uppercase tracking-wider">
+					{t(titleKey as any)}
+				</h3>
+			</div>
+			<div className="space-y-1">
+				{items.map((item) => (
+					<SidebarItem
+						key={item.path}
+						icon={item.icon}
+						label={t(item.name as any)}
+						to={item.path}
+						isCollapsed={isCollapsed}
+					/>
+				))}
+			</div>
+		</div>
 	);
 };
 
@@ -102,7 +175,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen }: SidebarProps) {
-	const { t } = useTranslation(["common"]);
 	const direction = "rtl"; //todo
 	const isCollapsed = !isOpen && window.innerWidth >= 1024;
 
@@ -124,17 +196,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
 		>
 			<div className={`p-4 ${!isOpen && "lg:px-2 lg:py-4"}`}>
 				<div className="flex flex-col">
-					{items.map((item) => {
-						return (
-							<SidebarItem
-								key={item.path}
-								icon={item.icon}
-								label={t(item.name as any)}
-								to={item.path}
-								isCollapsed={isCollapsed}
-							/>
-						);
-					})}
+					{sidebarCategories.map((category, index) => (
+						<SidebarCategory
+							key={index}
+							titleKey={category.titleKey}
+							items={category.items}
+							isCollapsed={isCollapsed}
+						/>
+					))}
 				</div>
 			</div>
 		</aside>
