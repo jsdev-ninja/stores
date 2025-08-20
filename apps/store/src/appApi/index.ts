@@ -286,6 +286,28 @@ export const useAppApi = () => {
 					id: clientId,
 				});
 			},
+			updateClient: async (client: TProfile) => {
+				if (!isValidAdmin) return;
+				
+				const result = await FirebaseApi.firestore.update<TProfile>(
+					client.id,
+					client,
+					FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					})
+				);
+				
+				logger({
+					message: "update client profile",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					client,
+				});
+				
+				return result;
+			},
 			getStoreClients: async () => {
 				if (!isValidAdmin) return;
 				return FirebaseApi.firestore.listV2<TProfile>({
