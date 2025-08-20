@@ -11,6 +11,7 @@
 -  admin can add/edit/remove product in order
 -  admin can add/edit/remove external product in order
 -  admin can view/create/edit/remove organization
+-  admin can remove delivery price
 
 # Admin features
 
@@ -47,6 +48,5 @@ useEffect(() => {
 appApi is a stable API instance that doesn't change between renders, so including it in dependencies creates unnecessary re-runs and potential infinite loops.
 
 # always use translation
-
 
 # all app api should be implement via appApi methods
