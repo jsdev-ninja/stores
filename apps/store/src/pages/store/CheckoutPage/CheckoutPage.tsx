@@ -33,9 +33,9 @@ function CheckoutPage() {
 	tomorrow.setDate(tomorrow.getDate() + 1);
 	const twoWeeksFromToday = new Date();
 	twoWeeksFromToday.setDate(twoWeeksFromToday.getDate() + 14);
-	
-	const minDate = tomorrow.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-	const maxDate = twoWeeksFromToday.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+	const minDate = tomorrow.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+	const maxDate = twoWeeksFromToday.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 
 	useEffect(() => {
 		if (cartData.isReady && !cart) {
@@ -102,6 +102,7 @@ function CheckoutPage() {
 						cartDiscount: cartCost.discount,
 						cartTotal: cartCost.finalCost,
 						cartVat: cartCost.vat,
+						deliveryPrice: store.deliveryPrice,
 					},
 					date: Date.now(), //todo: set on submit event
 				}}
@@ -192,8 +193,14 @@ function CheckoutPage() {
 									max={maxDate}
 									defaultValue={minDate}
 								/>
-								<Form.Input<TOrder> name="nameOnInvoice" label={t("common:nameOnInvoice")} />
-								<Form.TextArea<TOrder> name="clientComment" label={t("common:clientComment")} />
+								<Form.Input<TOrder>
+									name="nameOnInvoice"
+									label={t("common:nameOnInvoice")}
+								/>
+								<Form.TextArea<TOrder>
+									name="clientComment"
+									label={t("common:clientComment")}
+								/>
 							</div>
 							<div className="">
 								<MinimumOrderAlert />

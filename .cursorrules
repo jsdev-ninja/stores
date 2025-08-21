@@ -11,7 +11,15 @@
 -  admin can add/edit/remove product in order
 -  admin can add/edit/remove external product in order
 -  admin can view/create/edit/remove organization
--  admin can remove delivery price
+-  admin can toggle delivery price
+
+store settings
+
+-  admin can set logo
+-  admin can set if product price included vat
+-  admin can set delivery price
+-  admin can set min order price to get free delivery
+-  admin can set min order price
 
 # Admin features
 
@@ -19,9 +27,16 @@
 -  client can edit only following fields:
    -  nameOnInvoice
 
+# Tests
+
+-  vitest unit tests
+-  playwright e2e tests
+
 # Entities in app
 
 # Organization - is company that admin can manage and link multiple client to same organization
+
+# Client - user and profile that register in app, client can be assign to organization by admin
 
 ## Hook Dependencies
 

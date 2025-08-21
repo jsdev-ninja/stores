@@ -344,6 +344,41 @@ export const useAppApi = () => {
 					return { success: false };
 				}
 			},
+			updateStoreSettings: async (settings: {
+				deliveryPrice?: number | null;
+				freeDeliveryPrice?: number | null;
+				minimumOrder?: number | null;
+				isVatIncludedInPrice?: boolean;
+			}) => {
+				if (!isValidAdmin) return;
+				
+				try {
+					// Remove null values to unset fields
+					const cleanSettings = Object.fromEntries(
+						Object.entries(settings).filter(([, value]) => value !== null)
+					);
+					
+					const result = await FirebaseApi.firestore.setV2({
+						collection: FirebaseAPI.firestore.systemCollections.stores,
+						doc: {
+							id: storeId,
+							...cleanSettings,
+						},
+					});
+					
+					logger({
+						message: "update store settings",
+						severity: result.success ? "INFO" : "ERROR",
+						settings,
+						result,
+					});
+					
+					return result;
+				} catch (error) {
+					SentryApi.captureException(error);
+					return { success: false };
+				}
+			},
 			async companyCreate(newCompany: TCompany) {
 				if (!isValidAdmin) return;
 

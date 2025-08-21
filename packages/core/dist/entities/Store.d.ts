@@ -25,9 +25,9 @@ export declare const StoreSchema: z.ZodObject<{
     allowAnonymousClients: boolean;
     isVatIncludedInPrice: boolean;
     clientTypes: ("company" | "individual")[];
+    deliveryPrice?: number | undefined;
     minimumOrder?: number | undefined;
     freeDeliveryPrice?: number | undefined;
-    deliveryPrice?: number | undefined;
 }, {
     id: string;
     companyId: string;
@@ -39,9 +39,9 @@ export declare const StoreSchema: z.ZodObject<{
     allowAnonymousClients: boolean;
     isVatIncludedInPrice: boolean;
     clientTypes: ("company" | "individual")[];
+    deliveryPrice?: number | undefined;
     minimumOrder?: number | undefined;
     freeDeliveryPrice?: number | undefined;
-    deliveryPrice?: number | undefined;
 }>;
 export type TStore = z.infer<typeof StoreSchema>;
 //# sourceMappingURL=Store.d.ts.map

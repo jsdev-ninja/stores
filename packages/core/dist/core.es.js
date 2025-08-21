@@ -3153,7 +3153,8 @@ const Dr = i.object({
     items: i.array(Ge),
     cartDiscount: i.number(),
     cartTotal: i.number(),
-    cartVat: i.number()
+    cartVat: i.number(),
+    deliveryPrice: i.number().optional()
   }),
   originalAmount: i.number().positive().optional(),
   // what client pay
@@ -3293,7 +3294,10 @@ class vr {
         affectedItems: S.affectedItems
       }), s.appliedDiscounts = o);
     }
-    const c = this.calculateFinalPrices(e, o), d = o.reduce((b, w) => b + w.discountAmount, 0);
+    const c = this.calculateFinalPrices(e, o), d = o.reduce(
+      (b, w) => b + w.discountAmount,
+      0
+    );
     return {
       items: c,
       totalDiscount: Number(d.toFixed(2)),
@@ -3311,7 +3315,9 @@ class vr {
       const s = t.filter(
         (d) => d.affectedItems.some((l) => l.productId === n.product.id)
       ), a = s.reduce((d, l) => {
-        const m = l.affectedItems.find((b) => b.productId === n.product.id);
+        const m = l.affectedItems.find(
+          (b) => b.productId === n.product.id
+        );
         return d + ((m == null ? void 0 : m.discountAmount) || 0);
       }, 0), o = a / n.amount, c = n.product.price - o;
       return {

@@ -545,6 +545,7 @@ export declare const OrderSchema: z.ZodObject<{
         cartDiscount: z.ZodNumber;
         cartTotal: z.ZodNumber;
         cartVat: z.ZodNumber;
+        deliveryPrice: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
         id: string;
         items: {
@@ -643,6 +644,7 @@ export declare const OrderSchema: z.ZodObject<{
         cartDiscount: number;
         cartTotal: number;
         cartVat: number;
+        deliveryPrice?: number | undefined;
     }, {
         id: string;
         items: {
@@ -741,6 +743,7 @@ export declare const OrderSchema: z.ZodObject<{
         cartDiscount: number;
         cartTotal: number;
         cartVat: number;
+        deliveryPrice?: number | undefined;
     }>;
     originalAmount: z.ZodOptional<z.ZodNumber>;
     actualAmount: z.ZodOptional<z.ZodNumber>;
@@ -947,6 +950,7 @@ export declare const OrderSchema: z.ZodObject<{
         cartDiscount: number;
         cartTotal: number;
         cartVat: number;
+        deliveryPrice?: number | undefined;
     };
     deliveryDate: number;
     client: {
@@ -1086,6 +1090,7 @@ export declare const OrderSchema: z.ZodObject<{
         cartDiscount: number;
         cartTotal: number;
         cartVat: number;
+        deliveryPrice?: number | undefined;
     };
     deliveryDate: number;
     client: {

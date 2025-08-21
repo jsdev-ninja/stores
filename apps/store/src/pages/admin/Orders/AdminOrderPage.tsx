@@ -31,6 +31,7 @@ import { useAppApi } from "src/appApi";
 import { getCartCost, TOrder, TProduct } from "@jsdev_ninja/core";
 import { useStore } from "src/domains/Store";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { useTranslation } from "react-i18next";
 import algoliasearch from "algoliasearch/lite";
 
 interface OrderItemsTableProps {
@@ -99,6 +100,7 @@ export default function AdminOrderPage() {
 	const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
 	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
+	const [deliveryPriceRemoved, setDeliveryPriceRemoved] = useState<boolean>(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	// External product modal state
@@ -117,6 +119,7 @@ export default function AdminOrderPage() {
 
 	const appApi = useAppApi();
 	const { id } = useParams("admin.order");
+	const { t } = useTranslation(["common"]);
 
 	const store = useStore();
 	const discounts = useDiscounts();
@@ -165,6 +168,7 @@ export default function AdminOrderPage() {
 
 		setOrder((prev) => {
 			if (!prev) return prev;
+			if (!store) return prev;
 
 			const updatedItems = [...prev.cart.items];
 
@@ -189,7 +193,7 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: store!,
+				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
 			});
 
 			return {
@@ -200,6 +204,7 @@ export default function AdminOrderPage() {
 					cartDiscount: cartCost.discount,
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,
+					deliveryPrice: cartCost.deliveryPrice,
 				},
 			};
 		});
@@ -252,7 +257,7 @@ export default function AdminOrderPage() {
 
 		setOrder((prev) => {
 			if (!prev) return prev;
-
+			if (!store) return prev;
 			const updatedItems = [...prev.cart.items];
 
 			// Add external product as new item
@@ -268,7 +273,7 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: store!,
+				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
 			});
 
 			return {
@@ -279,6 +284,7 @@ export default function AdminOrderPage() {
 					cartDiscount: cartCost.discount,
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,
+					deliveryPrice: cartCost.deliveryPrice,
 				},
 			};
 		});
@@ -300,6 +306,29 @@ export default function AdminOrderPage() {
 		});
 	}, [id]);
 
+	// Recalculate cart cost when delivery price removal changes
+	useEffect(() => {
+		if (!order || !store) return;
+
+		const updatedItems = order.cart.items;
+		const cartCost = getCartCost({
+			cart: updatedItems,
+			discounts: discounts,
+			store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
+		});
+
+		setOrder({
+			...order,
+			cart: {
+				...order.cart,
+				cartDiscount: cartCost.discount,
+				cartTotal: cartCost.finalCost,
+				cartVat: cartCost.vat,
+				deliveryPrice: cartCost.deliveryPrice,
+			},
+		});
+	}, [deliveryPriceRemoved, store, discounts]);
+
 	const updateOrderItem = (itemId: string, field: any, value: any) => {
 		if (!store) return;
 
@@ -317,7 +346,7 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: store,
+				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
 			});
 
 			return {
@@ -328,6 +357,7 @@ export default function AdminOrderPage() {
 					cartDiscount: cartCost.discount,
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,
+					deliveryPrice: cartCost.deliveryPrice,
 				},
 			};
 		});
@@ -354,6 +384,7 @@ export default function AdminOrderPage() {
 					cartDiscount: cartCost.discount,
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,
+					deliveryPrice: cartCost.deliveryPrice,
 				},
 			};
 		});
@@ -453,6 +484,45 @@ export default function AdminOrderPage() {
 								isDisabled
 							/>
 							<Input label="Phone" value={order.client.phoneNumber || ""} isDisabled />
+						</div>
+					</div>
+
+					{/* Delivery Price Section */}
+					<div className="flex flex-col gap-2 text-start">
+						<h2 className="text-lg font-semibold">{t("common:deliveryPrice")}</h2>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="flex flex-col gap-2">
+								<label className="text-sm font-medium text-gray-700">
+									{t("common:currentDeliveryPrice")}
+								</label>
+								<div className="flex gap-2">
+									<Input
+										type="number"
+										min="0"
+										step="0.01"
+										value={store?.deliveryPrice?.toString() || "0.00"}
+										isDisabled
+										placeholder="0.00"
+										className="flex-1"
+									/>
+									<Button
+										color={deliveryPriceRemoved ? "success" : "danger"}
+										variant="light"
+										onPress={() => {
+											setDeliveryPriceRemoved(!deliveryPriceRemoved);
+										}}
+									>
+										{deliveryPriceRemoved
+											? t("common:restoreDeliveryPrice")
+											: t("common:removeDeliveryPrice")}
+									</Button>
+								</div>
+								<p className="text-sm text-gray-500">
+									{deliveryPriceRemoved
+										? t("common:deliveryPriceRemovedDescription")
+										: t("common:deliveryPriceRemoveDescription")}
+								</p>
+							</div>
 						</div>
 					</div>
 
@@ -595,10 +665,25 @@ export default function AdminOrderPage() {
 				</CardBody>
 				<Divider />
 				<CardFooter>
-					<div className="ml-auto">
-						<p className="text-xl font-semibold">
-							Total: ${order?.cart.cartTotal.toFixed(2)}
-						</p>
+					<div className="flex flex-col gap-2 ml-auto">
+						<div className="text-right">
+							<p className="text-sm text-gray-600">
+								{t("common:subtotal")}: ₪{order?.cart.cartTotal.toFixed(2)}
+							</p>
+							{deliveryPriceRemoved && (
+								<p className="text-sm text-green-600">
+									{t("common:deliveryPrice")}: ₪0.00 ({t("common:waived")})
+								</p>
+							)}
+							{!deliveryPriceRemoved && store?.deliveryPrice && (
+								<p className="text-sm text-gray-600">
+									{t("common:deliveryPrice")}: ₪{store.deliveryPrice.toFixed(2)}
+								</p>
+							)}
+							<p className="text-xl font-semibold">
+								{t("common:total")}: ₪{order?.cart.cartTotal.toFixed(2)}
+							</p>
+						</div>
 					</div>
 					<Button onPress={save}>save</Button>
 				</CardFooter>
