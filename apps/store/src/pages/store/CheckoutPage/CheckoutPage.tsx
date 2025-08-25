@@ -102,7 +102,7 @@ function CheckoutPage() {
 						cartDiscount: cartCost.discount,
 						cartTotal: cartCost.finalCost,
 						cartVat: cartCost.vat,
-						deliveryPrice: store.deliveryPrice,
+						deliveryPrice: store.deliveryPrice ?? 0,
 					},
 					date: Date.now(), //todo: set on submit event
 				}}

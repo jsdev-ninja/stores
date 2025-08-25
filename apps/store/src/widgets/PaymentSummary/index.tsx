@@ -38,7 +38,7 @@ export function PaymentSummary({ children }: { children?: ReactNode }) {
 					<div className="space-y-2">
 						<LineItem label={t("products")} value={cartCost.cost} />
 						<LineItem label={t("discount")} value={cartCost.discount} />
-						<LineItem label={t("deliveryPrice")} value={cartCost.deliveryPrice} />
+						<LineItem label={t("deliveryPrice")} value={cartCost.deliveryPrice ?? 0} />
 						<LineItem label={t("vat")} value={cartCost.vat} />
 					</div>
 					<dl className="border-t border-gray-200 pt-2 dark:border-gray-700">

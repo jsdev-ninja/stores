@@ -23,7 +23,7 @@ export const MinimumOrderAlert = () => {
 
 	console.log("cartCost", cartCost);
 
-	const deliveryPrice = store?.deliveryPrice;
+	const deliveryPrice = store?.deliveryPrice ?? 0;
 	const freeDeliveryPrice = store?.freeDeliveryPrice ?? 0;
 	if (!deliveryPrice) {
 		return null;

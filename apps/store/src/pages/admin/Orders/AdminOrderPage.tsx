@@ -193,7 +193,7 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
+				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
 			});
 
 			return {
@@ -273,7 +273,7 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
+				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
 			});
 
 			return {
@@ -314,7 +314,7 @@ export default function AdminOrderPage() {
 		const cartCost = getCartCost({
 			cart: updatedItems,
 			discounts: discounts,
-			store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
+			store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
 		});
 
 		setOrder({
@@ -346,7 +346,7 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice },
+				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
 			});
 
 			return {
@@ -357,7 +357,7 @@ export default function AdminOrderPage() {
 					cartDiscount: cartCost.discount,
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,
-					deliveryPrice: cartCost.deliveryPrice,
+					deliveryPrice: cartCost.deliveryPrice ?? 0,
 				},
 			};
 		});
@@ -373,7 +373,7 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: store,
+				store: { ...store, deliveryPrice: store.deliveryPrice ?? 0 },
 			});
 
 			return {
@@ -675,9 +675,9 @@ export default function AdminOrderPage() {
 									{t("common:deliveryPrice")}: ₪0.00 ({t("common:waived")})
 								</p>
 							)}
-							{!deliveryPriceRemoved && store?.deliveryPrice && (
+							{!deliveryPriceRemoved && (store?.deliveryPrice ?? 0) > 0 && (
 								<p className="text-sm text-gray-600">
-									{t("common:deliveryPrice")}: ₪{store.deliveryPrice.toFixed(2)}
+									{t("common:deliveryPrice")}: ₪{(store?.deliveryPrice ?? 0).toFixed(2)}
 								</p>
 							)}
 							<p className="text-xl font-semibold">
