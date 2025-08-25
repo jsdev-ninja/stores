@@ -18,9 +18,11 @@ async function main() {
 	try {
 		const data = JSON.stringify({
 			developer_email: "philip@jsdev.ninja",
-			api_key: "225559783aa58c28b6f64b4d5b5d6fd96cf2996668e5212255d908ce73fd2b8d",
-			type: 320,
+			ua_uuid: null,
+			api_key: "7f39b2a164e4f6443df0bc1e14595f8de550f3ed1db72dc0b92008f90d44cffd",
+			type: 200,
 			customer_name: "Israel Israeli",
+			customer_email: "philip@jsdev.ninja",
 			item: [
 				{
 					catalog_number: "MKT1",
@@ -29,6 +31,7 @@ async function main() {
 					amount: 1,
 				},
 			],
+			// parent: "1",
 			payment: [
 				{
 					payment_type: 3,

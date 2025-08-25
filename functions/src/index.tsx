@@ -83,6 +83,16 @@ export const onOrderUpdate = functions.firestore
 		const after = snap.after.data() as TOrder;
 		const before = snap.before.data() as TOrder;
 
+		functionsV2.logger.write({
+			severity: "INFO",
+			message: "order update",
+			before,
+			after,
+			id,
+			storeId,
+			companyId,
+		});
+
 		const { displayName, email } = after.client;
 
 		// ezcount_key
