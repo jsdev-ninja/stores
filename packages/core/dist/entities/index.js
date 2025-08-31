@@ -11,3 +11,4 @@ export * from "./Profile";
 export * from "./Store";
 export * from "./Discount";
 export * from "./Organization";
+export * from "./DeliveryNote";

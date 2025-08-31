@@ -119,12 +119,13 @@ export const onOrderUpdate = functions.firestore
 			// create delivery note (when ready to delivery only)
 			console.log("createDeliveryNote", email, displayName);
 
-			await ezCountService.createDeliveryNote(after, {
+			const res = await ezCountService.createDeliveryNote(after, {
 				ezcount_key: storePrivateData.ezcount_key,
 				clientName: after?.nameOnInvoice || displayName,
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
 			});
+			// return res
 		}
 
 		if (orderIsPaidByClient) {

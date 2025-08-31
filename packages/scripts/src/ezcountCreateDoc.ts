@@ -13,14 +13,18 @@ const storeId = "balasistore_store";
 const db = admin.firestore();
 
 main();
+//  e10a31a8-209c-4c54-ad4e-f70aae567a03
+//  e10a31a8-209c-4c54-ad4e-f70aae567a03
 
 async function main() {
 	try {
 		const data = JSON.stringify({
 			developer_email: "philip@jsdev.ninja",
 			ua_uuid: null,
+			transaction_id: "1234567891_new",
 			api_key: "7f39b2a164e4f6443df0bc1e14595f8de550f3ed1db72dc0b92008f90d44cffd",
-			type: 200,
+			type: 320,
+			parent: "e10a31a8-209c-4c54-ad4e-f70aae567a03,3d34be16-2b81-4fde-a7bb-124e89bccdd3",
 			customer_name: "Israel Israeli",
 			customer_email: "philip@jsdev.ninja",
 			item: [

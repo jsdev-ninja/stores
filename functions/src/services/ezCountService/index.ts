@@ -120,8 +120,10 @@ export const ezCountService = {
 
 			console.log("res", res.status);
 			console.log(JSON.stringify(res.data));
+			return { error: null, data: res.data };
 		} catch (error: any) {
 			console.error(error.message);
+			return { error, data: null };
 		}
 	},
 };
