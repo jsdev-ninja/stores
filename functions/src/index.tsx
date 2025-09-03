@@ -125,7 +125,17 @@ export const onOrderUpdate = functions.firestore
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
 			});
-			// return res
+
+			// update order with delivery note
+			await admin
+				.firestore()
+				.collection(
+					FirebaseAPI.firestore.getPath({ collectionName: "orders", companyId, storeId })
+				)
+				.doc(id)
+				.update({
+					deliveryNote: res.data,
+				});
 		}
 
 		if (orderIsPaidByClient) {

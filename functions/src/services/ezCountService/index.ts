@@ -1,4 +1,4 @@
-import { TOrder } from "@jsdev_ninja/core";
+import { TDeliveryNote, TOrder } from "@jsdev_ninja/core";
 import axios from "axios";
 
 // application/json
@@ -120,7 +120,7 @@ export const ezCountService = {
 
 			console.log("res", res.status);
 			console.log(JSON.stringify(res.data));
-			return { error: null, data: res.data };
+			return { error: null, data: res.data as TDeliveryNote };
 		} catch (error: any) {
 			console.error(error.message);
 			return { error, data: null };

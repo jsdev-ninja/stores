@@ -2,6 +2,7 @@ import { z } from "zod";
 import { ProfileSchema } from "./Profile";
 import { notEmptyTextSchema } from "./Atoms";
 import { CartItemProductSchema } from "./Cart";
+import { DeliveryNoteSchema } from "./DeliveryNote";
 
 // pending - order created / by user
 // processing order accepted by store by admin
@@ -43,6 +44,7 @@ export const OrderSchema = z.object({
 	client: ProfileSchema.required({}),
 	nameOnInvoice: z.string().optional(),
 	clientComment: z.string().optional(),
+	deliveryNote: DeliveryNoteSchema.optional(),
 });
 
 export type TOrder = z.infer<typeof OrderSchema>;
