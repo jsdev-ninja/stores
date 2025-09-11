@@ -1,4 +1,4 @@
-import { Route, useLocation } from "src/navigation";
+import { Route } from "src/navigation";
 import { AddProductPage } from "../AddProductPage";
 import { AdminProductsPage } from "../AdminProductsPage";
 import { AdminCategoriesPages } from "../AdminCategoriesPages";
@@ -12,6 +12,7 @@ import AdminOrderPage from "../Orders/AdminOrderPage";
 import AdminDiscountsPage from "../AdminDiscountsPage";
 import AdminClientProfile from "../AdminClientProfile/AdminClientProfile";
 import { AdminOrganizationsPage } from "../AdminOrganizationsPage";
+import { AdminOrganizationDetailPage } from "../AdminOrganizationDetailPage/AdminOrganizationDetailPage";
 import { useEffect, useRef, useState } from "react";
 
 import { Header } from "./Header";
@@ -19,32 +20,21 @@ import { Sidebar } from "./Sidebar";
 
 export default function AdminLayout() {
 	const [isMenuOpen, setIsMenuOpen] = useState(true);
-	const [location] = useLocation();
 	const mainRef = useRef<HTMLDivElement>(null);
 
-	// Close sidebar on route change on mobile devices
-	useEffect(() => {
-		if (window.innerWidth < 1024) {
-			setIsMenuOpen(false);
-		}
-	}, [location.pathname]);
-
-	// Update the initial state based on screen size
 	useEffect(() => {
 		const handleResize = () => {
-			// On desktop (>= 1024px), we want the sidebar to be open by default
-			// On mobile (< 1024px), we want it closed by default
-			if (window.innerWidth >= 1024) {
-				setIsMenuOpen(true);
-			} else {
+			if (window.innerWidth < 1024) {
 				setIsMenuOpen(false);
+			} else {
+				setIsMenuOpen(true);
 			}
 		};
 
-		// Initialize on mount
+		// Set initial state
 		handleResize();
 
-		// Add resize listener
+		// Add event listener
 		window.addEventListener("resize", handleResize);
 
 		// Cleanup
@@ -118,6 +108,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.organizations">
 						<AdminOrganizationsPage />
+					</Route>
+					<Route name="admin.organization">
+						<AdminOrganizationDetailPage />
 					</Route>
 				</main>
 			</div>

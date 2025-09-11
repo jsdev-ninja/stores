@@ -88,6 +88,9 @@ export const routes = {
 			organizations: {
 				path: "/organizations",
 			},
+			organization: {
+				path: "/organizations/:id",
+			},
 		},
 	},
 	superAdmin: {

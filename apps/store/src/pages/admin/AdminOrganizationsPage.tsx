@@ -6,14 +6,9 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from 
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
+import { TOrganization, TNewOrganization } from "@jsdev_ninja/core";
+import { navigate } from "src/navigation";
 
-// Temporary type definition
-type TOrganization = {
-	id: string;
-	name: string;
-	discountPercentage?: number;
-	nameOnInvoice?: string;
-};
 
 export function AdminOrganizationsPage() {
 	// const appApi = useAppApi(); // Will be used when API is fully integrated
@@ -22,10 +17,11 @@ export function AdminOrganizationsPage() {
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [editingOrganization, setEditingOrganization] = useState<TOrganization | null>(null);
-	const [formData, setFormData] = useState<Omit<TOrganization, "id">>({
+	const [formData, setFormData] = useState<TNewOrganization>({
 		name: "",
 		discountPercentage: undefined,
 		nameOnInvoice: "",
+		billingAccounts: [],
 	});
 
 	const appApi = useAppApi();
@@ -40,7 +36,7 @@ export function AdminOrganizationsPage() {
 			// For now, using mock data until API is fully integrated
 			const result = await appApi.admin.listOrganizations();
 			if (result?.success) {
-				setOrganizations(result.data || []);
+				setOrganizations((result.data || []) as TOrganization[]);
 			}
 		} catch (error) {
 			console.error("Failed to load organizations:", error);
@@ -82,26 +78,33 @@ export function AdminOrganizationsPage() {
 	};
 
 	const handleDelete = async (organizationId: string) => {
-		if (!confirm(t("admin:organizationsPage.confirmDelete"))) return;
-
-		try {
-			const result = await appApi.admin.deleteOrganization(organizationId);
-			if (result?.success) {
-				await loadOrganizations();
+		if (window.confirm(t("admin:organizationsPage.confirmDelete"))) {
+			try {
+				const result = await appApi.admin.deleteOrganization(organizationId);
+				if (result?.success) {
+					await loadOrganizations();
+				}
+			} catch (error) {
+				console.error("Failed to delete organization:", error);
 			}
-		} catch (error) {
-			console.error("Failed to delete organization:", error);
 		}
 	};
 
 	const openEditModal = (organization: TOrganization) => {
 		setEditingOrganization(organization);
 		setFormData({
-			name: organization.name,
-			discountPercentage: organization.discountPercentage,
-			nameOnInvoice: organization.nameOnInvoice || "",
-		});
-		setIsEditModalOpen(true);
+		name: "",
+		discountPercentage: undefined,
+		nameOnInvoice: "",
+		billingAccounts: [],
+	});
+	};
+
+	const handleFormChange = (field: keyof Omit<TOrganization, "id">, value: string | number | undefined) => {
+		setFormData((prev: TNewOrganization) => ({
+			...prev,
+			[field]: value,
+		}));
 	};
 
 	const resetForm = () => {
@@ -109,14 +112,12 @@ export function AdminOrganizationsPage() {
 			name: "",
 			discountPercentage: undefined,
 			nameOnInvoice: "",
+			billingAccounts: [],
 		});
 	};
 
-	const handleFormChange = (field: keyof Omit<TOrganization, "id">, value: string | number) => {
-		setFormData((prev) => ({
-			...prev,
-			[field]: value,
-		}));
+	const handleViewDetails = (organizationId: string) => {
+		navigate({ to: "admin.organization", params: { id: organizationId } });
 	};
 
 	return (
@@ -137,7 +138,7 @@ export function AdminOrganizationsPage() {
 					<TableColumn>{t("admin:organizationsPage.name")}</TableColumn>
 					<TableColumn>{t("admin:organizationsPage.discountPercentage")}</TableColumn>
 					<TableColumn>{t("admin:organizationsPage.nameOnInvoice")}</TableColumn>
-					<TableColumn>{t("admin:organizationsPage.actions")}</TableColumn>
+					<TableColumn>{t("admin:organizationsPage.actionsLabel")}</TableColumn>
 				</TableHeader>
 				<TableBody>
 					{organizations.map((organization) => (
@@ -154,10 +155,18 @@ export function AdminOrganizationsPage() {
 									<Button
 										size="sm"
 										variant="light"
+										onPress={() => handleViewDetails(organization.id)}
+										startContent={<Icon icon="lucide:eye" />}
+									>
+										{t("admin:organizationsPage.actions.view")}
+									</Button>
+									<Button
+										size="sm"
+										variant="light"
 										onPress={() => openEditModal(organization)}
 										startContent={<Icon icon="lucide:edit" />}
 									>
-										{t("edit")}
+										{t("common:edit")}
 									</Button>
 									<Button
 										size="sm"
@@ -166,7 +175,7 @@ export function AdminOrganizationsPage() {
 										onPress={() => handleDelete(organization.id)}
 										startContent={<Icon icon="lucide:trash" />}
 									>
-										{t("delete")}
+										{t("common:delete")}
 									</Button>
 								</div>
 							</TableCell>
@@ -180,50 +189,39 @@ export function AdminOrganizationsPage() {
 				<ModalContent>
 					{(onClose) => (
 						<>
-							<ModalHeader>
-								<h3>{t("admin:organizationsPage.createOrganization")}</h3>
+							<ModalHeader className="flex flex-col gap-1">
+								{t("admin:organizationsPage.createOrganization")}
 							</ModalHeader>
 							<ModalBody>
-								<div className="flex flex-col gap-4">
-									<Input
-										label="Name"
-										placeholder="Enter organization name"
-										value={formData.name}
-										onChange={(e) => handleFormChange("name", e.target.value)}
-										isRequired
-									/>
-									<Input
-										label="Discount Percentage"
-										placeholder="0-100"
-										type="number"
-										min="0"
-										max="100"
-										value={formData.discountPercentage?.toString() || ""}
-										onChange={(e) =>
-											handleFormChange(
-												"discountPercentage",
-												parseInt(e.target.value) || 0
-											)
-										}
-									/>
-									<Input
-										label="Name on Invoice"
-										placeholder="Enter invoice name"
-										value={formData.nameOnInvoice}
-										onChange={(e) => handleFormChange("nameOnInvoice", e.target.value)}
-									/>
-								</div>
+								<Input
+									label={t("admin:organizationsPage.name")}
+									placeholder={t("admin:organizationsPage.namePlaceholder")}
+									value={formData.name}
+									onValueChange={(value) => handleFormChange("name", value)}
+									isRequired
+								/>
+								<Input
+									label={t("admin:organizationsPage.discountPercentage")}
+									placeholder={t("admin:organizationsPage.discountPercentagePlaceholder")}
+									type="number"
+									value={formData.discountPercentage?.toString() || ""}
+									onValueChange={(value) =>
+										handleFormChange("discountPercentage", value ? Number(value) : undefined)
+									}
+								/>
+								<Input
+									label={t("admin:organizationsPage.nameOnInvoice")}
+									placeholder={t("admin:organizationsPage.nameOnInvoicePlaceholder")}
+									value={formData.nameOnInvoice || ""}
+									onValueChange={(value) => handleFormChange("nameOnInvoice", value)}
+								/>
 							</ModalBody>
 							<ModalFooter>
-								<Button variant="light" onPress={onClose}>
-									{t("cancel")}
+								<Button color="danger" variant="light" onPress={onClose}>
+									{t("common:cancel")}
 								</Button>
-								<Button
-									color="primary"
-									onPress={handleCreate}
-									isDisabled={!formData.name.trim()}
-								>
-									{t("create")}
+								<Button color="primary" onPress={handleCreate}>
+									{t("common:create")}
 								</Button>
 							</ModalFooter>
 						</>
@@ -236,50 +234,39 @@ export function AdminOrganizationsPage() {
 				<ModalContent>
 					{(onClose) => (
 						<>
-							<ModalHeader>
-								<h3>{t("admin:organizationsPage.editOrganization")}</h3>
+							<ModalHeader className="flex flex-col gap-1">
+								{t("admin:organizationsPage.editOrganization")}
 							</ModalHeader>
 							<ModalBody>
-								<div className="flex flex-col gap-4">
-									<Input
-										label="Name"
-										placeholder="Enter organization name"
-										value={formData.name}
-										onChange={(e) => handleFormChange("name", e.target.value)}
-										isRequired
-									/>
-									<Input
-										label="Discount Percentage"
-										placeholder="0-100"
-										type="number"
-										min="0"
-										max="100"
-										value={formData.discountPercentage?.toString() || ""}
-										onChange={(e) =>
-											handleFormChange(
-												"discountPercentage",
-												parseInt(e.target.value) || 0
-											)
-										}
-									/>
-									<Input
-										label="Name on Invoice"
-										placeholder="Enter invoice name"
-										value={formData.nameOnInvoice}
-										onChange={(e) => handleFormChange("nameOnInvoice", e.target.value)}
-									/>
-								</div>
+								<Input
+									label={t("admin:organizationsPage.name")}
+									placeholder={t("admin:organizationsPage.namePlaceholder")}
+									value={formData.name}
+									onValueChange={(value) => handleFormChange("name", value)}
+									isRequired
+								/>
+								<Input
+									label={t("admin:organizationsPage.discountPercentage")}
+									placeholder={t("admin:organizationsPage.discountPercentagePlaceholder")}
+									type="number"
+									value={formData.discountPercentage?.toString() || ""}
+									onValueChange={(value) =>
+										handleFormChange("discountPercentage", value ? Number(value) : undefined)
+									}
+								/>
+								<Input
+									label={t("admin:organizationsPage.nameOnInvoice")}
+									placeholder={t("admin:organizationsPage.nameOnInvoicePlaceholder")}
+									value={formData.nameOnInvoice || ""}
+									onValueChange={(value) => handleFormChange("nameOnInvoice", value)}
+								/>
 							</ModalBody>
 							<ModalFooter>
-								<Button variant="light" onPress={onClose}>
-									{t("cancel")}
+								<Button color="danger" variant="light" onPress={onClose}>
+									{t("common:cancel")}
 								</Button>
-								<Button
-									color="primary"
-									onPress={handleUpdate}
-									isDisabled={!formData.name.trim()}
-								>
-									{t("save")}
+								<Button color="primary" onPress={handleUpdate}>
+									{t("common:update")}
 								</Button>
 							</ModalFooter>
 						</>
