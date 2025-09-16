@@ -18,11 +18,16 @@ import { useEffect, useRef, useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import AdminCreateOrderPage from "../AdminCreateOrderPage/AdminCreateOrderPage";
+import { useAppApi } from "src/appApi";
+import { OrganizationSlice } from "src/domains/Organization";
+import { useAppDispatch } from "src/infra";
 
 export default function AdminLayout() {
 	const [isMenuOpen, setIsMenuOpen] = useState(true);
 	const mainRef = useRef<HTMLDivElement>(null);
 
+	const appApi = useAppApi();
+	const dispatch = useAppDispatch();
 	useEffect(() => {
 		const handleResize = () => {
 			if (window.innerWidth < 1024) {
@@ -40,6 +45,16 @@ export default function AdminLayout() {
 
 		// Cleanup
 		return () => window.removeEventListener("resize", handleResize);
+	}, []);
+
+	useEffect(() => {
+		appApi.admin.listOrganizations().then((response) => {
+			console.log("response", response);
+
+			if (response?.success && response.data) {
+				dispatch(OrganizationSlice.actions.setOrganizations(response.data));
+			}
+		});
 	}, []);
 
 	const toggleMenu = () => {

@@ -5,6 +5,7 @@ import {
 	NewOrganizationSchema,
 	TCategory,
 	TDiscount,
+	TOrganization,
 } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
@@ -22,13 +23,7 @@ import {
 	TProfile,
 	TNewOrganization,
 } from "@jsdev_ninja/core";
-// Temporary type definition until core package exports are available
-type TOrganization = {
-	id: string;
-	name: string;
-	discountPercentage?: number;
-	nameOnInvoice?: string;
-};
+
 import { TCart } from "src/domains/cart";
 import { navigate } from "src/navigation";
 import { TStoreStats } from "src/types";
@@ -288,7 +283,7 @@ export const useAppApi = () => {
 			},
 			updateClient: async (client: TProfile) => {
 				if (!isValidAdmin) return;
-				
+
 				const result = await FirebaseApi.firestore.update<TProfile>(
 					client.id,
 					client,
@@ -298,14 +293,14 @@ export const useAppApi = () => {
 						companyId,
 					})
 				);
-				
+
 				logger({
 					message: "update client profile",
 					severity: result.success ? "INFO" : "ERROR",
 					result,
 					client,
 				});
-				
+
 				return result;
 			},
 			getStoreClients: async () => {
@@ -351,13 +346,13 @@ export const useAppApi = () => {
 				isVatIncludedInPrice?: boolean;
 			}) => {
 				if (!isValidAdmin) return;
-				
+
 				try {
 					// Remove null values to unset fields
 					const cleanSettings = Object.fromEntries(
 						Object.entries(settings).filter(([, value]) => value !== null)
 					);
-					
+
 					const result = await FirebaseApi.firestore.setV2({
 						collection: FirebaseAPI.firestore.systemCollections.stores,
 						doc: {
@@ -365,14 +360,14 @@ export const useAppApi = () => {
 							...cleanSettings,
 						},
 					});
-					
+
 					logger({
 						message: "update store settings",
 						severity: result.success ? "INFO" : "ERROR",
 						settings,
 						result,
 					});
-					
+
 					return result;
 				} catch (error) {
 					SentryApi.captureException(error);
