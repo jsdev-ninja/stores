@@ -76,6 +76,9 @@ export const routes = {
 			orders: {
 				path: "/orders",
 			},
+			createOrder: {
+				path: "/createOrder",
+			},
 			order: {
 				path: "/orders/:id",
 			},

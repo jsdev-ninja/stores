@@ -1,28 +1,33 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "src/components/button";
-import { cartSlice } from "src/domains/cart";
 import { useAppSelector } from "src/infra";
-import { navigate } from "src/navigation";
-import { PaymentSummary } from "src/widgets/PaymentSummary";
-import { CartItem } from "./CartItem";
-import { useDiscounts } from "src/domains/Discounts/Discounts";
-// import { TCart, TDiscount } from "@jsdev_ninja/core";
-import { useStore } from "src/domains/Store";
 import { getCartCost } from "@jsdev_ninja/core";
+import { CartItem } from "./CartItem";
+import { PaymentSummary } from "src/widgets/PaymentSummary";
+import { Button } from "src/components/button";
+import { navigate } from "src/navigation";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { useStore } from "src/domains/Store";
 
 function CartPage() {
 	const { t } = useTranslation(["common", "cart"]);
 
-	const cart = useAppSelector(cartSlice.selectors.selectCart);
+	const user = useAppSelector((state) => state.user.user);
 
-	const discounts = useDiscounts();
+	const cartData = useAppSelector((state) => state.cart);
+	const cart = cartData.currentCart;
 
 	const store = useStore();
-	console.log("store", store);
+	const discounts = useDiscounts();
 
-	if (!store) return null;
+	if (!store) {
+		return null;
+	}
 
-	const cartCost = getCartCost({ cart, discounts: discounts, store });
+	const cartCost = getCartCost({ 
+		cart: cart?.items ?? [], 
+		discounts: discounts, 
+		store: store 
+	});
 
 	console.log("cartCost", cartCost);
 
@@ -42,14 +47,16 @@ function CartPage() {
 					</div>
 					<PaymentSummary>
 						<Button
-							onPress={() =>
-								navigate({
-									to: "store.checkout",
-								})
-							}
+							onPress={() => {
+								if (user?.admin) {
+									navigate({ to: "admin.createOrder" });
+								} else {
+									navigate({ to: "store.checkout" });
+								}
+							}}
 							fullWidth
 						>
-							{t("cart:proceedToCheckout")}
+							{user?.admin ? t("cart:createOrder", "Create Order") : t("cart:proceedToCheckout")}
 						</Button>
 						<Button
 							onPress={() =>

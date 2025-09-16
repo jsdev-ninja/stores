@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import AdminCreateOrderPage from "../AdminCreateOrderPage/AdminCreateOrderPage";
 
 export default function AdminLayout() {
 	const [isMenuOpen, setIsMenuOpen] = useState(true);
@@ -102,6 +103,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.users">
 						<AdminUsersPage />
+					</Route>
+					<Route name="admin.createOrder">
+						<AdminCreateOrderPage />
 					</Route>
 					<Route name="admin.clientProfile">
 						<AdminClientProfile />
