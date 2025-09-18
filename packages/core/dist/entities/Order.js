@@ -42,4 +42,6 @@ export const OrderSchema = z.object({
     nameOnInvoice: z.string().optional(),
     clientComment: z.string().optional(),
     deliveryNote: DeliveryNoteSchema.optional(),
+    organizationId: z.string().optional(),
+    billingAccount: BillingAccountSchema.optional(),
 });

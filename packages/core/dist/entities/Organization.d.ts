@@ -1,4 +1,17 @@
 import { z } from "zod";
+export declare const BillingAccountSchema: z.ZodObject<{
+    number: z.ZodString;
+    name: z.ZodString;
+    id: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    number: string;
+    id: string;
+    name: string;
+}, {
+    number: string;
+    id: string;
+    name: string;
+}>;
 export declare const OrganizationSchema: z.ZodObject<{
     id: z.ZodString;
     name: z.ZodString;
@@ -75,6 +88,7 @@ export declare const NewOrganizationSchema: z.ZodObject<Omit<{
     nameOnInvoice?: string | undefined;
     discountPercentage?: number | undefined;
 }>;
+export type TBillingAccount = z.infer<typeof BillingAccountSchema>;
 export type TNewOrganization = z.infer<typeof NewOrganizationSchema>;
 export type TOrganization = z.infer<typeof OrganizationSchema>;
 //# sourceMappingURL=Organization.d.ts.map

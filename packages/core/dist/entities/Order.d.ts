@@ -934,332 +934,48 @@ export declare const OrderSchema: z.ZodObject<{
         };
         warning?: string | undefined;
     }>>;
+    organizationId: z.ZodOptional<z.ZodString>;
+    billingAccount: any;
 }, "strip", z.ZodTypeAny, {
-    type: "Order";
-    status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "cancelled" | "refunded";
-    id: string;
-    date: number;
-    companyId: string;
-    storeId: string;
-    userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "external" | "failed";
-    cart: {
-        id: string;
-        items: {
-            product: {
-                type: "Product";
-                id: string;
-                companyId: string;
-                storeId: string;
-                objectID: string;
-                sku: string;
-                name: {
-                    value: string;
-                    lang: "he";
-                }[];
-                description: {
-                    value: string;
-                    lang: "he";
-                }[];
-                isPublished: boolean;
-                vat: boolean;
-                priceType: {
-                    value: number;
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
-                };
-                price: number;
-                currency: "ILS";
-                discount: {
-                    value: number;
-                    type: "number" | "percent" | "none";
-                };
-                weight: {
-                    value: number;
-                    unit: "kg" | "gram" | "none";
-                };
-                volume: {
-                    value: number;
-                    unit: "liter" | "ml" | "none";
-                };
-                images: {
-                    url: string;
-                    id: string;
-                }[];
-                manufacturer: string;
-                brand: string;
-                importer: string;
-                supplier: string;
-                ingredients: {
-                    value: string;
-                    lang: "he";
-                }[];
-                created_at: number;
-                updated_at: number;
-                categoryIds: string[];
-                purchasePrice?: number | undefined;
-                profitPercentage?: number | undefined;
-                isDiscountable?: boolean | undefined;
-                categoryList?: ({
-                    id: string;
-                    companyId: string;
-                    storeId: string;
-                    locales: {
-                        value: string;
-                        lang: "he";
-                    }[];
-                    depth: number;
-                    parentId?: string | null | undefined;
-                    tag?: string | undefined;
-                } & {
-                    children: ({
-                        id: string;
-                        companyId: string;
-                        storeId: string;
-                        locales: {
-                            value: string;
-                            lang: "he";
-                        }[];
-                        depth: number;
-                        parentId?: string | null | undefined;
-                        tag?: string | undefined;
-                    } & /*elided*/ any)[];
-                })[] | undefined;
-                categories?: {
-                    lvl0: string[];
-                    lvl1: string[];
-                    lvl2: string[];
-                    lvl3: string[];
-                    lvl4: string[];
-                } | undefined;
-                categoryNames?: string[] | undefined;
-            };
-            amount: number;
-            originalPrice?: number | undefined;
-            finalPrice?: number | undefined;
-            finalDiscount?: number | undefined;
-        }[];
-        cartDiscount: number;
-        cartTotal: number;
-        cartVat: number;
-        deliveryPrice?: number | undefined;
-    };
-    deliveryDate: number;
-    client: {
-        type: "Profile";
-        id: string;
-        companyId: string;
-        storeId: string;
-        tenantId: string;
-        clientType: "user" | "company";
-        displayName: string;
-        email: string;
-        isAnonymous: boolean;
-        createdDate: number;
-        lastActivityDate: number;
-        paymentType: "default" | "delayed";
-        companyName?: string | undefined;
-        phoneNumber?: string | undefined;
-        address?: {
-            country: string;
-            city: string;
-            street: string;
-            streetNumber: string;
-            floor: string;
-            apartmentEnterNumber: string;
-            apartmentNumber: string;
-        } | undefined;
-        organizationId?: string | undefined;
-    };
-    originalAmount?: number | undefined;
-    actualAmount?: number | undefined;
-    nameOnInvoice?: string | undefined;
-    clientComment?: string | undefined;
-    deliveryNote?: {
-        doc_uuid: string;
-        pdf_link: string;
-        pdf_link_copy: string;
-        doc_number: string;
-        sent_mails: string[];
-        success: boolean;
-        ua_uuid: string;
-        calculatedData: {
-            date: string;
-            vat: string;
-            currency: string;
-            transaction_id: string;
-            rate: number;
-            vat_price: number;
-            price_discount: number;
-            price_discount_in_currency: number;
-            price_total: string;
-            price_total_in_currency: number;
-            _COMMENT?: string | undefined;
-        };
-        warning?: string | undefined;
-    } | undefined;
+    [x: string]: any;
+    type?: unknown;
+    id?: unknown;
+    companyId?: unknown;
+    storeId?: unknown;
+    userId?: unknown;
+    status?: unknown;
+    paymentStatus?: unknown;
+    cart?: unknown;
+    originalAmount?: unknown;
+    actualAmount?: unknown;
+    date?: unknown;
+    deliveryDate?: unknown;
+    client?: unknown;
+    nameOnInvoice?: unknown;
+    clientComment?: unknown;
+    deliveryNote?: unknown;
+    organizationId?: unknown;
+    billingAccount?: unknown;
 }, {
-    type: "Order";
-    status: "draft" | "completed" | "pending" | "processing" | "in_delivery" | "delivered" | "cancelled" | "refunded";
-    id: string;
-    date: number;
-    companyId: string;
-    storeId: string;
-    userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "external" | "failed";
-    cart: {
-        id: string;
-        items: {
-            product: {
-                type: "Product";
-                id: string;
-                companyId: string;
-                storeId: string;
-                objectID: string;
-                sku: string;
-                name: {
-                    value: string;
-                    lang: "he";
-                }[];
-                description: {
-                    value: string;
-                    lang: "he";
-                }[];
-                isPublished: boolean;
-                vat: boolean;
-                priceType: {
-                    value: number;
-                    type: "unit" | "kg" | "gram" | "liter" | "ml";
-                };
-                price: number;
-                currency: "ILS";
-                discount: {
-                    value: number;
-                    type: "number" | "percent" | "none";
-                };
-                weight: {
-                    value: number;
-                    unit: "kg" | "gram" | "none";
-                };
-                volume: {
-                    value: number;
-                    unit: "liter" | "ml" | "none";
-                };
-                images: {
-                    url: string;
-                    id: string;
-                }[];
-                manufacturer: string;
-                brand: string;
-                importer: string;
-                supplier: string;
-                ingredients: {
-                    value: string;
-                    lang: "he";
-                }[];
-                created_at: number;
-                updated_at: number;
-                categoryIds: string[];
-                purchasePrice?: number | undefined;
-                profitPercentage?: number | undefined;
-                isDiscountable?: boolean | undefined;
-                categoryList?: ({
-                    id: string;
-                    companyId: string;
-                    storeId: string;
-                    locales: {
-                        value: string;
-                        lang: "he";
-                    }[];
-                    depth: number;
-                    parentId?: string | null | undefined;
-                    tag?: string | undefined;
-                } & {
-                    children: ({
-                        id: string;
-                        companyId: string;
-                        storeId: string;
-                        locales: {
-                            value: string;
-                            lang: "he";
-                        }[];
-                        depth: number;
-                        parentId?: string | null | undefined;
-                        tag?: string | undefined;
-                    } & /*elided*/ any)[];
-                })[] | undefined;
-                categories?: {
-                    lvl0: string[];
-                    lvl1: string[];
-                    lvl2: string[];
-                    lvl3: string[];
-                    lvl4: string[];
-                } | undefined;
-                categoryNames?: string[] | undefined;
-            };
-            amount: number;
-            originalPrice?: number | undefined;
-            finalPrice?: number | undefined;
-            finalDiscount?: number | undefined;
-        }[];
-        cartDiscount: number;
-        cartTotal: number;
-        cartVat: number;
-        deliveryPrice?: number | undefined;
-    };
-    deliveryDate: number;
-    client: {
-        type: "Profile";
-        id: string;
-        companyId: string;
-        storeId: string;
-        tenantId: string;
-        clientType: "user" | "company";
-        displayName: string;
-        email: string;
-        isAnonymous: boolean;
-        createdDate: number;
-        lastActivityDate: number;
-        paymentType: "default" | "delayed";
-        companyName?: string | undefined;
-        phoneNumber?: string | undefined;
-        address?: {
-            country: string;
-            city: string;
-            street: string;
-            streetNumber: string;
-            floor: string;
-            apartmentEnterNumber: string;
-            apartmentNumber: string;
-        } | undefined;
-        organizationId?: string | undefined;
-    };
-    originalAmount?: number | undefined;
-    actualAmount?: number | undefined;
-    nameOnInvoice?: string | undefined;
-    clientComment?: string | undefined;
-    deliveryNote?: {
-        doc_uuid: string;
-        pdf_link: string;
-        pdf_link_copy: string;
-        doc_number: string;
-        sent_mails: string[];
-        success: boolean;
-        ua_uuid: string;
-        calculatedData: {
-            date: string;
-            vat: string;
-            currency: string;
-            transaction_id: string;
-            rate: number;
-            vat_price: number;
-            price_discount: number;
-            price_discount_in_currency: number;
-            price_total: string;
-            price_total_in_currency: number;
-            _COMMENT?: string | undefined;
-        };
-        warning?: string | undefined;
-    } | undefined;
+    [x: string]: any;
+    type?: unknown;
+    id?: unknown;
+    companyId?: unknown;
+    storeId?: unknown;
+    userId?: unknown;
+    status?: unknown;
+    paymentStatus?: unknown;
+    cart?: unknown;
+    originalAmount?: unknown;
+    actualAmount?: unknown;
+    date?: unknown;
+    deliveryDate?: unknown;
+    client?: unknown;
+    nameOnInvoice?: unknown;
+    clientComment?: unknown;
+    deliveryNote?: unknown;
+    organizationId?: unknown;
+    billingAccount?: unknown;
 }>;
 export type TOrder = z.infer<typeof OrderSchema>;
 //# sourceMappingURL=Order.d.ts.map
