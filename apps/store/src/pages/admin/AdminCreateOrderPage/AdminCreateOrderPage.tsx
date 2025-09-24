@@ -210,7 +210,8 @@ function FormContent({
 	const { watch, setValue } = useFormContext<TOrder>();
 
 	const organizationId = watch("organizationId");
-	const billingAccountId = watch("billingAccountId");
+	const billingAccount = watch("billingAccount");
+	const billingAccountId = billingAccount?.id;
 
 	// Update selected organization when form value changes
 	useEffect(() => {
@@ -225,7 +226,7 @@ function FormContent({
 	// Clear billing account when organization changes
 	useEffect(() => {
 		if (!selectedOrganization) {
-			setValue("billingAccountId", "");
+			setValue("billingAccount", undefined);
 		}
 	}, [selectedOrganization, setValue]);
 
@@ -290,7 +291,14 @@ function FormContent({
 									"Choose a billing account"
 								)}
 								selectedKeys={billingAccountId ? [billingAccountId] : []}
-								onChange={(e) => setValue("billingAccountId", e.target.value)}
+								onChange={(e) => {
+									const account = selectedOrganization?.billingAccounts.find(
+										(a) => a.id === e.target.value
+									);
+									if (account) {
+										setValue("billingAccount", account);
+									}
+								}}
 								isDisabled={!selectedOrganization || loading}
 								startContent={
 									<Icon icon="lucide:credit-card" className="text-default-400" />

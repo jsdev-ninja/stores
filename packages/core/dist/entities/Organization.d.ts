@@ -38,8 +38,8 @@ export declare const OrganizationSchema: z.ZodObject<{
         id: string;
         name: string;
     }[];
-    nameOnInvoice?: string | undefined;
     discountPercentage?: number | undefined;
+    nameOnInvoice?: string | undefined;
 }, {
     id: string;
     name: string;
@@ -48,8 +48,8 @@ export declare const OrganizationSchema: z.ZodObject<{
         id: string;
         name: string;
     }[];
-    nameOnInvoice?: string | undefined;
     discountPercentage?: number | undefined;
+    nameOnInvoice?: string | undefined;
 }>;
 export declare const NewOrganizationSchema: z.ZodObject<Omit<{
     id: z.ZodString;
@@ -76,8 +76,8 @@ export declare const NewOrganizationSchema: z.ZodObject<Omit<{
         id: string;
         name: string;
     }[];
-    nameOnInvoice?: string | undefined;
     discountPercentage?: number | undefined;
+    nameOnInvoice?: string | undefined;
 }, {
     name: string;
     billingAccounts: {
@@ -85,8 +85,8 @@ export declare const NewOrganizationSchema: z.ZodObject<Omit<{
         id: string;
         name: string;
     }[];
-    nameOnInvoice?: string | undefined;
     discountPercentage?: number | undefined;
+    nameOnInvoice?: string | undefined;
 }>;
 export type TBillingAccount = z.infer<typeof BillingAccountSchema>;
 export type TNewOrganization = z.infer<typeof NewOrganizationSchema>;

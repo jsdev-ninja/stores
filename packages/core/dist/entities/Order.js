@@ -3,6 +3,7 @@ import { ProfileSchema } from "./Profile";
 import { notEmptyTextSchema } from "./Atoms";
 import { CartItemProductSchema } from "./Cart";
 import { DeliveryNoteSchema } from "./DeliveryNote";
+import { BillingAccountSchema } from "./Organization";
 // pending - order created / by user
 // processing order accepted by store by admin
 // delivered - order delivered by admin
