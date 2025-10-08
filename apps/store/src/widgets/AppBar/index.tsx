@@ -7,7 +7,7 @@ import { FirebaseApi } from "src/lib/firebase";
 import { Icon } from "src/components";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Snippet } from "@heroui/react";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { useStore } from "src/domains/Store";
 
@@ -115,9 +115,14 @@ export function AppBar() {
 					{!!user && !user.isAnonymous ? (
 						<Dropdown>
 							<DropdownTrigger>
-								<div className="">
-									<Icon name="userCircle" size="lg" />
-								</div>
+						<div className="flex items-center gap-1">
+							<Icon name="userCircle" size="lg" />
+							{user?.admin && (
+								<Snippet hideCopyButton size="sm" variant="flat" color="primary" className="">
+									{t("admin")}
+								</Snippet>
+							)}
+						</div>
 							</DropdownTrigger>
 							<DropdownMenu
 								onAction={(key) => {

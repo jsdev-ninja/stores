@@ -13,3 +13,8 @@ add new website
 # calculate store revenue
 
 all orders with status payment status COMPLETED
+
+
+HYP
+
+1) client first name -> name on invoice

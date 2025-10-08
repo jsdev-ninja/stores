@@ -230,6 +230,13 @@ function FormContent({
 		}
 	}, [selectedOrganization, setValue]);
 
+	// Update nameOnInvoice when billing account changes
+	useEffect(() => {
+		if (billingAccount?.name) {
+			setValue("nameOnInvoice", billingAccount.name);
+		}
+	}, [billingAccount, setValue]);
+
 	return (
 		<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
 			<div className="min-w-0 flex-1 space-y-8">
