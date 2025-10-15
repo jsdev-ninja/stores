@@ -588,9 +588,10 @@ export default function AdminOrderPage() {
 									<Input
 										label="Quantity"
 										type="number"
-										min={1}
+										min={0.01}
+										step={0.01}
 										value={selectedQuantity.toString()}
-										onChange={(e) => setSelectedQuantity(parseInt(e.target.value) || 1)}
+										onChange={(e) => setSelectedQuantity(parseFloat(e.target.value) || 0.01)}
 									/>
 								</div>
 							</ModalBody>
@@ -635,11 +636,11 @@ export default function AdminOrderPage() {
 									<Input
 										label="Quantity"
 										type="number"
-										min={1}
+										min={0.01}
 										step={0.01}
 										value={externalProductQuantity.toString()}
 										onChange={(e) =>
-											setExternalProductQuantity(parseFloat(e.target.value) || 1)
+											setExternalProductQuantity(parseFloat(e.target.value) || 0.01)
 										}
 									/>
 								</div>
