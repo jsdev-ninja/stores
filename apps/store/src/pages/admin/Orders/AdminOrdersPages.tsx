@@ -6,7 +6,7 @@ import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
 import { navigate } from "src/navigation";
-import { ChipProps, Chip } from "@heroui/react";
+import { ChipProps, Chip, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { useStore } from "src/domains/Store";
 
 function AdminOrdersPages() {
@@ -59,6 +59,18 @@ function OrderRow({
 	const appApi = useAppApi();
 
 	const store = useStore();
+
+	const [isCancelOpen, setIsCancelOpen] = useState(false);
+
+	async function confirmCancelOrder() {
+		const res = await appApi.admin.cancelOrder({ order });
+		if (!res?.success) {
+			setIsCancelOpen(false);
+			return;
+		}
+		updateOrder(order.id, "cancelled");
+		setIsCancelOpen(false);
+	}
 
 	const chipColors: Record<TOrder["status"], ChipProps["color"]> = {
 		draft: "default",
@@ -146,7 +158,14 @@ function OrderRow({
 					>
 						{t("ordersPage:actions.setOnDelivery")}
 					</Button>
-					<Button type="button">{t("ordersPage:actions.cancelOrder")}</Button>
+					<Button
+						onPress={() => {
+							setIsCancelOpen(true);
+						}}
+						type="button"
+					>
+						{t("ordersPage:actions.cancelOrder")}
+					</Button>
 				</>
 			);
 		}
@@ -166,7 +185,14 @@ function OrderRow({
 					>
 						{t("ordersPage:actions.acceptOrder")}
 					</Button>
-					<Button type="button">{t("ordersPage:actions.cancelOrder")}</Button>
+					<Button
+						onPress={() => {
+							setIsCancelOpen(true);
+						}}
+						type="button"
+					>
+						{t("ordersPage:actions.cancelOrder")}
+					</Button>
 				</>
 			);
 		}
@@ -242,6 +268,28 @@ function OrderRow({
 					{t("ordersPage:actions.viewOrder")}
 				</Button>
 			</div>
+			<Modal isOpen={isCancelOpen} onOpenChange={setIsCancelOpen}>
+				<ModalContent>
+					{(onClose) => (
+						<>
+							<ModalHeader className="flex flex-col gap-1">
+								{t("ordersPage:confirmCancel.title", "Cancel order")}
+							</ModalHeader>
+							<ModalBody>
+								<p>{t("ordersPage:confirmCancel.message", "Are you sure you want to cancel this order?")}</p>
+							</ModalBody>
+							<ModalFooter>
+								<Button variant="light" onPress={() => onClose()}>
+									{t("common:actions.cancel", "Close")}
+								</Button>
+								<Button color="danger" onPress={confirmCancelOrder}>
+									{t("ordersPage:actions.cancelOrder")}
+								</Button>
+							</ModalFooter>
+						</>
+					)}
+				</ModalContent>
+			</Modal>
 		</div>
 	);
 }

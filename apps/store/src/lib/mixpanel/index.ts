@@ -13,6 +13,7 @@ type events =
 	| "AUTH_USER_SIGNUP"
 	| "ADMIN_ORDER_ACCEPT"
 	| "ADMIN_ORDER_PAID"
+	| "ADMIN_ORDER_CANCEL"
 	| "ADMIN_ORDER_DELIVERED";
 
 export const mixPanelApi = {

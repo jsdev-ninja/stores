@@ -518,6 +518,24 @@ export const useAppApi = () => {
 					})
 				);
 			},
+			cancelOrder({ order }: { order: TOrder }) {
+				if (!isValidAdmin) return;
+				mixPanelApi.track("ADMIN_ORDER_CANCEL", {
+					order,
+				});
+				console.log("update", order.id);
+				return FirebaseApi.firestore.update<TOrder>(
+					order.id,
+					{
+						status: "cancelled",
+					},
+					FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					})
+				);
+			},
 
 			category: {
 				create: async (category: TCategory) => {
