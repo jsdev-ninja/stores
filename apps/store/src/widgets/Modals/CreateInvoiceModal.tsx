@@ -13,6 +13,7 @@ import { useFormContext } from "react-hook-form";
 
 const CreateInvoiceSchema = z.object({
 	organizationId: z.string().min(1, "Organization is required"),
+	billingAccount: z.string().optional(),
 	fromDate: z.number().min(1, "From date is required"),
 	toDate: z.number().min(1, "To date is required"),
 });
@@ -36,6 +37,34 @@ function FormContent({
 	const { setValue, watch } = useFormContext<TCreateInvoice>();
 	
 	const organizationId = watch("organizationId");
+	const billingAccount = watch("billingAccount");
+
+	// Get billing accounts for the selected organization
+	const selectedOrganization = organizations.find(org => org.id === organizationId);
+	const billingAccounts = selectedOrganization?.billingAccounts || [];
+
+	// Clear billing account when organization changes
+	useEffect(() => {
+		if (organizationId && billingAccount) {
+			const selectedOrg = organizations.find(org => org.id === organizationId);
+			const hasBillingAccount = selectedOrg?.billingAccounts.some(acc => acc.number === billingAccount);
+			if (!hasBillingAccount) {
+				setValue("billingAccount", "");
+			}
+		}
+	}, [organizationId, billingAccount, organizations, setValue]);
+
+	// Helper functions to get organization and billing account names
+	const getOrganizationName = (orgId: string) => {
+		const org = organizations.find(o => o.id === orgId);
+		return org?.name || 'לא ידוע';
+	};
+
+	const getBillingAccountName = (orgId: string, billingAccountNumber: string) => {
+		const org = organizations.find(o => o.id === orgId);
+		const account = org?.billingAccounts.find(acc => acc.number === billingAccountNumber);
+		return account ? `${account.name} (${account.number})` : 'לא נבחר';
+	};
 
 	return (
 		<>
@@ -68,6 +97,30 @@ function FormContent({
 								{"discountPercentage" in org &&
 									org.discountPercentage &&
 									` (${org.discountPercentage}% הנחה)`}
+							</SelectItem>
+						)}
+					</Select>
+				</div>
+
+				<div className="flex flex-col gap-2">
+					<label className="block text-sm font-medium text-gray-900 dark:text-white">
+						חשבון חיוב
+					</label>
+					<Select
+						placeholder="בחר חשבון חיוב (אופציונלי)"
+						isDisabled={!organizationId || loading}
+						selectedKeys={billingAccount ? [billingAccount] : []}
+						onChange={(e) => {
+							setValue("billingAccount", e.target.value);
+						}}
+						startContent={
+							<Icon icon="lucide:credit-card" className="text-default-400" />
+						}
+						items={billingAccounts}
+					>
+						{(account) => (
+							<SelectItem textValue={`${account.name} (${account.number})`} key={account.number}>
+								{account.name} ({account.number})
 							</SelectItem>
 						)}
 					</Select>
@@ -107,6 +160,8 @@ function FormContent({
 										<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">הזמנה</th>
 										<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">תאריך</th>
 										<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">לקוח</th>
+										<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">ארגון</th>
+										<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">חשבון חיוב</th>
 										<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">סכום</th>
 										<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">סטטוס</th>
 									</tr>
@@ -122,6 +177,12 @@ function FormContent({
 											</td>
 											<td className="px-3 py-2 text-sm text-gray-500">
 												{order.client.displayName}
+											</td>
+											<td className="px-3 py-2 text-sm text-gray-500">
+												{getOrganizationName(order.organizationId || '')}
+											</td>
+											<td className="px-3 py-2 text-sm text-gray-500">
+												{order.billingAccount ? getBillingAccountName(order.organizationId || '', order.billingAccount.number) : 'לא נבחר'}
 											</td>
 											<td className="px-3 py-2 text-sm font-medium text-gray-900">
 												₪{order.cart.cartTotal.toFixed(2)}
@@ -224,6 +285,7 @@ export function CreateInvoiceModal({ onOrdersFound }: { onOrdersFound?: (orders:
 					try {
 						const result = await appApi.admin.getOrdersForInvoice({
 							organizationId: data.organizationId,
+							billingAccount: data.billingAccount,
 							fromDate: data.fromDate,
 							toDate: data.toDate,
 						});
@@ -251,6 +313,7 @@ export function CreateInvoiceModal({ onOrdersFound }: { onOrdersFound?: (orders:
 				}}
 				defaultValues={{
 					organizationId: "",
+					billingAccount: "",
 					fromDate: defaultFromDate,
 					toDate: defaultToDate,
 				}}

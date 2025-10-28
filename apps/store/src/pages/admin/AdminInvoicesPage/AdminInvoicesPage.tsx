@@ -1,21 +1,24 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
-import { TOrder } from "@jsdev_ninja/core";
+import { TOrder, TOrganization } from "@jsdev_ninja/core";
 import { Checkbox } from "@heroui/react";
 import { FirebaseApi } from "src/lib/firebase";
 import { VAT_TYPE } from "src/lib/firebase/api";
 import { useApiState } from "src/appApi/useApiState";
+import { useAppApi } from "src/appApi";
 
 export default function AdminInvoicesPage() {
 	const { t } = useTranslation(["common"]);
 	const [orders, setOrders] = useState<TOrder[]>([]);
 	const [hasSearched, setHasSearched] = useState(false);
 	const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
 
 	const { store } = useApiState();
+	const appApi = useAppApi();
 
 	const handleOrdersFound = (foundOrders: TOrder[]) => {
 		setOrders(foundOrders);
@@ -25,6 +28,33 @@ export default function AdminInvoicesPage() {
 
 	const handleCreateInvoice = () => {
 		modalApi.openModal("createInvoice", { onOrdersFound: handleOrdersFound });
+	};
+
+	// Load organizations on component mount
+	useEffect(() => {
+		const loadOrganizations = async () => {
+			try {
+				const result = await appApi.admin.listOrganizations();
+				if (result?.success) {
+					setOrganizations(result.data || []);
+				}
+			} catch (error) {
+				console.error("Failed to load organizations:", error);
+			}
+		};
+		loadOrganizations();
+	}, []);
+
+	// Helper functions to get organization and billing account names
+	const getOrganizationName = (orgId: string) => {
+		const org = organizations.find(o => o.id === orgId);
+		return org?.name || 'לא ידוע';
+	};
+
+	const getBillingAccountName = (orgId: string, billingAccountNumber: string) => {
+		const org = organizations.find(o => o.id === orgId);
+		const account = org?.billingAccounts.find(acc => acc.number === billingAccountNumber);
+		return account ? `${account.name} (${account.number})` : 'לא נבחר';
 	};
 
 	// Computed values for selection
@@ -156,6 +186,12 @@ export default function AdminInvoicesPage() {
 										לקוח
 									</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+										ארגון
+									</th>
+									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+										חשבון חיוב
+									</th>
+									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
 										סכום
 									</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -188,6 +224,12 @@ export default function AdminInvoicesPage() {
 										</td>
 										<td className="px-6 py-4 text-sm text-gray-500">
 											{order.client.displayName}
+										</td>
+										<td className="px-6 py-4 text-sm text-gray-500">
+											{getOrganizationName(order.organizationId || '')}
+										</td>
+										<td className="px-6 py-4 text-sm text-gray-500">
+											{order.billingAccount ? getBillingAccountName(order.organizationId || '', order.billingAccount.number) : 'לא נבחר'}
 										</td>
 										<td className="px-6 py-4 text-sm font-medium text-gray-900">
 											₪{order.cart.cartTotal.toFixed(2)}

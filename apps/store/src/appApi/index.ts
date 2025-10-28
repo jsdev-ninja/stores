@@ -213,14 +213,57 @@ export const useAppApi = () => {
 			},
 			getOrdersForInvoice: async ({
 				organizationId,
+				billingAccount,
 				fromDate,
 				toDate,
 			}: {
 				organizationId: string;
+				billingAccount?: string;
 				fromDate: number;
 				toDate: number;
 			}) => {
 				if (!isValidAdmin) return;
+
+				const whereClauses = [
+					{
+						name: "storeId" as const,
+						operator: "==" as const,
+						value: store.id,
+					},
+					{
+						name: "companyId" as const,
+						operator: "==" as const,
+						value: companyId,
+					},
+					{
+						name: "organizationId" as const,
+						operator: "==" as const,
+						value: organizationId,
+					},
+					{
+						name: "deliveryNote.success" as const,
+						operator: "==" as const,
+						value: true,
+					},
+					{
+						name: "date" as const,
+						operator: ">=" as const,
+						value: fromDate,
+					},
+					{
+						name: "date" as const,
+						operator: "<=" as const,
+						value: toDate,
+					},
+				];
+
+				if (billingAccount) {
+					whereClauses.push({
+						name: "billingAccount.number" as any,
+						operator: "==" as const,
+						value: billingAccount,
+					});
+				}
 
 				return FirebaseApi.firestore.listV2<TOrder>({
 					collection: FirebaseAPI.firestore.getPath({
@@ -228,38 +271,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 					}),
-					where: [
-						{
-							name: "storeId",
-							operator: "==",
-							value: store.id,
-						},
-						{
-							name: "companyId",
-							operator: "==",
-							value: companyId,
-						},
-						{
-							name: "organizationId",
-							operator: "==",
-							value: organizationId,
-						},
-						{
-							name: "deliveryNote.success",
-							operator: "==",
-							value: true,
-						},
-						{
-							name: "date",
-							operator: ">=",
-							value: fromDate,
-						},
-						{
-							name: "date",
-							operator: "<=",
-							value: toDate,
-						},
-					],
+					where: whereClauses,
 					sort: [{ name: "date", value: "desc" }],
 				});
 			},
