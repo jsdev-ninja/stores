@@ -25,6 +25,7 @@ export { getMixpanelData } from "./api/mixpanel-ts";
 export { createCompanyClient } from "./api/createCompany";
 export { createPayment } from "./api/createPayment";
 export { chargeOrder } from "./api/chargeOrder";
+export { createInvoice } from "./api/createInvoice";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))

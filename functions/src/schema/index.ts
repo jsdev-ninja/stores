@@ -25,5 +25,7 @@ export const StorePrivateScheme = z.object({
 		KEY: z.string().min(1), // api key
 	}),
 	storeEmail: z.string().email(),
+	ezcount_key: z.string().min(1),
+	ezcount_api: z.string().min(1),
 });
 export type TStorePrivate = z.infer<typeof StorePrivateScheme>;

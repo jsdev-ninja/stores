@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import AdminCreateOrderPage from "../AdminCreateOrderPage/AdminCreateOrderPage";
+import AdminInvoicesPage from "../AdminInvoicesPage/AdminInvoicesPage";
 import { useAppApi } from "src/appApi";
 import { OrganizationSlice } from "src/domains/Organization";
 import { useAppDispatch } from "src/infra";
@@ -130,6 +131,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.organization">
 						<AdminOrganizationDetailPage />
+					</Route>
+					<Route name="admin.invoices">
+						<AdminInvoicesPage />
 					</Route>
 				</main>
 			</div>

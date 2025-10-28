@@ -94,6 +94,9 @@ export const routes = {
 			organization: {
 				path: "/organizations/:id",
 			},
+			invoices: {
+				path: "/invoices",
+			},
 		},
 	},
 	superAdmin: {

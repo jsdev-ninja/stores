@@ -7,6 +7,7 @@ import { ReactNode, cloneElement } from "react";
 import { useAppSelector } from "src/infra";
 import { AdminCompanyCreateModal } from "./modals/AdminCompanyCreateModal";
 import { ProfileEditModal } from "./ProfileEditModal";
+import { CreateInvoiceModal } from "./CreateInvoiceModal";
 import { TProfile } from "@jsdev_ninja/core";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
@@ -20,6 +21,7 @@ export const modals = {
 	categoryFormModal: ({ categoryId, onSave }: { categoryId: string; onSave?: any }) => (
 		<CategoryFormModal categoryId={categoryId} onSave={onSave} />
 	),
+	createInvoice: ({ onOrdersFound }: { onOrdersFound?: (orders: any[]) => void }) => <CreateInvoiceModal onOrdersFound={onOrdersFound} />,
 };
 
 export function ModalProvider() {

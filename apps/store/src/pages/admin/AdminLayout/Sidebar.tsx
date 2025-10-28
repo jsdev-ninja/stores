@@ -80,6 +80,16 @@ const sidebarCategories = [
 		],
 	},
 	{
+		titleKey: "billing",
+		items: [
+			{
+				name: "invoices",
+				path: "admin.invoices" as RouteKeys<typeof routes>,
+				icon: "lucide:receipt",
+			},
+		],
+	},
+	{
 		titleKey: "adminSettings",
 		items: [
 			{

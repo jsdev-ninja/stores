@@ -48,6 +48,61 @@ async function uiLogs(payload: LogPayload) {
 	}
 }
 
+// dupliacte form functions/src/services/ezCountService/index.ts
+export enum VAT_TYPE {
+	PRE = "PRE",
+	INC = "INC",
+	NON = "NON",
+}
+export type Params = {
+	transaction_id: string;
+	customer_name: string;
+	customer_email: string;
+	customer_address?: string;
+	customer_phone?: string;
+	description?: string;
+	parent?: string; // parens docs (1,2,3,4)
+	cc_emails?: string[];
+	item?: {
+		details: string;
+		price: number;
+		amount: number;
+		vat_type: VAT_TYPE;
+	}[];
+	price_total?: number;
+};
+
+export enum DOC_TYPE {
+	ORDER = 100, // הזמנה (Order)
+	DELIVERY = 200, // תעודת משלוח (Delivery)
+	RETURN = 210, // תעודת החזרה (Return)
+	PROFORMA_INVOICE = 300, // חשבונית עסקה (Proforma Invoice)
+	TAX_INVOICE = 305, // חשבונית מס(Tax invoice)
+	INVOICE_RECEIPT = 320, // חשבונית מס קבלה(Invoice Receipt)
+	CREDIT_INVOICE = 330, // חשבונית זיכוי(Credit invoice)
+	RECEIPT = 400, // קבלה(Receipt)
+	RECEIPT_DONATION = 405, // קבלה על תרומה(Receipt for donation)
+	PURCHASE_ORDER = 500, // הזמנת רכש(Purchase order)
+	BID = 9999, // הצעת מחיר(Bid)
+	DEPOSIT_APPROVAL = 9998, // קבלת פקדון (Deposit Approval)
+	DEPOSIT_RELEASE = 9997, // קבלת פקדון (Deposit Release)
+}
+
+async function createInvoice(storeId: string, params: Params) {
+	try {
+		const func = httpsCallable(functions, "createInvoice");
+		const response = await func({ params, storeId });
+		console.log("create invoice response", response);
+		return { success: true, data: response.data };
+	} catch (error: any) {
+		const code = error.code;
+		const message = error.message;
+		const details = error.details;
+		console.log(code, message, details);
+		return { success: false, data: null };
+	}
+}
+
 async function createPayment({ order }: { order: TOrder }) {
 	try {
 		const func = httpsCallable(functions, "createPayment");
@@ -92,4 +147,4 @@ async function createCompanyClient(company: TCompany) {
 	}
 }
 
-export const api = { init, createCompanyClient, createPayment, chargeOrder, uiLogs };
+export const api = { init, createCompanyClient, createPayment, chargeOrder, uiLogs, createInvoice };

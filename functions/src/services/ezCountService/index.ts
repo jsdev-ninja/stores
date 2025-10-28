@@ -7,7 +7,7 @@ import axios from "axios";
 // const companyId = "balasistore_company";
 // const storeId = "balasistore_store";
 
-enum DOC_TYPE {
+export enum DOC_TYPE {
 	ORDER = 100, // הזמנה (Order)
 	DELIVERY = 200, // תעודת משלוח (Delivery)
 	RETURN = 210, // תעודת החזרה (Return)
@@ -23,9 +23,10 @@ enum DOC_TYPE {
 	DEPOSIT_RELEASE = 9997, // קבלת פקדון (Deposit Release)
 }
 
-enum VAT_TYPE {
+export enum VAT_TYPE {
 	PRE = "PRE",
 	INC = "INC",
+	NON = "NON",
 }
 
 type Params = {
@@ -40,7 +41,17 @@ type Params = {
 	description?: string;
 	parent?: string; // parens docs (1,2,3,4)
 	cc_emails?: string[];
+	item?: {
+		details: string;
+		price: number;
+		amount: number;
+		vat_type: VAT_TYPE;
+	}[];
+	price_total?: number;
+	payment?: [{ payment_type: number; payment_sum: number; other_payment_type_name?: string }];
 };
+
+type InvoiceParams = Omit<Params, "doc_type">;
 
 export async function createDocument(params: Params) {
 	try {
@@ -54,18 +65,25 @@ export async function createDocument(params: Params) {
 			data: {
 				developer_email: "philip@jsdev.ninja",
 				api_key: params.api_key,
-				type: DOC_TYPE.DELIVERY,
+				type: params.doc_type,
 				auto_balance: true,
+				item: params.item,
 				customer_name: params.customer_name,
 				customer_email: params.customer_email,
 				customer_address: params.customer_address,
 				customer_phone: params.customer_phone,
 				description: params.description,
 				parent: params.parent,
+				price_total: params.price_total,
+				payment: params.payment,
 			},
 		});
+		console.log("res", res.status);
+		console.log(JSON.stringify(res.data));
+		return { error: null, data: res.data };
 	} catch (error: any) {
 		console.error(error.message);
+		return { error, data: null };
 	}
 }
 export const ezCountService = {
@@ -91,6 +109,14 @@ export const ezCountService = {
 					vat_type: item.product.vat ? VAT_TYPE.PRE : VAT_TYPE.INC,
 				};
 			});
+			if (order.cart.deliveryPrice) {
+				items.push({
+					details: "משלוח",
+					price: order.cart.deliveryPrice,
+					amount: 1,
+					vat_type: VAT_TYPE.NON,
+				});
+			}
 			const data = JSON.stringify({
 				developer_email: "philip@jsdev.ninja",
 				api_key: ezcount_key,
@@ -121,6 +147,19 @@ export const ezCountService = {
 			console.log("res", res.status);
 			console.log(JSON.stringify(res.data));
 			return { error: null, data: res.data as TDeliveryNote };
+		} catch (error: any) {
+			console.error(error.message);
+			return { error, data: null };
+		}
+	},
+	async createInvoice(params: InvoiceParams) {
+		try {
+			const invoice = await createDocument({
+				doc_type: DOC_TYPE.INVOICE_RECEIPT,
+				...params,
+			});
+
+			return { error: null, data: invoice.data };
 		} catch (error: any) {
 			console.error(error.message);
 			return { error, data: null };

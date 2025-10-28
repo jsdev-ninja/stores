@@ -211,6 +211,58 @@ export const useAppApi = () => {
 					sort: [{ name: "date", value: "desc" }],
 				});
 			},
+			getOrdersForInvoice: async ({
+				organizationId,
+				fromDate,
+				toDate,
+			}: {
+				organizationId: string;
+				fromDate: number;
+				toDate: number;
+			}) => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.listV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: [
+						{
+							name: "storeId",
+							operator: "==",
+							value: store.id,
+						},
+						{
+							name: "companyId",
+							operator: "==",
+							value: companyId,
+						},
+						{
+							name: "organizationId",
+							operator: "==",
+							value: organizationId,
+						},
+						{
+							name: "deliveryNote.success",
+							operator: "==",
+							value: true,
+						},
+						{
+							name: "date",
+							operator: ">=",
+							value: fromDate,
+						},
+						{
+							name: "date",
+							operator: "<=",
+							value: toDate,
+						},
+					],
+					sort: [{ name: "date", value: "desc" }],
+				});
+			},
 			removeProductImage: async ({ product }: { product: TProduct }) => {
 				if (!isValidAdmin) return;
 

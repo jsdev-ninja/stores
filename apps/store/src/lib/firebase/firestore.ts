@@ -140,14 +140,26 @@ async function getV2<T extends object>(data: { collection: string; id: string })
 	}
 }
 
+// Generic type to get all possible paths through an object
+// This version handles optional fields by using NonNullable to strip undefined/null
+type NestedPaths<T> = T extends object
+	? {
+			[K in keyof T]-?: K extends string | number
+				? NonNullable<T[K]> extends object
+					? `${K}` | `${K}.${NestedPaths<NonNullable<T[K]>>}`
+					: `${K}`
+				: never;
+	  }[keyof T]
+	: never;
+
 async function listV2<T>(data: {
 	collection: string;
 	where?: Array<{
-		name: keyof T & string;
+		name: NestedPaths<T>;
 		value: any;
 		operator: WhereFilterOp;
 	}>;
-	sort?: Array<{ name: keyof T & string; value: "desc" | "asc" }>;
+	sort?: Array<{ name: NestedPaths<T>; value: "desc" | "asc" }>;
 }) {
 	try {
 		const filters = data.where ?? [];
@@ -179,7 +191,7 @@ function subscribeDocV2<T>(data: {
 	collection: string;
 	id?: string;
 	where?: Array<{
-		name: keyof T & string;
+		name: NestedPaths<T>;
 		value: any;
 		operator: WhereFilterOp;
 	}>;
@@ -212,7 +224,7 @@ function subscribeList<T>(data: {
 	callback: (data: T[]) => void;
 	collection: string;
 	where?: Array<{
-		name: keyof T & string;
+		name: NestedPaths<T>;
 		value: any;
 		operator: WhereFilterOp;
 	}>;
