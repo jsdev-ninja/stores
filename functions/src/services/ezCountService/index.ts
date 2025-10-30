@@ -155,7 +155,7 @@ export const ezCountService = {
 	async createInvoice(params: InvoiceParams) {
 		try {
 			const invoice = await createDocument({
-				doc_type: DOC_TYPE.INVOICE_RECEIPT,
+				doc_type: DOC_TYPE.TAX_INVOICE,
 				...params,
 			});
 
