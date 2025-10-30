@@ -4,6 +4,7 @@ import { notEmptyTextSchema } from "./Atoms";
 import { CartItemProductSchema } from "./Cart";
 import { DeliveryNoteSchema } from "./DeliveryNote";
 import { BillingAccountSchema } from "./Organization";
+import { InvoiceSchema } from "./Invoice";
 
 // pending - order created / by user
 // processing order accepted by store by admin
@@ -46,6 +47,7 @@ export const OrderSchema = z.object({
 	nameOnInvoice: z.string().optional(),
 	clientComment: z.string().optional(),
 	deliveryNote: DeliveryNoteSchema.optional(),
+	invoice: InvoiceSchema.optional(),
 	organizationId: z.string().optional(),
 	billingAccount: BillingAccountSchema.optional(),
 });

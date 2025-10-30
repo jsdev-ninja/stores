@@ -1,5 +1,6 @@
-import { TDeliveryNote, TOrder } from "@jsdev_ninja/core";
+import { CalculatedDataSchema, TDeliveryNote, TOrder } from "@jsdev_ninja/core";
 import axios from "axios";
+import { logger } from "../../core";
 
 // application/json
 // https://demo.ezcount.co.il
@@ -29,6 +30,26 @@ export enum VAT_TYPE {
 	NON = "NON",
 }
 
+type TError = {
+	success: false;
+	errNum: number;
+	errMsg: string;
+};
+
+type TSuccess = {
+	success: true;
+	doc_uuid: string;
+	pdf_link: string;
+	pdf_link_copy: string;
+	doc_number: string;
+	sent_mails: string[];
+	ua_uuid: string;
+	calculatedData: any;
+	warning: string | undefined;
+};
+
+type EZResponse = TError | TSuccess;
+
 type Params = {
 	url: string;
 	api_key: string;
@@ -55,7 +76,13 @@ type InvoiceParams = Omit<Params, "doc_type">;
 
 export async function createDocument(params: Params) {
 	try {
-		const res = await axios({
+		logger.write({
+			severity: "INFO",
+			message: "createDocument",
+			params,
+		});
+
+		const res = await axios<EZResponse>({
 			method: "post",
 			maxBodyLength: Infinity,
 			url: `${params.url}/api/createDoc`, //todo handle api vs demo
@@ -78,11 +105,21 @@ export async function createDocument(params: Params) {
 				payment: params.payment,
 			},
 		});
-		console.log("res", res.status);
-		console.log(JSON.stringify(res.data));
+		logger.write({
+			severity: "INFO",
+			message: "createDocument result",
+			result: res,
+		});
+		if (!res.data.success) {
+			throw new Error(res.data.errMsg);
+		}
 		return { error: null, data: res.data };
 	} catch (error: any) {
-		console.error(error.message);
+		logger.write({
+			severity: "ALERT",
+			message: "createDocument error",
+			error: error,
+		});
 		return { error, data: null };
 	}
 }
@@ -158,6 +195,8 @@ export const ezCountService = {
 				doc_type: DOC_TYPE.TAX_INVOICE,
 				...params,
 			});
+
+			console.log("ezCountService.createInvoice", JSON.stringify(invoice));
 
 			return { error: null, data: invoice.data };
 		} catch (error: any) {

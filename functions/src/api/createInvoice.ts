@@ -2,15 +2,19 @@ import * as functionsV2 from "firebase-functions/v2";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import admin from "firebase-admin";
+import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 
 type TData = {
 	params: Parameters<typeof ezCountService.createInvoice>[0];
 	storeId: string;
+	orders: TOrder[];
 };
+
+// create invoice in HYP
 export const createInvoice = functionsV2.https.onCall<TData, void>(async (request) => {
-	const { data } = request;
-	const { params, storeId } = data;
-	console.log("createInvoice", request.auth?.uid);
+	const { data, auth } = request;
+	const { params, storeId, orders } = data;
+	console.log("createInvoice auth", request.auth);
 	console.log("create invoice data", JSON.stringify(data));
 
 	const storePrivateData: TStorePrivate = (
@@ -36,6 +40,33 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(async (reques
 		],
 		cc_emails: params.cc_emails,
 	});
+
+	if (!res.error) {
+		// batch update orders with invoice data
+		const batch = admin.firestore().batch();
+		orders.forEach((order) => {
+			batch.update(
+				admin
+					.firestore()
+					.collection(
+						FirebaseAPI.firestore.getPath({
+							collectionName: "orders",
+							companyId: auth?.token.companyId,
+							storeId: auth?.token.storeId ?? "",
+						})
+					)
+					.doc(order.id),
+				{
+					invoice: res.data,
+				}
+			);
+		});
+		await batch.commit();
+		return {
+			success: true,
+			data: res.data,
+		};
+	}
 
 	console.log("create invoice res", JSON.stringify(res));
 

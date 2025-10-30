@@ -88,10 +88,13 @@ export enum DOC_TYPE {
 	DEPOSIT_RELEASE = 9997, // קבלת פקדון (Deposit Release)
 }
 
-async function createInvoice(storeId: string, params: Params) {
+async function createInvoice(
+	storeId: string,
+	{ orders, params }: { orders: TOrder[]; params: Params }
+) {
 	try {
 		const func = httpsCallable(functions, "createInvoice");
-		const response = await func({ params, storeId });
+		const response = await func({ orders, params, storeId });
 		console.log("create invoice response", response);
 		return { success: true, data: response.data };
 	} catch (error: any) {

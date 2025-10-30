@@ -47,14 +47,14 @@ export default function AdminInvoicesPage() {
 
 	// Helper functions to get organization and billing account names
 	const getOrganizationName = (orgId: string) => {
-		const org = organizations.find(o => o.id === orgId);
-		return org?.name || 'לא ידוע';
+		const org = organizations.find((o) => o.id === orgId);
+		return org?.name || "לא ידוע";
 	};
 
 	const getBillingAccountName = (orgId: string, billingAccountNumber: string) => {
-		const org = organizations.find(o => o.id === orgId);
-		const account = org?.billingAccounts.find(acc => acc.number === billingAccountNumber);
-		return account ? `${account.name} (${account.number})` : 'לא נבחר';
+		const org = organizations.find((o) => o.id === orgId);
+		const account = org?.billingAccounts.find((acc) => acc.number === billingAccountNumber);
+		return account ? `${account.name} (${account.number})` : "לא נבחר";
 	};
 
 	// Computed values for selection
@@ -91,30 +91,37 @@ export default function AdminInvoicesPage() {
 		console.log("createInvoice", selectedOrders);
 
 		// map over selected orders
-		const selectedOrderData = Array.from(selectedOrders).map((orderId) =>
-			orders.find((order) => order.id === orderId)
+		const selectedOrderData: TOrder[] = Array.from(selectedOrders).map(
+			(orderId) => orders.find((order) => order.id === orderId)!
 		);
 		console.log("orders", selectedOrderData);
 		const res = await FirebaseApi.api.createInvoice(store.id, {
-			item: selectedOrderData.map((order) => ({
-				details: order?.deliveryNote?.doc_uuid ?? "",
-				price: order?.cart.cartTotal ?? 0,
-				amount: 1,
-				vat_type: VAT_TYPE.NON,
-			})),
-			transaction_id: crypto.randomUUID(),
-			customer_name: "philip",
-			customer_email: "philip@jsdev.ninja",
-			customer_address: "adasd",
-			customer_phone: "0534290455",
-			description: "חשבונית עבור הזמנות",
-			price_total: selectedOrderData.reduce(
-				(acc, order) => acc + (order?.cart.cartTotal ?? 0),
-				0
-			),
-			parent: selectedOrderData.map((order) => order?.deliveryNote?.doc_uuid).join(","),
+			orders: selectedOrderData,
+			params: {
+				item: selectedOrderData.map((order) => ({
+					details: `תעודת משלוח ${order?.deliveryNote?.doc_number ?? ""}`,
+					price: order?.cart.cartTotal ?? 0,
+					amount: 1,
+					vat_type: VAT_TYPE.NON,
+				})),
+				transaction_id: crypto.randomUUID(),
+				customer_name: "philip",
+				customer_email: "philip@jsdev.ninja",
+				customer_address: "adasd",
+				customer_phone: "0534290455",
+				description: "חשבונית עבור הזמנות",
+				price_total: selectedOrderData.reduce(
+					(acc, order) => acc + (order?.cart.cartTotal ?? 0),
+					0
+				),
+				parent: selectedOrderData.map((order) => order?.deliveryNote?.doc_uuid).join(","),
+			},
 		});
 		console.log("res", res);
+		if (res.success) {
+			// save invoice for in order
+		} else {
+		}
 	}
 
 	return (
@@ -226,10 +233,15 @@ export default function AdminInvoicesPage() {
 											{order.client.displayName}
 										</td>
 										<td className="px-6 py-4 text-sm text-gray-500">
-											{getOrganizationName(order.organizationId || '')}
+											{getOrganizationName(order.organizationId || "")}
 										</td>
 										<td className="px-6 py-4 text-sm text-gray-500">
-											{order.billingAccount ? getBillingAccountName(order.organizationId || '', order.billingAccount.number) : 'לא נבחר'}
+											{order.billingAccount
+												? getBillingAccountName(
+														order.organizationId || "",
+														order.billingAccount.number
+												  )
+												: "לא נבחר"}
 										</td>
 										<td className="px-6 py-4 text-sm font-medium text-gray-900">
 											₪{order.cart.cartTotal.toFixed(2)}
