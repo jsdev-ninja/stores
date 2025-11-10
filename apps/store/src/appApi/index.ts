@@ -384,6 +384,174 @@ export const useAppApi = () => {
 					],
 				});
 			},
+			findClientByEmail: async (email: string) => {
+				if (!isValidAdmin) return;
+
+				const trimmedEmail = email.trim().toLowerCase();
+				if (!trimmedEmail) {
+					return { success: false, data: null };
+				}
+
+				const result = await FirebaseApi.firestore.listV2<TProfile>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					}),
+					where: [
+						{
+							name: "storeId",
+							operator: "==",
+							value: store.id,
+						},
+					],
+				});
+
+				if (!result?.success || !result.data) {
+					return { success: false, data: null };
+				}
+
+				const match = result.data.find(
+					(client) => client.email?.trim().toLowerCase() === trimmedEmail
+				);
+
+				return { success: true, data: match ?? null };
+			},
+			listOrganizationClients: async (organizationId: string) => {
+				if (!isValidAdmin || !organizationId) return;
+
+				return FirebaseApi.firestore.listV2<TProfile>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					}),
+					where: [
+						{
+							name: "storeId",
+							operator: "==",
+							value: store.id,
+						},
+						{
+							name: "organizationId",
+							operator: "==",
+							value: organizationId,
+						},
+					],
+					sort: [{ name: "displayName", value: "asc" }],
+				});
+			},
+			createOrganizationClient: async (payload: {
+				displayName: string;
+				email: string;
+				clientType: TProfile["clientType"];
+				paymentType: TProfile["paymentType"];
+				phoneNumber?: string;
+				companyName?: string;
+				organizationId: string;
+			}) => {
+				if (!isValidAdmin || !tenantId) return;
+
+				const profilesPath = FirebaseAPI.firestore.getPath({
+					collectionName: "profiles",
+					companyId,
+					storeId,
+				});
+
+				const profileId = FirebaseApi.firestore.generateDocId(profilesPath);
+				const now = Date.now();
+
+				const newProfile: TProfile = {
+					id: profileId,
+					type: "Profile",
+					companyId,
+					storeId,
+					tenantId,
+					clientType: payload.clientType,
+					displayName: payload.displayName,
+					email: payload.email,
+					isAnonymous: false,
+					createdDate: now,
+					lastActivityDate: now,
+					paymentType: payload.paymentType,
+					phoneNumber: payload.phoneNumber,
+					companyName: payload.companyName,
+					address: undefined,
+					organizationId: payload.organizationId,
+				};
+
+				const result = await FirebaseApi.firestore.createV2<TProfile>({
+					collection: profilesPath,
+					doc: newProfile,
+				});
+
+				logger({
+					message: "create organization client",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					organizationId: payload.organizationId,
+					profileId,
+				});
+
+				return result;
+			},
+			assignClientToOrganization: async ({
+				clientId,
+				organizationId,
+			}: {
+				clientId: string;
+				organizationId: string;
+			}) => {
+				if (!isValidAdmin) return;
+
+				const result = await FirebaseApi.firestore.update<TProfile>(
+					clientId,
+					{
+						organizationId,
+						lastActivityDate: Date.now(),
+					},
+					FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					})
+				);
+
+				logger({
+					message: "assign client to organization",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					clientId,
+					organizationId,
+				});
+
+				return result;
+			},
+			removeClientFromOrganization: async (clientId: string) => {
+				if (!isValidAdmin) return;
+
+				const result = await FirebaseApi.firestore.setV2<Partial<TProfile>>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "profiles",
+						storeId,
+						companyId,
+					}),
+					doc: {
+						id: clientId,
+						organizationId: null as unknown as TProfile["organizationId"],
+						lastActivityDate: Date.now(),
+					},
+				});
+
+				logger({
+					message: "remove client from organization",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					clientId,
+				});
+
+				return result;
+			},
 			uploadLogo: async ({ logo }: { logo: File }) => {
 				if (!isValidAdmin) return;
 				try {

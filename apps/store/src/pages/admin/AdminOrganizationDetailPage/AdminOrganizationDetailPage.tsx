@@ -9,13 +9,38 @@ import {
 	ModalHeader,
 	ModalBody,
 	ModalFooter,
+	Select,
+	SelectItem,
 } from "@heroui/react";
 import { Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { useParams, navigate } from "src/navigation";
-import { TOrganization } from "@jsdev_ninja/core";
+import { TOrganization, TProfile } from "@jsdev_ninja/core";
+
+type ClientFormState = {
+	displayName: string;
+	email: string;
+	phoneNumber: string;
+	clientType: TProfile["clientType"];
+	paymentType: TProfile["paymentType"];
+	companyName: string;
+};
+
+type ClientFormErrors = {
+	displayName?: string;
+	email?: string;
+};
+
+const createEmptyClientForm = (): ClientFormState => ({
+	displayName: "",
+	email: "",
+	phoneNumber: "",
+	clientType: "user",
+	paymentType: "default",
+	companyName: "",
+});
 
 export function AdminOrganizationDetailPage() {
 	const { t } = useTranslation(["common", "admin"]);
@@ -23,6 +48,22 @@ export function AdminOrganizationDetailPage() {
 	const [organization, setOrganization] = useState<TOrganization | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [organizationClients, setOrganizationClients] = useState<TProfile[]>([]);
+	const [clientsLoading, setClientsLoading] = useState(true);
+	const [clientsError, setClientsError] = useState<string | null>(null);
+	const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+	const [isEditClientModalOpen, setIsEditClientModalOpen] = useState(false);
+	const [editingClient, setEditingClient] = useState<TProfile | null>(null);
+	const [clientFormData, setClientFormData] = useState<ClientFormState>(createEmptyClientForm);
+	const [clientFormErrors, setClientFormErrors] = useState<ClientFormErrors>({});
+	const [clientSearchEmail, setClientSearchEmail] = useState("");
+	const [clientSearchResult, setClientSearchResult] = useState<TProfile | null>(null);
+	const [clientSearchExistingOrg, setClientSearchExistingOrg] = useState<TOrganization | null>(
+		null
+	);
+	const [clientSearchError, setClientSearchError] = useState<string | null>(null);
+	const [isSearchingClient, setIsSearchingClient] = useState(false);
+	const [isSubmittingClient, setIsSubmittingClient] = useState(false);
 	const [isAddBillingModalOpen, setIsAddBillingModalOpen] = useState(false);
 	const [isEditBillingModalOpen, setIsEditBillingModalOpen] = useState(false);
 	const [editingBillingAccount, setEditingBillingAccount] = useState<{
@@ -46,6 +87,7 @@ export function AdminOrganizationDetailPage() {
 		if (id) {
 			loadOrganization(id);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
 
 	const loadOrganization = async (organizationId: string) => {
@@ -58,6 +100,7 @@ export function AdminOrganizationDetailPage() {
 				const org = result.data.find((o) => o.id === organizationId);
 				if (org) {
 					setOrganization(org as TOrganization);
+					await loadOrganizationClients(org.id);
 				} else {
 					setError(t("admin:organizationsPage.organizationNotFound"));
 				}
@@ -71,6 +114,294 @@ export function AdminOrganizationDetailPage() {
 			setLoading(false);
 		}
 	};
+
+	const loadOrganizationClients = async (organizationId: string) => {
+		setClientsLoading(true);
+		setClientsError(null);
+		try {
+			const result = await appApi.admin.listOrganizationClients(organizationId);
+			if (result?.success) {
+				setOrganizationClients((result.data || []) as TProfile[]);
+			} else {
+				setClientsError(t("admin:organizationsPage.failedToLoadUsers"));
+				setOrganizationClients([]);
+			}
+		} catch (error) {
+			console.error("Failed to load organization clients:", error);
+			setClientsError(t("admin:organizationsPage.failedToLoadUsers"));
+			setOrganizationClients([]);
+		} finally {
+			setClientsLoading(false);
+		}
+	};
+
+	const resetClientSearch = () => {
+		setClientSearchEmail("");
+		setClientSearchResult(null);
+		setClientSearchExistingOrg(null);
+		setClientSearchError(null);
+		setIsSearchingClient(false);
+	};
+
+	const resetClientForm = () => {
+		setClientFormData(createEmptyClientForm());
+		setClientFormErrors({});
+	};
+
+	const handleClientFormChange = <K extends keyof ClientFormState>(
+		field: K,
+		value: ClientFormState[K]
+	) => {
+		setClientFormData((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+	};
+
+	const validateClientForm = () => {
+		const errors: ClientFormErrors = {};
+
+		if (!clientFormData.displayName.trim()) {
+			errors.displayName = t("admin:organizationsPage.errors.displayNameRequired");
+		}
+
+		if (!clientFormData.email.trim()) {
+			errors.email = t("admin:organizationsPage.errors.emailRequired");
+		}
+
+		setClientFormErrors(errors);
+		return Object.keys(errors).length === 0;
+	};
+
+	const handleOpenAddClientModal = () => {
+		resetClientSearch();
+		setIsAddClientModalOpen(true);
+	};
+
+	const handleSearchClient = async () => {
+		setClientSearchError(null);
+		setClientSearchResult(null);
+		setClientSearchExistingOrg(null);
+
+		const email = clientSearchEmail.trim();
+		if (!email) {
+			setClientSearchError(t("admin:organizationsPage.errors.emailRequired"));
+			return;
+		}
+
+		try {
+			setIsSearchingClient(true);
+			const result = await appApi.admin.findClientByEmail(email);
+			if (result?.success && result.data) {
+				const profile = result.data as TProfile;
+				setClientSearchResult(profile);
+
+				if (profile.organizationId) {
+					if (profile.organizationId === organization?.id) {
+						setClientSearchExistingOrg(organization);
+					} else {
+						const orgList = await appApi.admin.listOrganizations();
+						if (orgList?.success && orgList.data) {
+							const matchedOrg = orgList.data.find(
+								(org) => org.id === profile.organizationId
+							);
+							if (matchedOrg) {
+								setClientSearchExistingOrg(matchedOrg as TOrganization);
+							}
+						}
+					}
+				}
+			} else {
+				setClientSearchError(t("admin:organizationsPage.clientNotFound"));
+			}
+		} catch (error) {
+			console.error("Failed to search client by email:", error);
+			setClientSearchError(t("admin:organizationsPage.failedToLoadUsers"));
+		} finally {
+			setIsSearchingClient(false);
+		}
+	};
+
+	const handleAddClient = async () => {
+		if (!organization || !clientSearchResult || clientSearchExistingOrg) return;
+
+		try {
+			setIsSubmittingClient(true);
+			const result = await appApi.admin.assignClientToOrganization({
+				clientId: clientSearchResult.id,
+				organizationId: organization.id,
+			});
+
+			if (result?.success) {
+				setIsAddClientModalOpen(false);
+				resetClientSearch();
+				await loadOrganizationClients(organization.id);
+			}
+		} catch (error) {
+			console.error("Failed to assign client to organization:", error);
+			setClientSearchError(t("admin:organizationsPage.failedToAssignClient"));
+		} finally {
+			setIsSubmittingClient(false);
+		}
+	};
+
+	const openEditClientModal = (client: TProfile) => {
+		setEditingClient(client);
+		setClientFormErrors({});
+		setClientFormData({
+			displayName: client.displayName || "",
+			email: client.email || "",
+			phoneNumber: client.phoneNumber || "",
+			clientType: client.clientType,
+			paymentType: client.paymentType,
+			companyName: client.companyName || "",
+		});
+		setIsEditClientModalOpen(true);
+	};
+
+	const handleEditClient = async () => {
+		if (!organization || !editingClient) return;
+		if (!validateClientForm()) return;
+
+		try {
+			setIsSubmittingClient(true);
+
+			const updatedClient: TProfile = {
+				...editingClient,
+				displayName: clientFormData.displayName.trim(),
+				email: clientFormData.email.trim(),
+				phoneNumber: clientFormData.phoneNumber ? clientFormData.phoneNumber.trim() : undefined,
+				clientType: clientFormData.clientType,
+				paymentType: clientFormData.paymentType,
+				companyName: clientFormData.companyName ? clientFormData.companyName.trim() : undefined,
+				lastActivityDate: Date.now(),
+				organizationId: organization.id,
+			};
+
+			const result = await appApi.admin.updateClient(updatedClient);
+			if (result?.success) {
+				setIsEditClientModalOpen(false);
+				setEditingClient(null);
+				resetClientForm();
+				await loadOrganizationClients(organization.id);
+			}
+		} catch (error) {
+			console.error("Failed to update organization client:", error);
+		} finally {
+			setIsSubmittingClient(false);
+		}
+	};
+
+	const handleRemoveClient = async (client: TProfile) => {
+		if (!organization) return;
+
+		if (
+			!window.confirm(
+				t("admin:organizationsPage.confirmRemoveOrganizationUser", {
+					name: client.displayName,
+				})
+			)
+		) {
+			return;
+		}
+
+		try {
+			const result = await appApi.admin.removeClientFromOrganization(client.id);
+			if (result?.success) {
+				await loadOrganizationClients(organization.id);
+			}
+		} catch (error) {
+			console.error("Failed to remove client from organization:", error);
+		}
+	};
+
+	const renderClientDetailsForm = () => (
+		<>
+			<Input
+				label={t("common:name")}
+				placeholder={t("admin:organizationsPage.clientNamePlaceholder")}
+				value={clientFormData.displayName}
+				onChange={(event) => handleClientFormChange("displayName", event.target.value)}
+				isRequired
+				isInvalid={!!clientFormErrors.displayName}
+				errorMessage={clientFormErrors.displayName}
+				classNames={{
+					input: "text-start",
+					label: "text-start",
+				}}
+			/>
+			<Input
+				label={t("common:email")}
+				type="email"
+				placeholder={t("admin:organizationsPage.clientEmailPlaceholder")}
+				value={clientFormData.email}
+				onChange={(event) => handleClientFormChange("email", event.target.value)}
+				isRequired
+				isInvalid={!!clientFormErrors.email}
+				errorMessage={clientFormErrors.email}
+				classNames={{
+					input: "text-start",
+					label: "text-start",
+				}}
+			/>
+			<Input
+				label={t("common:phone")}
+				placeholder={t("admin:organizationsPage.clientPhonePlaceholder")}
+				value={clientFormData.phoneNumber}
+				onChange={(event) => handleClientFormChange("phoneNumber", event.target.value)}
+				classNames={{
+					input: "text-start",
+					label: "text-start",
+				}}
+			/>
+			<Select
+				label={t("common:clientType")}
+				selectedKeys={[clientFormData.clientType]}
+				onChange={(event) =>
+					handleClientFormChange(
+						"clientType",
+						event.target.value as ClientFormState["clientType"]
+					)
+				}
+				isRequired
+				classNames={{
+					label: "text-start",
+				}}
+			>
+				<SelectItem key="user">{t("common:clientTypes.user")}</SelectItem>
+				<SelectItem key="company">{t("common:clientTypes.company")}</SelectItem>
+			</Select>
+			{clientFormData.clientType === "company" && (
+				<Input
+					label={t("common:companyName")}
+					placeholder={t("admin:organizationsPage.clientCompanyNamePlaceholder")}
+					value={clientFormData.companyName}
+					onChange={(event) => handleClientFormChange("companyName", event.target.value)}
+					classNames={{
+						input: "text-start",
+						label: "text-start",
+					}}
+				/>
+			)}
+			<Select
+				label={t("common:paymentType")}
+				selectedKeys={[clientFormData.paymentType]}
+				onChange={(event) =>
+					handleClientFormChange(
+						"paymentType",
+						event.target.value as ClientFormState["paymentType"]
+					)
+				}
+				isRequired
+				classNames={{
+					label: "text-start",
+				}}
+			>
+				<SelectItem key="default">{t("common:paymentTypes.default")}</SelectItem>
+				<SelectItem key="delayed">{t("common:paymentTypes.delayed")}</SelectItem>
+			</Select>
+		</>
+	);
 
 	const handleAddBillingAccount = async () => {
 		if (!organization) return;
@@ -276,6 +607,81 @@ export function AdminOrganizationDetailPage() {
 				</Card>
 			</div>
 
+			{/* Organization Clients Section */}
+			<div className="mt-6">
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between">
+						<h2 className="text-lg font-semibold text-start">
+							{t("admin:organizationsPage.organizationUsers")}
+						</h2>
+						<Button
+							color="primary"
+							size="sm"
+							onPress={handleOpenAddClientModal}
+							startContent={<Icon icon="lucide:plus" />}
+						>
+							{t("admin:organizationsPage.addOrganizationUser")}
+						</Button>
+					</CardHeader>
+					<CardBody>
+						{clientsLoading ? (
+							<div className="text-center py-8 text-gray-500">
+								<div className="text-start">{t("common:loading")}</div>
+							</div>
+						) : clientsError ? (
+							<div className="text-sm text-red-500 text-start">{clientsError}</div>
+						) : organizationClients.length > 0 ? (
+							<div className="space-y-4">
+								{organizationClients.map((client) => (
+									<div
+										key={client.id}
+										className="flex items-center justify-between p-4 border rounded-lg"
+									>
+										<div className="flex-1">
+											<div className="font-medium text-start">{client.displayName}</div>
+											<div className="text-sm text-gray-500 text-start">
+												{client.email}
+											</div>
+											<div className="text-xs text-gray-400 text-start mt-1">
+												{t("common:clientType")}:{" "}
+												{t(`common:clientTypes.${client.clientType}`)} •{" "}
+												{t("common:paymentType")}:{" "}
+												{t(`common:paymentTypes.${client.paymentType}`)}
+											</div>
+										</div>
+										<div className="flex gap-2">
+											<Button
+												size="sm"
+												variant="light"
+												onPress={() => openEditClientModal(client)}
+												startContent={<Icon icon="lucide:edit" />}
+											>
+												{t("common:edit")}
+											</Button>
+											<Button
+												size="sm"
+												color="danger"
+												variant="light"
+												onPress={() => handleRemoveClient(client)}
+												startContent={<Icon icon="lucide:trash" />}
+											>
+												{t("common:delete")}
+											</Button>
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<div className="text-center py-8 text-gray-500">
+								<div className="text-start">
+									{t("admin:organizationsPage.noOrganizationUsers")}
+								</div>
+							</div>
+						)}
+					</CardBody>
+				</Card>
+			</div>
+
 			{/* Billing Accounts Section */}
 			<div className="mt-6">
 				<Card>
@@ -338,6 +744,173 @@ export function AdminOrganizationDetailPage() {
 					</CardBody>
 				</Card>
 			</div>
+
+			{/* Add Organization Client Modal */}
+			<Modal
+				isOpen={isAddClientModalOpen}
+				onOpenChange={(open) => {
+					setIsAddClientModalOpen(open);
+					if (!open) {
+						resetClientSearch();
+						setIsSubmittingClient(false);
+					}
+				}}
+				size="md"
+			>
+				<ModalContent>
+					{(onClose) => (
+						<>
+							<ModalHeader className="flex flex-col gap-1">
+								<div className="text-start">
+									{t("admin:organizationsPage.addOrganizationUser")}
+								</div>
+							</ModalHeader>
+							<ModalBody>
+								<div className="space-y-4">
+									<Input
+										label={t("admin:organizationsPage.enterClientEmail")}
+										placeholder={t("admin:organizationsPage.clientEmailPlaceholder")}
+										value={clientSearchEmail}
+										onChange={(event) => setClientSearchEmail(event.target.value)}
+										classNames={{
+											input: "text-start",
+											label: "text-start",
+										}}
+									/>
+									<Button
+										color="primary"
+										onPress={handleSearchClient}
+										isLoading={isSearchingClient}
+										isDisabled={isSubmittingClient}
+										startContent={<Icon icon="lucide:search" />}
+									>
+										{t("admin:organizationsPage.searchClient")}
+									</Button>
+									{clientSearchError && (
+										<div className="text-start text-red-500 text-sm">
+											{clientSearchError}
+										</div>
+									)}
+									{clientSearchResult && (
+										<div className="border rounded-lg p-4 space-y-1 text-start bg-gray-50">
+											<div className="text-sm font-medium">
+												{clientSearchResult.displayName}
+											</div>
+											<div className="text-sm text-gray-600">
+												{clientSearchResult.email}
+											</div>
+											<div className="text-xs text-gray-500">
+												{t("common:clientType")}:{" "}
+												{t(`common:clientTypes.${clientSearchResult.clientType}`)}
+											</div>
+											<div className="text-xs text-gray-500">
+												{t("common:paymentType")}:{" "}
+												{t(`common:paymentTypes.${clientSearchResult.paymentType}`)}
+											</div>
+											{clientSearchExistingOrg && (
+												<div className="mt-3 rounded-md border border-warning-300 bg-warning-50 p-3 text-xs text-warning-600">
+													<div className="font-medium">
+														{clientSearchExistingOrg.id === organization.id
+															? t(
+																	"admin:organizationsPage.alreadyInThisOrganization"
+															  )
+															: t("admin:organizationsPage.alreadyInOrganization", {
+																	name: clientSearchExistingOrg.name,
+															  })}
+													</div>
+													{clientSearchExistingOrg.id !== organization.id && (
+														<div className="mt-1 text-warning-500">
+															{t(
+																"admin:organizationsPage.alreadyInOrganizationDescription",
+																{
+																	name: clientSearchExistingOrg.name,
+																}
+															)}
+														</div>
+													)}
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									color="danger"
+									variant="light"
+									onPress={() => {
+										resetClientSearch();
+										setIsAddClientModalOpen(false);
+										onClose();
+									}}
+								>
+									{t("common:cancel")}
+								</Button>
+								<Button
+									color="primary"
+									onPress={handleAddClient}
+									isLoading={isSubmittingClient}
+									isDisabled={
+										!clientSearchResult || isSearchingClient || !!clientSearchExistingOrg
+									}
+								>
+									{t("admin:organizationsPage.assignExistingClient")}
+								</Button>
+							</ModalFooter>
+						</>
+					)}
+				</ModalContent>
+			</Modal>
+
+			{/* Edit Organization Client Modal */}
+			<Modal
+				isOpen={isEditClientModalOpen}
+				onOpenChange={(open) => {
+					setIsEditClientModalOpen(open);
+					if (!open) {
+						setEditingClient(null);
+						resetClientForm();
+						setIsSubmittingClient(false);
+					}
+				}}
+				size="md"
+			>
+				<ModalContent>
+					{(onClose) => (
+						<>
+							<ModalHeader className="flex flex-col gap-1">
+								<div className="text-start">
+									{t("admin:organizationsPage.editOrganizationUser")}
+								</div>
+							</ModalHeader>
+							<ModalBody>
+								<div className="space-y-3">{renderClientDetailsForm()}</div>
+							</ModalBody>
+							<ModalFooter>
+								<Button
+									color="danger"
+									variant="light"
+									onPress={() => {
+										setIsEditClientModalOpen(false);
+										setEditingClient(null);
+										resetClientForm();
+										onClose();
+									}}
+								>
+									{t("common:cancel")}
+								</Button>
+								<Button
+									color="primary"
+									onPress={handleEditClient}
+									isLoading={isSubmittingClient}
+								>
+									{t("common:update")}
+								</Button>
+							</ModalFooter>
+						</>
+					)}
+				</ModalContent>
+			</Modal>
 
 			{/* Add Billing Account Modal */}
 			<Modal isOpen={isAddBillingModalOpen} onOpenChange={setIsAddBillingModalOpen} size="md">
