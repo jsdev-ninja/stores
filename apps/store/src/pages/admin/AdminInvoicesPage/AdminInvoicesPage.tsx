@@ -120,7 +120,6 @@ export default function AdminInvoicesPage() {
 		console.log("res", res);
 		if (res.success) {
 			// save invoice for in order
-		} else {
 		}
 	}
 
@@ -184,6 +183,12 @@ export default function AdminInvoicesPage() {
 										/>
 									</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+										מספר חשבונית
+									</th>
+									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+										מספר תעודת משלוח
+									</th>
+									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
 										הזמנה
 									</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -222,6 +227,14 @@ export default function AdminInvoicesPage() {
 												}
 												aria-label={`בחר הזמנה ${order.id.slice(-8)}`}
 											/>
+										</td>
+										{/* Invoice Number */}
+										<td className="px-6 py-4 text-sm text-gray-500">
+											{order.invoice?.doc_number ? order.invoice.doc_number : "-"}
+										</td>
+										{/* Delivery Note Number */}
+										<td className="px-6 py-4 text-sm text-gray-500">
+											{order.deliveryNote?.doc_number ? order.deliveryNote.doc_number : "-"}
 										</td>
 										<td className="px-6 py-4 text-sm font-medium text-gray-900">
 											#{order.id.slice(-8)}
