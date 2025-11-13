@@ -14,14 +14,18 @@ type TData = {
 export const createInvoice = functionsV2.https.onCall<TData, void>(async (request) => {
 	const { data, auth } = request;
 	const { params, storeId, orders } = data;
-	console.log("createInvoice auth", request.auth);
-	console.log("create invoice data", JSON.stringify(data));
+
+	functionsV2.logger.write({
+		severity: "INFO",
+		message: "createInvoice",
+		params,
+		storeId,
+		orders,
+	});
 
 	const storePrivateData: TStorePrivate = (
 		await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
 	).data() as TStorePrivate;
-
-	console.log("storePrivateData", JSON.stringify(storePrivateData));
 
 	const res = await ezCountService.createInvoice({
 		api_key: storePrivateData.ezcount_key,

@@ -27,7 +27,7 @@ export function InvoiceDetailsModal({
 	const appApi = useAppApi();
 	const { store } = useApiState();
 	const [formData, setFormData] = useState<InvoiceDetailsForm>({
-		invoiceDate: new Date().toLocaleDateString("he-IL"),
+		invoiceDate: new Date().toISOString().split("T")[0],
 		customerName: "",
 		customerAddress: "",
 	});
@@ -97,6 +97,7 @@ export function InvoiceDetailsModal({
 
 		setIsSubmitting(true);
 		try {
+			console.log("formData", formData);
 			const res = await FirebaseApi.api.createInvoice(store.id, {
 				orders: selectedOrders,
 				params: {
@@ -111,13 +112,13 @@ export function InvoiceDetailsModal({
 					customer_email: selectedOrders[0]?.client?.email || "",
 					customer_address: formData.customerAddress,
 					customer_phone: selectedOrders[0]?.client?.phoneNumber || "",
-					description: "חשבונית עבור הזמנות",
+					description: "חשבונית מרוכזת",
 					price_total: selectedOrders.reduce(
 						(acc, order) => acc + (order?.cart.cartTotal ?? 0),
 						0
 					),
 					parent: selectedOrders.map((order) => order?.deliveryNote?.doc_uuid).join(","),
-					date: formData.invoiceDate,
+					date: new Date(formData.invoiceDate).toLocaleDateString(),
 				},
 			});
 

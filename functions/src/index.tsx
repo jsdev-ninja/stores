@@ -127,7 +127,7 @@ export const onOrderUpdate = functions.firestore
 				clientName: after?.nameOnInvoice || displayName,
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
-				date: date.toLocaleDateString("he-IL"),
+				date: date.toLocaleDateString(),
 			});
 
 			// update order with delivery note
