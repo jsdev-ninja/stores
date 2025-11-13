@@ -8,7 +8,8 @@ import { useAppSelector } from "src/infra";
 import { AdminCompanyCreateModal } from "./modals/AdminCompanyCreateModal";
 import { ProfileEditModal } from "./ProfileEditModal";
 import { CreateInvoiceModal } from "./CreateInvoiceModal";
-import { TProfile } from "@jsdev_ninja/core";
+import { InvoiceDetailsModal } from "./InvoiceDetailsModal";
+import { TProfile, TOrder } from "@jsdev_ninja/core";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
 	return <AnimatePresence>{children}</AnimatePresence>;
@@ -22,6 +23,9 @@ export const modals = {
 		<CategoryFormModal categoryId={categoryId} onSave={onSave} />
 	),
 	createInvoice: ({ onOrdersFound }: { onOrdersFound?: (orders: any[]) => void }) => <CreateInvoiceModal onOrdersFound={onOrdersFound} />,
+	invoiceDetails: ({ selectedOrders, onInvoiceCreated }: { selectedOrders: TOrder[]; onInvoiceCreated?: () => void }) => (
+		<InvoiceDetailsModal selectedOrders={selectedOrders} onInvoiceCreated={onInvoiceCreated} />
+	),
 };
 
 export function ModalProvider() {

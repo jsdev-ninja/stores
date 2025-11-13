@@ -485,6 +485,21 @@ export const resources = {
 					selectExistingClient: "בחר לקוח מהרשימה",
 				},
 			},
+			invoiceDetails: {
+				title: "פרטי חשבונית",
+				description: "הזן פרטי חשבונית עבור {{count}} הזמנות שנבחרו",
+				invoiceDate: "תאריך חשבונית",
+				customerName: "שם בחשבונית",
+				customerNamePlaceholder: "הכנס שם לחשבונית",
+				customerAddress: "כתובת",
+				customerAddressPlaceholder: "הכנס כתובת",
+				createInvoice: "צור חשבונית",
+				errors: {
+					dateRequired: "תאריך חשבונית נדרש",
+					nameRequired: "שם בחשבונית נדרש",
+					addressRequired: "כתובת נדרשת",
+				},
+			},
 			productsPage: {
 				addProduct: "הוסף מוצר",
 			},

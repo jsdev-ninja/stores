@@ -5,9 +5,6 @@ import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
 import { TOrder, TOrganization } from "@jsdev_ninja/core";
 import { Checkbox } from "@heroui/react";
-import { FirebaseApi } from "src/lib/firebase";
-import { VAT_TYPE } from "src/lib/firebase/api";
-import { useApiState } from "src/appApi/useApiState";
 import { useAppApi } from "src/appApi";
 
 export default function AdminInvoicesPage() {
@@ -17,7 +14,6 @@ export default function AdminInvoicesPage() {
 	const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
 	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
 
-	const { store } = useApiState();
 	const appApi = useAppApi();
 
 	const handleOrdersFound = (foundOrders: TOrder[]) => {
@@ -85,43 +81,22 @@ export default function AdminInvoicesPage() {
 		setSelectedOrders(newSelected);
 	};
 
-	async function createInvoice() {
-		if (!store) return;
+	const handleOpenInvoiceDetailsModal = () => {
+		if (selectedOrders.size === 0) return;
 
-		console.log("createInvoice", selectedOrders);
-
-		// map over selected orders
 		const selectedOrderData: TOrder[] = Array.from(selectedOrders).map(
 			(orderId) => orders.find((order) => order.id === orderId)!
 		);
-		console.log("orders", selectedOrderData);
-		const res = await FirebaseApi.api.createInvoice(store.id, {
-			orders: selectedOrderData,
-			params: {
-				item: selectedOrderData.map((order) => ({
-					details: `תעודת משלוח ${order?.deliveryNote?.doc_number ?? ""}`,
-					price: order?.cart.cartTotal ?? 0,
-					amount: 1,
-					vat_type: VAT_TYPE.NON,
-				})),
-				transaction_id: crypto.randomUUID(),
-				customer_name: "philip",
-				customer_email: "philip@jsdev.ninja",
-				customer_address: "adasd",
-				customer_phone: "0534290455",
-				description: "חשבונית עבור הזמנות",
-				price_total: selectedOrderData.reduce(
-					(acc, order) => acc + (order?.cart.cartTotal ?? 0),
-					0
-				),
-				parent: selectedOrderData.map((order) => order?.deliveryNote?.doc_uuid).join(","),
+
+		modalApi.openModal("invoiceDetails", {
+			selectedOrders: selectedOrderData,
+			onInvoiceCreated: () => {
+				// Clear selection after invoice is created
+				setSelectedOrders(new Set());
+				// Optionally reload orders or show success message
 			},
 		});
-		console.log("res", res);
-		if (res.success) {
-			// save invoice for in order
-		}
-	}
+	};
 
 	return (
 		<div className="p-6">
@@ -300,7 +275,7 @@ export default function AdminInvoicesPage() {
 									<Button
 										size="sm"
 										color="primary"
-										onPress={createInvoice}
+										onPress={handleOpenInvoiceDetailsModal}
 										startContent={<Icon icon="lucide:file-text" />}
 									>
 										צור חשבונית
