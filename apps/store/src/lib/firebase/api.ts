@@ -70,6 +70,7 @@ export type Params = {
 		vat_type: VAT_TYPE;
 	}[];
 	price_total?: number;
+	date?: string; // (DD/MM/YYYY)
 };
 
 export enum DOC_TYPE {

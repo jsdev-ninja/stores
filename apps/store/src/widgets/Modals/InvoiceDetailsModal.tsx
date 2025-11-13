@@ -4,7 +4,7 @@ import { Input } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
-import { TOrder, TOrganization } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder, TOrganization } from "@jsdev_ninja/core";
 import { useAppApi } from "src/appApi";
 import { useApiState } from "src/appApi/useApiState";
 import { FirebaseApi } from "src/lib/firebase";
@@ -27,7 +27,7 @@ export function InvoiceDetailsModal({
 	const appApi = useAppApi();
 	const { store } = useApiState();
 	const [formData, setFormData] = useState<InvoiceDetailsForm>({
-		invoiceDate: new Date().toISOString().split("T")[0],
+		invoiceDate: new Date().toLocaleDateString("he-IL"),
 		customerName: "",
 		customerAddress: "",
 	});
@@ -117,11 +117,32 @@ export function InvoiceDetailsModal({
 						0
 					),
 					parent: selectedOrders.map((order) => order?.deliveryNote?.doc_uuid).join(","),
+					date: formData.invoiceDate,
 				},
 			});
 
 			if (res.success) {
 				onInvoiceCreated?.();
+				// update orders with invoice data
+				// TODO: should be handle in backend
+				await Promise.all(
+					selectedOrders.map(async (order) => {
+						await FirebaseApi.firestore.setV2<{ id: string; doc: TOrder }>({
+							collection: FirebaseAPI.firestore.getPath({
+								companyId: store.companyId,
+								storeId: store.id,
+								collectionName: "orders",
+							}),
+							doc: {
+								id: order.id,
+								invoice: {
+									...(res.data as any),
+									date: new Date(formData.invoiceDate).getTime(),
+								},
+							} as any,
+						});
+					})
+				);
 				modalApi.closeModal("invoiceDetails");
 			}
 		} catch (error) {
@@ -219,4 +240,3 @@ export function InvoiceDetailsModal({
 		</Modal>
 	);
 }
-

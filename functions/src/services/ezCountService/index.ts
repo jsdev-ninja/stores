@@ -70,6 +70,7 @@ type Params = {
 	}[];
 	price_total?: number;
 	payment?: [{ payment_type: number; payment_sum: number; other_payment_type_name?: string }];
+	date?: string; // (DD/MM/YYYY)
 };
 
 type InvoiceParams = Omit<Params, "doc_type">;
@@ -103,6 +104,7 @@ export async function createDocument(params: Params) {
 				parent: params.parent,
 				price_total: params.price_total,
 				payment: params.payment,
+				date: params.date,
 			},
 		});
 		logger.write({
@@ -131,7 +133,14 @@ export const ezCountService = {
 			ezcount_api,
 			clientEmail,
 			clientName,
-		}: { ezcount_key: string; clientName: string; clientEmail: string; ezcount_api: string }
+			date,
+		}: {
+			ezcount_key: string;
+			clientName: string;
+			clientEmail: string;
+			ezcount_api: string;
+			date: string;
+		}
 	) {
 		try {
 			console.log("createDeliveryNote", clientEmail, clientName);

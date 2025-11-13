@@ -120,11 +120,14 @@ export const onOrderUpdate = functions.firestore
 			// create delivery note (when ready to delivery only)
 			console.log("createDeliveryNote", email, displayName);
 
+			const date = new Date();
+
 			const res = await ezCountService.createDeliveryNote(after, {
 				ezcount_key: storePrivateData.ezcount_key,
 				clientName: after?.nameOnInvoice || displayName,
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
+				date: date.toLocaleDateString("he-IL"),
 			});
 
 			// update order with delivery note
@@ -135,7 +138,7 @@ export const onOrderUpdate = functions.firestore
 				)
 				.doc(id)
 				.update({
-					deliveryNote: res.data,
+					deliveryNote: { ...res.data, date: date.getTime() },
 				});
 		}
 
