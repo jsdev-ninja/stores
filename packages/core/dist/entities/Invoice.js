@@ -11,6 +11,7 @@ export const InvoiceSchema = z.object({
     ua_uuid: z.string().uuid("UA UUID must be a valid UUID"),
     calculatedData: CalculatedDataSchema,
     warning: z.string().optional(),
+    date: z.number().optional(),
 });
 // Validation functions
 export function isInvoice(data) {

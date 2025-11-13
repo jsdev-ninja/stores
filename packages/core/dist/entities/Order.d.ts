@@ -789,7 +789,7 @@ export declare const OrderSchema: z.ZodObject<{
         createdDate: z.ZodNumber;
         lastActivityDate: z.ZodNumber;
         paymentType: z.ZodEnum<["default", "delayed"]>;
-        organizationId: z.ZodOptional<z.ZodString>;
+        organizationId: z.ZodNullable<z.ZodOptional<z.ZodString>>;
     }, "strip", z.ZodTypeAny, {
         type: "Profile";
         id: string;
@@ -814,7 +814,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
-        organizationId?: string | undefined;
+        organizationId?: string | null | undefined;
     }, {
         type: "Profile";
         id: string;
@@ -839,7 +839,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
-        organizationId?: string | undefined;
+        organizationId?: string | null | undefined;
     }>;
     nameOnInvoice: z.ZodOptional<z.ZodString>;
     clientComment: z.ZodOptional<z.ZodString>;
@@ -889,6 +889,7 @@ export declare const OrderSchema: z.ZodObject<{
             _COMMENT?: string | undefined;
         }>;
         warning: z.ZodOptional<z.ZodString>;
+        date: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
         doc_uuid: string;
         pdf_link: string;
@@ -910,6 +911,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     }, {
         doc_uuid: string;
@@ -932,6 +934,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     }>>;
     invoice: z.ZodOptional<z.ZodObject<{
@@ -980,6 +983,7 @@ export declare const OrderSchema: z.ZodObject<{
             _COMMENT?: string | undefined;
         }>;
         warning: z.ZodOptional<z.ZodString>;
+        date: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
         doc_uuid: string;
         pdf_link: string;
@@ -1001,6 +1005,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     }, {
         doc_uuid: string;
@@ -1023,6 +1028,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     }>>;
     organizationId: z.ZodOptional<z.ZodString>;
@@ -1173,7 +1179,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
-        organizationId?: string | undefined;
+        organizationId?: string | null | undefined;
     };
     organizationId?: string | undefined;
     nameOnInvoice?: string | undefined;
@@ -1201,6 +1207,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     } | undefined;
     invoice?: {
@@ -1224,6 +1231,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     } | undefined;
     billingAccount?: {
@@ -1365,7 +1373,7 @@ export declare const OrderSchema: z.ZodObject<{
             apartmentEnterNumber: string;
             apartmentNumber: string;
         } | undefined;
-        organizationId?: string | undefined;
+        organizationId?: string | null | undefined;
     };
     organizationId?: string | undefined;
     nameOnInvoice?: string | undefined;
@@ -1393,6 +1401,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     } | undefined;
     invoice?: {
@@ -1416,6 +1425,7 @@ export declare const OrderSchema: z.ZodObject<{
             price_total_in_currency: number;
             _COMMENT?: string | undefined;
         };
+        date?: number | undefined;
         warning?: string | undefined;
     } | undefined;
     billingAccount?: {

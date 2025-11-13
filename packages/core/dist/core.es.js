@@ -3098,7 +3098,7 @@ const ne = i.object({
   createdDate: i.number(),
   lastActivityDate: i.number(),
   paymentType: Ke,
-  organizationId: i.string().optional()
+  organizationId: i.string().optional().nullable()
 });
 function Fn() {
   return {
@@ -3147,7 +3147,8 @@ const Pe = i.object({
   success: i.boolean(),
   ua_uuid: i.string().uuid("UA UUID must be a valid UUID"),
   calculatedData: Pe,
-  warning: i.string().optional()
+  warning: i.string().optional(),
+  date: i.number().optional()
 });
 function Un(n) {
   return et.safeParse(n).success;
@@ -3174,7 +3175,8 @@ const tt = i.object({
   success: i.boolean(),
   ua_uuid: i.string().uuid("UA UUID must be a valid UUID"),
   calculatedData: Pe,
-  warning: i.string().optional()
+  warning: i.string().optional(),
+  date: i.number().optional()
 }), Bn = i.object({
   type: i.literal("Order"),
   id: M,

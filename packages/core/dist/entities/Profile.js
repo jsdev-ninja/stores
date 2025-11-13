@@ -20,7 +20,7 @@ export const ProfileSchema = z.object({
     createdDate: z.number(),
     lastActivityDate: z.number(),
     paymentType: ProfilePaymentTypeSchema,
-    organizationId: z.string().optional(),
+    organizationId: z.string().optional().nullable(),
 });
 export function createEmptyProfile() {
     return {

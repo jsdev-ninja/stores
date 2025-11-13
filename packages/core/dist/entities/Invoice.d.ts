@@ -45,6 +45,7 @@ export declare const InvoiceSchema: z.ZodObject<{
         _COMMENT?: string | undefined;
     }>;
     warning: z.ZodOptional<z.ZodString>;
+    date: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     doc_uuid: string;
     pdf_link: string;
@@ -66,6 +67,7 @@ export declare const InvoiceSchema: z.ZodObject<{
         price_total_in_currency: number;
         _COMMENT?: string | undefined;
     };
+    date?: number | undefined;
     warning?: string | undefined;
 }, {
     doc_uuid: string;
@@ -88,6 +90,7 @@ export declare const InvoiceSchema: z.ZodObject<{
         price_total_in_currency: number;
         _COMMENT?: string | undefined;
     };
+    date?: number | undefined;
     warning?: string | undefined;
 }>;
 export type TInvoice = z.infer<typeof InvoiceSchema>;
