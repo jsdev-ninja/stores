@@ -39,6 +39,7 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(async (reques
 			{ payment_type: 9, payment_sum: params.price_total ?? 0, other_payment_type_name: "אחר" },
 		],
 		cc_emails: params.cc_emails,
+		date: params.date,
 	});
 
 	if (!res.error) {

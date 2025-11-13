@@ -178,6 +178,7 @@ export const ezCountService = {
 				// 	},
 				// ],
 				price_total: order.cart.cartTotal,
+				date,
 			});
 
 			const res = await axios({
