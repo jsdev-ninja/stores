@@ -10,6 +10,7 @@ import { favoriteProductsSlice } from "src/domains/favoriteProducts";
 import { ordersSlice } from "src/domains/Order";
 import { DiscountsSlice } from "src/domains/Discounts/Discounts";
 import { OrganizationSlice } from "src/domains/Organization";
+import { UserOrganizationSlice } from "src/domains/UserOrganization";
 
 export const reducer = {
 	[uiSlice.name]: uiSlice.reducer,
@@ -24,4 +25,5 @@ export const reducer = {
 	[ordersSlice.name]: ordersSlice.reducer,
 	[DiscountsSlice.name]: DiscountsSlice.reducer,
 	[OrganizationSlice.name]: OrganizationSlice.reducer,
+	[UserOrganizationSlice.name]: UserOrganizationSlice.reducer,
 };

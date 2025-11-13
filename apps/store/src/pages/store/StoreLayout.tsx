@@ -32,6 +32,17 @@ export default function StoreLayout() {
 	console.log("unPaidPendingOrder", unPaidPendingOrder);
 
 	useEffect(() => {
+		// load profile organization
+		if (user?.uid) {
+			appApi.user.getProfileOrganization().then((res) => {
+				if (res?.success && res.data) {
+					actions.dispatch(actions.userOrganization.setOrganization(res?.data || null));
+				}
+			});
+		}
+	}, []);
+
+	useEffect(() => {
 		const unsubscribe = appApi.user.subscriptions.favoriteProductsSubscribe(
 			(favoriteProducts) => {
 				actions.dispatch(actions.favoriteProducts.setFavoriteProducts(favoriteProducts));

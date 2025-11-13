@@ -8,6 +8,7 @@ export const useApiState = () => {
 	const store = useStore();
 	const user = useAppSelector((state) => state.user.user);
 	const cart = useAppSelector((state) => state.cart.currentCart);
+	const profile = useAppSelector((state) => state.profile.data);
 
-	return { cart, appReady, company, store, user };
+	return { cart, appReady, company, store, user, profile };
 };

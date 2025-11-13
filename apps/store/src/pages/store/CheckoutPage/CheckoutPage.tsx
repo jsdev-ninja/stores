@@ -19,6 +19,8 @@ function CheckoutPage() {
 
 	const profile = useProfile();
 
+	// const profileOrganization = useAppSelector((state) => state.userOrganization.organization);
+
 	const appApi = useAppApi();
 
 	const cartData = useAppSelector((state) => state.cart);

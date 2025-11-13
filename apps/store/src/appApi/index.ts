@@ -37,7 +37,7 @@ function productInCart(cart: TCart | null, product: TProduct) {
 }
 
 export const useAppApi = () => {
-	const { appReady, cart, company, store, user } = useApiState();
+	const { appReady, cart, company, store, user, profile } = useApiState();
 	const actions = useStoreActions();
 
 	const cartId = cart?.id ?? FirebaseApi.firestore.generateDocId("cart");
@@ -1126,6 +1126,18 @@ export const useAppApi = () => {
 						],
 					});
 				},
+			},
+			getProfileOrganization: async () => {
+				if (!isValidUser || !profile?.organizationId) return;
+
+				return FirebaseApi.firestore.getV2<TOrganization>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "organizations",
+						storeId,
+						companyId,
+					}),
+					id: profile.organizationId,
+				});
 			},
 			getOrder: async ({ id }: { id: string }) => {
 				if (!isValidUser)
