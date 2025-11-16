@@ -95,6 +95,14 @@ export function InvoiceDetailsModal({
 			return;
 		}
 
+		function formatDateDDMMYYYY(input: string) {
+			const d = new Date(input);
+			const day = String(d.getDate()).padStart(2, "0");
+			const month = String(d.getMonth() + 1).padStart(2, "0");
+			const year = d.getFullYear();
+			return `${day}/${month}/${year}`;
+		}
+
 		setIsSubmitting(true);
 		try {
 			console.log("formData", formData);
@@ -118,7 +126,7 @@ export function InvoiceDetailsModal({
 						0
 					),
 					parent: selectedOrders.map((order) => order?.deliveryNote?.doc_uuid).join(","),
-					date: new Date(formData.invoiceDate).toLocaleDateString(),
+					date: formatDateDDMMYYYY(formData.invoiceDate),
 				},
 			});
 
