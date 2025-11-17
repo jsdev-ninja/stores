@@ -46,6 +46,7 @@ export function AdminOrganizationDetailPage() {
 	const { t } = useTranslation(["common", "admin"]);
 	const { id } = useParams("admin.organization");
 	const [organization, setOrganization] = useState<TOrganization | null>(null);
+	console.log("organization", organization);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [organizationClients, setOrganizationClients] = useState<TProfile[]>([]);
@@ -80,6 +81,19 @@ export function AdminOrganizationDetailPage() {
 		name: "",
 		id: "",
 	});
+	const [isEditOrganizationModalOpen, setIsEditOrganizationModalOpen] = useState(false);
+	const [organizationFormData, setOrganizationFormData] = useState<{
+		name: string;
+		discountPercentage: number | undefined;
+		nameOnInvoice: string;
+		paymentType: "default" | "delayed";
+	}>({
+		name: "",
+		discountPercentage: undefined,
+		nameOnInvoice: "",
+		paymentType: "default",
+	});
+	const [isSubmittingOrganization, setIsSubmittingOrganization] = useState(false);
 
 	const appApi = useAppApi();
 
@@ -499,6 +513,53 @@ export function AdminOrganizationDetailPage() {
 		}));
 	};
 
+	const openEditOrganizationModal = () => {
+		if (!organization) return;
+		const org = organization as TOrganization;
+		setOrganizationFormData({
+			name: org.name,
+			discountPercentage: org.discountPercentage,
+			nameOnInvoice: org.nameOnInvoice || "",
+			paymentType: (org as any).paymentType || "default",
+		});
+		setIsEditOrganizationModalOpen(true);
+	};
+
+	const handleOrganizationFormChange = (
+		field: keyof typeof organizationFormData,
+		value: string | number | undefined
+	) => {
+		setOrganizationFormData((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+	};
+
+	const handleUpdateOrganization = async () => {
+		if (!organization) return;
+
+		try {
+			setIsSubmittingOrganization(true);
+			const updatedOrg: TOrganization = {
+				...organization,
+				name: organizationFormData.name.trim(),
+				discountPercentage: organizationFormData.discountPercentage,
+				nameOnInvoice: organizationFormData.nameOnInvoice.trim() || undefined,
+				paymentType: organizationFormData.paymentType,
+			} as TOrganization;
+
+			const result = await appApi.admin.updateOrganization(updatedOrg);
+			if (result?.success) {
+				setOrganization(updatedOrg);
+				setIsEditOrganizationModalOpen(false);
+			}
+		} catch (error) {
+			console.error("Failed to update organization:", error);
+		} finally {
+			setIsSubmittingOrganization(false);
+		}
+	};
+
 	const handleBack = () => {
 		navigate({ to: "admin.organizations" });
 	};
@@ -560,10 +621,18 @@ export function AdminOrganizationDetailPage() {
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<Card>
-					<CardHeader>
+					<CardHeader className="flex flex-row items-center justify-between">
 						<h2 className="text-lg font-semibold text-start">
 							{t("admin:organizationsPage.basicInfo")}
 						</h2>
+						<Button
+							size="sm"
+							variant="light"
+							onPress={openEditOrganizationModal}
+							startContent={<Icon icon="lucide:edit" />}
+						>
+							{t("common:edit")}
+						</Button>
 					</CardHeader>
 					<CardBody className="space-y-4">
 						<div>
@@ -588,6 +657,18 @@ export function AdminOrganizationDetailPage() {
 							</label>
 							<div className="text-lg text-start">
 								{organization.nameOnInvoice || t("admin:organizationsPage.notSet")}
+							</div>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+								{t("common:paymentType")}
+							</label>
+							<div className="text-lg text-start">
+								{t(
+									`common:paymentTypes.${
+										(organization as any).paymentType || "default"
+									}` as any
+								)}
 							</div>
 						</div>
 					</CardBody>
@@ -998,6 +1079,95 @@ export function AdminOrganizationDetailPage() {
 									{t("common:cancel")}
 								</Button>
 								<Button color="primary" onPress={handleEditBillingAccount}>
+									{t("common:update")}
+								</Button>
+							</ModalFooter>
+						</>
+					)}
+				</ModalContent>
+			</Modal>
+
+			{/* Edit Organization Modal */}
+			<Modal
+				isOpen={isEditOrganizationModalOpen}
+				onOpenChange={setIsEditOrganizationModalOpen}
+				size="md"
+			>
+				<ModalContent>
+					{(onClose) => (
+						<>
+							<ModalHeader className="flex flex-col gap-1">
+								<div className="text-start">
+									{t("admin:organizationsPage.editOrganization")}
+								</div>
+							</ModalHeader>
+							<ModalBody>
+								<Input
+									label={t("admin:organizationsPage.name")}
+									placeholder={t("admin:organizationsPage.namePlaceholder")}
+									value={organizationFormData.name}
+									onValueChange={(value) => handleOrganizationFormChange("name", value)}
+									isRequired
+									classNames={{
+										input: "text-start",
+										label: "text-start",
+									}}
+								/>
+								<Input
+									label={t("admin:organizationsPage.discountPercentage")}
+									placeholder={t("admin:organizationsPage.discountPercentagePlaceholder")}
+									type="number"
+									value={organizationFormData.discountPercentage?.toString() || ""}
+									onValueChange={(value) =>
+										handleOrganizationFormChange(
+											"discountPercentage",
+											value ? Number(value) : undefined
+										)
+									}
+									classNames={{
+										input: "text-start",
+										label: "text-start",
+									}}
+								/>
+								<Input
+									label={t("admin:organizationsPage.nameOnInvoice")}
+									placeholder={t("admin:organizationsPage.nameOnInvoicePlaceholder")}
+									value={organizationFormData.nameOnInvoice}
+									onValueChange={(value) =>
+										handleOrganizationFormChange("nameOnInvoice", value)
+									}
+									classNames={{
+										input: "text-start",
+										label: "text-start",
+									}}
+								/>
+								<Select
+									label={t("common:paymentType")}
+									selectedKeys={[organizationFormData.paymentType]}
+									onChange={(event) =>
+										handleOrganizationFormChange(
+											"paymentType",
+											event.target.value as "default" | "delayed"
+										)
+									}
+									isRequired
+									classNames={{
+										label: "text-start",
+									}}
+								>
+									<SelectItem key="default">{t("common:paymentTypes.default")}</SelectItem>
+									<SelectItem key="delayed">{t("common:paymentTypes.delayed")}</SelectItem>
+								</Select>
+							</ModalBody>
+							<ModalFooter>
+								<Button color="danger" variant="light" onPress={onClose}>
+									{t("common:cancel")}
+								</Button>
+								<Button
+									color="primary"
+									onPress={handleUpdateOrganization}
+									isLoading={isSubmittingOrganization}
+								>
 									{t("common:update")}
 								</Button>
 							</ModalFooter>
