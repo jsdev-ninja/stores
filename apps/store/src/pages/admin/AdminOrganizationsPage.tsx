@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "src/components/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { Input } from "@heroui/react";
@@ -15,8 +15,6 @@ export function AdminOrganizationsPage() {
 	const { t } = useTranslation(["common", "admin"]);
 	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-	const [editingOrganization, setEditingOrganization] = useState<TOrganization | null>(null);
 	const [formData, setFormData] = useState<TNewOrganization>({
 		name: "",
 		discountPercentage: undefined,
@@ -26,12 +24,7 @@ export function AdminOrganizationsPage() {
 
 	const appApi = useAppApi();
 
-	// Load organizations on component mount
-	useEffect(() => {
-		loadOrganizations();
-	}, []);
-
-	const loadOrganizations = async () => {
+	const loadOrganizations = useCallback(async () => {
 		try {
 			// For now, using mock data until API is fully integrated
 			const result = await appApi.admin.listOrganizations();
@@ -41,7 +34,12 @@ export function AdminOrganizationsPage() {
 		} catch (error) {
 			console.error("Failed to load organizations:", error);
 		}
-	};
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+	// Load organizations on component mount
+	useEffect(() => {
+		loadOrganizations();
+	}, [loadOrganizations]);
 
 	const handleCreate = async () => {
 		try {
@@ -56,27 +54,6 @@ export function AdminOrganizationsPage() {
 		}
 	};
 
-	const handleUpdate = async () => {
-		if (!editingOrganization) return;
-
-		try {
-			const updatedOrg: TOrganization = {
-				...editingOrganization,
-				...formData,
-			};
-
-			const result = await appApi.admin.updateOrganization(updatedOrg);
-			if (result?.success) {
-				await loadOrganizations();
-				setIsEditModalOpen(false);
-				setEditingOrganization(null);
-				resetForm();
-			}
-		} catch (error) {
-			console.error("Failed to update organization:", error);
-		}
-	};
-
 	const handleDelete = async (organizationId: string) => {
 		if (window.confirm(t("admin:organizationsPage.confirmDelete"))) {
 			try {
@@ -88,16 +65,6 @@ export function AdminOrganizationsPage() {
 				console.error("Failed to delete organization:", error);
 			}
 		}
-	};
-
-	const openEditModal = (organization: TOrganization) => {
-		setEditingOrganization(organization);
-		setFormData({
-		name: "",
-		discountPercentage: undefined,
-		nameOnInvoice: "",
-		billingAccounts: [],
-	});
 	};
 
 	const handleFormChange = (field: keyof Omit<TOrganization, "id">, value: string | number | undefined) => {
@@ -162,14 +129,6 @@ export function AdminOrganizationsPage() {
 									</Button>
 									<Button
 										size="sm"
-										variant="light"
-										onPress={() => openEditModal(organization)}
-										startContent={<Icon icon="lucide:edit" />}
-									>
-										{t("common:edit")}
-									</Button>
-									<Button
-										size="sm"
 										color="danger"
 										variant="light"
 										onPress={() => handleDelete(organization.id)}
@@ -222,51 +181,6 @@ export function AdminOrganizationsPage() {
 								</Button>
 								<Button color="primary" onPress={handleCreate}>
 									{t("common:create")}
-								</Button>
-							</ModalFooter>
-						</>
-					)}
-				</ModalContent>
-			</Modal>
-
-			{/* Edit Modal */}
-			<Modal isOpen={isEditModalOpen} onOpenChange={setIsEditModalOpen} size="md">
-				<ModalContent>
-					{(onClose) => (
-						<>
-							<ModalHeader className="flex flex-col gap-1">
-								{t("admin:organizationsPage.editOrganization")}
-							</ModalHeader>
-							<ModalBody>
-								<Input
-									label={t("admin:organizationsPage.name")}
-									placeholder={t("admin:organizationsPage.namePlaceholder")}
-									value={formData.name}
-									onValueChange={(value) => handleFormChange("name", value)}
-									isRequired
-								/>
-								<Input
-									label={t("admin:organizationsPage.discountPercentage")}
-									placeholder={t("admin:organizationsPage.discountPercentagePlaceholder")}
-									type="number"
-									value={formData.discountPercentage?.toString() || ""}
-									onValueChange={(value) =>
-										handleFormChange("discountPercentage", value ? Number(value) : undefined)
-									}
-								/>
-								<Input
-									label={t("admin:organizationsPage.nameOnInvoice")}
-									placeholder={t("admin:organizationsPage.nameOnInvoicePlaceholder")}
-									value={formData.nameOnInvoice || ""}
-									onValueChange={(value) => handleFormChange("nameOnInvoice", value)}
-								/>
-							</ModalBody>
-							<ModalFooter>
-								<Button color="danger" variant="light" onPress={onClose}>
-									{t("common:cancel")}
-								</Button>
-								<Button color="primary" onPress={handleUpdate}>
-									{t("common:update")}
 								</Button>
 							</ModalFooter>
 						</>
