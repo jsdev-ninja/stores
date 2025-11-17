@@ -122,12 +122,20 @@ export const onOrderUpdate = functions.firestore
 
 			const date = new Date();
 
+			function formatDateDDMMYYYY(input: string) {
+				const d = new Date(input);
+				const day = String(d.getDate()).padStart(2, "0");
+				const month = String(d.getMonth() + 1).padStart(2, "0");
+				const year = d.getFullYear();
+				return `${day}/${month}/${year}`;
+			}
+
 			const res = await ezCountService.createDeliveryNote(after, {
 				ezcount_key: storePrivateData.ezcount_key,
 				clientName: after?.nameOnInvoice || displayName,
 				clientEmail: email,
 				ezcount_api: storePrivateData.ezcount_api,
-				date: date.toLocaleDateString(),
+				date: formatDateDDMMYYYY(date.toLocaleDateString()),
 			});
 
 			// update order with delivery note

@@ -30,6 +30,7 @@ export const OrderSchema = z.object({
 		"completed",
 		"refunded",
 	]),
+	paymentType: z.enum(["internal", "external"]).optional(),
 	paymentStatus: z.enum(["pending", "pending_j5", "external", "completed", "failed", "refunded"]), //todo check if hyp support partial refund
 	cart: z.object({
 		id: z.string(),

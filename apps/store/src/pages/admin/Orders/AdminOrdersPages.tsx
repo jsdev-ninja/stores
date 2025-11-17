@@ -6,7 +6,15 @@ import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
 import { navigate } from "src/navigation";
-import { ChipProps, Chip, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import {
+	ChipProps,
+	Chip,
+	Modal,
+	ModalBody,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+} from "@heroui/react";
 import { useStore } from "src/domains/Store";
 
 function AdminOrdersPages() {
@@ -121,7 +129,7 @@ function OrderRow({
 					</Button>
 				);
 			}
-			if (order.paymentStatus !== "completed") {
+			if (order.paymentStatus !== "completed" && order.paymentType !== "external") {
 				return (
 					<>
 						<Button
@@ -276,7 +284,12 @@ function OrderRow({
 								{t("ordersPage:confirmCancel.title", "Cancel order")}
 							</ModalHeader>
 							<ModalBody>
-								<p>{t("ordersPage:confirmCancel.message", "Are you sure you want to cancel this order?")}</p>
+								<p>
+									{t(
+										"ordersPage:confirmCancel.message",
+										"Are you sure you want to cancel this order?"
+									)}
+								</p>
 							</ModalBody>
 							<ModalFooter>
 								<Button variant="light" onPress={() => onClose()}>

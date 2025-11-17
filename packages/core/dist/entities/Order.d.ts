@@ -6,6 +6,7 @@ export declare const OrderSchema: z.ZodObject<{
     storeId: z.ZodString;
     userId: z.ZodString;
     status: z.ZodEnum<["draft", "pending", "processing", "in_delivery", "delivered", "cancelled", "completed", "refunded"]>;
+    paymentType: z.ZodOptional<z.ZodEnum<["internal", "external"]>>;
     paymentStatus: z.ZodEnum<["pending", "pending_j5", "external", "completed", "failed", "refunded"]>;
     cart: z.ZodObject<{
         id: z.ZodString;
@@ -1053,7 +1054,7 @@ export declare const OrderSchema: z.ZodObject<{
     companyId: string;
     storeId: string;
     userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "external" | "failed";
+    paymentStatus: "completed" | "pending" | "refunded" | "external" | "pending_j5" | "failed";
     cart: {
         id: string;
         items: {
@@ -1181,6 +1182,7 @@ export declare const OrderSchema: z.ZodObject<{
         } | undefined;
         organizationId?: string | null | undefined;
     };
+    paymentType?: "internal" | "external" | undefined;
     organizationId?: string | undefined;
     nameOnInvoice?: string | undefined;
     originalAmount?: number | undefined;
@@ -1247,7 +1249,7 @@ export declare const OrderSchema: z.ZodObject<{
     companyId: string;
     storeId: string;
     userId: string;
-    paymentStatus: "completed" | "pending" | "refunded" | "pending_j5" | "external" | "failed";
+    paymentStatus: "completed" | "pending" | "refunded" | "external" | "pending_j5" | "failed";
     cart: {
         id: string;
         items: {
@@ -1375,6 +1377,7 @@ export declare const OrderSchema: z.ZodObject<{
         } | undefined;
         organizationId?: string | null | undefined;
     };
+    paymentType?: "internal" | "external" | undefined;
     organizationId?: string | undefined;
     nameOnInvoice?: string | undefined;
     originalAmount?: number | undefined;

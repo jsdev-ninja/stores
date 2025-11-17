@@ -11,5 +11,6 @@ export const OrganizationSchema = z.object({
     discountPercentage: z.number().positive().min(0).max(100).optional(),
     nameOnInvoice: z.string().optional(),
     billingAccounts: z.array(BillingAccountSchema),
+    paymentType: z.enum(["default", "delayed"]),
 });
 export const NewOrganizationSchema = OrganizationSchema.omit({ id: true });

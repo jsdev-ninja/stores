@@ -20,6 +20,7 @@ export function AdminOrganizationsPage() {
 		discountPercentage: undefined,
 		nameOnInvoice: "",
 		billingAccounts: [],
+		paymentType: "default",
 	});
 
 	const appApi = useAppApi();
@@ -77,6 +78,7 @@ export function AdminOrganizationsPage() {
 	const resetForm = () => {
 		setFormData({
 			name: "",
+			paymentType: "default",
 			discountPercentage: undefined,
 			nameOnInvoice: "",
 			billingAccounts: [],

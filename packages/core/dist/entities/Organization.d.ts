@@ -30,9 +30,11 @@ export declare const OrganizationSchema: z.ZodObject<{
         id: string;
         name: string;
     }>, "many">;
+    paymentType: z.ZodEnum<["default", "delayed"]>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     name: string;
+    paymentType: "default" | "delayed";
     billingAccounts: {
         number: string;
         id: string;
@@ -43,6 +45,7 @@ export declare const OrganizationSchema: z.ZodObject<{
 }, {
     id: string;
     name: string;
+    paymentType: "default" | "delayed";
     billingAccounts: {
         number: string;
         id: string;
@@ -69,8 +72,10 @@ export declare const NewOrganizationSchema: z.ZodObject<Omit<{
         id: string;
         name: string;
     }>, "many">;
+    paymentType: z.ZodEnum<["default", "delayed"]>;
 }, "id">, "strip", z.ZodTypeAny, {
     name: string;
+    paymentType: "default" | "delayed";
     billingAccounts: {
         number: string;
         id: string;
@@ -80,6 +85,7 @@ export declare const NewOrganizationSchema: z.ZodObject<Omit<{
     nameOnInvoice?: string | undefined;
 }, {
     name: string;
+    paymentType: "default" | "delayed";
     billingAccounts: {
         number: string;
         id: string;

@@ -20,12 +20,13 @@ import DiscountsPage from "./DiscountsPage/DiscountsPage";
 import ClientOrderPage from "./ClientOrderPage";
 import { ProductsWidget } from "src/widgets/Products";
 // import { UnPaidPendingOrder } from "src/widgets/UnPaidPendingOrder/UnPaidPendingOrder";
+import { useProfile } from "src/domains/profile";
 
 export default function StoreLayout() {
 	const appApi = useAppApi();
 
 	const user = useUser();
-
+	const profile = useProfile();
 	const actions = useStoreActions();
 
 	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
@@ -35,12 +36,13 @@ export default function StoreLayout() {
 		// load profile organization
 		if (user?.uid) {
 			appApi.user.getProfileOrganization().then((res) => {
+				console.log("AAAAAAAAAAAAAAA", res);
 				if (res?.success && res.data) {
 					actions.dispatch(actions.userOrganization.setOrganization(res?.data || null));
 				}
 			});
 		}
-	}, []);
+	}, [profile?.id]);
 
 	useEffect(() => {
 		const unsubscribe = appApi.user.subscriptions.favoriteProductsSubscribe(

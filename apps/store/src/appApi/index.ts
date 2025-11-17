@@ -1128,9 +1128,10 @@ export const useAppApi = () => {
 				},
 			},
 			getProfileOrganization: async () => {
+				console.log("AAAAAAAAAAAAAAA2", profile,isValidUser,profile?.organizationId);
 				if (!isValidUser || !profile?.organizationId) return;
 
-				return FirebaseApi.firestore.getV2<TOrganization>({
+				const res = await FirebaseApi.firestore.getV2<TOrganization>({
 					collection: FirebaseAPI.firestore.getPath({
 						collectionName: "organizations",
 						storeId,
@@ -1138,6 +1139,8 @@ export const useAppApi = () => {
 					}),
 					id: profile.organizationId,
 				});
+				console.log("AAAAAAAAAAAAAAA3", res);
+				return res;
 			},
 			getOrder: async ({ id }: { id: string }) => {
 				if (!isValidUser)

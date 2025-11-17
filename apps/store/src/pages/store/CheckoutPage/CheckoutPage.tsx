@@ -19,7 +19,10 @@ function CheckoutPage() {
 
 	const profile = useProfile();
 
-	// const profileOrganization = useAppSelector((state) => state.userOrganization.organization);
+	console.log("profile", profile);
+
+	const profileOrganization = useAppSelector((state) => state.userOrganization.organization);
+	console.log("profileOrganization", profileOrganization);
 
 	const appApi = useAppApi();
 
@@ -114,9 +117,14 @@ function CheckoutPage() {
 				onSubmit={async (values) => {
 					if (!user || !cart) return;
 
-					if (store.paymentType === "external") {
+					if (
+						store.paymentType === "external" ||
+						profileOrganization?.paymentType === "delayed"
+					) {
 						values.status = "pending";
-						const order = await appApi.orders.order({ order: values });
+						const order = await appApi.orders.order({
+							order: { ...values, paymentType: "external" },
+						});
 						console.log("new external order", order);
 
 						navigate({ to: "store.orders" });
