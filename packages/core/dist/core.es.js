@@ -3485,7 +3485,8 @@ const An = {
   payments: "payments",
   settings: "settings",
   discounts: "discounts",
-  organizations: "organizations"
+  organizations: "organizations",
+  invoices: "invoices"
 }, Nn = {
   systemCollections: An,
   storeCollections: Cn,

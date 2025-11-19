@@ -12,8 +12,9 @@
 		"outDir": "./dist",
 		"esModuleInterop": true,
 		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"composite": true
 	},
-	"include": ["lib", "dist"],
-	"exclude": ["node_modules", "src", "vite.config.ts"]
+	"include": ["lib"],
+	"exclude": ["node_modules", "src", "dist", "vite.config.ts"]
 }

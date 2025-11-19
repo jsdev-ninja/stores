@@ -1,0 +1,1 @@
+{"version":3,"file":"strategy.d.ts","sourceRoot":"","sources":["../../../../lib/entities/Discount/strategy.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,cAAc,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAErE,MAAM,WAAW,gBAAgB;IAC/B,QAAQ,CAAC,QAAQ,EAAE,SAAS,EAAE,OAAO,EAAE,eAAe,GAAG,OAAO,CAAC;IACjE,SAAS,CAAC,QAAQ,EAAE,SAAS,EAAE,OAAO,EAAE,eAAe,GAAG,cAAc,CAAC;CAC1E"}

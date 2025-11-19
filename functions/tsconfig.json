@@ -13,9 +13,12 @@
 		"baseUrl": "./",
 		"rootDir": "./src",
 		"paths": {
-			"src/*": ["./src/*"]
+			"src/*": ["./src/*"],
+			"@jsdev_ninja/core": ["../packages/core/lib/index.tsx"]
 		}
 	},
 	"compileOnSave": true,
-	"include": ["src"]
+	"include": ["src"],
+	"references": [{ "path": "../packages/core/tsconfig.app.json" }],
+	"composite": true
 }
