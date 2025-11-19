@@ -30,7 +30,7 @@ export function CatalogPage() {
 				<CategoryMenu />
 			</div>
 			<div className="flex-grow p-6 flex flex-col justify-start items-start gap-4  ">
-				<div className="mx-auto  w-full">{/* <ProductsWidget.SearchBox />{" "} */}</div>
+				<div className="mx-auto  w-full"><ProductsWidget.SearchBox /></div>
 				<div className="flex gap-4 w-full flex-wrap justify-center flex-grow">
 					<ProductsWidget.Products emptyStateAction={() => {}}>
 						{(products) => {
