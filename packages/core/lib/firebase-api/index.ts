@@ -15,6 +15,7 @@ export const storeCollections = {
 	settings: "settings",
 	discounts: "discounts",
 	organizations: "organizations",
+	invoices: "invoices",
 } as const;
 
 export const FirestoreApi = {

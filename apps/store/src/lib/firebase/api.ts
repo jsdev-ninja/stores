@@ -96,7 +96,7 @@ async function createInvoice(
 	try {
 		const func = httpsCallable(functions, "createInvoice");
 		const response = await func({ orders, params, storeId });
-		console.log("create invoice response", response);
+		console.log("create invoice response", response.data);
 		return { success: true, data: response.data };
 	} catch (error: any) {
 		const code = error.code;
