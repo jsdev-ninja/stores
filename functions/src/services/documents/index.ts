@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
-import { renderInvoiceToHTML } from "../../documents/renderToHTML";
+import { renderInvoiceToHTML } from "./renderToHTML";
 import { TOrder, TStore } from "@jsdev_ninja/core";
 import admin from "firebase-admin";
 

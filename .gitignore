@@ -8,6 +8,10 @@ pnpm-debug.log*
 lerna-debug.log*
 
 
+# parcel cache
+.parcel-cache
+functions/src/services/documents/dev-preview/dist
+
 # firebase 
 .firebase
 
