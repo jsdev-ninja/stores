@@ -13,7 +13,9 @@ const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 
 const index = algolia.initIndex("products");
 
-admin.initializeApp({});
+admin.initializeApp({
+	storageBucket: "jsdev-stores-prod.appspot.com",
+});
 
 export const uiLogs = functionsV2.https.onCall((opts) => {
 	const { data } = opts;

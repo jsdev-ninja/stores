@@ -29,6 +29,7 @@ module.exports = {
 		indent: ["error", "tab"],
 		"quote-props": ["error", "as-needed"],
 		"require-jsdoc": "off",
+		"valid-jsdoc": "off",
 		"spaced-comment": "off",
 		"operator-linebreak": "off",
 		"@typescript-eslint/no-explicit-any": "off",
