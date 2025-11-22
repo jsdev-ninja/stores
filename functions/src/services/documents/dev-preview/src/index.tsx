@@ -1,7 +1,9 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
+import { TOrder, TStore, TDeliveryNote } from "@jsdev_ninja/core";
+import { InvoiceLayout } from "../../templates/InvoiceLayout";
 import { Invoice } from "../../templates/Invoice";
-import { TOrder, TStore } from "@jsdev_ninja/core";
+import { ConsolidatedInvoice } from "../../templates/ConsolidatedInvoice";
 
 const testOrder: TOrder = {
 	paymentStatus: "completed",
@@ -90,6 +92,97 @@ const testStore: TStore = {
 };
 
 function App() {
+	const [activeTab, setActiveTab] = React.useState<"invoice" | "consolidated">("invoice");
+
+	// Create test orders with delivery notes for consolidated invoice
+	const testOrderWithDeliveryNote1: TOrder = {
+		...testOrder,
+		id: "order-123",
+		deliveryNote: {
+			doc_uuid: "uuid-1",
+			pdf_link: "https://example.com/pdf1",
+			pdf_link_copy: "https://example.com/pdf1-copy",
+			doc_number: "DN-001",
+			sent_mails: ["test@example.com"],
+			success: true,
+			ua_uuid: "ua-uuid-1",
+			calculatedData: {
+				transaction_id: "trans-1",
+				date: "2024-01-15",
+				currency: "ILS",
+				rate: 1,
+				vat: "17.00",
+				vat_price: 34,
+				price_discount: 10,
+				price_discount_in_currency: 10,
+				price_total: "234.00",
+				price_total_in_currency: 234,
+			},
+			date: Date.now() - 86400000, // Yesterday
+		} as TDeliveryNote,
+	};
+
+	const testOrderWithDeliveryNote2: TOrder = {
+		...testOrder,
+		id: "order-456",
+		deliveryNote: {
+			doc_uuid: "uuid-2",
+			pdf_link: "https://example.com/pdf2",
+			pdf_link_copy: "https://example.com/pdf2-copy",
+			doc_number: "DN-002",
+			sent_mails: ["test@example.com"],
+			success: true,
+			ua_uuid: "ua-uuid-2",
+			calculatedData: {
+				transaction_id: "trans-2",
+				date: "2024-01-16",
+				currency: "ILS",
+				rate: 1,
+				vat: "17.00",
+				vat_price: 51,
+				price_discount: 0,
+				price_discount_in_currency: 0,
+				price_total: "351.00",
+				price_total_in_currency: 351,
+			},
+			date: Date.now(), // Today
+		} as TDeliveryNote,
+	};
+
+	// Create an order with exempt delivery note (no VAT)
+	const testOrderExempt: TOrder = {
+		...testOrder,
+		id: "order-789",
+		deliveryNote: {
+			doc_uuid: "uuid-3",
+			pdf_link: "https://example.com/pdf3",
+			pdf_link_copy: "https://example.com/pdf3-copy",
+			doc_number: "DN-003",
+			sent_mails: ["test@example.com"],
+			success: true,
+			ua_uuid: "ua-uuid-3",
+			calculatedData: {
+				transaction_id: "trans-3",
+				date: "2024-01-17",
+				currency: "ILS",
+				rate: 1,
+				vat: "0.00",
+				vat_price: 0, // Exempt from VAT
+				price_discount: 0,
+				price_discount_in_currency: 0,
+				price_total: "200.00",
+				price_total_in_currency: 200,
+			},
+			date: Date.now(),
+		} as TDeliveryNote,
+	};
+
+	const testOrdersWithDeliveryNotes = [
+		testOrderWithDeliveryNote1,
+		testOrderWithDeliveryNote2,
+		testOrderExempt,
+	];
+
 	return (
 		<div style={{ padding: "20px", backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
 			<div
@@ -102,7 +195,65 @@ function App() {
 				}}
 			>
 				<h1 style={{ marginBottom: "20px" }}>Invoice Preview</h1>
-				<Invoice order={testOrder} store={testStore} invoiceNumber="INV-001" />
+
+				{/* Tabs */}
+				<div
+					style={{
+						display: "flex",
+						gap: "10px",
+						marginBottom: "20px",
+						borderBottom: "2px solid #ddd",
+					}}
+				>
+					<button
+						onClick={() => setActiveTab("invoice")}
+						style={{
+							padding: "10px 20px",
+							border: "none",
+							backgroundColor: activeTab === "invoice" ? "#333" : "transparent",
+							color: activeTab === "invoice" ? "#fff" : "#333",
+							cursor: "pointer",
+							fontSize: "16px",
+							fontWeight: activeTab === "invoice" ? "bold" : "normal",
+							borderBottom: activeTab === "invoice" ? "3px solid #333" : "3px solid transparent",
+							marginBottom: "-2px",
+						}}
+					>
+						חשבונית
+					</button>
+					<button
+						onClick={() => setActiveTab("consolidated")}
+						style={{
+							padding: "10px 20px",
+							border: "none",
+							backgroundColor: activeTab === "consolidated" ? "#333" : "transparent",
+							color: activeTab === "consolidated" ? "#fff" : "#333",
+							cursor: "pointer",
+							fontSize: "16px",
+							fontWeight: activeTab === "consolidated" ? "bold" : "normal",
+							borderBottom:
+								activeTab === "consolidated" ? "3px solid #333" : "3px solid transparent",
+							marginBottom: "-2px",
+						}}
+					>
+						חשבונית מאוחדת
+					</button>
+				</div>
+
+				{/* Content */}
+				{activeTab === "invoice" && (
+					<InvoiceLayout companyDetails={{ name: testStore.name }} logoUrl={testStore.logoUrl}>
+						<Invoice order={testOrder} store={testStore} invoiceNumber="INV-001" />
+					</InvoiceLayout>
+				)}
+
+				{activeTab === "consolidated" && (
+					<ConsolidatedInvoice
+						orders={testOrdersWithDeliveryNotes}
+						store={testStore}
+						invoiceNumber="CONS-001"
+					/>
+				)}
 			</div>
 		</div>
 	);

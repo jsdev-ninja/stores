@@ -1,8 +1,10 @@
 {
 	"name": "invoice-preview",
 	"private": true,
-	"source": "src/index.html",
+	"source": [
+		"src/index.html"
+	],
 	"scripts": {
-		"dev": "parcel src/index.html --no-cache"
+		"dev": "parcel src/index.html --no-cache --port 1235"
 	}
 }

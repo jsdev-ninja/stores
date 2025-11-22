@@ -1,0 +1,11 @@
+{
+	"extends": "../../../../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@jsdev_ninja/core": ["../../../../node_modules/@jsdev_ninja/core"]
+		}
+	},
+	"include": ["src/**/*", "../templates/**/*"]
+}
+

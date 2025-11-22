@@ -1,5 +1,6 @@
 import * as React from "react";
 import { TOrder, TStore } from "@jsdev_ninja/core";
+import { InvoiceLayout, CompanyDetails } from "./InvoiceLayout";
 
 type InvoiceProps = {
 	order: TOrder;
@@ -39,42 +40,12 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 	const discount = order.cart.cartDiscount;
 	const deliveryPrice = order.cart.deliveryPrice || 0;
 
+	const companyDetails: CompanyDetails = {
+		name: store.name,
+	};
+
 	return (
-		<div
-			style={{
-				maxWidth: "800px",
-				margin: "0 auto",
-				fontFamily: "Arial, sans-serif",
-				direction: "rtl",
-				padding: "40px",
-				backgroundColor: "#fff",
-				color: "#333",
-			}}
-		>
-			{/* Header */}
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "flex-start",
-					marginBottom: "40px",
-					paddingBottom: "20px",
-					borderBottom: "2px solid #333",
-				}}
-			>
-				<div style={{ flex: 1 }}>
-					<div style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "10px" }}>
-						{store.name}
-					</div>
-					{store.logoUrl && (
-						<img
-							src={store.logoUrl}
-							alt="Logo"
-							style={{ maxWidth: "150px", maxHeight: "80px", marginBottom: "10px" }}
-						/>
-					)}
-				</div>
-			</div>
+		<InvoiceLayout logoUrl={store.logoUrl} companyDetails={companyDetails}>
 
 			{/* Invoice Title */}
 			<h1
@@ -360,23 +331,6 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 					<div>{order.clientComment}</div>
 				</div>
 			)}
-
-			{/* Footer */}
-			<div
-				style={{
-					marginTop: "40px",
-					paddingTop: "20px",
-					borderTop: "1px solid #ddd",
-					textAlign: "center",
-					color: "#666",
-					fontSize: "12px",
-				}}
-			>
-				<p>תודה על רכישתכם!</p>
-				<p>
-					{new Date().getFullYear()} © {store.name}
-				</p>
-			</div>
-		</div>
+		</InvoiceLayout>
 	);
 }

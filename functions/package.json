@@ -11,8 +11,7 @@
 		"logs": "firebase functions:log",
 		"cli:login": "firebase login --reauth",
 		"email:dev": "email dev --dir ./src/emails-preview",
-		"email:build": "email build --dir ./src/emails",
-		"invoice:dev": "cd src/services/documents/dev-preview && npm run dev"
+		"email:build": "email build --dir ./src/emails"
 	},
 	"engines": {
 		"node": "20"
