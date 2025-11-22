@@ -4,7 +4,16 @@
 			"runtime": "nodejs20",
 			"source": ".",
 			"codebase": "default",
-			"ignore": ["node_modules", ".git", "firebase-debug.log", "firebase-debug.*.log"],
+			"ignore": [
+				"node_modules",
+				".git",
+				"firebase-debug.log",
+				"firebase-debug.*.log",
+				"src/services/documents/dev-preview/**/*",
+				"src/services/documents/dist/**/*",
+				"**/dev-preview/**/*",
+				"**/dist/dev-preview*"
+			],
 			"predeploy": ["npm run lint", "npm run build"]
 		}
 	]

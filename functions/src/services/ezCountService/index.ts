@@ -1,4 +1,4 @@
-import { CalculatedDataSchema, TDeliveryNote, TOrder } from "@jsdev_ninja/core";
+import { TDeliveryNote, TOrder } from "@jsdev_ninja/core";
 import axios from "axios";
 import { logger } from "../../core";
 

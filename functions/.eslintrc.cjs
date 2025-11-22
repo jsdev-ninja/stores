@@ -20,6 +20,11 @@ module.exports = {
 	},
 	ignorePatterns: [
 		"/lib/**/*", // Ignore built files.
+		"/src/services/documents/dev-preview/**/*",
+		"/src/services/documents/dist/**/*",
+		"**/dev-preview/**/*",
+		"**/dev-preview/**",
+		"**/dist/dev-preview*",
 	],
 	rules: {
 		quotes: "off",

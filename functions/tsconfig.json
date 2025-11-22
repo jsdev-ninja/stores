@@ -19,6 +19,14 @@
 	},
 	"compileOnSave": true,
 	"include": ["src"],
+	"exclude": [
+		"src/services/documents/dev-preview",
+		"src/services/documents/dev-preview/**/*",
+		"src/services/documents/dist/**/*",
+		"**/dev-preview/**/*",
+		"**/dist/dev-preview*",
+		"node_modules"
+	],
 	"references": [{ "path": "../packages/core/tsconfig.app.json" }],
 	"composite": true
 }

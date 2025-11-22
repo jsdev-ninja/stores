@@ -34,17 +34,17 @@ export const onOrderCreated = functions.firestore
 	.onCreate(async (snap, context) => {
 		const { storeId, companyId, id } = context.params;
 
+		const order = snap.data() as TOrder;
+
 		functionsV2.logger.write({
 			severity: "INFO",
 			message: `new order created, orderId:${id} ${storeId} ${companyId}`,
-			order: snap.data(),
 			orderId: id,
 			storeId,
 			companyId,
+			order,
+			context,
 		});
-
-		const order = snap.data() as TOrder;
-		// todo validate order
 
 		const storePrivateData: any = (
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
