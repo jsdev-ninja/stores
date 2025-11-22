@@ -15,8 +15,7 @@ export const CalculatedDataSchema = z.object({
 	price_total_in_currency: z.number().positive(),
 });
 
-// Main DeliveryNote schema
-export const DeliveryNoteSchema = z.object({
+export const EzDeliveryNoteSchema = z.object({
 	doc_uuid: z.string().uuid("Document UUID must be a valid UUID"),
 	pdf_link: z.string().url("PDF link must be a valid URL"),
 	pdf_link_copy: z.string().url("PDF copy link must be a valid URL"),
@@ -29,15 +28,43 @@ export const DeliveryNoteSchema = z.object({
 	date: z.number().optional(),
 });
 
+export const DeliveryNoteSchema = z.object({
+	id: z.string().min(1, "ID is required"),
+	number: z.string().min(1, "Number is required"),
+	date: z.string().min(1, "Date is required"),
+	createdAt: z.number().min(1, "Created at is required"),
+	status: z.enum(["pending", "paid", "cancelled"]),
+	companyDetails: z
+		.object({
+			name: z.string().min(1, "Name is required").optional(),
+			address: z.string().min(1, "Address is required").optional(),
+			phone: z.string().min(1, "Phone is required").optional(),
+			email: z.string().email("Email must be valid").optional(),
+		})
+		.optional(),
+	clientDetails: z
+		.object({
+			name: z.string().min(1, "Name is required").optional(),
+			address: z.string().min(1, "Address is required").optional(),
+			phone: z.string().min(1, "Phone is required").optional(),
+			email: z.string().email("Email must be valid").optional(),
+		})
+		.optional(),
+	items: z
+		.array(
+			z.object({
+				name: z.string().min(1, "Name is required").optional(),
+				price: z.number().min(1, "Price is required").optional(),
+				quantity: z.number().min(1, "Quantity is required").optional(),
+				total: z.number().min(1, "Total is required").optional(),
+			})
+		)
+		.optional(),
+	total: z.number().min(1, "Total is required").optional(),
+	vat: z.number().min(1, "VAT is required").optional(),
+	link: z.string().url("Link must be a valid URL").optional(),
+});
 // Type inference
+export type TEzDeliveryNote = z.infer<typeof EzDeliveryNoteSchema>;
 export type TDeliveryNote = z.infer<typeof DeliveryNoteSchema>;
 export type TCalculatedData = z.infer<typeof CalculatedDataSchema>;
-
-// Validation functions
-export function isDeliveryNote(data: unknown): data is TDeliveryNote {
-	return DeliveryNoteSchema.safeParse(data).success;
-}
-
-export function isCalculatedData(data: unknown): data is TCalculatedData {
-	return CalculatedDataSchema.safeParse(data).success;
-}
