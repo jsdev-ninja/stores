@@ -8,6 +8,7 @@ import { render } from "@react-email/render";
 import OrderCreated from "./emails/OrderCreated";
 import { FirebaseAPI, TOrder, TStore } from "@jsdev_ninja/core";
 import { ezCountService } from "./services/ezCountService";
+import { createAppApi } from "./appApi";
 
 const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 
@@ -34,6 +35,9 @@ export const onOrderCreated = functions.firestore
 	.onCreate(async (snap, context) => {
 		const { storeId, companyId, id } = context.params;
 
+		const appApi = createAppApi({ storeId, companyId });
+		console.log("appApi", appApi);
+
 		const order = snap.data() as TOrder;
 
 		functionsV2.logger.write({
@@ -43,7 +47,6 @@ export const onOrderCreated = functions.firestore
 			storeId,
 			companyId,
 			order,
-			context,
 		});
 
 		const storePrivateData: any = (

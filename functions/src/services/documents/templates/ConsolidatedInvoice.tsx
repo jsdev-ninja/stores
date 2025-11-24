@@ -41,18 +41,17 @@ export function ConsolidatedInvoice({
 	let totalVat = 0; // סה"כ מע"מ
 
 	ordersWithDeliveryNotes.forEach((order) => {
-		const deliveryNote = order.deliveryNote!;
-		const vatPrice = deliveryNote.calculatedData.vat_price || 0;
-		const totalPrice = deliveryNote.calculatedData.price_total_in_currency || 0;
-		const subtotalPrice = totalPrice - vatPrice;
+		const cartTotal = order.cart.cartTotal || 0;
+		const cartVat = order.cart.cartVat || 0;
+		const subtotalPrice = cartTotal - cartVat;
 
-		if (vatPrice > 0) {
+		if (cartVat > 0) {
 			// Taxable - has VAT
 			totalTaxable += subtotalPrice;
-			totalVat += vatPrice;
+			totalVat += cartVat;
 		} else {
 			// Exempt - no VAT
-			totalExempt += totalPrice;
+			totalExempt += cartTotal;
 		}
 	});
 
@@ -129,37 +128,35 @@ export function ConsolidatedInvoice({
 						<tr style={{ backgroundColor: "#333", color: "#fff" }}>
 							<th style={{ padding: "12px", textAlign: "right" }}>מספר אסמכתא</th>
 							<th style={{ padding: "12px", textAlign: "center" }}>תאריך</th>
-							<th style={{ padding: "12px", textAlign: "left", width: "120px" }}>
-								סה"כ לפני מע"מ
-							</th>
-							<th style={{ padding: "12px", textAlign: "left", width: "120px" }}>מע"מ</th>
 							<th style={{ padding: "12px", textAlign: "left", width: "120px" }}>סה"כ</th>
+							<th style={{ padding: "12px", textAlign: "left", width: "120px" }}>מע"מ</th>
 						</tr>
 					</thead>
 					<tbody>
 						{ordersWithDeliveryNotes.map((order, index) => {
 							const deliveryNote = order.deliveryNote!;
-							const noteSubtotal =
-								deliveryNote.calculatedData.price_total_in_currency -
-								deliveryNote.calculatedData.vat_price;
+							const cartTotal = order.cart.cartTotal || 0;
+							const cartVat = order.cart.cartVat || 0;
+							// Handle both DeliveryNoteSchema (has 'number') and EzDeliveryNoteSchema (has 'doc_number')
+							const docNumber = 'doc_number' in deliveryNote 
+								? (deliveryNote as any).doc_number 
+								: ('number' in deliveryNote ? (deliveryNote as any).number : '');
+							const deliveryDate = deliveryNote.date && typeof deliveryNote.date === 'number' 
+								? deliveryNote.date 
+								: order.date;
 							return (
 								<tr key={index} style={{ borderBottom: "1px solid #ddd" }}>
 									<td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>
-										{deliveryNote.doc_number}
+										{docNumber}
 									</td>
 									<td style={{ padding: "12px", textAlign: "center" }}>
-										{deliveryNote.date
-											? formatDate(deliveryNote.date)
-											: formatDate(order.date)}
-									</td>
-									<td style={{ padding: "12px", textAlign: "left" }}>
-										{formatCurrency(noteSubtotal)}
-									</td>
-									<td style={{ padding: "12px", textAlign: "left" }}>
-										{formatCurrency(deliveryNote.calculatedData.vat_price)}
+										{formatDate(deliveryDate)}
 									</td>
 									<td style={{ padding: "12px", textAlign: "left", fontWeight: "bold" }}>
-										{formatCurrency(deliveryNote.calculatedData.price_total_in_currency)}
+										{formatCurrency(cartTotal)}
+									</td>
+									<td style={{ padding: "12px", textAlign: "left" }}>
+										{formatCurrency(cartVat)}
 									</td>
 								</tr>
 							);
@@ -189,23 +186,21 @@ export function ConsolidatedInvoice({
 								</td>
 							</tr>
 						)}
-						{totalExempt > 0 && (
-							<tr>
-								<td
-									style={{
-										padding: "10px 15px",
-										textAlign: "right",
-										fontWeight: "bold",
-										color: "#666",
-									}}
-								>
-									סה"כ פטור ממע"מ:
-								</td>
-								<td style={{ padding: "10px 15px", textAlign: "left" }}>
-									{formatCurrency(totalExempt)}
-								</td>
-							</tr>
-						)}
+						<tr>
+							<td
+								style={{
+									padding: "10px 15px",
+									textAlign: "right",
+									fontWeight: "bold",
+									color: "#666",
+								}}
+							>
+								סה"כ פטור ממע"מ:
+							</td>
+							<td style={{ padding: "10px 15px", textAlign: "left" }}>
+								{formatCurrency(totalExempt)}
+							</td>
+						</tr>
 						{totalVat > 0 && (
 							<tr>
 								<td
