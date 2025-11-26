@@ -1,4 +1,4 @@
-import { TDeliveryNote, TOrder } from "@jsdev_ninja/core";
+import { TOrder, TEzDeliveryNote } from "@jsdev_ninja/core";
 import axios from "axios";
 import { logger } from "../../core";
 
@@ -193,7 +193,7 @@ export const ezCountService = {
 
 			console.log("res", res.status);
 			console.log(JSON.stringify(res.data));
-			return { error: null, data: res.data as TDeliveryNote };
+			return { error: null, data: res.data as TEzDeliveryNote };
 		} catch (error: any) {
 			console.error(error.message);
 			return { error, data: null };

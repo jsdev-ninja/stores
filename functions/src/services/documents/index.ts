@@ -1,66 +1,33 @@
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
-import { renderInvoiceToHTML } from "./renderToHTML";
-import { TOrder, TStore } from "@jsdev_ninja/core";
 import admin from "firebase-admin";
 
 type GenerateInvoicePDFOptions = {
-	order: TOrder;
-	store: TStore;
-	invoiceNumber?: string;
-	invoiceDate?: string;
+	html: string;
 };
 
 class DocumentsService {
 	/**
-	 * Generates a PDF invoice from React component using Puppeteer
+	 * Generates a PDF from html
 	 */
-	async generateInvoicePDF(options: GenerateInvoicePDFOptions): Promise<Buffer> {
-		const { order, store, invoiceNumber, invoiceDate } = options;
+	async createDocumentPdf(options: GenerateInvoicePDFOptions): Promise<Buffer> {
+		const { html } = options;
 
-		// Render React component to HTML
-		const html = renderInvoiceToHTML({
-			order,
-			store,
-			invoiceNumber,
-			invoiceDate,
-		});
-
-		// Configure for Firebase Functions or local development
-		const isProduction = process.env.FUNCTION_TARGET || process.env.K_SERVICE;
-
-		let launchOptions: any;
-
-		if (isProduction) {
-			// Use Chromium for Firebase Functions with memory optimization
-			launchOptions = {
-				args: [
-					...chromium.args,
-					"--hide-scrollbars",
-					"--disable-web-security",
-					"--single-process", // Run in single process to save memory
-					"--disable-dev-shm-usage", // Overcome limited resource problems
-					"--disable-gpu", // Disable GPU hardware acceleration
-					"--no-zygote", // Disable zygote process
-					"--disable-setuid-sandbox",
-				],
-				defaultViewport: chromium.defaultViewport,
-				executablePath: await chromium.executablePath(),
-				headless: true,
-			};
-		} else {
-			// Use local Chrome for development
-			launchOptions = {
-				headless: true,
-				args: [
-					"--no-sandbox",
-					"--disable-setuid-sandbox",
-					"--disable-dev-shm-usage",
-					"--disable-accelerated-2d-canvas",
-					"--disable-gpu",
-				],
-			};
-		}
+		let launchOptions = {
+			args: [
+				...chromium.args,
+				"--hide-scrollbars",
+				"--disable-web-security",
+				"--single-process", // Run in single process to save memory
+				"--disable-dev-shm-usage", // Overcome limited resource problems
+				"--disable-gpu", // Disable GPU hardware acceleration
+				"--no-zygote", // Disable zygote process
+				"--disable-setuid-sandbox",
+			],
+			defaultViewport: chromium.defaultViewport,
+			executablePath: await chromium.executablePath(),
+			headless: true,
+		};
 
 		// Launch Puppeteer browser
 		const browser = await puppeteer.launch(launchOptions);
@@ -85,7 +52,7 @@ class DocumentsService {
 			await page.setContent(html, {
 				waitUntil: "domcontentloaded", // Faster than networkidle0, uses less memory
 			});
-			
+
 			// Wait a bit for images to load if needed
 			await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -143,4 +110,3 @@ class DocumentsService {
 }
 
 export const documentsService = new DocumentsService();
-

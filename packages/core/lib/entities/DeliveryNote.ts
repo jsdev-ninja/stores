@@ -31,7 +31,7 @@ export const EzDeliveryNoteSchema = z.object({
 export const DeliveryNoteSchema = z.object({
 	id: z.string().min(1, "ID is required"),
 	number: z.string().min(1, "Number is required"),
-	date: z.string().min(1, "Date is required"),
+	date: z.number().min(1, "Date is required"),
 	createdAt: z.number().min(1, "Created at is required"),
 	status: z.enum(["pending", "paid", "cancelled"]),
 	companyDetails: z

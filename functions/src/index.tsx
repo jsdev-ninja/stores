@@ -89,6 +89,8 @@ export const onOrderUpdate = functions.firestore
 		const after = snap.after.data() as TOrder;
 		const before = snap.before.data() as TOrder;
 
+		const appApi = createAppApi({ storeId, companyId });
+
 		functionsV2.logger.write({
 			severity: "INFO",
 			message: "order update",
@@ -100,15 +102,6 @@ export const onOrderUpdate = functions.firestore
 		});
 
 		const { displayName, email } = after.client;
-
-		// ezcount_key
-		const storePrivateData: any = (
-			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
-		).data();
-
-		const store: TStore = (
-			await admin.firestore().collection(`STORES`).doc(storeId).get()
-		).data() as TStore;
 
 		const orderIsPaidByClient =
 			after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
@@ -125,34 +118,7 @@ export const onOrderUpdate = functions.firestore
 			// create delivery note (when ready to delivery only)
 			console.log("createDeliveryNote", email, displayName);
 
-			const date = new Date();
-
-			function formatDateDDMMYYYY(input: string) {
-				const d = new Date(input);
-				const day = String(d.getDate()).padStart(2, "0");
-				const month = String(d.getMonth() + 1).padStart(2, "0");
-				const year = d.getFullYear();
-				return `${day}/${month}/${year}`;
-			}
-
-			const res = await ezCountService.createDeliveryNote(after, {
-				ezcount_key: storePrivateData.ezcount_key,
-				clientName: after?.nameOnInvoice || displayName,
-				clientEmail: email,
-				ezcount_api: storePrivateData.ezcount_api,
-				date: formatDateDDMMYYYY(date.toLocaleDateString()),
-			});
-
-			// update order with delivery note
-			await admin
-				.firestore()
-				.collection(
-					FirebaseAPI.firestore.getPath({ collectionName: "orders", companyId, storeId })
-				)
-				.doc(id)
-				.update({
-					deliveryNote: { ...res.data, date: date.getTime() },
-				});
+			await appApi.documents.createDeliveryNote(after);
 		}
 
 		if (orderIsPaidByClient) {
