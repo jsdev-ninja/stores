@@ -4,6 +4,7 @@ import { TOrder, TStore, TDeliveryNote } from "@jsdev_ninja/core";
 import { InvoiceLayout } from "../../templates/InvoiceLayout";
 import { Invoice } from "../../templates/Invoice";
 import { ConsolidatedInvoice } from "../../templates/ConsolidatedInvoice";
+import { DeliveryNote } from "../../templates/DeliveryNote";
 
 const testOrder: TOrder = {
 	paymentStatus: "completed",
@@ -92,7 +93,7 @@ const testStore: TStore = {
 };
 
 function App() {
-	const [activeTab, setActiveTab] = React.useState<"invoice" | "consolidated">("invoice");
+	const [activeTab, setActiveTab] = React.useState<"invoice" | "consolidated" | "deliveryNote">("invoice");
 
 	// Create test orders with delivery notes for consolidated invoice
 	const testOrderWithDeliveryNote1: TOrder = {
@@ -236,7 +237,24 @@ function App() {
 							marginBottom: "-2px",
 						}}
 					>
-						חשבונית מאוחדת
+						חשבונית מרכזת
+					</button>
+					<button
+						onClick={() => setActiveTab("deliveryNote")}
+						style={{
+							padding: "10px 20px",
+							border: "none",
+							backgroundColor: activeTab === "deliveryNote" ? "#333" : "transparent",
+							color: activeTab === "deliveryNote" ? "#fff" : "#333",
+							cursor: "pointer",
+							fontSize: "16px",
+							fontWeight: activeTab === "deliveryNote" ? "bold" : "normal",
+							borderBottom:
+								activeTab === "deliveryNote" ? "3px solid #333" : "3px solid transparent",
+							marginBottom: "-2px",
+						}}
+					>
+						תעודת משלוח
 					</button>
 				</div>
 
@@ -252,6 +270,14 @@ function App() {
 						orders={testOrdersWithDeliveryNotes}
 						store={testStore}
 						invoiceNumber="CONS-001"
+					/>
+				)}
+
+				{activeTab === "deliveryNote" && (
+					<DeliveryNote
+						order={testOrderWithDeliveryNote1}
+						store={testStore}
+						deliveryNoteNumber="DN-001"
 					/>
 				)}
 			</div>

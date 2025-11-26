@@ -75,7 +75,7 @@ export function ConsolidatedInvoice({
 					marginBottom: "30px",
 				}}
 			>
-				חשבונית מס מאוחדת
+				חשבונית מרכזת
 			</h1>
 
 			{/* Invoice Info */}
@@ -91,7 +91,7 @@ export function ConsolidatedInvoice({
 			>
 				<div>
 					<div style={{ fontSize: "12px", color: "#666", marginBottom: "5px" }}>
-						מספר חשבונית מאוחדת
+						מספר חשבונית מרכזת
 					</div>
 					<div style={{ fontSize: "16px", fontWeight: "bold" }}>{invoiceNum}</div>
 				</div>
@@ -101,7 +101,7 @@ export function ConsolidatedInvoice({
 				</div>
 				<div>
 					<div style={{ fontSize: "12px", color: "#666", marginBottom: "5px" }}>
-						מספר אסמכתאות משלוח
+						מספר תעודות משלוח
 					</div>
 					<div style={{ fontSize: "16px", fontWeight: "bold" }}>
 						{ordersWithDeliveryNotes.length}
@@ -120,13 +120,13 @@ export function ConsolidatedInvoice({
 						borderBottom: "2px solid #333",
 					}}
 				>
-					אסמכתאות משלוח
+					תעודות משלוח
 				</h2>
 
 				<table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px" }}>
 					<thead>
 						<tr style={{ backgroundColor: "#333", color: "#fff" }}>
-							<th style={{ padding: "12px", textAlign: "right" }}>מספר אסמכתא</th>
+							<th style={{ padding: "12px", textAlign: "right" }}>מספר תעודת משלוח</th>
 							<th style={{ padding: "12px", textAlign: "center" }}>תאריך</th>
 							<th style={{ padding: "12px", textAlign: "left", width: "120px" }}>סה"כ</th>
 							<th style={{ padding: "12px", textAlign: "left", width: "120px" }}>מע"מ</th>
