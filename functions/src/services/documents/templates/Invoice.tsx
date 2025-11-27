@@ -31,7 +31,7 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 		floor ? ` קומה ${floor}` : ""
 	}${apartmentNumber ? `, דירה ${apartmentNumber}` : ""}`;
 
-	const invoiceNum = invoiceNumber || order.invoice?.doc_number || order.id;
+	const invoiceNum = invoiceNumber || order.invoice?.number;
 	const invoiceDateStr = invoiceDate || formatDate(order.date);
 
 	const subtotal = order.cart.cartTotal - order.cart.cartVat;
@@ -46,7 +46,6 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 
 	return (
 		<InvoiceLayout logoUrl={store.logoUrl} companyDetails={companyDetails}>
-
 			{/* Invoice Title */}
 			<h1
 				style={{

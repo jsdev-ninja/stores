@@ -9,16 +9,12 @@ type DeliveryNoteProps = {
 	deliveryNoteDate?: string;
 };
 
-export function DeliveryNote({ order, store, deliveryNoteNumber, deliveryNoteDate }: DeliveryNoteProps) {
-	const formatDate = (timestamp: number) => {
-		const date = new Date(timestamp);
-		return date.toLocaleDateString("he-IL", {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-		});
-	};
-
+export function DeliveryNote({
+	order,
+	store,
+	deliveryNoteNumber,
+	deliveryNoteDate,
+}: DeliveryNoteProps) {
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat("he-IL", {
 			style: "currency",
@@ -31,16 +27,8 @@ export function DeliveryNote({ order, store, deliveryNoteNumber, deliveryNoteDat
 		floor ? ` קומה ${floor}` : ""
 	}${apartmentNumber ? `, דירה ${apartmentNumber}` : ""}`;
 
-	const deliveryNote = order.deliveryNote!;
-	const docNumber = 'doc_number' in deliveryNote 
-		? (deliveryNote as any).doc_number 
-		: ('number' in deliveryNote ? (deliveryNote as any).number : '');
-	const noteDate = deliveryNote.date && typeof deliveryNote.date === 'number' 
-		? deliveryNote.date 
-		: order.date;
-
-	const deliveryNoteNum = deliveryNoteNumber || docNumber || order.id;
-	const deliveryNoteDateStr = deliveryNoteDate || formatDate(noteDate);
+	const deliveryNoteNum = deliveryNoteNumber;
+	const deliveryNoteDateStr = deliveryNoteDate;
 
 	const cartTotal = order.cart.cartTotal || 0;
 	const cartVat = order.cart.cartVat || 0;
@@ -271,4 +259,3 @@ export function DeliveryNote({ order, store, deliveryNoteNumber, deliveryNoteDat
 		</InvoiceLayout>
 	);
 }
-

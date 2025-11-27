@@ -1,5 +1,5 @@
 import { z } from "zod";
-export declare const InvoiceSchema: z.ZodObject<{
+export declare const EzInvoiceSchema: z.ZodObject<{
     doc_uuid: z.ZodString;
     pdf_link: z.ZodString;
     pdf_link_copy: z.ZodString;
@@ -93,6 +93,118 @@ export declare const InvoiceSchema: z.ZodObject<{
     date?: number | undefined;
     warning?: string | undefined;
 }>;
+export declare const InvoiceSchema: z.ZodObject<{
+    id: z.ZodString;
+    number: z.ZodString;
+    date: z.ZodString;
+    createdAt: z.ZodNumber;
+    status: z.ZodEnum<["pending", "paid", "cancelled"]>;
+    companyDetails: z.ZodOptional<z.ZodObject<{
+        name: z.ZodOptional<z.ZodString>;
+        address: z.ZodOptional<z.ZodString>;
+        phone: z.ZodOptional<z.ZodString>;
+        email: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    }, {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    }>>;
+    clientDetails: z.ZodOptional<z.ZodObject<{
+        name: z.ZodOptional<z.ZodString>;
+        address: z.ZodOptional<z.ZodString>;
+        phone: z.ZodOptional<z.ZodString>;
+        email: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    }, {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    }>>;
+    items: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        name: z.ZodOptional<z.ZodString>;
+        price: z.ZodOptional<z.ZodNumber>;
+        quantity: z.ZodOptional<z.ZodNumber>;
+        total: z.ZodOptional<z.ZodNumber>;
+    }, "strip", z.ZodTypeAny, {
+        name?: string | undefined;
+        price?: number | undefined;
+        quantity?: number | undefined;
+        total?: number | undefined;
+    }, {
+        name?: string | undefined;
+        price?: number | undefined;
+        quantity?: number | undefined;
+        total?: number | undefined;
+    }>, "many">>;
+    total: z.ZodOptional<z.ZodNumber>;
+    vat: z.ZodOptional<z.ZodNumber>;
+    link: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    number: string;
+    status: "pending" | "paid" | "cancelled";
+    id: string;
+    date: string;
+    createdAt: number;
+    vat?: number | undefined;
+    items?: {
+        name?: string | undefined;
+        price?: number | undefined;
+        quantity?: number | undefined;
+        total?: number | undefined;
+    }[] | undefined;
+    companyDetails?: {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    } | undefined;
+    clientDetails?: {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    } | undefined;
+    total?: number | undefined;
+    link?: string | undefined;
+}, {
+    number: string;
+    status: "pending" | "paid" | "cancelled";
+    id: string;
+    date: string;
+    createdAt: number;
+    vat?: number | undefined;
+    items?: {
+        name?: string | undefined;
+        price?: number | undefined;
+        quantity?: number | undefined;
+        total?: number | undefined;
+    }[] | undefined;
+    companyDetails?: {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    } | undefined;
+    clientDetails?: {
+        name?: string | undefined;
+        email?: string | undefined;
+        address?: string | undefined;
+        phone?: string | undefined;
+    } | undefined;
+    total?: number | undefined;
+    link?: string | undefined;
+}>;
 export type TInvoice = z.infer<typeof InvoiceSchema>;
-export declare function isInvoice(data: unknown): data is TInvoice;
+export type TEzInvoice = z.infer<typeof EzInvoiceSchema>;
 //# sourceMappingURL=Invoice.d.ts.map

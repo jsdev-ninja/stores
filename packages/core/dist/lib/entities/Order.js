@@ -2,9 +2,9 @@ import { z } from "zod";
 import { ProfileSchema } from "./Profile";
 import { notEmptyTextSchema } from "./Atoms";
 import { CartItemProductSchema } from "./Cart";
-import { DeliveryNoteSchema } from "./DeliveryNote";
+import { DeliveryNoteSchema, EzDeliveryNoteSchema } from "./DeliveryNote";
 import { BillingAccountSchema } from "./Organization";
-import { InvoiceSchema } from "./Invoice";
+import { EzInvoiceSchema, InvoiceSchema } from "./Invoice";
 // pending - order created / by user
 // processing order accepted by store by admin
 // delivered - order delivered by admin
@@ -44,8 +44,10 @@ export const OrderSchema = z.object({
     client: ProfileSchema.required({}),
     nameOnInvoice: z.string().optional(),
     clientComment: z.string().optional(),
-    deliveryNote: DeliveryNoteSchema.optional(),
-    invoice: InvoiceSchema.optional(),
     organizationId: z.string().optional(),
     billingAccount: BillingAccountSchema.optional(),
+    deliveryNote: DeliveryNoteSchema.optional(),
+    invoice: InvoiceSchema.optional(),
+    ezInvoice: EzInvoiceSchema.optional(),
+    ezDeliveryNote: EzDeliveryNoteSchema.optional(),
 });

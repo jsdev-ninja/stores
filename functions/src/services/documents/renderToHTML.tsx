@@ -24,7 +24,7 @@ type RenderDeliveryNoteOptions = {
 export function renderInvoiceToHTML(options: RenderInvoiceOptions): string {
 	const { order, store, invoiceNumber, invoiceDate } = options;
 
-	const invoiceNum = invoiceNumber || order.invoice?.doc_number || order.id;
+	const invoiceNum = invoiceNumber || order.invoice?.number;
 
 	const htmlString = renderToStaticMarkup(
 		<html dir="rtl" lang="he">
@@ -32,7 +32,15 @@ export function renderInvoiceToHTML(options: RenderInvoiceOptions): string {
 				<meta charSet="UTF-8" />
 				<title>חשבונית {invoiceNum}</title>
 			</head>
-			<body style={{ fontFamily: "Arial, sans-serif", direction: "rtl", padding: "40px", backgroundColor: "#fff", color: "#333" }}>
+			<body
+				style={{
+					fontFamily: "Arial, sans-serif",
+					direction: "rtl",
+					padding: "40px",
+					backgroundColor: "#fff",
+					color: "#333",
+				}}
+			>
 				<Invoice
 					order={order}
 					store={store}
@@ -52,11 +60,7 @@ export function renderInvoiceToHTML(options: RenderInvoiceOptions): string {
 export function renderDeliveryNoteToHTML(options: RenderDeliveryNoteOptions): string {
 	const { order, store, deliveryNoteNumber, deliveryNoteDate } = options;
 
-	const deliveryNote = order.deliveryNote!;
-	const docNumber = 'doc_number' in deliveryNote 
-		? (deliveryNote as any).doc_number 
-		: ('number' in deliveryNote ? (deliveryNote as any).number : '');
-	const noteNum = deliveryNoteNumber || docNumber || order.id;
+	const noteNum = deliveryNoteNumber;
 
 	const htmlString = renderToStaticMarkup(
 		<html dir="rtl" lang="he">
@@ -64,7 +68,15 @@ export function renderDeliveryNoteToHTML(options: RenderDeliveryNoteOptions): st
 				<meta charSet="UTF-8" />
 				<title>תעודת משלוח {noteNum}</title>
 			</head>
-			<body style={{ fontFamily: "Arial, sans-serif", direction: "rtl", padding: "40px", backgroundColor: "#fff", color: "#333" }}>
+			<body
+				style={{
+					fontFamily: "Arial, sans-serif",
+					direction: "rtl",
+					padding: "40px",
+					backgroundColor: "#fff",
+					color: "#333",
+				}}
+			>
 				<DeliveryNote
 					order={order}
 					store={store}

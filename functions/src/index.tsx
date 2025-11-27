@@ -82,8 +82,12 @@ export const onOrderCreated = functions.firestore
 			email: storePrivateData?.storeEmail ?? "",
 		});
 	});
-export const onOrderUpdate = functions.firestore
-	.document(FirebaseAPI.firestore.getDocPath("orders"))
+export const onOrderUpdate = functions
+	.runWith({
+		memory: "1GB",
+		timeoutSeconds: 540,
+	})
+	.firestore.document(FirebaseAPI.firestore.getDocPath("orders"))
 	.onUpdate(async (snap, context) => {
 		const { storeId, companyId, id } = context.params;
 		const after = snap.after.data() as TOrder;
@@ -91,9 +95,7 @@ export const onOrderUpdate = functions.firestore
 
 		const appApi = createAppApi({ storeId, companyId });
 
-		functionsV2.logger.write({
-			severity: "INFO",
-			message: "order update",
+		console.log("order update", {
 			before,
 			after,
 			id,
@@ -108,9 +110,7 @@ export const onOrderUpdate = functions.firestore
 
 		const orderIsReady = before.status === "processing" && after.status === "in_delivery";
 
-		functionsV2.logger.write({
-			severity: "INFO",
-			message: "order status",
+		console.log("order status", {
 			orderIsReady,
 		});
 

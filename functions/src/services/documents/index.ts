@@ -1,6 +1,5 @@
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
-import admin from "firebase-admin";
 
 type GenerateInvoicePDFOptions = {
 	html: string;
@@ -13,7 +12,7 @@ class DocumentsService {
 	async createDocumentPdf(options: GenerateInvoicePDFOptions): Promise<Buffer> {
 		const { html } = options;
 
-		let launchOptions = {
+		const launchOptions = {
 			args: [
 				...chromium.args,
 				"--hide-scrollbars",
@@ -72,40 +71,6 @@ class DocumentsService {
 		} finally {
 			await browser.close();
 		}
-	}
-
-	/**
-	 * Generates PDF invoice and uploads to Firebase Storage
-	 */
-	async generateAndUploadInvoicePDF(
-		options: GenerateInvoicePDFOptions & {
-			companyId: string;
-			storeId: string;
-			orderId: string;
-		}
-	): Promise<string> {
-		const { companyId, storeId, orderId, ...pdfOptions } = options;
-
-		// Generate PDF
-		const pdfBuffer = await this.generateInvoicePDF(pdfOptions);
-
-		// Upload to Firebase Storage
-		const bucket = admin.storage().bucket();
-		const fileName = `invoices/${companyId}/${storeId}/${orderId}-${Date.now()}.pdf`;
-		const file = bucket.file(fileName);
-
-		await file.save(pdfBuffer, {
-			metadata: {
-				contentType: "application/pdf",
-			},
-		});
-
-		// Make file publicly accessible
-		await file.makePublic();
-
-		const pdfUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-
-		return pdfUrl;
 	}
 }
 

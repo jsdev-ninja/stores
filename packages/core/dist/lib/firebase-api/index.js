@@ -19,11 +19,11 @@ export const storeCollections = {
 export const FirestoreApi = {
     systemCollections,
     storeCollections,
-    // for client
+    // for client and server
     getPath: ({ companyId, storeId, collectionName, id, }) => {
         return `${companyId}/${storeId}/${collectionName}${id ? `/${id}` : ""}`;
     },
-    // for backend
+    // for firestore events
     getDocPath: (collectionName) => {
         return `{companyId}/{storeId}/${collectionName}/{id}`;
     },

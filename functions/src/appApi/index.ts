@@ -1,11 +1,10 @@
 import admin from "firebase-admin";
 import { logger } from "../core";
 import { FirebaseAPI, TOrder, TStore } from "@jsdev_ninja/core";
-import { ezCountService } from "src/services/ezCountService";
+import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
-import { documentsService } from "src/services/documents";
-import { renderDeliveryNoteToHTML } from "src/services/documents/renderToHTML";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { documentsService } from "../services/documents";
+import { renderDeliveryNoteToHTML } from "../services/documents/renderToHTML";
 
 type TContext = {
 	storeId: string;
@@ -48,6 +47,11 @@ export function createAppApi(context: TContext) {
 						ezcount_api: storePrivateData.ezcount_api,
 						date: formatDateDDMMYYYY(date.toLocaleDateString()),
 					});
+					logger.write({
+						severity: "INFO",
+						message: "createDeliveryNote result",
+						result: res,
+					});
 					if (res.data?.success) {
 						const html = renderDeliveryNoteToHTML({
 							order,
@@ -56,17 +60,44 @@ export function createAppApi(context: TContext) {
 							deliveryNoteDate: formatDateDDMMYYYY(date.toLocaleDateString()),
 						});
 
-						const pdf = await documentsService.createDocumentPdf({ html });
-						const path = `${companyId}/${storeId}/deliveryNotes/${res.data.doc_number}`;
-						const storage = getStorage();
-						const storageRef = ref(storage, path);
-
-						// 'file' comes from the Blob or File API
-						const snapshot = await uploadBytes(storageRef, pdf, {
-							contentType: "application/pdf",
+						logger.write({
+							severity: "INFO",
+							message: "createDeliveryNote html",
+							html,
 						});
-						console.log("Uploaded a blob or file!", snapshot);
-						const url = await getDownloadURL(snapshot.ref);
+
+						const pdf = await documentsService.createDocumentPdf({ html });
+
+						logger.write({
+							severity: "INFO",
+							message: "createDeliveryNote pdf",
+							pdf,
+						});
+
+						const path = `${companyId}/${storeId}/deliveryNotes/${res.data.doc_number}`;
+						const bucket = admin.storage().bucket();
+						const file = bucket.file(path);
+
+						// Upload the PDF buffer to Firebase Storage
+						await file.save(pdf, {
+							metadata: {
+								contentType: "application/pdf",
+							},
+							contentType: "application/pdf",
+							predefinedAcl: "publicRead",
+						});
+
+						logger.write({
+							severity: "INFO",
+							message: "createDeliveryNote path",
+							path,
+						});
+
+						// Make the file publicly accessible (if not already)
+						await file.makePublic();
+
+						// Get public URL (never expires since file is public)
+						const url = file.publicUrl();
 
 						const newOrder: TOrder = {
 							...order,
@@ -118,19 +149,21 @@ export function createAppApi(context: TContext) {
 					} else {
 						logger.write({
 							severity: "ERROR",
-							message:
-								"error creating delivery note (failed to create delivery note in ezcount)",
+							message: `error creating delivery note (failed to create delivery note in ezcount (error: ${res.error?.message}))`,
 							orderId: order.id,
 							storeId: storeId,
 							companyId: companyId,
-							error: res.error,
+							error: res.error?.message,
 						});
-						return { success: false, error: res.error as Error };
+						return {
+							success: false,
+							error: new Error(res.error?.message ?? "unknown error"),
+						};
 					}
-				} catch (error) {
+				} catch (error: any) {
 					logger.write({
 						severity: "ERROR",
-						message: "error creating delivery note",
+						message: `error creating delivery note: ${error?.message}`,
 						orderId: order.id,
 						storeId: storeId,
 						companyId: companyId,
