@@ -36,7 +36,6 @@ export const onOrderCreated = functions.firestore
 		const { storeId, companyId, id } = context.params;
 
 		const appApi = createAppApi({ storeId, companyId });
-		console.log("appApi", appApi);
 
 		const order = snap.data() as TOrder;
 
@@ -60,18 +59,8 @@ export const onOrderCreated = functions.firestore
 		if (!storePrivateData) {
 			console.log("storePrivateData not exits");
 		}
-		if (store.paymentType === "external") {
-			// close cart
-			await admin
-				.firestore()
-				.collection(
-					FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId })
-				)
-				.doc(order.cart.id)
-				.update({
-					status: "completed",
-				});
-		}
+		// close cart
+		await appApi.cart.close(order.cart.id);
 
 		// send email
 
