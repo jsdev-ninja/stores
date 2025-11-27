@@ -205,11 +205,11 @@ export default function AdminInvoicesPage() {
 										</td>
 										{/* Invoice Number */}
 										<td className="px-6 py-4 text-sm text-gray-500">
-											{order.invoice?.doc_number ? order.invoice.doc_number : "-"}
+											{order.ezInvoice?.doc_number ? order.ezInvoice.doc_number : "-"}
 										</td>
 										{/* Delivery Note Number */}
 										<td className="px-6 py-4 text-sm text-gray-500">
-											{order.deliveryNote?.doc_number ? order.deliveryNote.doc_number : "-"}
+											{order.ezDeliveryNote?.doc_number ? order?.ezDeliveryNote.doc_number : "-"}
 										</td>
 										<td className="px-6 py-4 text-sm font-medium text-gray-900">
 											#{order.id.slice(-8)}

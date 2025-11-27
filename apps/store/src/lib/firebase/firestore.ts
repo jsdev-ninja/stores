@@ -23,9 +23,27 @@ import { app } from "./app";
 
 const db = getFirestore(app);
 
-// remove all undefined fields from object
-function removeUndefinedFields(obj: any) {
-	return Object.fromEntries(Object.entries(obj).filter(([_, value]) => value !== undefined));
+// remove all undefined fields from object (recursively handles nested objects)
+function removeUndefinedFields(obj: any): any {
+	if (obj === null || obj === undefined) {
+		return obj;
+	}
+
+	if (Array.isArray(obj)) {
+		return obj.map(removeUndefinedFields);
+	}
+
+	if (typeof obj === "object") {
+		const result: any = {};
+		for (const [key, value] of Object.entries(obj)) {
+			if (value !== undefined) {
+				result[key] = removeUndefinedFields(value);
+			}
+		}
+		return result;
+	}
+
+	return obj;
 }
 
 async function remove({ id, collectionName }: { id: string; collectionName: string }) {
@@ -96,7 +114,7 @@ async function create(item: any, coll: any) {
 }
 async function update<T extends object = any>(id: string, item: UpdateData<T>, coll: any) {
 	try {
-		await updateDoc(doc(db, coll, id), item);
+		await updateDoc(doc(db, coll, id), removeUndefinedFields(item));
 
 		const data = { ...item };
 

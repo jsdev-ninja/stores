@@ -110,7 +110,7 @@ export function InvoiceDetailsModal({
 				orders: selectedOrders,
 				params: {
 					item: selectedOrders.map((order) => ({
-						details: `תעודת משלוח ${order?.deliveryNote?.doc_number ?? ""}`,
+						details: `תעודת משלוח ${order?.ezDeliveryNote?.doc_number ?? ""}`,
 						price: order?.cart.cartTotal ?? 0,
 						amount: 1,
 						vat_type: VAT_TYPE.NON,
@@ -125,7 +125,7 @@ export function InvoiceDetailsModal({
 						(acc, order) => acc + (order?.cart.cartTotal ?? 0),
 						0
 					),
-					parent: selectedOrders.map((order) => order?.deliveryNote?.doc_uuid).join(","),
+					parent: selectedOrders.map((order) => order?.ezDeliveryNote?.doc_uuid).join(","),
 					date: formatDateDDMMYYYY(formData.invoiceDate),
 				},
 			});

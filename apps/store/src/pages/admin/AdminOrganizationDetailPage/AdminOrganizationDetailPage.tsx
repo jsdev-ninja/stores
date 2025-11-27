@@ -531,9 +531,11 @@ export function AdminOrganizationDetailPage() {
 	) => {
 		setOrganizationFormData((prev) => ({
 			...prev,
-			[field]: value,
+			[field]: value || "",
 		}));
 	};
+
+	console.log("organizationFormData", organizationFormData);
 
 	const handleUpdateOrganization = async () => {
 		if (!organization) return;
@@ -544,7 +546,7 @@ export function AdminOrganizationDetailPage() {
 				...organization,
 				name: organizationFormData.name.trim(),
 				discountPercentage: organizationFormData.discountPercentage,
-				nameOnInvoice: organizationFormData.nameOnInvoice.trim() || undefined,
+				nameOnInvoice: organizationFormData.nameOnInvoice.trim(),
 				paymentType: organizationFormData.paymentType,
 			} as TOrganization;
 
