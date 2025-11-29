@@ -14,6 +14,31 @@ export declare const StoreSchema: z.ZodObject<{
     minimumOrder: z.ZodOptional<z.ZodNumber>;
     freeDeliveryPrice: z.ZodOptional<z.ZodNumber>;
     deliveryPrice: z.ZodOptional<z.ZodNumber>;
+    address: z.ZodOptional<z.ZodObject<{
+        country: z.ZodOptional<z.ZodString>;
+        city: z.ZodOptional<z.ZodString>;
+        street: z.ZodOptional<z.ZodString>;
+        streetNumber: z.ZodOptional<z.ZodString>;
+        floor: z.ZodOptional<z.ZodString>;
+        apartmentEnterNumber: z.ZodOptional<z.ZodString>;
+        apartmentNumber: z.ZodOptional<z.ZodString>;
+    }, "strip", z.ZodTypeAny, {
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
+    }, {
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
+    }>>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     companyId: string;
@@ -25,6 +50,15 @@ export declare const StoreSchema: z.ZodObject<{
     logoUrl: string;
     allowAnonymousClients: boolean;
     clientTypes: ("company" | "individual")[];
+    address?: {
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
+    } | undefined;
     deliveryPrice?: number | undefined;
     freeDeliveryPrice?: number | undefined;
     minimumOrder?: number | undefined;
@@ -39,6 +73,15 @@ export declare const StoreSchema: z.ZodObject<{
     logoUrl: string;
     allowAnonymousClients: boolean;
     clientTypes: ("company" | "individual")[];
+    address?: {
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
+    } | undefined;
     deliveryPrice?: number | undefined;
     freeDeliveryPrice?: number | undefined;
     minimumOrder?: number | undefined;
