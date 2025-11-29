@@ -102,6 +102,7 @@ export const useAppApi = () => {
 	}, [appReady, isValidStoreData, logger]);
 
 	const api = {
+		logger,
 		orders: {
 			list: async () => {
 				if (!isValidStoreData) return;

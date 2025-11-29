@@ -6,7 +6,7 @@ import {
 	useInstantSearch,
 } from "react-instantsearch";
 import { AlgoliaClient } from "src/services";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
 import { SearchBox } from "./SearchBox";
 import { useStore } from "src/domains/Store";
@@ -14,7 +14,30 @@ import { TProduct } from "@jsdev_ninja/core";
 import { EmptyState } from "src/components/EmptyState/EmptyState";
 import { useTranslation } from "react-i18next";
 import { useParams } from "src/navigation";
+import { useAppApi } from "src/appApi";
 
+function Middleware() {
+	const { addMiddlewares } = useInstantSearch();
+
+	const appApi = useAppApi();
+	useLayoutEffect(() => {
+		addMiddlewares(() => {
+			return {
+				onStateChange({ uiState }) {
+					const index = "products";
+					const state = uiState[index];
+					appApi.logger({
+						message: "products state change",
+						severity: "INFO",
+						query: state?.query,
+						filters: state?.configure?.filters,
+					});
+				},
+			};
+		});
+	}, []);
+	return null;
+}
 export function ProductsWidget({
 	children,
 }: // filter = "",
@@ -52,6 +75,7 @@ export function ProductsWidget({
 				persistHierarchicalRootCount: true,
 			}}
 		>
+			<Middleware />
 			<RestPage filters={filters} />
 			<Configure
 				queryLanguages={["he", "en"]}
@@ -99,6 +123,7 @@ export function ProductsWidgetAdmin({
 			}}
 		>
 			<RestPage filters={filters} />
+			<Middleware />
 			<Configure
 				queryLanguages={["he", "en"]}
 				{...(filters ? { filters: filters } : {})}
