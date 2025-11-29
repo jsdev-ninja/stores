@@ -18,6 +18,7 @@ export const StoreSchema = z.object({
 	freeDeliveryPrice: z.number().optional(),
 	deliveryPrice: z.number().optional(),
 	address: AddressSchema.optional(),
+	companyNumber: z.string().optional(), // חפ של החברה
 });
 
 export type TStore = z.infer<typeof StoreSchema>;

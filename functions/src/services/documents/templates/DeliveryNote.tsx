@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TOrder, TStore } from "@jsdev_ninja/core";
-import { InvoiceLayout, CompanyDetails } from "./InvoiceLayout";
+import { InvoiceLayout } from "./InvoiceLayout";
 
 type DeliveryNoteProps = {
 	order: TOrder;
@@ -36,19 +36,15 @@ export function DeliveryNote({
 	const discount = order.cart.cartDiscount;
 	const deliveryPrice = order.cart.deliveryPrice || 0;
 
-	const companyDetails: CompanyDetails = {
-		name: store.name,
-	};
-
 	return (
-		<InvoiceLayout logoUrl={store.logoUrl} companyDetails={companyDetails}>
+		<InvoiceLayout store={store}>
 			{/* Delivery Note Title */}
 			<h1
 				style={{
 					textAlign: "center",
 					fontSize: "32px",
 					fontWeight: "bold",
-					marginBottom: "30px",
+					marginBottom: "15px",
 				}}
 			>
 				תעודת משלוח
@@ -59,8 +55,8 @@ export function DeliveryNote({
 				style={{
 					display: "flex",
 					justifyContent: "space-between",
-					marginBottom: "30px",
-					padding: "20px",
+					marginBottom: "15px",
+					padding: "15px",
 					backgroundColor: "#f9f9f9",
 					borderRadius: "8px",
 				}}
@@ -86,8 +82,8 @@ export function DeliveryNote({
 			{/* Client Section */}
 			<div
 				style={{
-					marginBottom: "30px",
-					padding: "20px",
+					marginBottom: "15px",
+					padding: "15px",
 					backgroundColor: "#f5f5f5",
 					borderRadius: "8px",
 				}}
@@ -119,7 +115,7 @@ export function DeliveryNote({
 			</div>
 
 			{/* Items Table */}
-			<div style={{ marginBottom: "30px" }}>
+			<div style={{ marginBottom: "15px" }}>
 				<h2
 					style={{
 						fontSize: "20px",
@@ -160,7 +156,7 @@ export function DeliveryNote({
 			</div>
 
 			{/* Totals */}
-			<div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "30px" }}>
+			<div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "15px" }}>
 				<table style={{ width: "400px", borderCollapse: "collapse" }}>
 					<tbody>
 						{subtotal > 0 && (

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TOrder, TStore } from "@jsdev_ninja/core";
-import { InvoiceLayout, CompanyDetails } from "./InvoiceLayout";
+import { InvoiceLayout } from "./InvoiceLayout";
 
 type InvoiceProps = {
 	order: TOrder;
@@ -40,19 +40,15 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 	const discount = order.cart.cartDiscount;
 	const deliveryPrice = order.cart.deliveryPrice || 0;
 
-	const companyDetails: CompanyDetails = {
-		name: store.name,
-	};
-
 	return (
-		<InvoiceLayout logoUrl={store.logoUrl} companyDetails={companyDetails}>
+		<InvoiceLayout store={store}>
 			{/* Invoice Title */}
 			<h1
 				style={{
 					textAlign: "center",
 					fontSize: "32px",
 					fontWeight: "bold",
-					marginBottom: "30px",
+					marginBottom: "15px",
 				}}
 			>
 				חשבונית מס
@@ -63,8 +59,8 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 				style={{
 					display: "flex",
 					justifyContent: "space-between",
-					marginBottom: "30px",
-					padding: "20px",
+					marginBottom: "15px",
+					padding: "15px",
 					backgroundColor: "#f9f9f9",
 					borderRadius: "8px",
 				}}
@@ -90,8 +86,8 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 			{/* Client Section */}
 			<div
 				style={{
-					marginBottom: "30px",
-					padding: "20px",
+					marginBottom: "15px",
+					padding: "15px",
 					backgroundColor: "#f5f5f5",
 					borderRadius: "8px",
 				}}
@@ -100,8 +96,8 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 					style={{
 						fontSize: "18px",
 						fontWeight: "bold",
-						marginBottom: "15px",
-						paddingBottom: "10px",
+						marginBottom: "10px",
+						paddingBottom: "8px",
 						borderBottom: "1px solid #ddd",
 					}}
 				>
@@ -164,7 +160,7 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 			</div>
 
 			{/* Items Table */}
-			<table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px" }}>
+			<table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "15px" }}>
 				<thead>
 					<tr style={{ backgroundColor: "#333", color: "#fff" }}>
 						<th style={{ padding: "12px", textAlign: "center", width: "60px" }}>תמונה</th>
@@ -209,7 +205,7 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 			</table>
 
 			{/* Totals */}
-			<div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "30px" }}>
+			<div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "15px" }}>
 				<table style={{ width: "400px", borderCollapse: "collapse" }}>
 					<tbody>
 						{subtotal > 0 && (
@@ -310,8 +306,8 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 			{order.clientComment && (
 				<div
 					style={{
-						marginBottom: "30px",
-						padding: "20px",
+						marginBottom: "15px",
+						padding: "15px",
 						backgroundColor: "#f5f5f5",
 						borderRadius: "8px",
 					}}
@@ -320,8 +316,8 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 						style={{
 							fontSize: "18px",
 							fontWeight: "bold",
-							marginBottom: "15px",
-							paddingBottom: "10px",
+							marginBottom: "10px",
+							paddingBottom: "8px",
 							borderBottom: "1px solid #ddd",
 						}}
 					>

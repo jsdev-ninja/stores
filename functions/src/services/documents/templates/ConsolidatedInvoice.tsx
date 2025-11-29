@@ -1,6 +1,6 @@
 import * as React from "react";
-import { TOrder, TStore, TDeliveryNote } from "@jsdev_ninja/core";
-import { InvoiceLayout, CompanyDetails } from "./InvoiceLayout";
+import { TOrder, TStore } from "@jsdev_ninja/core";
+import { InvoiceLayout } from "./InvoiceLayout";
 
 type ConsolidatedInvoiceProps = {
 	orders: TOrder[];
@@ -60,19 +60,15 @@ export function ConsolidatedInvoice({
 	const invoiceNum = invoiceNumber || `CONS-${Date.now()}`;
 	const invoiceDateStr = invoiceDate || formatDate(Date.now());
 
-	const companyDetails: CompanyDetails = {
-		name: store.name,
-	};
-
 	return (
-		<InvoiceLayout logoUrl={store.logoUrl} companyDetails={companyDetails}>
+		<InvoiceLayout store={store}>
 			{/* Consolidated Invoice Title */}
 			<h1
 				style={{
 					textAlign: "center",
 					fontSize: "32px",
 					fontWeight: "bold",
-					marginBottom: "30px",
+					marginBottom: "15px",
 				}}
 			>
 				חשבונית מרכזת
@@ -83,8 +79,8 @@ export function ConsolidatedInvoice({
 				style={{
 					display: "flex",
 					justifyContent: "space-between",
-					marginBottom: "30px",
-					padding: "20px",
+					marginBottom: "15px",
+					padding: "15px",
 					backgroundColor: "#f9f9f9",
 					borderRadius: "8px",
 				}}
@@ -110,7 +106,7 @@ export function ConsolidatedInvoice({
 			</div>
 
 			{/* Delivery Notes List */}
-			<div style={{ marginBottom: "30px" }}>
+			<div style={{ marginBottom: "15px" }}>
 				<h2
 					style={{
 						fontSize: "20px",
@@ -123,7 +119,7 @@ export function ConsolidatedInvoice({
 					תעודות משלוח
 				</h2>
 
-				<table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "30px" }}>
+				<table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "15px" }}>
 					<thead>
 						<tr style={{ backgroundColor: "#333", color: "#fff" }}>
 							<th style={{ padding: "12px", textAlign: "right" }}>מספר תעודת משלוח</th>
@@ -138,12 +134,16 @@ export function ConsolidatedInvoice({
 							const cartTotal = order.cart.cartTotal || 0;
 							const cartVat = order.cart.cartVat || 0;
 							// Handle both DeliveryNoteSchema (has 'number') and EzDeliveryNoteSchema (has 'doc_number')
-							const docNumber = 'doc_number' in deliveryNote 
-								? (deliveryNote as any).doc_number 
-								: ('number' in deliveryNote ? (deliveryNote as any).number : '');
-							const deliveryDate = deliveryNote.date && typeof deliveryNote.date === 'number' 
-								? deliveryNote.date 
-								: order.date;
+							const docNumber =
+								"doc_number" in deliveryNote
+									? (deliveryNote as any).doc_number
+									: "number" in deliveryNote
+									? (deliveryNote as any).number
+									: "";
+							const deliveryDate =
+								deliveryNote.date && typeof deliveryNote.date === "number"
+									? deliveryNote.date
+									: order.date;
 							return (
 								<tr key={index} style={{ borderBottom: "1px solid #ddd" }}>
 									<td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>
@@ -166,7 +166,7 @@ export function ConsolidatedInvoice({
 			</div>
 
 			{/* Totals Summary */}
-			<div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "30px" }}>
+			<div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "15px" }}>
 				<table style={{ width: "400px", borderCollapse: "collapse" }}>
 					<tbody>
 						{totalTaxable > 0 && (
