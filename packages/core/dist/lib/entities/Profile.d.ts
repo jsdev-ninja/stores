@@ -13,29 +13,29 @@ export declare const ProfileSchema: z.ZodObject<{
     email: z.ZodString;
     phoneNumber: z.ZodOptional<z.ZodString>;
     address: z.ZodOptional<z.ZodObject<{
-        country: z.ZodString;
-        city: z.ZodString;
-        street: z.ZodString;
-        streetNumber: z.ZodString;
-        floor: z.ZodString;
-        apartmentEnterNumber: z.ZodString;
-        apartmentNumber: z.ZodString;
+        country: z.ZodOptional<z.ZodString>;
+        city: z.ZodOptional<z.ZodString>;
+        street: z.ZodOptional<z.ZodString>;
+        streetNumber: z.ZodOptional<z.ZodString>;
+        floor: z.ZodOptional<z.ZodString>;
+        apartmentEnterNumber: z.ZodOptional<z.ZodString>;
+        apartmentNumber: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
     }, {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
     }>>;
     isAnonymous: z.ZodBoolean;
     createdDate: z.ZodNumber;
@@ -58,13 +58,13 @@ export declare const ProfileSchema: z.ZodObject<{
     companyName?: string | undefined;
     phoneNumber?: string | undefined;
     address?: {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
     } | undefined;
     organizationId?: string | null | undefined;
 }, {
@@ -83,13 +83,13 @@ export declare const ProfileSchema: z.ZodObject<{
     companyName?: string | undefined;
     phoneNumber?: string | undefined;
     address?: {
-        country: string;
-        city: string;
-        street: string;
-        streetNumber: string;
-        floor: string;
-        apartmentEnterNumber: string;
-        apartmentNumber: string;
+        country?: string | undefined;
+        city?: string | undefined;
+        street?: string | undefined;
+        streetNumber?: string | undefined;
+        floor?: string | undefined;
+        apartmentEnterNumber?: string | undefined;
+        apartmentNumber?: string | undefined;
     } | undefined;
     organizationId?: string | null | undefined;
 }>;

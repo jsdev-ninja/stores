@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AddressSchema } from "./Address";
 
 export const clientTypesSchema = z.enum(["individual", "company"]);
 
@@ -16,6 +17,7 @@ export const StoreSchema = z.object({
 	minimumOrder: z.number().optional(),
 	freeDeliveryPrice: z.number().optional(),
 	deliveryPrice: z.number().optional(),
+	address: AddressSchema.optional(),
 });
 
 export type TStore = z.infer<typeof StoreSchema>;

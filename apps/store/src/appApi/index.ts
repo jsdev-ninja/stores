@@ -22,6 +22,7 @@ import {
 	TProduct,
 	TProfile,
 	TNewOrganization,
+	TAddress,
 } from "@jsdev_ninja/core";
 
 import { TCart } from "src/domains/cart";
@@ -576,6 +577,7 @@ export const useAppApi = () => {
 				freeDeliveryPrice?: number | null;
 				minimumOrder?: number | null;
 				isVatIncludedInPrice?: boolean;
+				address?: TAddress | null;
 			}) => {
 				if (!isValidAdmin) return;
 

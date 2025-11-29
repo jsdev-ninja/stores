@@ -2971,13 +2971,13 @@ var i = /* @__PURE__ */ Object.freeze({
   ZodError: S
 });
 const gn = i.object({
-  country: i.string(),
-  city: i.string(),
-  street: i.string(),
-  streetNumber: i.string(),
-  floor: i.string(),
-  apartmentEnterNumber: i.string(),
-  apartmentNumber: i.string()
+  country: i.string().optional(),
+  city: i.string().optional(),
+  street: i.string().optional(),
+  streetNumber: i.string().optional(),
+  floor: i.string().optional(),
+  apartmentEnterNumber: i.string().optional(),
+  apartmentNumber: i.string().optional()
 }), M = i.string().min(1, { message: "שדה חובה" }), En = i.string().regex(/^\d+$/, "Must be a numeric string"), Pn = i.object({ url: i.string().url(), id: i.string() });
 function Rn(n) {
   return !!(n != null && n.url);
