@@ -1,7 +1,6 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import { TOrder, TStore, TDeliveryNote } from "@jsdev_ninja/core";
-import { InvoiceLayout } from "../../templates/InvoiceLayout";
 import { Invoice } from "../../templates/Invoice";
 import { ConsolidatedInvoice } from "../../templates/ConsolidatedInvoice";
 import { DeliveryNote } from "../../templates/DeliveryNote";

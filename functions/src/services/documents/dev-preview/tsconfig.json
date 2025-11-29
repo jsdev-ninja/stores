@@ -3,9 +3,9 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
-			"@jsdev_ninja/core": ["../../../../node_modules/@jsdev_ninja/core"]
+			"@jsdev_ninja/core": ["./node_modules/@jsdev_ninja/core/dist/lib"]
 		}
 	},
-	"include": ["src/**/*", "../templates/**/*"]
+	"include": ["src/**/*", "../templates/**/*", "*.d.ts"]
 }
 

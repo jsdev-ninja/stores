@@ -39,6 +39,7 @@ export declare const StoreSchema: z.ZodObject<{
         apartmentEnterNumber?: string | undefined;
         apartmentNumber?: string | undefined;
     }>>;
+    companyNumber: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     companyId: string;
@@ -62,6 +63,7 @@ export declare const StoreSchema: z.ZodObject<{
     deliveryPrice?: number | undefined;
     freeDeliveryPrice?: number | undefined;
     minimumOrder?: number | undefined;
+    companyNumber?: string | undefined;
 }, {
     id: string;
     companyId: string;
@@ -85,6 +87,7 @@ export declare const StoreSchema: z.ZodObject<{
     deliveryPrice?: number | undefined;
     freeDeliveryPrice?: number | undefined;
     minimumOrder?: number | undefined;
+    companyNumber?: string | undefined;
 }>;
 export type TStore = z.infer<typeof StoreSchema>;
 //# sourceMappingURL=Store.d.ts.map

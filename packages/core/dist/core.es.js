@@ -105,7 +105,7 @@ const f = x.arrayToEnum([
   "not_multiple_of",
   "not_finite"
 ]), ct = (n) => JSON.stringify(n, null, 2).replace(/"([^"]+)":/g, "$1:");
-class S extends Error {
+class N extends Error {
   get errors() {
     return this.issues;
   }
@@ -142,7 +142,7 @@ class S extends Error {
     return s(this), r;
   }
   static assert(e) {
-    if (!(e instanceof S))
+    if (!(e instanceof N))
       throw new Error(`Not a ZodError: ${e}`);
   }
   toString() {
@@ -164,7 +164,7 @@ class S extends Error {
     return this.flatten();
   }
 }
-S.create = (n) => new S(n);
+N.create = (n) => new N(n);
 const X = (n, e) => {
   let t;
   switch (n.code) {
@@ -342,7 +342,7 @@ const Me = (n, e) => {
     get error() {
       if (this._error)
         return this._error;
-      const t = new S(n.common.issues);
+      const t = new N(n.common.issues);
       return this._error = t, this._error;
     }
   };
@@ -580,13 +580,13 @@ class _ {
   }
 }
 const lt = /^c[^\s-]{8,}$/i, mt = /^[0-9a-z]+$/, ft = /^[0-9A-HJKMNP-TV-Z]{26}$/i, pt = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i, ht = /^[a-z0-9_-]{21}$/i, gt = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/, yt = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/, vt = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i, _t = "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$";
-let Ne;
+let Se;
 const bt = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/, xt = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/, kt = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/, wt = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/, Tt = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/, It = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/, Ue = "((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))", At = new RegExp(`^${Ue}$`);
 function Le(n) {
   let e = "([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d";
   return n.precision ? e = `${e}\\.\\d{${n.precision}}` : n.precision == null && (e = `${e}(\\.\\d+)?`), e;
 }
-function St(n) {
+function Nt(n) {
   return new RegExp(`^${Le(n)}$`);
 }
 function qe(n) {
@@ -594,7 +594,7 @@ function qe(n) {
   const t = [];
   return t.push(n.local ? "Z?" : "Z"), n.offset && t.push("([+-]\\d{2}:?\\d{2})"), e = `${e}(${t.join("|")})`, new RegExp(`^${e}$`);
 }
-function Nt(n, e) {
+function St(n, e) {
   return !!((e === "v4" || !e) && bt.test(n) || (e === "v6" || !e) && kt.test(n));
 }
 function Ct(n, e) {
@@ -610,7 +610,7 @@ function Ct(n, e) {
 function Zt(n, e) {
   return !!((e === "v4" || !e) && xt.test(n) || (e === "v6" || !e) && wt.test(n));
 }
-class N extends _ {
+class S extends _ {
   _parse(e) {
     if (this._def.coerce && (e.data = String(e.data)), this._getType(e) !== f.string) {
       const a = this._getOrReturnCtx(e);
@@ -665,7 +665,7 @@ class N extends _ {
           message: a.message
         }), r.dirty());
       else if (a.kind === "emoji")
-        Ne || (Ne = new RegExp(_t, "u")), Ne.test(e.data) || (s = this._getOrReturnCtx(e, s), m(s, {
+        Se || (Se = new RegExp(_t, "u")), Se.test(e.data) || (s = this._getOrReturnCtx(e, s), m(s, {
           validation: "emoji",
           code: u.invalid_string,
           message: a.message
@@ -734,7 +734,7 @@ class N extends _ {
         code: u.invalid_string,
         validation: "date",
         message: a.message
-      }), r.dirty()) : a.kind === "time" ? St(a).test(e.data) || (s = this._getOrReturnCtx(e, s), m(s, {
+      }), r.dirty()) : a.kind === "time" ? Nt(a).test(e.data) || (s = this._getOrReturnCtx(e, s), m(s, {
         code: u.invalid_string,
         validation: "time",
         message: a.message
@@ -742,7 +742,7 @@ class N extends _ {
         validation: "duration",
         code: u.invalid_string,
         message: a.message
-      }), r.dirty()) : a.kind === "ip" ? Nt(e.data, a.version) || (s = this._getOrReturnCtx(e, s), m(s, {
+      }), r.dirty()) : a.kind === "ip" ? St(e.data, a.version) || (s = this._getOrReturnCtx(e, s), m(s, {
         validation: "ip",
         code: u.invalid_string,
         message: a.message
@@ -773,7 +773,7 @@ class N extends _ {
     });
   }
   _addCheck(e) {
-    return new N({
+    return new S({
       ...this._def,
       checks: [...this._def.checks, e]
     });
@@ -910,19 +910,19 @@ class N extends _ {
     return this.min(1, h.errToObj(e));
   }
   trim() {
-    return new N({
+    return new S({
       ...this._def,
       checks: [...this._def.checks, { kind: "trim" }]
     });
   }
   toLowerCase() {
-    return new N({
+    return new S({
       ...this._def,
       checks: [...this._def.checks, { kind: "toLowerCase" }]
     });
   }
   toUpperCase() {
-    return new N({
+    return new S({
       ...this._def,
       checks: [...this._def.checks, { kind: "toUpperCase" }]
     });
@@ -988,9 +988,9 @@ class N extends _ {
     return e;
   }
 }
-N.create = (n) => {
+S.create = (n) => {
   var e;
-  return new N({
+  return new S({
     checks: [],
     typeName: g.ZodString,
     coerce: (e = n == null ? void 0 : n.coerce) !== null && e !== void 0 ? e : !1,
@@ -1897,7 +1897,7 @@ class ce extends _ {
       for (const c of a)
         if (c.result.status === "dirty")
           return t.common.issues.push(...c.ctx.common.issues), c.result;
-      const o = a.map((c) => new S(c.ctx.common.issues));
+      const o = a.map((c) => new N(c.ctx.common.issues));
       return m(t, {
         code: u.invalid_union,
         unionErrors: o
@@ -1944,7 +1944,7 @@ class ce extends _ {
       }
       if (a)
         return t.common.issues.push(...a.ctx.common.issues), a.result;
-      const c = o.map((l) => new S(l));
+      const c = o.map((l) => new N(l));
       return m(t, {
         code: u.invalid_union,
         unionErrors: c
@@ -2171,7 +2171,7 @@ class ue extends _ {
       typeName: g.ZodRecord,
       ...v(r)
     }) : new ue({
-      keyType: N.create(),
+      keyType: S.create(),
       valueType: e,
       typeName: g.ZodRecord,
       ...v(t)
@@ -2338,7 +2338,7 @@ class J extends _ {
     if (this._def.returns instanceof G) {
       const c = this;
       return I(async function(...l) {
-        const d = new S([]), p = await c._def.args.parseAsync(l, a).catch((A) => {
+        const d = new N([]), p = await c._def.args.parseAsync(l, a).catch((A) => {
           throw d.addIssue(r(l, A)), d;
         }), b = await Reflect.apply(o, this, p);
         return await c._def.returns._def.type.parseAsync(b, a).catch((A) => {
@@ -2350,10 +2350,10 @@ class J extends _ {
       return I(function(...l) {
         const d = c._def.args.safeParse(l, a);
         if (!d.success)
-          throw new S([r(l, d.error)]);
+          throw new N([r(l, d.error)]);
         const p = Reflect.apply(o, this, d.data), b = c._def.returns.safeParse(p, a);
         if (!b.success)
-          throw new S([s(p, b.error)]);
+          throw new N([s(p, b.error)]);
         return b.data;
       });
     }
@@ -2704,7 +2704,7 @@ class he extends _ {
       status: "valid",
       value: a.status === "valid" ? a.value : this._def.catchValue({
         get error() {
-          return new S(r.common.issues);
+          return new N(r.common.issues);
         },
         input: r.data
       })
@@ -2712,7 +2712,7 @@ class he extends _ {
       status: "valid",
       value: s.status === "valid" ? s.value : this._def.catchValue({
         get error() {
-          return new S(r.common.issues);
+          return new N(r.common.issues);
         },
         input: r.data
       })
@@ -2844,8 +2844,8 @@ var g;
 })(g || (g = {}));
 const Et = (n, e = {
   message: `Input not instance of ${n.name}`
-}) => We((t) => t instanceof n, e), Qe = N.create, Ye = V.create, Pt = Te.create, Rt = F.create, Je = ae.create, Mt = B.create, $t = xe.create, Vt = ie.create, Ft = oe.create, zt = H.create, Ut = L.create, Lt = $.create, qt = ke.create, Bt = C.create, Wt = k.create, Qt = k.strictCreate, Yt = ce.create, Jt = Ie.create, Xt = de.create, Ht = E.create, Gt = ue.create, Kt = we.create, en = W.create, tn = J.create, nn = le.create, rn = me.create, sn = z.create, an = fe.create, on = G.create, Ve = Z.create, cn = j.create, dn = U.create, un = Z.createWithPreprocess, ln = ye.create, mn = () => Qe().optional(), fn = () => Ye().optional(), pn = () => Je().optional(), hn = {
-  string: (n) => N.create({ ...n, coerce: !0 }),
+}) => We((t) => t instanceof n, e), Qe = S.create, Ye = V.create, Pt = Te.create, Rt = F.create, Je = ae.create, Mt = B.create, $t = xe.create, Vt = ie.create, Ft = oe.create, zt = H.create, Ut = L.create, Lt = $.create, qt = ke.create, Bt = C.create, Wt = k.create, Qt = k.strictCreate, Yt = ce.create, Jt = Ie.create, Xt = de.create, Ht = E.create, Gt = ue.create, Kt = we.create, en = W.create, tn = J.create, nn = le.create, rn = me.create, sn = z.create, an = fe.create, on = G.create, Ve = Z.create, cn = j.create, dn = U.create, un = Z.createWithPreprocess, ln = ye.create, mn = () => Qe().optional(), fn = () => Ye().optional(), pn = () => Je().optional(), hn = {
+  string: (n) => S.create({ ...n, coerce: !0 }),
   number: (n) => V.create({ ...n, coerce: !0 }),
   boolean: (n) => ae.create({
     ...n,
@@ -2880,7 +2880,7 @@ var i = /* @__PURE__ */ Object.freeze({
   getParsedType: R,
   ZodType: _,
   datetimeRegex: qe,
-  ZodString: N,
+  ZodString: S,
   ZodNumber: V,
   ZodBigInt: F,
   ZodBoolean: ae,
@@ -2968,7 +2968,7 @@ var i = /* @__PURE__ */ Object.freeze({
   NEVER: gn,
   ZodIssueCode: u,
   quotelessJson: ct,
-  ZodError: S
+  ZodError: N
 });
 const Xe = i.object({
   country: i.string().optional(),
@@ -3298,7 +3298,9 @@ const tt = i.object({
   minimumOrder: i.number().optional(),
   freeDeliveryPrice: i.number().optional(),
   deliveryPrice: i.number().optional(),
-  address: Xe.optional()
+  address: Xe.optional(),
+  companyNumber: i.string().optional()
+  // חפ של החברה
 }), Tn = i.object({
   minSpend: i.number().positive().optional(),
   stackable: i.boolean().default(!1)
@@ -3394,7 +3396,7 @@ class rt {
 Re(rt, "strategies", /* @__PURE__ */ new Map([
   ["bundle", new An()]
 ]));
-class Sn {
+class Nn {
   static calculateDiscounts(e, t, r) {
     var d, p;
     const s = {
@@ -3474,7 +3476,7 @@ function Xn(n, e) {
 const Ce = {
   VAT: 18
 };
-function Nn(n) {
+function Sn(n) {
   var e, t;
   return ((e = n.discount) == null ? void 0 : e.type) === "percent" ? n.price * (n.discount.value ?? 100) / 100 : ((t = n.discount) == null ? void 0 : t.type) === "number" ? n.discount.value ?? 0 : 0;
 }
@@ -3499,27 +3501,27 @@ function Hn({
       id: d.product.id,
       price: d.product.price
     }
-  })), o = Sn.calculateDiscounts(a, e), c = n.map((d, p) => {
+  })), o = Nn.calculateDiscounts(a, e), c = n.map((d, p) => {
     const b = o.items[p];
     return {
       amount: d.amount,
       product: { ...d.product },
       originalPrice: d.product.price,
       finalPrice: b ? b.finalPrice : Cn(d.product),
-      finalDiscount: b ? b.finalDiscount : Nn(d.product)
+      finalDiscount: b ? b.finalDiscount : Sn(d.product)
     };
   }), l = c.reduce(
     (d, p) => {
       const { product: b, amount: w, finalPrice: A, finalDiscount: K } = p;
       let D = 0;
       if (b.vat) {
-        let Se = 0;
+        let Ne = 0;
         if (s) {
           const at = A * (Ce.VAT / (100 + Ce.VAT));
-          D = Number(at.toFixed(2)), D = D * w, Se = Number(D.toFixed(2));
+          D = Number(at.toFixed(2)), D = D * w, Ne = Number(D.toFixed(2));
         } else
-          D = A * Ce.VAT / 100, D = D * w, Se = Number(D.toFixed(2));
-        d.vat = Number((d.vat + Se).toFixed(2));
+          D = A * Ce.VAT / 100, D = D * w, Ne = Number(D.toFixed(2));
+        d.vat = Number((d.vat + Ne).toFixed(2));
       }
       const Ae = Number(A.toFixed(2));
       return d.cost += w * Ae, d.discount += K && w * K, d.finalCost += w * Ae + (s ? 0 : D), d.productsCost += w * Ae + (s ? 0 : D), d.cost = Number(d.cost.toFixed(2)), d.discount = Number(d.discount.toFixed(2)), d.finalCost = Number(d.finalCost.toFixed(2)), d.productsCost = Number(d.productsCost.toFixed(2)), d;
@@ -3578,7 +3580,7 @@ export {
   zn as CompanySchema,
   _n as DeliveryNoteSchema,
   Tn as DiscountConditionsSchema,
-  Sn as DiscountEngine,
+  Nn as DiscountEngine,
   Qn as DiscountSchema,
   rt as DiscountStrategyFactory,
   In as DiscountVariantSchema,
