@@ -31,14 +31,16 @@ function getPriceAfterDiscount(product: TProduct) {
 export function getCartCost({
 	cart,
 	discounts,
-	store,
+	deliveryPrice = 0,
+	freeDeliveryPrice = 0,
+	isVatIncludedInPrice = false,
 }: {
 	cart: TCart["items"];
 	discounts: TDiscount[];
-	store: TStore;
+	deliveryPrice?: number;
+	freeDeliveryPrice?: number;
+	isVatIncludedInPrice?: boolean;
 }) {
-	const { isVatIncludedInPrice } = store;
-
 	// Convert cart items to the format expected by the discount engine
 	const cartForEngine = cart.map((item) => ({
 		amount: item.amount,
@@ -109,11 +111,11 @@ export function getCartCost({
 			finalCost: 0,
 			vat: 0,
 			productsCost: 0,
-			deliveryPrice: store?.deliveryPrice ?? 0,
+			deliveryPrice: deliveryPrice,
 		}
 	);
 
-	if (cartDetails.deliveryPrice && cartDetails.productsCost >= (store.freeDeliveryPrice ?? 0)) {
+	if (cartDetails.deliveryPrice && cartDetails.productsCost >= freeDeliveryPrice) {
 		cartDetails.deliveryPrice = 0;
 	} else {
 		cartDetails.finalCost += cartDetails.deliveryPrice;

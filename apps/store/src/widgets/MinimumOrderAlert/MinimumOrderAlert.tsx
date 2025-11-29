@@ -1,5 +1,4 @@
 import { Alert, Progress } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "src/domains/Store";
 import { useCart } from "src/domains/cart";
@@ -19,27 +18,56 @@ export const MinimumOrderAlert = () => {
 
 	if (!store) return null;
 
-	const cartCost = getCartCost({ cart: cart?.items ?? [], discounts, store });
-
-	console.log("cartCost", cartCost);
+	const cartCost = getCartCost({
+		cart: cart?.items ?? [],
+		discounts,
+		deliveryPrice: store.deliveryPrice,
+		freeDeliveryPrice: store.freeDeliveryPrice,
+		isVatIncludedInPrice: store.isVatIncludedInPrice,
+	});
 
 	const deliveryPrice = store?.deliveryPrice ?? 0;
 	const freeDeliveryPrice = store?.freeDeliveryPrice ?? 0;
-	if (!deliveryPrice) {
+	if (!deliveryPrice || !freeDeliveryPrice) {
 		return null;
 	}
 
+	const isFreeDelivery = cartCost.productsCost >= freeDeliveryPrice;
 	const amountNeeded = freeDeliveryPrice - cartCost.productsCost;
-
 	const progressPercentage = Math.min(100, (cartCost.productsCost / freeDeliveryPrice) * 100);
 
+	// If delivery is free, show success message
+	if (isFreeDelivery) {
+		return (
+			<div className="w-full mb-4">
+			<Alert
+				color="success"
+				variant="flat"
+				className="py-4"
+			>
+					<div className="space-y-1 pl-1">
+						<p className="font-medium text-base">
+							{t("deliveryDiscount:freeDeliveryTitle", { defaultValue: "משלוח חינם!" })}
+						</p>
+						<p className="text-sm">
+							{t("deliveryDiscount:freeDeliveryDescription", {
+								defaultValue: "הזמנתך עולה על ₪{{amount}} - משלוח חינם!",
+								amount: freeDeliveryPrice,
+							})}
+						</p>
+					</div>
+				</Alert>
+			</div>
+		);
+	}
+
+	// If delivery is not free, show warning with delivery price
 	return (
 		<div className="w-full mb-4">
 			<Alert
 				color="warning"
 				variant="flat"
 				className="py-4"
-				startContent={<Icon icon="lucide:alert-circle" className="text-xl mt-0.5" />}
 			>
 				<div className="space-y-1 pl-1">
 					<p className="font-medium text-base">
@@ -47,6 +75,12 @@ export const MinimumOrderAlert = () => {
 					</p>
 					<p className="text-sm">
 						{t("deliveryDiscount:description", { amount: amountNeeded })}
+					</p>
+					<p className="text-sm font-medium mt-2">
+						{t("deliveryDiscount:deliveryPriceInfo", {
+							defaultValue: "מחיר משלוח: ₪{{price}}",
+							price: deliveryPrice,
+						})}
 					</p>
 				</div>
 			</Alert>

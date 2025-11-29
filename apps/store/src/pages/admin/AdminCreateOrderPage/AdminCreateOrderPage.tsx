@@ -110,7 +110,13 @@ function AdminCreateOrderPage() {
 		paymentType: "default",
 	};
 
-	const cartCost = getCartCost({ cart: cart?.items ?? [], discounts: discounts, store });
+	const cartCost = getCartCost({
+		cart: cart?.items ?? [],
+		discounts: discounts,
+		deliveryPrice: store.deliveryPrice,
+		freeDeliveryPrice: store.freeDeliveryPrice,
+		isVatIncludedInPrice: store.isVatIncludedInPrice,
+	});
 	console.log("store", store);
 	console.log("cartCost", cartCost);
 
@@ -161,14 +167,32 @@ function AdminCreateOrderPage() {
 					values.status = "pending";
 
 					if (store.paymentType === "external") {
-						const order = await appApi.orders.order({ order: values });
+						const order = await appApi.orders.order({
+							order: {
+								...values,
+								storeOptions: {
+									deliveryPrice: store.deliveryPrice,
+									freeDeliveryPrice: store.freeDeliveryPrice,
+									isVatIncludedInPrice: store.isVatIncludedInPrice,
+								},
+							},
+						});
 						console.log("new external order", order);
 
 						navigate({ to: "admin.orders" });
 						return;
 					}
 
-					const order = await appApi.orders.order({ order: values });
+					const order = await appApi.orders.order({
+						order: {
+							...values,
+							storeOptions: {
+								deliveryPrice: store.deliveryPrice,
+								freeDeliveryPrice: store.freeDeliveryPrice,
+								isVatIncludedInPrice: store.isVatIncludedInPrice,
+							},
+						},
+					});
 					if (!order?.success) return null; //todo
 
 					// For admin created orders, redirect to admin orders page

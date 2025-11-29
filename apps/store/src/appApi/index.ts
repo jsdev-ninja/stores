@@ -630,7 +630,9 @@ export const useAppApi = () => {
 				const cartCost = getCartCost({
 					cart: order.cart.items ?? [],
 					discounts: [],
-					store: store,
+					deliveryPrice: order.storeOptions?.deliveryPrice ?? 0,
+					freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice ?? 0,
+					isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice ?? false,
 				});
 
 				const newOrder: TOrder = {
@@ -1128,7 +1130,7 @@ export const useAppApi = () => {
 				},
 			},
 			getProfileOrganization: async () => {
-				console.log("AAAAAAAAAAAAAAA2", profile,isValidUser,profile?.organizationId);
+				console.log("AAAAAAAAAAAAAAA2", profile, isValidUser, profile?.organizationId);
 				if (!isValidUser || !profile?.organizationId) return;
 
 				const res = await FirebaseApi.firestore.getV2<TOrganization>({

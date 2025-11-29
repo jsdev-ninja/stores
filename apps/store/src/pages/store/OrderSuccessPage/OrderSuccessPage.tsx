@@ -59,7 +59,13 @@ export function OrderSuccessPage() {
 	// todo
 	if (!order || !store) return null;
 
-	const orderCost = getCartCost({ cart: order.cart?.items ?? [], discounts, store });
+	const orderCost = getCartCost({
+		cart: order.cart?.items ?? [],
+		discounts,
+		deliveryPrice: order.storeOptions?.deliveryPrice,
+		freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice,
+		isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice,
+	});
 
 	return (
 		<div className="h-screen w-screen flex items-center justify-center p-4">

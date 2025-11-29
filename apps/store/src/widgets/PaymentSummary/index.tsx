@@ -20,7 +20,13 @@ export function PaymentSummary({ children }: { children?: ReactNode }) {
 		return null;
 	}
 
-	const cartCost = getCartCost({ cart: cart.items, discounts: discounts, store });
+	const cartCost = getCartCost({
+		cart: cart.items,
+		discounts: discounts,
+		deliveryPrice: store.deliveryPrice,
+		freeDeliveryPrice: store.freeDeliveryPrice,
+		isVatIncludedInPrice: store.isVatIncludedInPrice,
+	});
 	console.log("cartCost", cartCost);
 
 	return (

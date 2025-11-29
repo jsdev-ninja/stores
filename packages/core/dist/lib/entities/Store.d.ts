@@ -20,28 +20,28 @@ export declare const StoreSchema: z.ZodObject<{
     name: string;
     tenantId: string;
     paymentType: "external" | "j5";
+    isVatIncludedInPrice: boolean;
     urls: string[];
     logoUrl: string;
     allowAnonymousClients: boolean;
-    isVatIncludedInPrice: boolean;
     clientTypes: ("company" | "individual")[];
     deliveryPrice?: number | undefined;
-    minimumOrder?: number | undefined;
     freeDeliveryPrice?: number | undefined;
+    minimumOrder?: number | undefined;
 }, {
     id: string;
     companyId: string;
     name: string;
     tenantId: string;
     paymentType: "external" | "j5";
+    isVatIncludedInPrice: boolean;
     urls: string[];
     logoUrl: string;
     allowAnonymousClients: boolean;
-    isVatIncludedInPrice: boolean;
     clientTypes: ("company" | "individual")[];
     deliveryPrice?: number | undefined;
-    minimumOrder?: number | undefined;
     freeDeliveryPrice?: number | undefined;
+    minimumOrder?: number | undefined;
 }>;
 export type TStore = z.infer<typeof StoreSchema>;
 //# sourceMappingURL=Store.d.ts.map

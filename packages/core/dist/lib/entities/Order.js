@@ -35,8 +35,16 @@ export const OrderSchema = z.object({
         cartDiscount: z.number(),
         cartTotal: z.number(),
         cartVat: z.number(),
-        deliveryPrice: z.number().optional(),
+        deliveryPrice: z.number().optional(), // final delivery price for cart
     }),
+    storeOptions: z
+        .object({
+        deliveryPrice: z.number().optional(),
+        freeDeliveryPrice: z.number().optional(),
+        isVatIncludedInPrice: z.boolean().optional(),
+    })
+        .optional(),
+    orderDeliveryPrice: z.number().optional(), // delivery price for order
     originalAmount: z.number().positive().optional(), // what client pay
     actualAmount: z.number().positive().optional(), // what store charge
     date: z.number(),

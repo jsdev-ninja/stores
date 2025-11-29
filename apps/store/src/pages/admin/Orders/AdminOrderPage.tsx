@@ -100,7 +100,6 @@ export default function AdminOrderPage() {
 	const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
 	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
-	const [deliveryPriceRemoved, setDeliveryPriceRemoved] = useState<boolean>(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	// External product modal state
@@ -114,7 +113,7 @@ export default function AdminOrderPage() {
 	const [externalProductQuantity, setExternalProductQuantity] = useState<number>(1);
 
 	console.log(JSON.stringify(order?.cart.items));
-	console.log("order", order?.cart);
+	console.log("order", order);
 	// 1617.95; //
 
 	const appApi = useAppApi();
@@ -130,6 +129,7 @@ export default function AdminOrderPage() {
 
 	async function save() {
 		if (!order) return;
+		console.log("order", order);
 
 		const res = await appApi.admin.updateOrder({ order });
 		if (res?.success) {
@@ -193,7 +193,9 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
+				deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
+				freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+				isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
 			});
 
 			return {
@@ -273,7 +275,9 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
+				deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
+				freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+				isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
 			});
 
 			return {
@@ -314,7 +318,9 @@ export default function AdminOrderPage() {
 		const cartCost = getCartCost({
 			cart: updatedItems,
 			discounts: discounts,
-			store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
+			deliveryPrice: order.storeOptions?.deliveryPrice ?? 0,
+			freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice ?? 0,
+			isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice ?? false,
 		});
 
 		setOrder({
@@ -327,7 +333,7 @@ export default function AdminOrderPage() {
 				deliveryPrice: cartCost.deliveryPrice,
 			},
 		});
-	}, [deliveryPriceRemoved, store, discounts]);
+	}, [store, discounts]);
 
 	const updateOrderItem = (itemId: string, field: any, value: any) => {
 		if (!store) return;
@@ -346,7 +352,9 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: { ...store, deliveryPrice: deliveryPriceRemoved ? 0 : store.deliveryPrice ?? 0 },
+				deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
+				freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+				isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
 			});
 
 			return {
@@ -373,7 +381,9 @@ export default function AdminOrderPage() {
 			const cartCost = getCartCost({
 				cart: updatedItems,
 				discounts: discounts,
-				store: { ...store, deliveryPrice: store.deliveryPrice ?? 0 },
+				deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
+				freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+				isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
 			});
 
 			return {
@@ -506,25 +516,314 @@ export default function AdminOrderPage() {
 										className="flex-1"
 									/>
 									<Button
-										color={deliveryPriceRemoved ? "success" : "danger"}
+										color={!order.storeOptions?.deliveryPrice ? "success" : "danger"}
 										variant="light"
 										onPress={() => {
-											setDeliveryPriceRemoved(!deliveryPriceRemoved);
+											if (order.storeOptions?.deliveryPrice) {
+												const cartCost = getCartCost({
+													cart: order.cart.items,
+													discounts: discounts,
+													deliveryPrice: 0,
+													freeDeliveryPrice:
+														order.storeOptions?.freeDeliveryPrice ?? 0,
+													isVatIncludedInPrice:
+														order.storeOptions?.isVatIncludedInPrice ?? false,
+												});
+												setOrder({
+													...order,
+													cart: {
+														...order.cart,
+														items: order.cart.items,
+														cartDiscount: cartCost.discount,
+														cartTotal: cartCost.finalCost,
+														cartVat: cartCost.vat,
+														deliveryPrice: cartCost.deliveryPrice,
+													},
+													storeOptions: {
+														...order.storeOptions,
+														deliveryPrice: 0,
+													},
+												});
+											} else {
+												const cartCost = getCartCost({
+													cart: order.cart.items,
+													discounts: discounts,
+													deliveryPrice: store?.deliveryPrice ?? 0,
+													freeDeliveryPrice:
+														order.storeOptions?.freeDeliveryPrice ?? 0,
+													isVatIncludedInPrice:
+														order.storeOptions?.isVatIncludedInPrice ?? false,
+												});
+												setOrder({
+													...order,
+													cart: {
+														...order.cart,
+														items: order.cart.items,
+														cartDiscount: cartCost.discount,
+														cartTotal: cartCost.finalCost,
+														cartVat: cartCost.vat,
+														deliveryPrice: cartCost.deliveryPrice,
+													},
+													storeOptions: {
+														...order.storeOptions,
+														deliveryPrice: store?.deliveryPrice ?? 0,
+													},
+												});
+											}
 										}}
 									>
-										{deliveryPriceRemoved
+										{!order.storeOptions?.deliveryPrice
 											? t("common:restoreDeliveryPrice")
 											: t("common:removeDeliveryPrice")}
 									</Button>
 								</div>
 								<p className="text-sm text-gray-500">
-									{deliveryPriceRemoved
+									{!order.storeOptions?.deliveryPrice
 										? t("common:deliveryPriceRemovedDescription")
 										: t("common:deliveryPriceRemoveDescription")}
 								</p>
 							</div>
 						</div>
 					</div>
+
+					{/* Delivery Note Section */}
+					{order.deliveryNote && (
+						<div className="flex flex-col gap-2">
+							<h2 className="text-lg font-semibold">תעודת משלוח (Delivery Note)</h2>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<Input
+									label="מספר תעודת משלוח"
+									value={order.deliveryNote.number || order.deliveryNote.id || ""}
+									isDisabled
+								/>
+								<Input
+									label="תאריך"
+									value={
+										order.deliveryNote.date
+											? new Date(order.deliveryNote.date).toLocaleDateString("he-IL")
+											: ""
+									}
+									isDisabled
+								/>
+								<Input
+									label="סטטוס"
+									value={order.deliveryNote.status || ""}
+									isDisabled
+								/>
+								<Input
+									label="סה״כ"
+									value={order.deliveryNote.total?.toFixed(2) || "0.00"}
+									isDisabled
+								/>
+								<Input
+									label="מע״מ"
+									value={order.deliveryNote.vat?.toFixed(2) || "0.00"}
+									isDisabled
+								/>
+								{order.deliveryNote.link && (
+									<div className="md:col-span-2">
+										<label className="text-sm font-medium text-gray-700 block mb-2">
+											קישור לתעודת משלוח
+										</label>
+										<a
+											href={order.deliveryNote.link}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-blue-600 hover:underline break-all"
+										>
+											{order.deliveryNote.link}
+										</a>
+									</div>
+								)}
+							</div>
+							{order.deliveryNote.items && order.deliveryNote.items.length > 0 && (
+								<div className="mt-4">
+									<h3 className="text-md font-semibold mb-2">פריטים בתעודת משלוח</h3>
+									<Table aria-label="Delivery note items">
+										<TableHeader>
+											<TableColumn>שם פריט</TableColumn>
+											<TableColumn>כמות</TableColumn>
+											<TableColumn>מחיר</TableColumn>
+											<TableColumn>סה״כ</TableColumn>
+										</TableHeader>
+										<TableBody>
+											{order.deliveryNote.items.map((item, index) => (
+												<TableRow key={index}>
+													<TableCell>{item.name || "-"}</TableCell>
+													<TableCell>{item.quantity || 0}</TableCell>
+													<TableCell>₪{item.price?.toFixed(2) || "0.00"}</TableCell>
+													<TableCell>₪{item.total?.toFixed(2) || "0.00"}</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								</div>
+							)}
+						</div>
+					)}
+
+					{/* EzDeliveryNote Section */}
+					{order.ezDeliveryNote && (
+						<div className="flex flex-col gap-2">
+							<h2 className="text-lg font-semibold">תעודת משלוח EzCount (EzDelivery Note)</h2>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<Input
+									label="מספר מסמך"
+									value={order.ezDeliveryNote.doc_number || ""}
+									isDisabled
+								/>
+								<Input
+									label="תאריך"
+									value={
+										order.ezDeliveryNote.date
+											? new Date(order.ezDeliveryNote.date).toLocaleDateString("he-IL")
+											: ""
+									}
+									isDisabled
+								/>
+								<Input
+									label="UUID מסמך"
+									value={order.ezDeliveryNote.doc_uuid || ""}
+									isDisabled
+								/>
+								<Input
+									label="UUID UA"
+									value={order.ezDeliveryNote.ua_uuid || ""}
+									isDisabled
+								/>
+								<Input
+									label="הצלחה"
+									value={order.ezDeliveryNote.success ? "כן" : "לא"}
+									isDisabled
+								/>
+								{order.ezDeliveryNote.warning && (
+									<div className="md:col-span-2">
+										<Input
+											label="אזהרה"
+											value={order.ezDeliveryNote.warning}
+											isDisabled
+										/>
+									</div>
+								)}
+								{order.ezDeliveryNote.pdf_link && (
+									<div className="md:col-span-2">
+										<label className="text-sm font-medium text-gray-700 block mb-2">
+											קישור PDF
+										</label>
+										<a
+											href={order.ezDeliveryNote.pdf_link}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-blue-600 hover:underline break-all"
+										>
+											{order.ezDeliveryNote.pdf_link}
+										</a>
+									</div>
+								)}
+								{order.ezDeliveryNote.pdf_link_copy && (
+									<div className="md:col-span-2">
+										<label className="text-sm font-medium text-gray-700 block mb-2">
+											קישור PDF (עותק)
+										</label>
+										<a
+											href={order.ezDeliveryNote.pdf_link_copy}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-blue-600 hover:underline break-all"
+										>
+											{order.ezDeliveryNote.pdf_link_copy}
+										</a>
+									</div>
+								)}
+								{order.ezDeliveryNote.sent_mails && order.ezDeliveryNote.sent_mails.length > 0 && (
+									<div className="md:col-span-2">
+										<label className="text-sm font-medium text-gray-700 block mb-2">
+											אימיילים שנשלחו
+										</label>
+										<div className="flex flex-col gap-1">
+											{order.ezDeliveryNote.sent_mails.map((email, index) => (
+												<span key={index} className="text-sm">
+													{email}
+												</span>
+											))}
+										</div>
+									</div>
+								)}
+							</div>
+							{order.ezDeliveryNote.calculatedData && (
+								<div className="mt-4">
+									<h3 className="text-md font-semibold mb-2">נתונים מחושבים</h3>
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<Input
+											label="מספר עסקה"
+											value={order.ezDeliveryNote.calculatedData.transaction_id || ""}
+											isDisabled
+										/>
+										<Input
+											label="תאריך"
+											value={order.ezDeliveryNote.calculatedData.date || ""}
+											isDisabled
+										/>
+										<Input
+											label="מטבע"
+											value={order.ezDeliveryNote.calculatedData.currency || ""}
+											isDisabled
+										/>
+										<Input
+											label="שער"
+											value={order.ezDeliveryNote.calculatedData.rate?.toString() || ""}
+											isDisabled
+										/>
+										<Input
+											label="מע״מ"
+											value={order.ezDeliveryNote.calculatedData.vat || ""}
+											isDisabled
+										/>
+										<Input
+											label="מחיר מע״מ"
+											value={order.ezDeliveryNote.calculatedData.vat_price?.toFixed(2) || "0.00"}
+											isDisabled
+										/>
+										<Input
+											label="הנחת מחיר"
+											value={order.ezDeliveryNote.calculatedData.price_discount?.toFixed(2) || "0.00"}
+											isDisabled
+										/>
+										<Input
+											label="הנחת מחיר במטבע"
+											value={
+												order.ezDeliveryNote.calculatedData.price_discount_in_currency?.toFixed(2) ||
+												"0.00"
+											}
+											isDisabled
+										/>
+										<Input
+											label="סה״כ מחיר"
+											value={order.ezDeliveryNote.calculatedData.price_total || ""}
+											isDisabled
+										/>
+										<Input
+											label="סה״כ מחיר במטבע"
+											value={
+												order.ezDeliveryNote.calculatedData.price_total_in_currency?.toFixed(2) ||
+												"0.00"
+											}
+											isDisabled
+										/>
+										{order.ezDeliveryNote.calculatedData._COMMENT && (
+											<div className="md:col-span-2">
+												<Input
+													label="הערה"
+													value={order.ezDeliveryNote.calculatedData._COMMENT}
+													isDisabled
+												/>
+											</div>
+										)}
+									</div>
+								</div>
+							)}
+						</div>
+					)}
 
 					<div className="flex flex-col gap-2">
 						<div className="flex items-center justify-between">
@@ -591,7 +890,9 @@ export default function AdminOrderPage() {
 										min={0.01}
 										step={0.01}
 										value={selectedQuantity.toString()}
-										onChange={(e) => setSelectedQuantity(parseFloat(e.target.value) || 0.01)}
+										onChange={(e) =>
+											setSelectedQuantity(parseFloat(e.target.value) || 0.01)
+										}
 									/>
 								</div>
 							</ModalBody>
@@ -671,12 +972,12 @@ export default function AdminOrderPage() {
 							<p className="text-sm text-gray-600">
 								{t("common:subtotal")}: ₪{order?.cart.cartTotal.toFixed(2)}
 							</p>
-							{deliveryPriceRemoved && (
+							{!order.storeOptions?.deliveryPrice && (
 								<p className="text-sm text-green-600">
 									{t("common:deliveryPrice")}: ₪0.00 ({t("common:waived")})
 								</p>
 							)}
-							{!deliveryPriceRemoved && (store?.deliveryPrice ?? 0) > 0 && (
+							{order.storeOptions?.deliveryPrice && (
 								<p className="text-sm text-gray-600">
 									{t("common:deliveryPrice")}: ₪{(store?.deliveryPrice ?? 0).toFixed(2)}
 								</p>

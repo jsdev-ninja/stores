@@ -23,8 +23,7 @@ function getPriceAfterDiscount(product) {
     return product.price;
 }
 // main
-export function getCartCost({ cart, discounts, store, }) {
-    const { isVatIncludedInPrice } = store;
+export function getCartCost({ cart, discounts, deliveryPrice = 0, freeDeliveryPrice = 0, isVatIncludedInPrice = false, }) {
     // Convert cart items to the format expected by the discount engine
     const cartForEngine = cart.map((item) => ({
         amount: item.amount,
@@ -83,9 +82,9 @@ export function getCartCost({ cart, discounts, store, }) {
         finalCost: 0,
         vat: 0,
         productsCost: 0,
-        deliveryPrice: store?.deliveryPrice ?? 0,
+        deliveryPrice: deliveryPrice,
     });
-    if (cartDetails.deliveryPrice && cartDetails.productsCost >= (store.freeDeliveryPrice ?? 0)) {
+    if (cartDetails.deliveryPrice && cartDetails.productsCost >= freeDeliveryPrice) {
         cartDetails.deliveryPrice = 0;
     }
     else {

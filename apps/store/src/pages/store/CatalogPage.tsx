@@ -22,7 +22,13 @@ export function CatalogPage() {
 
 	if (!store) return null;
 
-	const cartCost = getCartCost({ cart: cart?.items ?? [], discounts, store });
+	const cartCost = getCartCost({
+		cart: cart?.items ?? [],
+		discounts,
+		deliveryPrice: store.deliveryPrice,
+		freeDeliveryPrice: store.freeDeliveryPrice,
+		isVatIncludedInPrice: store.isVatIncludedInPrice,
+	});
 
 	return (
 		<div className="flex w-full h-full">
@@ -30,7 +36,9 @@ export function CatalogPage() {
 				<CategoryMenu />
 			</div>
 			<div className="flex-grow p-6 flex flex-col justify-start items-start gap-4  ">
-				<div className="mx-auto  w-full"><ProductsWidget.SearchBox /></div>
+				<div className="mx-auto  w-full">
+					<ProductsWidget.SearchBox />
+				</div>
 				<div className="flex gap-4 w-full flex-wrap justify-center flex-grow">
 					<ProductsWidget.Products emptyStateAction={() => {}}>
 						{(products) => {

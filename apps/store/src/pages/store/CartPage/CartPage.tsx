@@ -23,10 +23,12 @@ function CartPage() {
 		return null;
 	}
 
-	const cartCost = getCartCost({ 
-		cart: cart?.items ?? [], 
-		discounts: discounts, 
-		store: store 
+	const cartCost = getCartCost({
+		cart: cart?.items ?? [],
+		discounts: discounts,
+		deliveryPrice: store.deliveryPrice,
+		freeDeliveryPrice: store.freeDeliveryPrice,
+		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
 	console.log("cartCost", cartCost);
@@ -56,7 +58,9 @@ function CartPage() {
 							}}
 							fullWidth
 						>
-							{user?.admin ? t("cart:createOrder", "Create Order") : t("cart:proceedToCheckout")}
+							{user?.admin
+								? t("cart:createOrder", "Create Order")
+								: t("cart:proceedToCheckout")}
 						</Button>
 						<Button
 							onPress={() =>

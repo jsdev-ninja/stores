@@ -746,6 +746,20 @@ export declare const OrderSchema: z.ZodObject<{
         cartVat: number;
         deliveryPrice?: number | undefined;
     }>;
+    storeOptions: z.ZodOptional<z.ZodObject<{
+        deliveryPrice: z.ZodOptional<z.ZodNumber>;
+        freeDeliveryPrice: z.ZodOptional<z.ZodNumber>;
+        isVatIncludedInPrice: z.ZodOptional<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        deliveryPrice?: number | undefined;
+        freeDeliveryPrice?: number | undefined;
+        isVatIncludedInPrice?: boolean | undefined;
+    }, {
+        deliveryPrice?: number | undefined;
+        freeDeliveryPrice?: number | undefined;
+        isVatIncludedInPrice?: boolean | undefined;
+    }>>;
+    orderDeliveryPrice: z.ZodOptional<z.ZodNumber>;
     originalAmount: z.ZodOptional<z.ZodNumber>;
     actualAmount: z.ZodOptional<z.ZodNumber>;
     date: z.ZodNumber;
@@ -1409,6 +1423,12 @@ export declare const OrderSchema: z.ZodObject<{
     paymentType?: "internal" | "external" | undefined;
     organizationId?: string | undefined;
     nameOnInvoice?: string | undefined;
+    storeOptions?: {
+        deliveryPrice?: number | undefined;
+        freeDeliveryPrice?: number | undefined;
+        isVatIncludedInPrice?: boolean | undefined;
+    } | undefined;
+    orderDeliveryPrice?: number | undefined;
     originalAmount?: number | undefined;
     actualAmount?: number | undefined;
     clientComment?: string | undefined;
@@ -1660,6 +1680,12 @@ export declare const OrderSchema: z.ZodObject<{
     paymentType?: "internal" | "external" | undefined;
     organizationId?: string | undefined;
     nameOnInvoice?: string | undefined;
+    storeOptions?: {
+        deliveryPrice?: number | undefined;
+        freeDeliveryPrice?: number | undefined;
+        isVatIncludedInPrice?: boolean | undefined;
+    } | undefined;
+    orderDeliveryPrice?: number | undefined;
     originalAmount?: number | undefined;
     actualAmount?: number | undefined;
     clientComment?: string | undefined;

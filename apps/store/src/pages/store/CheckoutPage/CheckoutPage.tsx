@@ -79,7 +79,13 @@ function CheckoutPage() {
 		paymentType: "default",
 	};
 
-	const cartCost = getCartCost({ cart: cart?.items ?? [], discounts: discounts, store });
+	const cartCost = getCartCost({
+		cart: cart?.items ?? [],
+		discounts: discounts,
+		deliveryPrice: store.deliveryPrice,
+		freeDeliveryPrice: store.freeDeliveryPrice,
+		isVatIncludedInPrice: store.isVatIncludedInPrice,
+	});
 	console.log("store", store);
 	console.log("cartCost", cartCost);
 
@@ -123,7 +129,15 @@ function CheckoutPage() {
 					) {
 						values.status = "pending";
 						const order = await appApi.orders.order({
-							order: { ...values, paymentType: "external" },
+							order: {
+								...values,
+								paymentType: "external",
+								storeOptions: {
+									deliveryPrice: store.deliveryPrice,
+									freeDeliveryPrice: store.freeDeliveryPrice,
+									isVatIncludedInPrice: store.isVatIncludedInPrice,
+								},
+							},
 						});
 						console.log("new external order", order);
 
@@ -132,7 +146,16 @@ function CheckoutPage() {
 						return;
 					}
 
-					const order = await appApi.orders.order({ order: values });
+					const order = await appApi.orders.order({
+						order: {
+							...values,
+							storeOptions: {
+								deliveryPrice: store.deliveryPrice,
+								freeDeliveryPrice: store.freeDeliveryPrice,
+								isVatIncludedInPrice: store.isVatIncludedInPrice,
+							},
+						},
+					});
 					if (!order?.success) return null; //todo
 
 					const payment = await appApi.user.createPaymentLink({ order: values });

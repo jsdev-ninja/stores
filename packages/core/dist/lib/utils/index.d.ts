@@ -1,8 +1,10 @@
-import { TCart, TDiscount, TStore } from "../entities";
-export declare function getCartCost({ cart, discounts, store, }: {
+import { TCart, TDiscount } from "../entities";
+export declare function getCartCost({ cart, discounts, deliveryPrice, freeDeliveryPrice, isVatIncludedInPrice, }: {
     cart: TCart["items"];
     discounts: TDiscount[];
-    store: TStore;
+    deliveryPrice?: number;
+    freeDeliveryPrice?: number;
+    isVatIncludedInPrice?: boolean;
 }): {
     discount: number;
     cost: number;
