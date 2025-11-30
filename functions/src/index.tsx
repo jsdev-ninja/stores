@@ -94,9 +94,6 @@ export const onOrderUpdate = functions
 
 		const { displayName, email } = after.client;
 
-		const orderIsPaidByClient =
-			after.paymentStatus === "pending_j5" && before.paymentStatus === "pending";
-
 		const orderIsReady = before.status === "processing" && after.status === "in_delivery";
 
 		console.log("order status", {
@@ -108,19 +105,6 @@ export const onOrderUpdate = functions
 			console.log("createDeliveryNote", email, displayName);
 
 			await appApi.documents.createDeliveryNote(after);
-		}
-
-		if (orderIsPaidByClient) {
-			// close cart
-			await admin
-				.firestore()
-				.collection(
-					FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId })
-				)
-				.doc(after.cart.id)
-				.update({
-					status: "completed",
-				});
 		}
 
 		return;

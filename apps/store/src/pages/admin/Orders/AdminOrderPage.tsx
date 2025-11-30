@@ -400,6 +400,45 @@ export default function AdminOrderPage() {
 		});
 	};
 
+	const updateNameOnInvoice = (value: string) => {
+		setOrder((prev) => {
+			if (!prev) return prev;
+			return {
+				...prev,
+				nameOnInvoice: value,
+			};
+		});
+	};
+
+	const updateClientField = (field: string, value: string) => {
+		setOrder((prev) => {
+			if (!prev) return prev;
+			return {
+				...prev,
+				client: {
+					...prev.client,
+					[field]: value,
+				},
+			};
+		});
+	};
+
+	const updateClientAddress = (field: string, value: string) => {
+		setOrder((prev) => {
+			if (!prev) return prev;
+			return {
+				...prev,
+				client: {
+					...prev.client,
+					address: {
+						...(prev.client.address || {}),
+						[field]: value,
+					},
+				},
+			};
+		});
+	};
+
 	const statusColorMap = {
 		pending: "warning",
 		processing: "primary",
@@ -431,13 +470,21 @@ export default function AdminOrderPage() {
 				<Divider />
 				<CardBody className="flex flex-col gap-6">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<Input label="Customer Name" value={order.client.displayName} isDisabled />
-						<Input label="Email" value={order.client.email} isDisabled />
 						<Input
-							isDisabled
+							label="Customer Name"
+							value={order.client.displayName}
+							onChange={(e) => updateClientField("displayName", e.target.value)}
+						/>
+						<Input
+							label="Email"
+							value={order.client.email}
+							onChange={(e) => updateClientField("email", e.target.value)}
+						/>
+						<Input
 							label="Name on Invoice"
 							value={order.nameOnInvoice || ""}
 							placeholder="Name that will appear on invoice"
+							onChange={(e) => updateNameOnInvoice(e.target.value)}
 						/>
 						<Input
 							isDisabled
@@ -480,20 +527,36 @@ export default function AdminOrderPage() {
 					<div className="flex flex-col gap-2">
 						<h2 className="text-lg font-semibold">Customer Address</h2>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<Input label="City" value={order.client.address?.city || ""} isDisabled />
-							<Input label="Street" value={order.client.address?.street || ""} isDisabled />
+							<Input
+								label="City"
+								value={order.client.address?.city || ""}
+								onChange={(e) => updateClientAddress("city", e.target.value)}
+							/>
+							<Input
+								label="Street"
+								value={order.client.address?.street || ""}
+								onChange={(e) => updateClientAddress("street", e.target.value)}
+							/>
 							<Input
 								label="Street Number"
 								value={order.client.address?.streetNumber || ""}
-								isDisabled
+								onChange={(e) => updateClientAddress("streetNumber", e.target.value)}
 							/>
-							<Input label="Floor" value={order.client.address?.floor || ""} isDisabled />
+							<Input
+								label="Floor"
+								value={order.client.address?.floor || ""}
+								onChange={(e) => updateClientAddress("floor", e.target.value)}
+							/>
 							<Input
 								label="Apartment Number"
 								value={order.client.address?.apartmentNumber || ""}
-								isDisabled
+								onChange={(e) => updateClientAddress("apartmentNumber", e.target.value)}
 							/>
-							<Input label="Phone" value={order.client.phoneNumber || ""} isDisabled />
+							<Input
+								label="Phone"
+								value={order.client.phoneNumber || ""}
+								onChange={(e) => updateClientField("phoneNumber", e.target.value)}
+							/>
 						</div>
 					</div>
 

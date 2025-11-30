@@ -16,6 +16,7 @@ import { EzInvoiceSchema, InvoiceSchema } from "./Invoice";
 
 export const OrderSchema = z.object({
 	type: z.literal("Order"),
+	createdBy: z.enum(["user", "admin"]).optional(),
 	id: notEmptyTextSchema,
 	companyId: notEmptyTextSchema,
 	storeId: notEmptyTextSchema,

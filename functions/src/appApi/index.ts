@@ -46,6 +46,8 @@ export function createAppApi(context: TContext) {
 						clientEmail: order.client.email,
 						ezcount_api: storePrivateData.ezcount_api,
 						date: formatDateDDMMYYYY(date.toLocaleDateString()),
+						isVatIncludedInPrice:
+							order.storeOptions?.isVatIncludedInPrice ?? store.isVatIncludedInPrice,
 					});
 					logger.write({
 						severity: "INFO",

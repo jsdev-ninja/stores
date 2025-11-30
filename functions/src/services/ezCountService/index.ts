@@ -134,12 +134,14 @@ export const ezCountService = {
 			clientEmail,
 			clientName,
 			date,
+			isVatIncludedInPrice = false,
 		}: {
 			ezcount_key: string;
 			clientName: string;
 			clientEmail: string;
 			ezcount_api: string;
 			date: string;
+			isVatIncludedInPrice: boolean;
 		}
 	) {
 		try {
@@ -152,7 +154,11 @@ export const ezCountService = {
 					details: item.product.name[0].value,
 					price: item.product.price,
 					amount: item.amount,
-					vat_type: item.product.vat ? VAT_TYPE.PRE : VAT_TYPE.INC,
+					vat_type: item.product.vat
+						? isVatIncludedInPrice
+							? VAT_TYPE.INC
+							: VAT_TYPE.PRE
+						: VAT_TYPE.NON,
 				};
 			});
 			if (order.cart.deliveryPrice) {
