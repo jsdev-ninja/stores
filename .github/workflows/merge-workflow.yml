@@ -57,16 +57,23 @@ jobs:
            env:
               NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+         - name: install dependencies
+           run: |
+              echo -e "\033[1;34mINSTALL ROOT DEPENDENCIES"
+              yarn install --frozen-lockfile --ignore-engines
+
+         - name: build core package
+           run: |
+              echo -e "\033[1;34mBUILD CORE PACKAGE"
+              yarn workspace @jsdev_ninja/core run build
+
          - name: build store
            run: |
-              cd apps/store 
-              VITE_STORE_VERSION=$(jq -r .version package.json)
-              echo "VITE_STORE_VERSION=$VITE_STORE_VERSION" > .env
+              VITE_STORE_VERSION=$(jq -r .version apps/store/package.json)
+              echo "VITE_STORE_VERSION=$VITE_STORE_VERSION" > apps/store/.env
               echo "The package version is $VITE_STORE_VERSION"
-              echo -e "\033[1;34mINSTALL"
-              yarn install --frozen-lockfile --ignore-engines
               echo -e "\033[1;34mBUILD"
-              yarn build
+              yarn workspace store run build
 
          - name: deploy store to firebase hosting
            uses: FirebaseExtended/action-hosting-deploy@v0
