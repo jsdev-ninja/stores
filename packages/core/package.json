@@ -1,15 +1,22 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.13.27",
+	"version": "0.13.28",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
 	"types": "dist/lib/index.d.ts",
+	"files": [
+		"dist",
+		"package.json",
+		"README.md"
+	],
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build && tsc -b",
+		"prepare": "yarn build",
+		"prepublishOnly": "yarn build",
 		"lint": "eslint .",
 		"preview": "vite preview",
 		"publish_core": "yarn publish --non-interactive",
