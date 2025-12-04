@@ -22,7 +22,7 @@ export function DeliveryNote({
 		}).format(amount);
 	};
 
-	const { apartmentNumber, city, floor, street, streetNumber } = order.client.address ?? {};
+	const { apartmentNumber, city, floor, street, streetNumber } = order.client?.address ?? {};
 	const fullAddress = `${city || ""}, ${street || ""} ${streetNumber || ""}${
 		floor ? ` קומה ${floor}` : ""
 	}${apartmentNumber ? `, דירה ${apartmentNumber}` : ""}`;
@@ -101,16 +101,16 @@ export function DeliveryNote({
 				</h2>
 				<div style={{ fontSize: "14px", lineHeight: "1.8" }}>
 					<div style={{ fontWeight: "bold", marginBottom: "5px" }}>
-						{order.client.displayName}
+						{order.client?.displayName}
 					</div>
-					{order.client.companyName && (
-						<div style={{ marginBottom: "5px" }}>חברה: {order.client.companyName}</div>
+					{order.client?.companyName && (
+						<div style={{ marginBottom: "5px" }}>חברה: {order.client?.companyName}</div>
 					)}
 					{fullAddress && <div style={{ marginBottom: "5px" }}>כתובת: {fullAddress}</div>}
-					{order.client.phoneNumber && (
-						<div style={{ marginBottom: "5px" }}>טלפון: {order.client.phoneNumber}</div>
+					{order.client?.phoneNumber && (
+						<div style={{ marginBottom: "5px" }}>טלפון: {order.client?.phoneNumber}</div>
 					)}
-					{order.client.email && <div>אימייל: {order.client.email}</div>}
+					{order.client?.email && <div>אימייל: {order.client?.email}</div>}
 				</div>
 			</div>
 

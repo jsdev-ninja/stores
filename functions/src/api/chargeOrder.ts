@@ -87,7 +87,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			transactionUID: payment.payment.UID ?? "",
 			clientName: order?.nameOnInvoice || clientName,
 			clientLastName,
-			email: order.client.email,
+			email: order.client?.email ?? "",
 			heshDesc: items.join(""),
 			Pritim: "False",
 		});

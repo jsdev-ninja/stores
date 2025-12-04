@@ -92,7 +92,7 @@ export const onOrderUpdate = functions
 			companyId,
 		});
 
-		const { displayName, email } = after.client;
+		const { displayName, email } = after.client ?? {};
 
 		const orderIsReady = before.status === "processing" && after.status === "in_delivery";
 

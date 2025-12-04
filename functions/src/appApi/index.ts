@@ -43,7 +43,7 @@ export function createAppApi(context: TContext) {
 					const res = await ezCountService.createDeliveryNote(order, {
 						ezcount_key: storePrivateData.ezcount_key,
 						clientName: order.nameOnInvoice ?? "",
-						clientEmail: order.client.email,
+						clientEmail: order.client?.email ?? "",
 						ezcount_api: storePrivateData.ezcount_api,
 						date: formatDateDDMMYYYY(date.toLocaleDateString()),
 						isVatIncludedInPrice:

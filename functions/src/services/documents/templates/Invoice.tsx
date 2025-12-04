@@ -26,7 +26,7 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 		}).format(amount);
 	};
 
-	const { apartmentNumber, city, floor, street, streetNumber } = order.client.address ?? {};
+	const { apartmentNumber, city, floor, street, streetNumber } = order.client?.address ?? {};
 	const fullAddress = `${city || ""}, ${street || ""} ${streetNumber || ""}${
 		floor ? ` קומה ${floor}` : ""
 	}${apartmentNumber ? `, דירה ${apartmentNumber}` : ""}`;
@@ -115,7 +115,7 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 						>
 							שם:
 						</div>
-						<div>{order.nameOnInvoice || order.client.displayName}</div>
+						<div>{order.nameOnInvoice || order.client?.displayName}</div>
 					</div>
 					<div>
 						<div
@@ -128,7 +128,7 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 						>
 							אימייל:
 						</div>
-						<div>{order.client.email || "-"}</div>
+						<div>{order.client?.email || "-"}</div>
 					</div>
 					<div>
 						<div
@@ -141,7 +141,7 @@ export function Invoice({ order, store, invoiceNumber, invoiceDate }: InvoicePro
 						>
 							טלפון:
 						</div>
-						<div>{order.client.phoneNumber || "-"}</div>
+						<div>{order.client?.phoneNumber || "-"}</div>
 					</div>
 					<div>
 						<div
