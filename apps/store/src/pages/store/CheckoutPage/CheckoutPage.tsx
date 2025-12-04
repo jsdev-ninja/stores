@@ -129,7 +129,8 @@ function CheckoutPage() {
 
 					if (
 						store.paymentType === "external" ||
-						profileOrganization?.paymentType === "external"
+						profileOrganization?.paymentType === "external" ||
+						profile?.paymentType === "external"
 					) {
 						values.status = "pending";
 						const order = await appApi.orders.order({
