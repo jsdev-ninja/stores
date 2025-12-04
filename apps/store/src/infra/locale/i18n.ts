@@ -43,6 +43,7 @@ export const resources = {
 			paymentTypes: {
 				j5: "תשלום באמצעות J5",
 				external: "תשלום חיצוני",
+				none: "לא מוגדר",
 			},
 			clientTypes: {
 				user: "לקוח פרטי",
