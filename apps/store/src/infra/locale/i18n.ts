@@ -313,17 +313,24 @@ export const resources = {
 
 		ordersPage: {
 			title: "הזמנות שלי",
+			createOrder: "צור הזמנה",
 			columns: {
 				orderId: "מזהה הזמנה",
+				customerName: "שם לקוח",
+				paymentType: "סוג תשלום",
 				date: "תאריך",
 				sum: "סכום",
 				status: "סטטוס",
 				client: "שם לקוח",
 				address: "כתובת",
+				actions: "פעולות",
 			},
 			actions: {
 				cancelOrder: "בטל הזמנה",
 				viewOrder: "צפה בהזמנה",
+				viewDetails: "צפה בפרטים",
+				editInfo: "ערוך מידע",
+				delete: "מחק",
 				acceptOrder: "אישור הזמנה",
 				deliveredOrder: "הזמנה הגיע",
 				paidOrder: "הזמנה שולמה",
@@ -332,6 +339,20 @@ export const resources = {
 				chargeOrder: "חייב הזמנה",
 				endOrder: "סיום הזמנה",
 			},
+			filters: {
+				allCategory: "כל הקטגוריות",
+				date: "תאריך",
+				status: "סטטוס",
+				filters: "סינונים",
+			},
+			pagination: {
+				showing: "מציג {start} עד {end} פריטים",
+			},
+			confirmCancel: {
+				title: "ביטול הזמנה",
+				message: "האם אתה בטוח שברצונך לבטל את ההזמנה הזו?",
+			},
+			noOrders: "אין הזמנות",
 		},
 
 		orderSuccessPage: {
