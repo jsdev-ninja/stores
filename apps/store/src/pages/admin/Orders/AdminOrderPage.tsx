@@ -413,6 +413,7 @@ export default function AdminOrderPage() {
 	const updateClientField = (field: string, value: string) => {
 		setOrder((prev) => {
 			if (!prev) return prev;
+			if (!prev.client) return prev;
 			return {
 				...prev,
 				client: {
@@ -426,12 +427,13 @@ export default function AdminOrderPage() {
 	const updateClientAddress = (field: string, value: string) => {
 		setOrder((prev) => {
 			if (!prev) return prev;
+			if (!prev.client) return prev;
 			return {
 				...prev,
 				client: {
 					...prev.client,
 					address: {
-						...(prev.client.address || {}),
+						...(prev.client?.address || {}),
 						[field]: value,
 					},
 				},
@@ -472,12 +474,12 @@ export default function AdminOrderPage() {
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Input
 							label="Customer Name"
-							value={order.client.displayName}
+							value={order.client?.displayName}
 							onChange={(e) => updateClientField("displayName", e.target.value)}
 						/>
 						<Input
 							label="Email"
-							value={order.client.email}
+							value={order.client?.email}
 							onChange={(e) => updateClientField("email", e.target.value)}
 						/>
 						<Input
@@ -529,32 +531,32 @@ export default function AdminOrderPage() {
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<Input
 								label="City"
-								value={order.client.address?.city || ""}
+								value={order.client?.address?.city || ""}
 								onChange={(e) => updateClientAddress("city", e.target.value)}
 							/>
 							<Input
 								label="Street"
-								value={order.client.address?.street || ""}
+								value={order.client?.address?.street || ""}
 								onChange={(e) => updateClientAddress("street", e.target.value)}
 							/>
 							<Input
 								label="Street Number"
-								value={order.client.address?.streetNumber || ""}
+								value={order.client?.address?.streetNumber || ""}
 								onChange={(e) => updateClientAddress("streetNumber", e.target.value)}
 							/>
 							<Input
 								label="Floor"
-								value={order.client.address?.floor || ""}
+								value={order.client?.address?.floor || ""}
 								onChange={(e) => updateClientAddress("floor", e.target.value)}
 							/>
 							<Input
 								label="Apartment Number"
-								value={order.client.address?.apartmentNumber || ""}
+								value={order.client?.address?.apartmentNumber || ""}
 								onChange={(e) => updateClientAddress("apartmentNumber", e.target.value)}
 							/>
 							<Input
 								label="Phone"
-								value={order.client.phoneNumber || ""}
+								value={order.client?.phoneNumber || ""}
 								onChange={(e) => updateClientField("phoneNumber", e.target.value)}
 							/>
 						</div>

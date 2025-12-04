@@ -107,7 +107,7 @@ function AdminCreateOrderPage() {
 		createdDate: Date.now(),
 		isAnonymous: profile?.isAnonymous ?? true,
 		lastActivityDate: Date.now(),
-		paymentType: "default",
+		paymentType: profile?.paymentType ?? store.paymentType,
 	};
 
 	const cartCost = getCartCost({
@@ -141,6 +141,7 @@ function AdminCreateOrderPage() {
 				defaultValues={{
 					type: "Order",
 					id: FirebaseApi.firestore.generateDocId("orders"),
+					createdBy: "admin",
 					userId: user.uid,
 					companyId: store.companyId,
 					storeId: store.id,

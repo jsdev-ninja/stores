@@ -9,7 +9,6 @@ import { useAppApi } from "src/appApi";
 import { TOrganization, TNewOrganization } from "@jsdev_ninja/core";
 import { navigate } from "src/navigation";
 
-
 export function AdminOrganizationsPage() {
 	// const appApi = useAppApi(); // Will be used when API is fully integrated
 	const { t } = useTranslation(["common", "admin"]);
@@ -20,7 +19,7 @@ export function AdminOrganizationsPage() {
 		discountPercentage: undefined,
 		nameOnInvoice: "",
 		billingAccounts: [],
-		paymentType: "default",
+		paymentType: "j5",
 	});
 
 	const appApi = useAppApi();
@@ -68,7 +67,10 @@ export function AdminOrganizationsPage() {
 		}
 	};
 
-	const handleFormChange = (field: keyof Omit<TOrganization, "id">, value: string | number | undefined) => {
+	const handleFormChange = (
+		field: keyof Omit<TOrganization, "id">,
+		value: string | number | undefined
+	) => {
 		setFormData((prev: TNewOrganization) => ({
 			...prev,
 			[field]: value,
@@ -78,7 +80,7 @@ export function AdminOrganizationsPage() {
 	const resetForm = () => {
 		setFormData({
 			name: "",
-			paymentType: "default",
+			paymentType: "j5",
 			discountPercentage: undefined,
 			nameOnInvoice: "",
 			billingAccounts: [],
@@ -167,7 +169,10 @@ export function AdminOrganizationsPage() {
 									type="number"
 									value={formData.discountPercentage?.toString() || ""}
 									onValueChange={(value) =>
-										handleFormChange("discountPercentage", value ? Number(value) : undefined)
+										handleFormChange(
+											"discountPercentage",
+											value ? Number(value) : undefined
+										)
 									}
 								/>
 								<Input

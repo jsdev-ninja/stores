@@ -12,3 +12,4 @@ export * from "./Store";
 export * from "./Discount";
 export * from "./Organization";
 export * from "./DeliveryNote";
+export * from "./Payment";

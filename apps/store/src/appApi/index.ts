@@ -1525,7 +1525,7 @@ export const useAppApi = () => {
 					createdDate: Date.now(),
 					lastActivityDate: Date.now(),
 					type: "Profile",
-					paymentType: "default",
+					paymentType: "j5"
 				};
 
 				const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);

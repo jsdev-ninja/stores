@@ -340,8 +340,8 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 							onChange={(e) => handleChange("paymentType", e.target.value)}
 							isRequired
 						>
-							<SelectItem key="default">{t("common:paymentTypes.default")}</SelectItem>
-							<SelectItem key="delayed">{t("common:paymentTypes.delayed")}</SelectItem>
+							<SelectItem key="j5">{t("common:paymentTypes.j5")}</SelectItem>
+							<SelectItem key="external">{t("common:paymentTypes.external")}</SelectItem>
 						</Select>
 
 						{formData.clientType === "company" && (

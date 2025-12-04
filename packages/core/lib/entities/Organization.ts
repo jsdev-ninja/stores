@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PaymentTypeSchema } from "./Payment";
 
 export const BillingAccountSchema = z.object({
 	number: z.string(),
@@ -13,7 +14,7 @@ export const OrganizationSchema = z.object({
 	discountPercentage: z.number().positive().min(0).max(100).optional(),
 	nameOnInvoice: z.string().optional(),
 	billingAccounts: z.array(BillingAccountSchema),
-	paymentType: z.enum(["default", "delayed"]),
+	paymentType: PaymentTypeSchema
 });
 
 export const NewOrganizationSchema = OrganizationSchema.omit({ id: true });

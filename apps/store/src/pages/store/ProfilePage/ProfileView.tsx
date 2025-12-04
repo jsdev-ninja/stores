@@ -44,13 +44,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile }) => {
 						label={t("common:paymentType")}
 						value={
 							<Chip
-								color={profile.paymentType === "delayed" ? "secondary" : "success"}
+								color={profile.paymentType === "external" ? "secondary" : "success"}
 								variant="flat"
 								size="sm"
 							>
-								{profile.paymentType === "delayed"
-									? t("common:paymentTypes.delayed")
-									: t("common:paymentTypes.default")}
+								{profile.paymentType === "external"
+									? t("common:paymentTypes.external")
+									: t("common:paymentTypes.j5")}
 							</Chip>
 						}
 					/>

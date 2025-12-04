@@ -41,8 +41,8 @@ export const resources = {
 			anonymousUser: "משתמש אנונימי",
 			paymentType: "סוג תשלום",
 			paymentTypes: {
-				delayed: "חיוב עתידי",
-				default: "חיוב רגיל",
+				j5: "תשלום באמצעות J5",
+				external: "תשלום חיצוני",
 			},
 			clientTypes: {
 				user: "לקוח פרטי",
@@ -476,8 +476,9 @@ export const resources = {
 				clientNotFound: "לא נמצא לקוח עם האימייל שסיפקת",
 				failedToAssignClient: "נכשל בשיוך הלקוח לארגון",
 				alreadyInThisOrganization: "לקוח זה כבר משויך לארגון הנוכחי.",
-				alreadyInOrganization: "לקוח זה כבר משויך לארגון \"{{name}}\".",
-				alreadyInOrganizationDescription: "כדי לשייך אותו לארגון אחר, הסר אותו קודם מ\"{{name}}\".",
+				alreadyInOrganization: 'לקוח זה כבר משויך לארגון "{{name}}".',
+				alreadyInOrganizationDescription:
+					'כדי לשייך אותו לארגון אחר, הסר אותו קודם מ"{{name}}".',
 				assignExistingClient: "שייך לקוח",
 				errors: {
 					displayNameRequired: "שם לקוח נדרש",

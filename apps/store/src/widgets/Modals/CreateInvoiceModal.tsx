@@ -176,7 +176,7 @@ function FormContent({
 												{new Date(order.date).toLocaleDateString('he-IL')}
 											</td>
 											<td className="px-3 py-2 text-sm text-gray-500">
-												{order.client.displayName}
+												{order.client?.displayName}
 											</td>
 											<td className="px-3 py-2 text-sm text-gray-500">
 												{getOrganizationName(order.organizationId || '')}

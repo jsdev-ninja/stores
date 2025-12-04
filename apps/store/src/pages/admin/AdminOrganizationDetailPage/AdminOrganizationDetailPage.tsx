@@ -17,7 +17,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { useParams, navigate } from "src/navigation";
-import { TOrganization, TProfile } from "@jsdev_ninja/core";
+import { TOrganization, TPaymentType, TProfile } from "@jsdev_ninja/core";
 
 type ClientFormState = {
 	displayName: string;
@@ -38,7 +38,7 @@ const createEmptyClientForm = (): ClientFormState => ({
 	email: "",
 	phoneNumber: "",
 	clientType: "user",
-	paymentType: "default",
+	paymentType: "j5",
 	companyName: "",
 });
 
@@ -86,12 +86,12 @@ export function AdminOrganizationDetailPage() {
 		name: string;
 		discountPercentage: number | undefined;
 		nameOnInvoice: string;
-		paymentType: "default" | "delayed";
+		paymentType: TPaymentType;
 	}>({
 		name: "",
 		discountPercentage: undefined,
 		nameOnInvoice: "",
-		paymentType: "default",
+		paymentType: "j5",
 	});
 	const [isSubmittingOrganization, setIsSubmittingOrganization] = useState(false);
 
@@ -411,8 +411,8 @@ export function AdminOrganizationDetailPage() {
 					label: "text-start",
 				}}
 			>
-				<SelectItem key="default">{t("common:paymentTypes.default")}</SelectItem>
-				<SelectItem key="delayed">{t("common:paymentTypes.delayed")}</SelectItem>
+				<SelectItem key="j5">{t("common:paymentTypes.j5")}</SelectItem>
+				<SelectItem key="external">{t("common:paymentTypes.external")}</SelectItem>
 			</Select>
 		</>
 	);
@@ -1149,7 +1149,7 @@ export function AdminOrganizationDetailPage() {
 									onChange={(event) =>
 										handleOrganizationFormChange(
 											"paymentType",
-											event.target.value as "default" | "delayed"
+											event.target.value as TPaymentType
 										)
 									}
 									isRequired
@@ -1157,8 +1157,10 @@ export function AdminOrganizationDetailPage() {
 										label: "text-start",
 									}}
 								>
-									<SelectItem key="default">{t("common:paymentTypes.default")}</SelectItem>
-									<SelectItem key="delayed">{t("common:paymentTypes.delayed")}</SelectItem>
+									<SelectItem key="j5">{t("common:paymentTypes.j5")}</SelectItem>
+									<SelectItem key="external">
+										{t("common:paymentTypes.external")}
+									</SelectItem>
 								</Select>
 							</ModalBody>
 							<ModalFooter>

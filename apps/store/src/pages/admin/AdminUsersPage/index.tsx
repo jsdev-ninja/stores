@@ -25,7 +25,14 @@ export function capitalize(str?: string) {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "address", "phone", "clientType", "paymentType", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+	"name",
+	"address",
+	"phone",
+	"clientType",
+	"paymentType",
+	"actions",
+];
 
 const getColumns = (t: any) => [
 	{ name: t("admin:clientsPage.columns.name"), uid: "name", sortable: true },
@@ -53,9 +60,10 @@ function AdminUsersPage() {
 		let filteredUsers = [...clients];
 
 		if (filterValue) {
-			filteredUsers = filteredUsers.filter((user) =>
-				user.displayName?.toLowerCase().includes(filterValue.toLowerCase()) ||
-				user.email?.toLowerCase().includes(filterValue.toLowerCase())
+			filteredUsers = filteredUsers.filter(
+				(user) =>
+					user.displayName?.toLowerCase().includes(filterValue.toLowerCase()) ||
+					user.email?.toLowerCase().includes(filterValue.toLowerCase())
 			);
 		}
 
@@ -76,91 +84,101 @@ function AdminUsersPage() {
 		});
 	}, []);
 
-	const renderCell = React.useCallback((user: TProfile, columnKey: React.Key) => {
-		switch (columnKey) {
-			case "name":
-				return (
-					<User
-						avatarProps={{ radius: "lg", src: "" }}
-						description={user.email}
-						name={user.displayName}
-					>
-						{user.email}
-					</User>
-				);
-			case "address":
-				return user.address ? (
-					<div>
-						{user.address.city}, {user.address.street} {user.address.streetNumber}
-						<br />
-						{user.address.apartmentEnterNumber && (
-							<>
-								{t("common:apartmentEnterNumber")} ({user.address.apartmentEnterNumber})
-								<br />
-							</>
-						)}
-						{user.address.apartmentNumber && (
-							<>
-								{t("common:apartmentNumber")} {user.address.apartmentNumber}
-								{user.address.floor && `, ${t("common:floor")} ${user.address.floor}`}
-							</>
-						)}
-					</div>
-				) : (
-					t("common:emptyField")
-				);
-			case "phone":
-				return user.phoneNumber || t("common:emptyField");
-			case "clientType":
-				return user.clientType ? t(`common:clientTypes.${user.clientType}`) : t("common:emptyField");
-			case "paymentType":
-				return user.paymentType ? t(`common:paymentTypes.${user.paymentType}`) : t("common:emptyField");
-			case "actions":
-				return (
-					<div className="relative flex justify-end items-center gap-2">
-						<Dropdown>
-							<DropdownTrigger>
-								<Button isIconOnly size="sm" variant="light">
-									<svg
-										className="text-default-500"
-										aria-hidden="true"
-										fill="none"
-										focusable="false"
-										height={24}
-										role="presentation"
-										viewBox="0 0 24 24"
-										width={24}
-									>
-										<path
-											d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
-											fill="currentColor"
-										/>
-									</svg>
-								</Button>
-							</DropdownTrigger>
-							<DropdownMenu
-								onAction={(key) => {
-									if (key === "view") {
-										navigate({
-											to: "admin.clientProfile",
-											params: { id: user.id },
-										});
-									}
-									// Add other actions here as needed
-								}}
-							>
-								<DropdownItem key="view">{t("admin:clientsPage.actions.view")}</DropdownItem>
-								<DropdownItem key="delete" className="text-danger" color="danger">
-									{t("admin:clientsPage.actions.delete")}
-								</DropdownItem>
-							</DropdownMenu>
-						</Dropdown>
-					</div>
-				);
-			default:
-				return null;
-		}
-	}, [t]);
+	const renderCell = React.useCallback(
+		(user: TProfile | undefined, columnKey: React.Key) => {
+			if (!user) return null;
+			switch (columnKey) {
+				case "name":
+					return (
+						<User
+							avatarProps={{ radius: "lg", src: "" }}
+							description={user.email}
+							name={user.displayName}
+						>
+							{user.email}
+						</User>
+					);
+				case "address":
+					return user.address ? (
+						<div>
+							{user.address.city}, {user.address.street} {user.address.streetNumber}
+							<br />
+							{user.address.apartmentEnterNumber && (
+								<>
+									{t("common:apartmentEnterNumber")} ({user.address.apartmentEnterNumber})
+									<br />
+								</>
+							)}
+							{user.address.apartmentNumber && (
+								<>
+									{t("common:apartmentNumber")} {user.address.apartmentNumber}
+									{user.address.floor && `, ${t("common:floor")} ${user.address.floor}`}
+								</>
+							)}
+						</div>
+					) : (
+						t("common:emptyField")
+					);
+				case "phone":
+					return user.phoneNumber || t("common:emptyField");
+				case "clientType":
+					return user.clientType
+						? t(`common:clientTypes.${user.clientType}`)
+						: t("common:emptyField");
+				case "paymentType":
+					return user.paymentType
+						? t(`common:paymentTypes.${user.paymentType}`)
+						: t("common:emptyField");
+				case "actions":
+					return (
+						<div className="relative flex justify-end items-center gap-2">
+							<Dropdown>
+								<DropdownTrigger>
+									<Button isIconOnly size="sm" variant="light">
+										<svg
+											className="text-default-500"
+											aria-hidden="true"
+											fill="none"
+											focusable="false"
+											height={24}
+											role="presentation"
+											viewBox="0 0 24 24"
+											width={24}
+										>
+											<path
+												d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+												fill="currentColor"
+											/>
+										</svg>
+									</Button>
+								</DropdownTrigger>
+								<DropdownMenu
+									onAction={(key) => {
+										if (key === "view") {
+											navigate({
+												to: "admin.clientProfile",
+												params: { id: user.id },
+											});
+										}
+										// Add other actions here as needed
+									}}
+								>
+									<DropdownItem key="view">
+										{t("admin:clientsPage.actions.view")}
+									</DropdownItem>
+									<DropdownItem key="delete" className="text-danger" color="danger">
+										{t("admin:clientsPage.actions.delete")}
+									</DropdownItem>
+								</DropdownMenu>
+							</Dropdown>
+						</div>
+					);
+				default:
+					return null;
+			}
+		},
+		[t]
+	);
 
 	return (
 		<>

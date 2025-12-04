@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { AddressSchema } from "./Address";
+import { PaymentTypeSchema } from "./Payment";
 
 export const clientTypesSchema = z.enum(["individual", "company"]);
 
@@ -10,7 +11,7 @@ export const StoreSchema = z.object({
 	urls: z.array(z.string()),
 	logoUrl: z.string(),
 	tenantId: z.string(), // firebase auth tenantId
-	paymentType: z.enum(["external", "j5"]),
+	paymentType: PaymentTypeSchema,
 	allowAnonymousClients: z.boolean(),
 	isVatIncludedInPrice: z.boolean(),
 	clientTypes: z.array(clientTypesSchema),

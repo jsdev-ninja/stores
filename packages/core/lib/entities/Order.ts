@@ -5,6 +5,7 @@ import { CartItemProductSchema } from "./Cart";
 import { DeliveryNoteSchema, EzDeliveryNoteSchema } from "./DeliveryNote";
 import { BillingAccountSchema } from "./Organization";
 import { EzInvoiceSchema, InvoiceSchema } from "./Invoice";
+import { PaymentTypeSchema } from "./Payment";
 
 // pending - order created / by user
 // processing order accepted by store by admin
@@ -31,7 +32,7 @@ export const OrderSchema = z.object({
 		"completed",
 		"refunded",
 	]),
-	paymentType: z.enum(["internal", "external"]).optional(),
+	paymentType: PaymentTypeSchema.optional(),
 	paymentStatus: z.enum(["pending", "pending_j5", "external", "completed", "failed", "refunded"]), //todo check if hyp support partial refund
 	cart: z.object({
 		id: z.string(),
@@ -53,7 +54,7 @@ export const OrderSchema = z.object({
 	actualAmount: z.number().positive().optional(), // what store charge
 	date: z.number(),
 	deliveryDate: z.coerce.number(),
-	client: ProfileSchema.required({}),
+	client: ProfileSchema.optional(),
 	nameOnInvoice: z.string().optional(),
 	clientComment: z.string().optional(),
 	organizationId: z.string().optional(),

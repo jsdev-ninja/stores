@@ -218,7 +218,7 @@ export default function AdminInvoicesPage() {
 											{new Date(order.date).toLocaleDateString("he-IL")}
 										</td>
 										<td className="px-6 py-4 text-sm text-gray-500">
-											{order.client.displayName}
+											{order.client?.displayName}
 										</td>
 										<td className="px-6 py-4 text-sm text-gray-500">
 											{getOrganizationName(order.organizationId || "")}

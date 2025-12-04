@@ -76,7 +76,10 @@ function CheckoutPage() {
 		createdDate: Date.now(),
 		isAnonymous: profile?.isAnonymous ?? true,
 		lastActivityDate: Date.now(),
-		paymentType: "default",
+		paymentType: profile?.paymentType ?? store.paymentType,
+		organizationId: profile?.organizationId ?? "",
+		phoneNumber: profile?.phoneNumber ?? "",
+		companyName: profile?.companyName ?? "",
 	};
 
 	const cartCost = getCartCost({
@@ -101,6 +104,7 @@ function CheckoutPage() {
 				defaultValues={{
 					type: "Order",
 					id: FirebaseApi.firestore.generateDocId("orders"),
+					createdBy: "user",
 					userId: user.uid,
 					companyId: store.companyId,
 					storeId: store.id,
@@ -125,7 +129,7 @@ function CheckoutPage() {
 
 					if (
 						store.paymentType === "external" ||
-						profileOrganization?.paymentType === "delayed"
+						profileOrganization?.paymentType === "external"
 					) {
 						values.status = "pending";
 						const order = await appApi.orders.order({
