@@ -413,6 +413,7 @@ export function AdminOrganizationDetailPage() {
 			>
 				<SelectItem key="j5">{t("common:paymentTypes.j5")}</SelectItem>
 				<SelectItem key="external">{t("common:paymentTypes.external")}</SelectItem>
+				<SelectItem key="none">{t("common:paymentTypes.none")}</SelectItem>
 			</Select>
 		</>
 	);
@@ -1161,6 +1162,7 @@ export function AdminOrganizationDetailPage() {
 									<SelectItem key="external">
 										{t("common:paymentTypes.external")}
 									</SelectItem>
+									<SelectItem key="none">{t("common:paymentTypes.none")}</SelectItem>
 								</Select>
 							</ModalBody>
 							<ModalFooter>

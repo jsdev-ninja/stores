@@ -342,6 +342,7 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 						>
 							<SelectItem key="j5">{t("common:paymentTypes.j5")}</SelectItem>
 							<SelectItem key="external">{t("common:paymentTypes.external")}</SelectItem>
+							<SelectItem key="none">{t("common:paymentTypes.none")}</SelectItem>
 						</Select>
 
 						{formData.clientType === "company" && (

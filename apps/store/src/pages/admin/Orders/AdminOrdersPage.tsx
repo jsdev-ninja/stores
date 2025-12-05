@@ -117,7 +117,7 @@ function AdminOrdersPages() {
 				case "paymentType":
 					return (
 						<span className="text-[14px] leading-[22px] font-normal text-[#282828]">
-							{order.paymentType
+							{order.paymentType !== undefined && order.paymentType !== null
 								? t(`common:paymentTypes.${order.paymentType}`, order.paymentType)
 								: "-"}
 						</span>
