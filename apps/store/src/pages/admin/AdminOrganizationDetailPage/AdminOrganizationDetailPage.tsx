@@ -87,11 +87,13 @@ export function AdminOrganizationDetailPage() {
 		discountPercentage: number | undefined;
 		nameOnInvoice: string;
 		paymentType: TPaymentType;
+		companyNumber: string;
 	}>({
 		name: "",
 		discountPercentage: undefined,
 		nameOnInvoice: "",
 		paymentType: "j5",
+		companyNumber: "",
 	});
 	const [isSubmittingOrganization, setIsSubmittingOrganization] = useState(false);
 
@@ -522,6 +524,7 @@ export function AdminOrganizationDetailPage() {
 			discountPercentage: org.discountPercentage,
 			nameOnInvoice: org.nameOnInvoice || "",
 			paymentType: (org as any).paymentType || "default",
+			companyNumber: org.companyNumber || "",
 		});
 		setIsEditOrganizationModalOpen(true);
 	};
@@ -549,6 +552,7 @@ export function AdminOrganizationDetailPage() {
 				discountPercentage: organizationFormData.discountPercentage,
 				nameOnInvoice: organizationFormData.nameOnInvoice.trim(),
 				paymentType: organizationFormData.paymentType,
+				companyNumber: organizationFormData.companyNumber.trim() || undefined,
 			} as TOrganization;
 
 			const result = await appApi.admin.updateOrganization(updatedOrg);
@@ -672,6 +676,14 @@ export function AdminOrganizationDetailPage() {
 										(organization as any).paymentType || "default"
 									}` as any
 								)}
+							</div>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+								{t("admin:organizationsPage.companyNumber")}
+							</label>
+							<div className="text-lg text-start">
+								{organization.companyNumber || t("admin:organizationsPage.notSet")}
 							</div>
 						</div>
 					</CardBody>
@@ -1138,6 +1150,18 @@ export function AdminOrganizationDetailPage() {
 									value={organizationFormData.nameOnInvoice}
 									onValueChange={(value) =>
 										handleOrganizationFormChange("nameOnInvoice", value)
+									}
+									classNames={{
+										input: "text-start",
+										label: "text-start",
+									}}
+								/>
+								<Input
+									label={t("admin:organizationsPage.companyNumber")}
+									placeholder={t("admin:organizationsPage.companyNumberPlaceholder")}
+									value={organizationFormData.companyNumber}
+									onValueChange={(value) =>
+										handleOrganizationFormChange("companyNumber", value)
 									}
 									classNames={{
 										input: "text-start",

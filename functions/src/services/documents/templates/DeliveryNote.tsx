@@ -101,7 +101,7 @@ export function DeliveryNote({
 				</h2>
 				<div style={{ fontSize: "14px", lineHeight: "1.8" }}>
 					<div style={{ fontWeight: "bold", marginBottom: "5px" }}>
-						{order.client?.displayName}
+						{order.nameOnInvoice ?? ""}
 					</div>
 					{order.client?.companyName && (
 						<div style={{ marginBottom: "5px" }}>חברה: {order.client?.companyName}</div>
