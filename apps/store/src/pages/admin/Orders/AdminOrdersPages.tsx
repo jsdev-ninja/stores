@@ -184,6 +184,15 @@ function OrderRow({
 					<Button
 						type="button"
 						onPress={async () => {
+							const payment = await appApi.user.createPaymentLink({ order });
+							window.location.href = payment.data.paymentLink;
+						}}
+					>
+						צור לינק חיוב
+					</Button>
+					<Button
+						type="button"
+						onPress={async () => {
 							const res = await appApi.admin.orderAccept({ order });
 							if (!res?.success) {
 								return;

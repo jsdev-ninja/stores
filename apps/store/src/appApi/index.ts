@@ -1214,7 +1214,9 @@ export const useAppApi = () => {
 					return;
 				}
 
-				const payment: any = await FirebaseApi.api.createPayment({ order: order });
+				const payment: any = await FirebaseApi.api.createPayment({
+					order: { ...order, client: undefined },
+				});
 				logger({
 					message: "client create payment link",
 					severity: "INFO",
@@ -1525,7 +1527,7 @@ export const useAppApi = () => {
 					createdDate: Date.now(),
 					lastActivityDate: Date.now(),
 					type: "Profile",
-					paymentType: "j5"
+					paymentType: "j5",
 				};
 
 				const res = await FirebaseApi.auth.createUser(newUser.email, newUser.password);
