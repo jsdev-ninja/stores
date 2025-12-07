@@ -78,7 +78,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 		const [clientName, clientLastName] = (payment.payment.Fild1 ?? "").split(" ");
 		const res = await hypPaymentService.chargeJ5Transaction({
 			actualAmount: order.cart.cartTotal.toFixed(2) as any, // todo
-			originalAmount: order.cart.cartTotal.toFixed(2) as any,
+			originalAmount: Number(payment.payment.Amount).toFixed(2) as any,
 			creditCardConfirmNumber: payment.payment.ACode,
 			masof: storePrivateData.hypData.masof,
 			masofPassword: storePrivateData.hypData.password,
