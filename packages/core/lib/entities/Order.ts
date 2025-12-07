@@ -57,6 +57,8 @@ export const OrderSchema = z.object({
 	client: ProfileSchema.optional(),
 	address: AddressSchema.optional(),
 	nameOnInvoice: z.string().optional(),
+	emailOnInvoice: z.string().email().optional(),
+	phoneNumberOnInvoice: z.string().optional(),
 	clientComment: z.string().optional(),
 	organizationId: z.string().optional(),
 	billingAccount: BillingAccountSchema.optional(),

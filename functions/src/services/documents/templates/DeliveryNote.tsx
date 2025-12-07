@@ -1,10 +1,11 @@
 import * as React from "react";
-import { TOrder, TStore } from "@jsdev_ninja/core";
+import { TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
 import { InvoiceLayout } from "./InvoiceLayout";
 
 type DeliveryNoteProps = {
 	order: TOrder;
 	store: TStore;
+	organization?: TOrganization;
 	deliveryNoteNumber?: string;
 	deliveryNoteDate?: string;
 };
@@ -12,6 +13,7 @@ type DeliveryNoteProps = {
 export function DeliveryNote({
 	order,
 	store,
+	organization,
 	deliveryNoteNumber,
 	deliveryNoteDate,
 }: DeliveryNoteProps) {
@@ -22,10 +24,19 @@ export function DeliveryNote({
 		}).format(amount);
 	};
 
-	const { apartmentNumber, city, floor, street, streetNumber } = order.client?.address ?? {};
+	// Use organization address first, then order address, then client address
+	const addressSource = organization?.address ?? order.address ?? order.client?.address;
+	const { apartmentNumber, city, floor, street, streetNumber } = addressSource ?? {};
 	const fullAddress = `${city || ""}, ${street || ""} ${streetNumber || ""}${
 		floor ? ` קומה ${floor}` : ""
 	}${apartmentNumber ? `, דירה ${apartmentNumber}` : ""}`;
+
+	// Use organization nameOnInvoice first, then order nameOnInvoice, then client displayName
+	const nameOnInvoice =
+		order.nameOnInvoice ?? organization?.nameOnInvoice ?? order.client?.displayName ?? "";
+
+	// Use organization companyNumber if exists, otherwise use client companyName
+	const companyInfo = organization?.companyNumber ? `ח.פ: ${organization.companyNumber}` : null;
 
 	const deliveryNoteNum = deliveryNoteNumber;
 	const deliveryNoteDateStr = deliveryNoteDate;
@@ -100,12 +111,8 @@ export function DeliveryNote({
 					פרטי הלקוח
 				</h2>
 				<div style={{ fontSize: "14px", lineHeight: "1.8" }}>
-					<div style={{ fontWeight: "bold", marginBottom: "5px" }}>
-						{order.nameOnInvoice ?? ""}
-					</div>
-					{order.client?.companyName && (
-						<div style={{ marginBottom: "5px" }}>חברה: {order.client?.companyName}</div>
-					)}
+					<div style={{ fontWeight: "bold", marginBottom: "5px" }}>{nameOnInvoice}</div>
+					{companyInfo && <div style={{ marginBottom: "5px" }}>{companyInfo}</div>}
 					{fullAddress && <div style={{ marginBottom: "5px" }}>כתובת: {fullAddress}</div>}
 					{order.client?.phoneNumber && (
 						<div style={{ marginBottom: "5px" }}>טלפון: {order.client?.phoneNumber}</div>

@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import React from "react";
 import { Invoice } from "./templates/Invoice";
 import { DeliveryNote } from "./templates/DeliveryNote";
-import { TOrder, TStore } from "@jsdev_ninja/core";
+import { TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
 
 type RenderInvoiceOptions = {
 	order: TOrder;
@@ -14,6 +14,7 @@ type RenderInvoiceOptions = {
 type RenderDeliveryNoteOptions = {
 	order: TOrder;
 	store: TStore;
+	organization?: TOrganization;
 	deliveryNoteNumber?: string;
 	deliveryNoteDate?: string;
 };
@@ -58,7 +59,7 @@ export function renderInvoiceToHTML(options: RenderInvoiceOptions): string {
  * Renders React delivery note component to HTML string
  */
 export function renderDeliveryNoteToHTML(options: RenderDeliveryNoteOptions): string {
-	const { order, store, deliveryNoteNumber, deliveryNoteDate } = options;
+	const { order, store, organization, deliveryNoteNumber, deliveryNoteDate } = options;
 
 	const noteNum = deliveryNoteNumber;
 
@@ -80,6 +81,7 @@ export function renderDeliveryNoteToHTML(options: RenderDeliveryNoteOptions): st
 				<DeliveryNote
 					order={order}
 					store={store}
+					organization={organization}
 					deliveryNoteNumber={deliveryNoteNumber}
 					deliveryNoteDate={deliveryNoteDate}
 				/>

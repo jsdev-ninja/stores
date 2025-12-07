@@ -266,6 +266,23 @@ function App() {
 						order={testOrderWithDeliveryNote1}
 						store={testStore}
 						deliveryNoteNumber="DN-001"
+						organization={{
+							id: "org-123",
+							name: "Organization 1",
+							address: {
+								apartmentEnterNumber: "1",
+								apartmentNumber: "1",
+								city: "רמת גן",
+								country: "ישראל",
+								floor: "1",
+								street: "הראה",
+								streetNumber: "58",
+							},
+							paymentType: "j5",
+							billingAccounts: [],
+							companyNumber: "1234567890",
+						}}
+						deliveryNoteDate="2024-01-16"
 					/>
 				)}
 			</div>

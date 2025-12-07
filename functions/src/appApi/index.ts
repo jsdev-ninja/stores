@@ -1,6 +1,6 @@
 import admin from "firebase-admin";
 import { logger } from "../core";
-import { FirebaseAPI, TOrder, TStore } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
@@ -40,6 +40,25 @@ export function createAppApi(context: TContext) {
 					const store = await getStoreData(storeId);
 					const storePrivateData = await getStorePrivateData(storeId);
 
+					const organizationSnapshot = await admin
+						.firestore()
+						.collection(
+							FirebaseAPI.firestore.getPath({
+								collectionName: "organizations",
+								companyId,
+								storeId,
+							})
+						)
+						.doc(order.organizationId ?? "")
+						.get();
+					const organization: TOrganization = organizationSnapshot.data() as TOrganization;
+
+					logger.write({
+						severity: "INFO",
+						message: "organization",
+						organization,
+					});
+
 					const res = await ezCountService.createDeliveryNote(order, {
 						ezcount_key: storePrivateData.ezcount_key,
 						clientName: order.nameOnInvoice ?? "",
@@ -57,6 +76,7 @@ export function createAppApi(context: TContext) {
 					if (res.data?.success) {
 						const html = renderDeliveryNoteToHTML({
 							order,
+							organization,
 							store,
 							deliveryNoteNumber: res.data?.doc_number,
 							deliveryNoteDate: formatDateDDMMYYYY(date.toLocaleDateString()),

@@ -166,7 +166,7 @@ export const ezCountService = {
 					details: "משלוח",
 					price: order.cart.deliveryPrice,
 					amount: 1,
-					vat_type: VAT_TYPE.NON,
+					vat_type: VAT_TYPE.INC,
 				});
 			}
 			const data = JSON.stringify({
