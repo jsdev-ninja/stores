@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PaymentTypeSchema } from "./Payment";
+import { AddressSchema } from "./Address";
 
 export const BillingAccountSchema = z.object({
 	number: z.string(),
@@ -14,7 +15,9 @@ export const OrganizationSchema = z.object({
 	discountPercentage: z.number().positive().min(0).max(100).optional(),
 	nameOnInvoice: z.string().optional(),
 	billingAccounts: z.array(BillingAccountSchema),
-	paymentType: PaymentTypeSchema
+	paymentType: PaymentTypeSchema,
+	companyNumber: z.string().optional(),
+	address: AddressSchema.optional(),
 });
 
 export const NewOrganizationSchema = OrganizationSchema.omit({ id: true });
