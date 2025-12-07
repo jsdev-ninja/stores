@@ -13,6 +13,7 @@ import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
 import { HeroUIProvider } from "@heroui/react";
 import { useAppApi } from "src/appApi";
+import { SentryApi } from "src/lib/sentry";
 
 const SuperAdminLayout = lazy(() => import("src/pages/superAdmin"));
 const StoreLayout = lazy(() => import("src/pages/store/StoreLayout"));
@@ -69,6 +70,11 @@ function App() {
 	useEffect(() => {
 		if (user && store) {
 			mixPanelApi.identify(user, { store, profile });
+			SentryApi.setUser({
+				id: user.uid,
+				email: user.email ?? "",
+				username: user.displayName ?? profile?.displayName ?? "",
+			});
 		}
 	}, [user, profile, store]);
 
