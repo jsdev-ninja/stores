@@ -5,12 +5,12 @@ export const systemCollections = {
 
 export const storeCollections = {
 	products: "products",
+	"favorite-products": "favorite-products",
 	profiles: "profiles",
 	cart: "cart",
 	clients: "clients",
 	orders: "orders",
 	categories: "categories",
-	favorites: "favorites",
 	payments: "payments",
 	settings: "settings",
 	discounts: "discounts",

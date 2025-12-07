@@ -1073,6 +1073,8 @@ export const useAppApi = () => {
 						id: payment.Order,
 						paymentStatus: store?.paymentType === "external" ? "external" : "pending_j5",
 						status: "pending",
+						originalAmount: payment.Amount,
+						actualAmount: payment.Amount,
 					},
 				});
 				await FirebaseApi.firestore.createV2({
@@ -1119,11 +1121,16 @@ export const useAppApi = () => {
 				favoriteProductsSubscribe: (
 					callback: (favoriteProducts: TFavoriteProduct[]) => void
 				) => {
-					if (!user || !company || !store || user.isAnonymous) return;
+					if (!user || !company || !store || user.isAnonymous || !companyId || !storeId)
+						return;
 
 					return FirebaseApi.firestore.subscribeList({
 						callback,
-						collection: "favorite-products",
+						collection: FirebaseAPI.firestore.getPath({
+							collectionName: "favorite-products",
+							companyId,
+							storeId,
+						}),
 						where: [
 							{ name: "userId", operator: "==", value: user.uid },
 							{ name: "storeId", operator: "==", value: store.id },
@@ -1162,13 +1169,26 @@ export const useAppApi = () => {
 			},
 
 			async addProductToFavorite({ product }: { product: TProduct }) {
-				if (!product || !user || !company || !store || user.isAnonymous) return;
+				if (
+					!product ||
+					!user ||
+					!company ||
+					!store ||
+					user.isAnonymous ||
+					!companyId ||
+					!storeId
+				)
+					return;
 				if (user.isAnonymous && !allowAnonymousClients) {
 					modalApi.openModal("authModal");
 					return;
 				}
 				return await FirebaseApi.firestore.setV2<any>({
-					collection: "favorite-products",
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "favorite-products",
+						companyId,
+						storeId,
+					}),
 					doc: {
 						productId: product.id,
 						userId: user.uid,
@@ -1178,13 +1198,18 @@ export const useAppApi = () => {
 				});
 			},
 			async removeProductToFavorite({ id }: { id: string }) {
-				if (!id || !user || !company || !store || user.isAnonymous) return;
+				if (!id || !user || !company || !store || user.isAnonymous || !companyId || !storeId)
+					return;
 				if (user.isAnonymous && !allowAnonymousClients) {
 					modalApi.openModal("authModal");
 					return;
 				}
 				return await FirebaseApi.firestore.remove({
-					collectionName: "favorite-products",
+					collectionName: FirebaseAPI.firestore.getPath({
+						collectionName: "favorite-products",
+						companyId,
+						storeId,
+					}),
 					id: id,
 				});
 			},
