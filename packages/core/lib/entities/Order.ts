@@ -6,6 +6,7 @@ import { DeliveryNoteSchema, EzDeliveryNoteSchema } from "./DeliveryNote";
 import { BillingAccountSchema } from "./Organization";
 import { EzInvoiceSchema, InvoiceSchema } from "./Invoice";
 import { PaymentTypeSchema } from "./Payment";
+import { AddressSchema } from "./Address";
 
 // pending - order created / by user
 // processing order accepted by store by admin
@@ -49,12 +50,12 @@ export const OrderSchema = z.object({
 			isVatIncludedInPrice: z.boolean().optional(),
 		})
 		.optional(),
-	orderDeliveryPrice: z.number().optional(), // delivery price for order
 	originalAmount: z.number().positive().optional(), // what client pay
 	actualAmount: z.number().positive().optional(), // what store charge
 	date: z.number(),
 	deliveryDate: z.coerce.number(),
 	client: ProfileSchema.optional(),
+	address: AddressSchema.optional(),
 	nameOnInvoice: z.string().optional(),
 	clientComment: z.string().optional(),
 	organizationId: z.string().optional(),

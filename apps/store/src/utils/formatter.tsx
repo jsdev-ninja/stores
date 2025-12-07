@@ -5,4 +5,8 @@ export const formatter = {
 			currency: "ILS",
 		}).format(value);
 	},
+	date(value?: number | undefined) {
+		if (!value) return "";
+		return new Date(value).toLocaleDateString("he-IL", {});
+	},
 };

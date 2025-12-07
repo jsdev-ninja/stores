@@ -172,7 +172,7 @@ function App() {
 	}
 
 	return (
-		<HeroUIProvider>
+		<HeroUIProvider className="min-h-screen min-w-screen">
 			{/* todo fix fallback */}
 			<Suspense fallback="loading">
 				<ModalProvider />

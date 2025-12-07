@@ -45,6 +45,15 @@ export const resources = {
 				external: "תשלום חיצוני",
 				none: "לא מוגדר",
 			},
+			paymentStatus: "סטטוס תשלום",
+			paymentStatuses: {
+				pending: "ממתין",
+				pending_j5: "ממתין J5",
+				external: "חיצוני",
+				completed: "הושלם",
+				failed: "נכשל",
+				refunded: "הוחזר",
+			},
 			clientTypes: {
 				user: "לקוח פרטי",
 				company: "חברה",
@@ -136,6 +145,7 @@ export const resources = {
 			confirmDeleteBillingAccount: "האם אתה בטוח שברצונך למחוק את חשבון הלקוח הזה?",
 			actions: {
 				view: "צפה",
+				cancel: "ביטול",
 			},
 			editProductName: "ערוך שם מוצר",
 			sku: 'מק"ט',
@@ -317,6 +327,7 @@ export const resources = {
 			columns: {
 				orderId: "מזהה הזמנה",
 				customerName: "שם לקוח",
+				createdBy: "נוצר על ידי",
 				paymentType: "סוג תשלום",
 				date: "תאריך",
 				sum: "סכום",
@@ -324,6 +335,10 @@ export const resources = {
 				client: "שם לקוח",
 				address: "כתובת",
 				actions: "פעולות",
+			},
+			createdBy: {
+				admin: "מנהל",
+				user: "לקוח",
 			},
 			actions: {
 				cancelOrder: "בטל הזמנה",
@@ -344,15 +359,76 @@ export const resources = {
 				date: "תאריך",
 				status: "סטטוס",
 				filters: "סינונים",
+				typeHere: "הקלד כאן",
+				selectStatus: "בחר סטטוס",
+				apply: "החל",
 			},
 			pagination: {
-				showing: "מציג {start} עד {end} פריטים",
+				showing: "מציג {{start}} עד {{end}} פריטים",
 			},
 			confirmCancel: {
 				title: "ביטול הזמנה",
 				message: "האם אתה בטוח שברצונך לבטל את ההזמנה הזו?",
 			},
 			noOrders: "אין הזמנות",
+			orderDetails: {
+				title: "פרטי הזמנה",
+				orderId: "מזהה הזמנה",
+				changeStatus: "שנה סטטוס",
+				save: "שמור",
+				print: "הדפס",
+				customer: {
+					title: "לקוח",
+					name: "שם",
+					email: "אימייל",
+					phone: "טלפון",
+					viewProfile: "צפה בפרופיל",
+				},
+				orderInfo: {
+					title: "מידע הזמנה",
+					shipping: "משלוח",
+					payMethod: "שיטת תשלום",
+					status: "סטטוס",
+					downloadInfo: "הורד מידע",
+				},
+				delivery: {
+					title: "משלוח ל",
+					city: "עיר",
+					viewProfile: "צפה בפרופיל",
+				},
+				payment: {
+					title: "מידע תשלום",
+					businessName: "שם עסק",
+					phone: "טלפון",
+				},
+				notes: {
+					title: "הערות",
+					placeholder: "הקלד הערה",
+					save: "שמור הערה",
+				},
+				products: {
+					title: "שם מוצר",
+					productName: "שם מוצר",
+					price: "מחיר",
+					quantity: "כמות",
+					total: "סה״כ",
+				},
+				summary: {
+					subtotal: "סכום ביניים",
+					tax: "מע״מ (20%)",
+					discount: "הנחה",
+					total: "סה״כ",
+					paymentDone: "תשלום בוצע",
+				},
+				documents: {
+					title: "מסמכים",
+					deliveryNote: "תעודת משלוח",
+					invoice: "חשבונית",
+					ezInvoice: "חשבונית EzCount",
+					ezDeliveryNote: "תעודת משלוח EzCount",
+					download: "הורד",
+				},
+			},
 		},
 
 		orderSuccessPage: {
