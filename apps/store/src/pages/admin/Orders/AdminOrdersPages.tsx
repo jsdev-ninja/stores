@@ -110,6 +110,8 @@ function OrderRow({
 			);
 		}
 
+		console.log("order", order);
+
 		console.log("store?.paymentType", store?.paymentType);
 
 		if (order.status === "delivered") {
@@ -129,7 +131,7 @@ function OrderRow({
 					</Button>
 				);
 			}
-			if (order.paymentStatus !== "completed" && order.paymentType !== "external") {
+			if (order.paymentStatus === "pending_j5" && order.paymentType === "j5") {
 				return (
 					<>
 						<Button
@@ -278,12 +280,27 @@ function OrderRow({
 			<div className="w-full grid sm:grid-cols-2 lg:flex lg:w-64 lg:items-center lg:justify-end gap-4">
 				<Button
 					color="primary"
-					onClick={() => {
+					onPress={() => {
 						navigate({ to: "admin.order", params: { id: order.id } });
 					}}
 				>
 					{t("ordersPage:actions.viewOrder")}
 				</Button>
+				{order.status !== "cancelled" && order.status !== "completed" && (
+					<Button
+						color="primary"
+						onPress={async () => {
+							// complete order
+							const res = await appApi.admin.endOrder({ order });
+							if (!res?.success) {
+								return;
+							}
+							updateOrder(order.id, "completed");
+						}}
+					>
+						{t("ordersPage:actions.endOrder")}
+					</Button>
+				)}
 			</div>
 			<Modal isOpen={isCancelOpen} onOpenChange={setIsCancelOpen}>
 				<ModalContent>

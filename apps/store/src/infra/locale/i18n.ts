@@ -335,6 +335,7 @@ export const resources = {
 				client: "שם לקוח",
 				address: "כתובת",
 				actions: "פעולות",
+				endOrder: "סיום הזמנה",
 			},
 			createdBy: {
 				admin: "מנהל",
