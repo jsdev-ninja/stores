@@ -240,15 +240,87 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 function ProductInput({ field }: any) {
 	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [selectedProduct, setSelectedProduct] = useState<TProduct | null>(null);
 
 	const { t } = useTranslation(["common", "admin"]);
 
 	const store = useStore();
 
+	// Sync selected product when search results change
+	useEffect(() => {
+		if (field.value && searchResults.length > 0) {
+			const found = searchResults.find((p) => p.id === field.value || p.objectID === field.value);
+			if (found) {
+				setSelectedProduct((prev) => {
+					// Only update if different
+					if (!prev || prev.id !== found.id) {
+						return found;
+					}
+					return prev;
+				});
+			}
+		}
+	}, [searchResults, field.value]);
+
+	// Load selected product when field value changes
+	useEffect(() => {
+		if (!field.value) {
+			setSelectedProduct(null);
+			return;
+		}
+
+		// Check if we already have the product selected
+		setSelectedProduct((prev) => {
+			if (prev && (prev.id === field.value || prev.objectID === field.value)) {
+				return prev;
+			}
+			return null;
+		});
+
+		// Check if product is in search results
+		const foundInResults = searchResults.find((p) => p.id === field.value || p.objectID === field.value);
+		if (foundInResults) {
+			return;
+		}
+
+		// Load product if not found
+		if (store) {
+			setIsLoading(true);
+			productsIndex
+				.search<TProduct>("", {
+					filters: `storeId:${store.id} AND companyId:${store.companyId} AND (objectID:"${field.value}" OR id:"${field.value}")`,
+				})
+				.then(({ hits }) => {
+					if (hits.length > 0) {
+						setSelectedProduct(hits[0]);
+						setSearchResults((prev) => {
+							// Add to results if not already there
+							if (!prev.find((p) => p.id === hits[0].id || p.objectID === hits[0].objectID)) {
+								return [...prev, hits[0]];
+							}
+							return prev;
+						});
+					}
+				})
+				.catch((error) => {
+					console.error("Error loading product:", error);
+				})
+				.finally(() => {
+					setIsLoading(false);
+				});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [field.value, store]);
+
 	const handleSearch = async (value: string) => {
 		if (!store) return;
 		if (!value) {
-			setSearchResults([]);
+			// Keep selected product in results if it exists
+			if (selectedProduct) {
+				setSearchResults([selectedProduct]);
+			} else {
+				setSearchResults([]);
+			}
 			return;
 		}
 
@@ -268,13 +340,38 @@ function ProductInput({ field }: any) {
 		}
 	};
 
+	const handleSelectionChange = (id: string | number | null) => {
+		if (!id) {
+			field.onChange("");
+			setSelectedProduct(null);
+			return;
+		}
+		const product = searchResults.find((p) => p.id === id || p.objectID === id);
+		if (product) {
+			setSelectedProduct(product);
+			// Store the objectID as the value since that's what we use as the key
+			field.onChange(product.objectID || product.id);
+		} else {
+			field.onChange(id);
+		}
+	};
+
+	// Combine search results with selected product if not already included
+	const displayItems = searchResults.length > 0 
+		? searchResults 
+		: selectedProduct 
+			? [selectedProduct] 
+			: [];
+
+	// Get the selected key - use objectID if available, otherwise use the field value
+	const selectedKey = selectedProduct?.objectID || field.value || null;
+
 	return (
 		<Autocomplete
-			onSelectionChange={(id) => {
-				field.onChange(id);
-			}}
+			selectedKey={selectedKey}
+			onSelectionChange={handleSelectionChange}
 			className="max-w-xl"
-			items={searchResults}
+			items={displayItems}
 			label={t("common:searchProduct")}
 			variant="bordered"
 			color="primary"
