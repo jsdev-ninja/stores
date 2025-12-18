@@ -5,9 +5,15 @@ import vikeReact from "vike-react/config";
 // https://vike.dev/config
 
 export default {
-  // https://vike.dev/head-tags
-  title: "My Vike App",
-  description: "Demo showcasing Vike",
+	// https://vike.dev/head-tags
+	title: "jsdev stores",
+	description: "חנות אונליין",
+	prerender: false,
+	ssr: false,
+	htmlAttributes: {
+		lang: "he",
+		dir: "rtl",
+	},
 
-  extends: [vikeReact],
+	extends: [vikeReact],
 } satisfies Config;

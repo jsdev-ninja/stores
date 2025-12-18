@@ -1,0 +1,14 @@
+{
+	"projects": {
+		"default": "jsdev-stores-prod"
+	},
+	"targets": {
+		"jsdev-stores-prod": {
+			"hosting": {
+				"stores-landing": [
+					"stores-landing"
+				]
+			}
+		}
+	}
+}
