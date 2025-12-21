@@ -6,6 +6,9 @@ import {
 	TCategory,
 	TDiscount,
 	TOrganization,
+	TOrganizationGroup,
+	TNewOrganizationGroup,
+	NewOrganizationGroupSchema,
 } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
@@ -949,6 +952,106 @@ export const useAppApi = () => {
 					sort: [{ name: "name", value: "asc" }],
 				});
 				updateLoading({ "admin.listOrganizations": false });
+
+				return result;
+			},
+			// Organization Group management
+			createOrganizationGroup: async (organizationGroup: TNewOrganizationGroup) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.createOrganizationGroup": true });
+
+				const validation = NewOrganizationGroupSchema.safeParse(organizationGroup);
+				if (!validation.success) {
+					logger({
+						message: "create organization group",
+						severity: "ERROR",
+						error: validation.error,
+						organizationGroup,
+					});
+					return { success: false, error: validation.error };
+				}
+
+				const doc = validation.data;
+
+				const result = await FirebaseApi.firestore.createV2<TNewOrganizationGroup & { id?: string }>(
+					{
+						collection: FirebaseAPI.firestore.getPath({
+							storeId,
+							companyId,
+							collectionName: "organizationGroups",
+						}),
+						doc: doc,
+					}
+				);
+				updateLoading({ "admin.createOrganizationGroup": false });
+
+				logger({
+					message: "create organization group",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					organizationGroup,
+				});
+
+				return result;
+			},
+			updateOrganizationGroup: async (organizationGroup: TOrganizationGroup) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				const result = await FirebaseApi.firestore.update<TOrganizationGroup>(
+					organizationGroup.id,
+					organizationGroup,
+					FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "organizationGroups",
+					})
+				);
+				logger({
+					message: "update organization group",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					organizationGroup,
+				});
+
+				return result;
+			},
+			deleteOrganizationGroup: async (organizationGroupId: string) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.deleteOrganizationGroup": true });
+				const result = await FirebaseApi.firestore.remove({
+					id: organizationGroupId,
+					collectionName: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "organizationGroups",
+					}),
+				});
+				updateLoading({ "admin.deleteOrganizationGroup": false });
+
+				logger({
+					message: "delete organization group",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					organizationGroupId,
+				});
+
+				return result;
+			},
+			listOrganizationGroups: async () => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.listOrganizationGroups": true });
+				const result = await FirebaseApi.firestore.listV2<TOrganizationGroup>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "organizationGroups",
+					}),
+					sort: [{ name: "name", value: "asc" }],
+				});
+				updateLoading({ "admin.listOrganizationGroups": false });
 
 				return result;
 			},

@@ -18,6 +18,7 @@ export const OrganizationSchema = z.object({
 	paymentType: PaymentTypeSchema,
 	companyNumber: z.string().optional(),
 	address: AddressSchema.optional(),
+	groupId: z.string().optional(),
 });
 
 export const NewOrganizationSchema = OrganizationSchema.omit({ id: true });

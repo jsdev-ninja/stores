@@ -17,7 +17,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { useParams, navigate } from "src/navigation";
-import { TOrganization, TPaymentType, TProfile } from "@jsdev_ninja/core";
+import { TOrganization, TPaymentType, TProfile, TOrganizationGroup } from "@jsdev_ninja/core";
 
 type ClientFormState = {
 	displayName: string;
@@ -88,14 +88,18 @@ export function AdminOrganizationDetailPage() {
 		nameOnInvoice: string;
 		paymentType: TPaymentType;
 		companyNumber: string;
+		groupId: string | undefined;
 	}>({
 		name: "",
 		discountPercentage: undefined,
 		nameOnInvoice: "",
 		paymentType: "j5",
 		companyNumber: "",
+		groupId: undefined,
 	});
 	const [isSubmittingOrganization, setIsSubmittingOrganization] = useState(false);
+	const [organizationGroups, setOrganizationGroups] = useState<TOrganizationGroup[]>([]);
+	const [organizationGroupsLoading, setOrganizationGroupsLoading] = useState(false);
 
 	const appApi = useAppApi();
 
@@ -103,8 +107,23 @@ export function AdminOrganizationDetailPage() {
 		if (id) {
 			loadOrganization(id);
 		}
+		loadOrganizationGroups();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
+
+	const loadOrganizationGroups = async () => {
+		setOrganizationGroupsLoading(true);
+		try {
+			const result = await appApi.admin.listOrganizationGroups();
+			if (result?.success) {
+				setOrganizationGroups((result.data || []) as TOrganizationGroup[]);
+			}
+		} catch (error) {
+			console.error("Failed to load organization groups:", error);
+		} finally {
+			setOrganizationGroupsLoading(false);
+		}
+	};
 
 	const loadOrganization = async (organizationId: string) => {
 		setLoading(true);
@@ -525,6 +544,7 @@ export function AdminOrganizationDetailPage() {
 			nameOnInvoice: org.nameOnInvoice || "",
 			paymentType: (org as any).paymentType || "default",
 			companyNumber: org.companyNumber || "",
+			groupId: org.groupId || undefined,
 		});
 		setIsEditOrganizationModalOpen(true);
 	};
@@ -533,10 +553,18 @@ export function AdminOrganizationDetailPage() {
 		field: keyof typeof organizationFormData,
 		value: string | number | undefined
 	) => {
-		setOrganizationFormData((prev) => ({
-			...prev,
-			[field]: value || "",
-		}));
+		setOrganizationFormData((prev) => {
+			if (field === "groupId") {
+				return {
+					...prev,
+					[field]: value === "" || value === "none" ? undefined : (value as string | undefined),
+				};
+			}
+			return {
+				...prev,
+				[field]: value === "" ? undefined : value || "",
+			};
+		});
 	};
 
 	console.log("organizationFormData", organizationFormData);
@@ -553,6 +581,7 @@ export function AdminOrganizationDetailPage() {
 				nameOnInvoice: organizationFormData.nameOnInvoice.trim(),
 				paymentType: organizationFormData.paymentType,
 				companyNumber: organizationFormData.companyNumber.trim() || undefined,
+				groupId: organizationFormData.groupId || undefined,
 			} as TOrganization;
 
 			const result = await appApi.admin.updateOrganization(updatedOrg);
@@ -684,6 +713,17 @@ export function AdminOrganizationDetailPage() {
 							</label>
 							<div className="text-lg text-start">
 								{organization.companyNumber || t("admin:organizationsPage.notSet")}
+							</div>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+								{t("admin:organizationsPage.group")}
+							</label>
+							<div className="text-lg text-start">
+								{organization.groupId
+									? organizationGroups.find((g) => g.id === organization.groupId)?.name ||
+									  t("admin:organizationsPage.notSet")
+									: t("admin:organizationsPage.notSet")}
 							</div>
 						</div>
 					</CardBody>
@@ -1187,6 +1227,29 @@ export function AdminOrganizationDetailPage() {
 										{t("common:paymentTypes.external")}
 									</SelectItem>
 									<SelectItem key="none">{t("common:paymentTypes.none")}</SelectItem>
+								</Select>
+								<Select
+									label={t("admin:organizationsPage.group")}
+									placeholder={t("admin:organizationsPage.selectGroup")}
+									selectedKeys={organizationFormData.groupId ? [organizationFormData.groupId] : []}
+									onChange={(event) =>
+										handleOrganizationFormChange(
+											"groupId",
+											event.target.value === "none" ? undefined : event.target.value
+										)
+									}
+									isDisabled={organizationGroupsLoading}
+									classNames={{
+										label: "text-start",
+									}}
+									startContent={<Icon icon="lucide:folder-tree" className="text-default-400" />}
+									items={[{ id: "none", name: t("admin:organizationsPage.noGroup") }, ...organizationGroups]}
+								>
+									{(group) => (
+										<SelectItem textValue={group.name} key={group.id}>
+											{group.name}
+										</SelectItem>
+									)}
 								</Select>
 							</ModalBody>
 							<ModalFooter>

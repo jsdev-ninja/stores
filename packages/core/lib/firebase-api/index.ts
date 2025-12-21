@@ -15,6 +15,7 @@ export const storeCollections = {
 	settings: "settings",
 	discounts: "discounts",
 	organizations: "organizations",
+	organizationGroups: "organization-groups",
 	invoices: "invoices",
 } as const;
 

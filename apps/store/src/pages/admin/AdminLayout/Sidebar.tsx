@@ -67,6 +67,11 @@ const sidebarCategories = [
 				path: "admin.organizations" as RouteKeys<typeof routes>,
 				icon: "lucide:building-2",
 			},
+			{
+				name: "organizationGroups",
+				path: "admin.organizationGroups" as RouteKeys<typeof routes>,
+				icon: "lucide:folder-tree",
+			},
 		],
 	},
 	{
