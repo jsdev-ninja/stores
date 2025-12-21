@@ -52,6 +52,11 @@ const sidebarCategories = [
 				path: "admin.discounts" as RouteKeys<typeof routes>,
 				icon: "lucide:percent",
 			},
+			{
+				name: "inventoryCertificate",
+				path: "admin.inventoryCertificate" as RouteKeys<typeof routes>,
+				icon: "lucide:file-check",
+			},
 		],
 	},
 	{

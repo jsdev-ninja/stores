@@ -1,0 +1,420 @@
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import {
+	Table,
+	TableHeader,
+	TableColumn,
+	TableBody,
+	TableRow,
+	TableCell,
+	Input,
+	NumberInput,
+	Button,
+} from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { useAppApi } from "src/appApi";
+import { TProduct } from "@jsdev_ninja/core";
+
+// Helper function to round numbers
+function round(value: number, digits = 2): number {
+	const p = 10 ** digits;
+	return Math.round((value + Number.EPSILON) * p) / p;
+}
+
+function marginPercentFromCostPrice(cost: number, price: number): number {
+	if (cost <= 0 || price <= 0) return 0;
+
+	const profit = price - cost;
+	if (profit <= 0) return 0; // UI-friendly: no negative margins
+
+	return round((profit / price) * 100);
+}
+
+export function priceFromCostMarginPercent(cost: number, marginPercent: number): number {
+	if (cost <= 0 || marginPercent <= 0) return 0;
+	return round(cost / (1 - marginPercent / 100));
+}
+
+interface InventoryCertificateRow {
+	id: string;
+	rowNumber: number;
+	sku: string;
+	itemName: string;
+	quantity: number; // quantity of units
+	purchasePrice: number; // purchase price per unit
+	lineDiscount: number; // line discount percentage (on purchase price)
+	profitPercentage: number; // profit percentage (margin) on purchase price
+	price: number; // product price
+	totalPurchasePrice: number; // quantity * purchasePrice
+}
+
+export function AdminInventoryCertificatePage() {
+	const { t } = useTranslation(["common"]);
+	const appApi = useAppApi();
+
+	// Document header state
+	const [documentDate, setDocumentDate] = useState<string>(new Date().toISOString().split("T")[0]);
+	const [supplierNumber, setSupplierNumber] = useState<string>("");
+	const [invoiceNumber, setInvoiceNumber] = useState<string>("");
+
+	// Table rows state
+	const [rows, setRows] = useState<InventoryCertificateRow[]>([]);
+
+	// Debounce timers for SKU lookups
+	const skuDebounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
+
+	// Cleanup debounce timers on unmount
+	useEffect(() => {
+		const timers = skuDebounceTimers.current;
+		return () => {
+			Object.values(timers).forEach((timer) => {
+				if (timer) clearTimeout(timer);
+			});
+		};
+	}, []);
+
+	// Calculate profit percentage and net purchase value
+	// Only auto-calculate when source fields change, but allow manual override
+	const calculateRowValues = (
+		row: InventoryCertificateRow,
+		changedField?: keyof InventoryCertificateRow
+	): InventoryCertificateRow => {
+		// If user manually edited calculated fields, don't auto-recalculate them
+		const shouldAutoCalculate =
+			changedField &&
+			(changedField === "price" ||
+				changedField === "purchasePrice" ||
+				changedField === "profitPercentage" ||
+				changedField === "quantity");
+
+		if (!shouldAutoCalculate) {
+			return row;
+		}
+
+		let profitPercentage = row.profitPercentage;
+		let price = row.price;
+		const purchasePrice = row.purchasePrice;
+
+		if (changedField === "price" || changedField === "purchasePrice") {
+			// calculate profit percentage (margin) on purchase price
+			profitPercentage = marginPercentFromCostPrice(purchasePrice, price);
+		}
+
+		if (changedField === "profitPercentage") {
+			// calculate price from profit percentage margin (from top) and purchase price
+			price = priceFromCostMarginPercent(purchasePrice, profitPercentage);
+		}
+
+		// Calculate totalPurchasePrice = quantity * purchasePrice
+		const totalPurchasePrice = (row.quantity || 0) * purchasePrice;
+
+		return {
+			...row,
+			profitPercentage: profitPercentage,
+			price: price,
+			purchasePrice: purchasePrice,
+			totalPurchasePrice: round(totalPurchasePrice, 2),
+		};
+	};
+
+	const loadProductBySku = async (rowId: string, sku: string) => {
+		if (!sku || sku.trim() === "") return;
+
+		try {
+			const response = await appApi.system.getProductById({ id: sku });
+			if (response?.success && response.data) {
+				const product: TProduct = response.data;
+				console.log("find product", product);
+				setRows((prevRows) => {
+					return prevRows.map((row) => {
+						if (row.id === rowId) {
+							const updatedRow: InventoryCertificateRow = {
+								...row,
+								itemName: product.name[0]?.value || "",
+								price: product.price || 0,
+								purchasePrice: product.purchasePrice || 0,
+							};
+							return calculateRowValues(updatedRow, "purchasePrice");
+						}
+						return row;
+					});
+				});
+			}
+		} catch (error) {
+			console.error("Failed to load product by SKU:", error);
+		}
+	};
+
+	const updateRow = (id: string, field: keyof InventoryCertificateRow, value: any) => {
+		// Clear existing debounce timer for this row
+		if (skuDebounceTimers.current[id]) {
+			clearTimeout(skuDebounceTimers.current[id]);
+			delete skuDebounceTimers.current[id];
+		}
+
+		setRows((prevRows) => {
+			const updatedRows = prevRows.map((row) => {
+				if (row.id === id) {
+					const updatedRow = { ...row, [field]: value };
+					return calculateRowValues(updatedRow, field);
+				}
+				return row;
+			});
+			return updatedRows;
+		});
+
+		// If SKU field changed, debounce and load product
+		if (field === "sku" && value && value.trim() !== "") {
+			skuDebounceTimers.current[id] = setTimeout(() => {
+				loadProductBySku(id, value);
+			}, 1000);
+		}
+	};
+
+	const addRow = () => {
+		const newRow: InventoryCertificateRow = {
+			id: `row-${Date.now()}-${Math.random()}`,
+			rowNumber: rows.length + 1,
+			sku: "",
+			itemName: "",
+			quantity: 0,
+			purchasePrice: 0,
+			lineDiscount: 0,
+			profitPercentage: 0,
+			price: 0,
+			totalPurchasePrice: 0,
+		};
+		setRows([...rows, newRow]);
+	};
+
+	const removeRow = (id: string) => {
+		setRows((prevRows) => {
+			const filtered = prevRows.filter((row) => row.id !== id);
+			// Update row numbers
+			return filtered.map((row, index) => ({
+				...row,
+				rowNumber: index + 1,
+			}));
+		});
+	};
+
+	const columns = useMemo(
+		() => [
+			{ name: t("common:inventoryCertificatePage.rowNumber"), uid: "rowNumber" },
+			{ name: t("common:sku"), uid: "sku" },
+			{ name: t("common:inventoryCertificatePage.itemName"), uid: "itemName" },
+			{ name: t("common:inventoryCertificatePage.quantity"), uid: "quantity" },
+			{ name: t("common:inventoryCertificatePage.purchasePriceIn"), uid: "purchasePrice" },
+			{ name: t("common:inventoryCertificatePage.lineDiscount"), uid: "lineDiscount" },
+			{ name: t("common:inventoryCertificatePage.profitPercent"), uid: "profitPercentage" },
+			{ name: t("common:inventoryCertificatePage.salesPriceFrom"), uid: "price" },
+			{ name: t("common:inventoryCertificatePage.netPurchaseValue"), uid: "totalPurchasePrice" },
+			{ name: t("common:actionsLabel"), uid: "actions" },
+		],
+		[t]
+	);
+
+	return (
+		<div className="p-6">
+			<div className="mb-6">
+				<h1 className="text-2xl font-bold text-gray-900">{t("common:inventoryCertificate")}</h1>
+			</div>
+
+			{/* Document Header Section */}
+			<div className="bg-white rounded-lg shadow p-6 mb-6">
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+					<Input
+						label={t("common:inventoryCertificatePage.documentDate")}
+						type="date"
+						value={documentDate}
+						onValueChange={setDocumentDate}
+					/>
+					<Input
+						label={t("common:inventoryCertificatePage.supplier")}
+						value={supplierNumber}
+						onValueChange={setSupplierNumber}
+						type="number"
+					/>
+					<Input
+						label={t("common:inventoryCertificatePage.invoiceNumber")}
+						value={invoiceNumber}
+						onValueChange={setInvoiceNumber}
+					/>
+				</div>
+			</div>
+
+			{/* Items Table */}
+			<div className="bg-white rounded-lg shadow p-6">
+				<div className="flex justify-between items-center mb-4">
+					<h2 className="text-xl font-semibold text-gray-900">
+						{t("common:inventoryCertificatePage.itemName")}
+					</h2>
+					<Button color="primary" onPress={addRow} startContent={<Icon icon="lucide:plus" />}>
+						{t("common:inventoryCertificatePage.addRow")}
+					</Button>
+				</div>
+
+				<div className="overflow-x-auto">
+					<Table
+						aria-label="Inventory certificate items table"
+						classNames={{
+							wrapper: "shadow-none border border-gray-300",
+							thead: "[&>tr]:border-b [&>tr]:border-gray-300",
+							tbody: "[&>tr]:border-b [&>tr]:border-gray-300 [&>tr:last-child]:border-b",
+							th: "text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-0 border-r border-gray-300 [&:last-child]:border-r-0",
+							td: "text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 [&:last-child]:border-r-0",
+						}}
+						removeWrapper
+					>
+						<TableHeader columns={columns}>
+							{(column) => (
+								<TableColumn
+									key={column.uid}
+									align={column.uid === "actions" ? "end" : "start"}
+								>
+									{column.name}
+								</TableColumn>
+							)}
+						</TableHeader>
+						<TableBody
+							items={rows}
+							emptyContent={t("common:inventoryCertificatePage.addRow")}
+						>
+							{(row) => (
+								<TableRow key={row.id}>
+									<TableCell>
+										<NumberInput
+											value={row.rowNumber}
+											onValueChange={(value) => {
+												updateRow(row.id, "rowNumber", value ?? 0);
+											}}
+											size="sm"
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<Input
+											value={row.sku}
+											onValueChange={(value) => updateRow(row.id, "sku", value)}
+											size="sm"
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<Input
+											value={row.itemName}
+											onValueChange={(value) => updateRow(row.id, "itemName", value)}
+											size="sm"
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<NumberInput
+											value={row.quantity}
+											onValueChange={(value) => {
+												updateRow(row.id, "quantity", value ?? 0);
+											}}
+											size="sm"
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<NumberInput
+											type="number"
+											value={row.purchasePrice}
+											onValueChange={(value) =>
+												updateRow(row.id, "purchasePrice", value ?? 0)
+											}
+											size="sm"
+											startContent={<span className="text-gray-500">₪</span>}
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<NumberInput
+											value={row.lineDiscount}
+											onValueChange={(value) =>
+												updateRow(row.id, "lineDiscount", value ?? 0)
+											}
+											size="sm"
+											endContent={<span className="text-gray-500">%</span>}
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<NumberInput
+											value={row.profitPercentage}
+											onValueChange={(value) =>
+												updateRow(row.id, "profitPercentage", value ?? 0)
+											}
+											size="sm"
+											endContent={<span className="text-gray-500">%</span>}
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<NumberInput
+											value={row.price}
+											onValueChange={(value) => updateRow(row.id, "price", value ?? 0)}
+											size="sm"
+											startContent={<span className="text-gray-500">₪</span>}
+											classNames={{
+												input: "text-[14px]",
+												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
+												base: "w-full",
+											}}
+										/>
+									</TableCell>
+									<TableCell>
+										<div className="min-w-[100px] text-right px-2">
+											₪ {row.totalPurchasePrice.toFixed(2)}
+										</div>
+									</TableCell>
+									<TableCell>
+										<Button
+											isIconOnly
+											color="danger"
+											variant="light"
+											size="sm"
+											onPress={() => removeRow(row.id)}
+										>
+											<Icon icon="lucide:trash" />
+										</Button>
+									</TableCell>
+								</TableRow>
+							)}
+						</TableBody>
+					</Table>
+				</div>
+			</div>
+		</div>
+	);
+}

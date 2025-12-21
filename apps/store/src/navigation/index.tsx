@@ -100,6 +100,9 @@ export const routes = {
 			invoices: {
 				path: "/invoices",
 			},
+			inventoryCertificate: {
+				path: "/inventory-certificate",
+			},
 		},
 	},
 	superAdmin: {

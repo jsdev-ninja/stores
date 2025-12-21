@@ -20,6 +20,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import AdminCreateOrderPage from "../AdminCreateOrderPage/AdminCreateOrderPage";
 import AdminInvoicesPage from "../AdminInvoicesPage/AdminInvoicesPage";
+import { AdminInventoryCertificatePage } from "../AdminInventoryCertificatePage";
 import { useAppApi } from "src/appApi";
 import { OrganizationSlice } from "src/domains/Organization";
 import { useAppDispatch } from "src/infra";
@@ -138,6 +139,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.invoices">
 						<AdminInvoicesPage />
+					</Route>
+					<Route name="admin.inventoryCertificate">
+						<AdminInventoryCertificatePage />
 					</Route>
 				</main>
 			</div>
