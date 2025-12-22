@@ -373,6 +373,7 @@ export function AdminInventoryCertificatePage() {
 											value={row.sku}
 											onValueChange={(value) => updateRow(row.id, "sku", value)}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
+											aria-label={`${t("common:sku")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -386,6 +387,7 @@ export function AdminInventoryCertificatePage() {
 											value={row.itemName}
 											onValueChange={(value) => updateRow(row.id, "itemName", value)}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "itemName")}
+											aria-label={`${t("common:inventoryCertificatePage.itemName")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -401,6 +403,7 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "quantity", value ?? 0);
 											}}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
+											aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -417,6 +420,7 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "purchasePrice", value ?? 0)
 											}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
+											aria-label={`${t("common:inventoryCertificatePage.purchasePriceIn")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 											size="sm"
 											startContent={<span className="text-gray-500">₪</span>}
 											classNames={{
@@ -433,6 +437,7 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "lineDiscount", value ?? 0)
 											}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
+											aria-label={`${t("common:inventoryCertificatePage.lineDiscount")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 											size="sm"
 											endContent={<span className="text-gray-500">%</span>}
 											classNames={{
@@ -449,6 +454,7 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "profitPercentage", value ?? 0)
 											}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
+											aria-label={`${t("common:inventoryCertificatePage.profitPercent")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 											size="sm"
 											endContent={<span className="text-gray-500">%</span>}
 											classNames={{
@@ -463,6 +469,7 @@ export function AdminInventoryCertificatePage() {
 											value={row.price}
 											onValueChange={(value) => updateRow(row.id, "price", value ?? 0)}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
+											aria-label={`${t("common:inventoryCertificatePage.salesPriceFrom")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 											size="sm"
 											startContent={<span className="text-gray-500">₪</span>}
 											classNames={{
@@ -484,6 +491,7 @@ export function AdminInventoryCertificatePage() {
 											variant="light"
 											size="sm"
 											onPress={() => removeRow(row.id)}
+											aria-label={`${t("common:actionsLabel")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
 										>
 											<Icon icon="lucide:trash" />
 										</Button>
