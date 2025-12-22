@@ -46,6 +46,7 @@ interface InventoryCertificateRow {
 	profitPercentage: number; // profit percentage (margin) on purchase price
 	price: number; // product price
 	totalPurchasePrice: number; // quantity * purchasePrice
+	vat: boolean;
 }
 
 export function AdminInventoryCertificatePage() {
@@ -93,11 +94,12 @@ export function AdminInventoryCertificatePage() {
 
 		let profitPercentage = row.profitPercentage;
 		let price = row.price;
+		const priceWithoutVat = row.vat ? price / (1 + 18 / 100) : price;
 		const purchasePrice = row.purchasePrice;
 
 		if (changedField === "price" || changedField === "purchasePrice") {
 			// calculate profit percentage (margin) on purchase price
-			profitPercentage = marginPercentFromCostPrice(purchasePrice, price);
+			profitPercentage = marginPercentFromCostPrice(purchasePrice, priceWithoutVat);
 		}
 
 		if (changedField === "profitPercentage") {
@@ -133,6 +135,7 @@ export function AdminInventoryCertificatePage() {
 								itemName: product.name[0]?.value || "",
 								price: product.price || 0,
 								purchasePrice: product.purchasePrice || 0,
+								vat: product.vat || false,
 							};
 							return calculateRowValues(updatedRow, "purchasePrice");
 						}
@@ -183,6 +186,7 @@ export function AdminInventoryCertificatePage() {
 			profitPercentage: 0,
 			price: 0,
 			totalPurchasePrice: 0,
+			vat: true,
 		};
 		setRows([...rows, newRow]);
 	};
