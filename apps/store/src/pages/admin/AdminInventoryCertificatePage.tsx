@@ -30,7 +30,7 @@ function marginPercentFromCostPrice(cost: number, price: number): number {
 	return round((profit / price) * 100);
 }
 
-export function priceFromCostMarginPercent(cost: number, marginPercent: number): number {
+function priceFromCostMarginPercent(cost: number, marginPercent: number): number {
 	if (cost <= 0 || marginPercent <= 0) return 0;
 	return round(cost / (1 - marginPercent / 100));
 }
@@ -150,6 +150,7 @@ export function AdminInventoryCertificatePage() {
 
 	const updateRow = (id: string, field: keyof InventoryCertificateRow, value: any) => {
 		// Clear existing debounce timer for this row
+		console.log("updateRow", id, field, value);
 		if (skuDebounceTimers.current[id]) {
 			clearTimeout(skuDebounceTimers.current[id]);
 			delete skuDebounceTimers.current[id];
@@ -174,7 +175,7 @@ export function AdminInventoryCertificatePage() {
 		}
 	};
 
-	const addRow = () => {
+	const addRow = (): string => {
 		const newRow: InventoryCertificateRow = {
 			id: `row-${Date.now()}-${Math.random()}`,
 			rowNumber: rows.length + 1,
@@ -188,7 +189,8 @@ export function AdminInventoryCertificatePage() {
 			totalPurchasePrice: 0,
 			vat: true,
 		};
-		setRows([...rows, newRow]);
+		setRows(rows => [...rows, newRow]);
+		return newRow.id;
 	};
 
 	const removeRow = (id: string) => {
@@ -200,6 +202,80 @@ export function AdminInventoryCertificatePage() {
 				rowNumber: index + 1,
 			}));
 		});
+	};
+
+	// Field order for navigation
+	const fieldOrder: (keyof InventoryCertificateRow)[] = [
+		"sku",
+		"itemName",
+		"quantity",
+		"purchasePrice",
+		"lineDiscount",
+		"profitPercentage",
+		"price",
+	];
+
+	const handleKeyDown = (
+		e: React.KeyboardEvent,
+		rowId: string,
+		currentField: keyof InventoryCertificateRow
+	) => {
+		if (e.key !== "Enter") return;
+
+		// e.preventDefault();
+
+		const currentIndex = fieldOrder.indexOf(currentField);
+		const nextIndex = currentIndex + 1;
+
+		// Find the current row element
+		const currentRow = (e.target as HTMLElement).closest("tr");
+		if (!currentRow) return;
+
+		// If not the last field, move to next field in same row
+		if (nextIndex < fieldOrder.length) {
+			// Get all table cells in the row (skip rowNumber which is index 0)
+			const cells = currentRow.querySelectorAll("td");
+			// Field order: sku(1), itemName(2), quantity(3), purchasePrice(4), lineDiscount(5), profitPercentage(6), price(7)
+			const nextCellIndex = nextIndex + 1; // +1 because rowNumber is at index 0
+			if (cells[nextCellIndex]) {
+				const nextInput = cells[nextCellIndex].querySelector("input") as HTMLInputElement;
+				if (nextInput) {
+					nextInput.focus();
+					nextInput.select();
+				}
+			}
+		} else {
+			// Last field - move to first field of next row
+			const currentRowIndex = rows.findIndex((row) => row.id === rowId);
+			if (currentRowIndex < rows.length - 1) {
+				// Move to next existing row
+				const nextRow = currentRow.nextElementSibling as HTMLTableRowElement;
+				if (nextRow) {
+					const cells = nextRow.querySelectorAll("td");
+					const firstInput = cells[1]?.querySelector("input") as HTMLInputElement; // Index 1 is sku
+					if (firstInput) {
+						firstInput.focus();
+						firstInput.select();
+					}
+				}
+			} else {
+				// Last row - add new row and focus first field
+				addRow();
+				// Wait for DOM update
+				setTimeout(() => {
+					const allRows = document.querySelectorAll("tbody tr");
+					const newRow = allRows[allRows.length - 1] as HTMLTableRowElement;
+					if (newRow) {
+						const cells = newRow.querySelectorAll("td");
+						const firstInput = cells[1]?.querySelector("input") as HTMLInputElement; // Index 1 is sku
+						if (firstInput) {
+							firstInput.focus();
+							firstInput.select();
+						}
+					}
+				}, 0);
+			}
+		}
 	};
 
 	const columns = useMemo(
@@ -275,6 +351,7 @@ export function AdminInventoryCertificatePage() {
 								<TableColumn
 									key={column.uid}
 									align={column.uid === "actions" ? "end" : "start"}
+									width={column.uid === "rowNumber" ? 50 : undefined}
 								>
 									{column.name}
 								</TableColumn>
@@ -287,23 +364,15 @@ export function AdminInventoryCertificatePage() {
 							{(row) => (
 								<TableRow key={row.id}>
 									<TableCell>
-										<NumberInput
-											value={row.rowNumber}
-											onValueChange={(value) => {
-												updateRow(row.id, "rowNumber", value ?? 0);
-											}}
-											size="sm"
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
+										<div className="text-[14px] px-2 min-w-[50px]">
+											{row.rowNumber}
+										</div>
 									</TableCell>
 									<TableCell>
 										<Input
 											value={row.sku}
 											onValueChange={(value) => updateRow(row.id, "sku", value)}
+											onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -316,6 +385,7 @@ export function AdminInventoryCertificatePage() {
 										<Input
 											value={row.itemName}
 											onValueChange={(value) => updateRow(row.id, "itemName", value)}
+											onKeyDown={(e) => handleKeyDown(e, row.id, "itemName")}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -330,6 +400,7 @@ export function AdminInventoryCertificatePage() {
 											onValueChange={(value) => {
 												updateRow(row.id, "quantity", value ?? 0);
 											}}
+											onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -345,6 +416,7 @@ export function AdminInventoryCertificatePage() {
 											onValueChange={(value) =>
 												updateRow(row.id, "purchasePrice", value ?? 0)
 											}
+											onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
 											size="sm"
 											startContent={<span className="text-gray-500">₪</span>}
 											classNames={{
@@ -360,6 +432,7 @@ export function AdminInventoryCertificatePage() {
 											onValueChange={(value) =>
 												updateRow(row.id, "lineDiscount", value ?? 0)
 											}
+											onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
 											size="sm"
 											endContent={<span className="text-gray-500">%</span>}
 											classNames={{
@@ -375,6 +448,7 @@ export function AdminInventoryCertificatePage() {
 											onValueChange={(value) =>
 												updateRow(row.id, "profitPercentage", value ?? 0)
 											}
+											onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
 											size="sm"
 											endContent={<span className="text-gray-500">%</span>}
 											classNames={{
@@ -388,6 +462,7 @@ export function AdminInventoryCertificatePage() {
 										<NumberInput
 											value={row.price}
 											onValueChange={(value) => updateRow(row.id, "price", value ?? 0)}
+											onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
 											size="sm"
 											startContent={<span className="text-gray-500">₪</span>}
 											classNames={{
