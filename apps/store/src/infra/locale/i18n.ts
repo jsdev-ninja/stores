@@ -65,10 +65,10 @@ export const resources = {
 
 			units: {
 				kg: "ק״ג",
-				gram: "",
-				liter: "",
-				ml: "",
-				unit: "",
+				gram: "גרם",
+				liter: "ליטר",
+				ml: "מל",
+				unit: "יחידה",
 			},
 			discount: "הנחה",
 			cancel: "ביטול",

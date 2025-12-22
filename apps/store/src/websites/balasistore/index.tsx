@@ -4,6 +4,7 @@ import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
 function BalasiStoreProduct({ product }: { product: TProduct }) {
+	console.log("product", product);
 	const productWeightOrVolume =
 		product.weight.unit !== "none" ? (
 			<Product.Weight />
@@ -14,7 +15,7 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 	return (
 		<Product key={product.id} product={product}>
 			<div
-				className="shadow p-2 w-64 h-96 flex flex-col  rounded-2xl relative"
+				className="shadow p-2 w-64 h-fit bg-gray-50 flex flex-col  rounded-2xl relative"
 				onClick={async () => {
 					navigate({
 						to: "store.product",
@@ -24,10 +25,10 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 				}}
 			>
 				<Product.DiscountBadge />
-				<div className="absolute top-0 end-0">
+				<div className="absolute top-0 end-0 z-10">
 					<Product.ProductAddToFavorite />
 				</div>
-				<div className="w-32 h-32 mx-auto">
+				<div className="size-60  mx-auto">
 					<Product.Image prefix="productCard" />
 				</div>
 				<div className="flex flex-col gap-1 mt-4">

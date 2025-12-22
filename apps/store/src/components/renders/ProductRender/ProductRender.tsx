@@ -7,10 +7,10 @@ const RENDER_CONFIG: Record<
 	{ productCard?: LazyExoticComponent<ComponentType<{ product: TProduct }>> }
 > = {
 	tester_store: {
-		// productCard: lazy(() => import("../../../websites/balasistore/index")),
+		productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 	balasistore_store: {
-		// productCard: lazy(() => import("../../../websites/balasistore/index")),
+		productCard: lazy(() => import("../../../websites/balasistore/index")),
 	},
 } as const;
 
