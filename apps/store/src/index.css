@@ -1,8 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin './hero.ts';
+@source '../../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@custom-variant dark (&:is(.dark *));
 
 html body,
 #root {
-	min-height: 100vh;
+	min-height: 100dvh;
+	--brand-primary: 262 83% 58%;
+}
+
+@theme {
+}
+
+@utility container {
+	margin-inline: auto;
+	padding-inline: 2rem;
 }

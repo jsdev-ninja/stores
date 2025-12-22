@@ -1,7 +1,7 @@
 .Wrapper {
 	list-style: none;
 	box-sizing: border-box;
-	padding-inline-start: var(--spacing);
+	padding-inline-start: var(--demo-spacing);
 	margin-bottom: -1px;
 
 	&.clone {

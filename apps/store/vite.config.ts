@@ -7,7 +7,9 @@ import legacy from "@vitejs/plugin-legacy";
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		legacy({ polyfills: true }),
+		legacy({
+			polyfills: true,
+		}),
 		react(),
 		tsconfigPaths(),
 		sentryVitePlugin({
@@ -24,6 +26,11 @@ export default defineConfig({
 
 	build: {
 		sourcemap: true,
+	},
+	esbuild: {
+		supported: {
+			bigint: true,
+		},
 	},
 	server: {
 		port: 5173,

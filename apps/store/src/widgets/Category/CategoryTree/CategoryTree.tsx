@@ -255,7 +255,7 @@ export function CategoryTree({ indentationWidth = 50, categories = [], setCatego
 	const activeItem = activeId ? flattenedItems.find(({ id }) => id === activeId) : null;
 
 	return (
-		<div className="flex-grow">
+		<div className="grow">
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}

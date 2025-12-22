@@ -129,7 +129,7 @@ export const TreeItem = ({
 			ref={setDroppableNodeRef}
 			style={
 				{
-					"--spacing": `${indentationWidth * depth}px`,
+					"--demo-spacing": `${indentationWidth * depth}px`,
 				} as React.CSSProperties
 			}
 			{...props}

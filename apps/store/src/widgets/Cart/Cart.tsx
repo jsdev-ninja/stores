@@ -30,7 +30,7 @@ export function Cart({ size = "sm" }: { size?: "sm" | "lg" }) {
 		<div data-name="Cart" className="flex flex-col h-full p-4 shadow">
 			<div className="flex items-center justify-between">
 				<Icon name="cart" size="lg" />
-				<div className="p-4 text-3xl font-bold">{t("cart:shoppingCart")}</div>
+				<div className="p-4  text-3xl font-bold">{t("cart:shoppingCart")}</div>
 			</div>
 
 			{isEmpty && (
