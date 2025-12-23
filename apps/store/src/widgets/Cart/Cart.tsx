@@ -45,7 +45,7 @@ export function Cart({ size = "sm" }: { size?: "sm" | "lg" }) {
 			)}
 
 			{!isEmpty && (
-				<div className="flex flex-col gap-4 flex-grow overflow-y-auto">
+				<div className="flex flex-col gap-4 grow overflow-y-auto">
 					{cart?.map((cartItem) => (
 						<CartItem size={size} key={cartItem.product.id} cartItem={cartItem} />
 					))}

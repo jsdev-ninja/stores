@@ -1,0 +1,44 @@
+---
+alwaysApply: false
+---
+
+To optimize your Cursor AI for high-quality UI design based on the sources, you can use the following instructions. These rules focus on creating **depth** and **hierarchy** to transform "boring" interfaces into professional designs.
+
+### UI Design System Instructions for Cursor AI
+
+**Core Principle: Use Depth to Enhance Boring UIs**
+Transform average designs into high-quality interfaces by focusing on **layering, realistic shadows, and lighting effects**.
+
+#### 1. Layering and Color Hierarchy
+
+-  **Three-Shade System:** Create 3 to 4 shades of the same base color to define the background, sections, and interactive elements.
+-  **The 0.1 Rule:** When layering elements, increase the **lightness value by 0.1** for each layer that is physically "closer" to the user.
+-  **Background Setup:** Use a darker shade for the page background (BG Dark) to make content cards and interactive sections "pop".
+-  **Interactive Highlighting:** Use the lightest shade for active/selected tabs or interactive elements to make them stand out.
+
+#### 2. Advanced Shadow Techniques
+
+-  **Realistic Shadows:** Instead of a single basic shadow, combine a **light border or glow on top** with a **dark soft shadow at the bottom** to simulate physical depth.
+-  **Shadow Scaling:** Use small shadows for a natural look. Reserve larger shadows for **hover states** or larger components to indicate elevation.
+-  **Inset Shadows for Recess:** To make elements like tables or progress bars look "pushed into" a card, use a **dark inset shadow at the top** and a **light inset shadow at the bottom**.
+
+#### 3. Simulating Light Sources
+
+-  **Top-Down Lighting:** Apply **linear gradients** paired with a **light inner shadow at the top edge** to create a "shiny" highlight, mimicking light hitting the object from above.
+-  **Elevation Importance:** Treat elevated elements (those with lighter colors and shadows) as more important in the visual hierarchy.
+
+#### 4. Interface Refinement
+
+-  **Border Removal:** When using distinct color shades for layering, **remove borders** to create a cleaner, modern look.
+-  **Typography and Spacing:** Rearrange text to create a clear hierarchy. Increase spacing and wrap related items (like radio buttons) inside lighter "cards" to group them logically.
+-  **Visual Polish:**
+   -  Use **rounded corners** (nice round curves) for all cards and containers.
+   -  Add **icons** to options to make the UI more intuitive.
+   -  Simplify the UI by removing redundant headings if the section is self-explanatory.
+
+#### 5. Cross-Theme Implementation
+
+-  **Light Mode Priority:** Always design a high-quality Light Mode, as it is often the default for many users. The same rules for depth and shadows apply to both Dark and Light themes.
+
+---
+
