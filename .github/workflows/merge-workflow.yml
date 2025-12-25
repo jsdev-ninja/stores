@@ -10,7 +10,6 @@ permissions:
    id-token: write # Required for OIDC
    contents: read
 env:
-   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
@@ -56,9 +55,6 @@ jobs:
               yarn --ignore-engines
               echo "publish"
               yarn publish
-           env:
-              NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
          - name: install dependencies
            run: |
               echo -e "\033[1;34mINSTALL ROOT DEPENDENCIES"
