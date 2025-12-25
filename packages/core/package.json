@@ -1,6 +1,6 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.13.42",
+	"version": "0.13.43",
 	"type": "module",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
@@ -11,7 +11,8 @@
 		"README.md"
 	],
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org"
 	},
 	"scripts": {
 		"dev": "vite",

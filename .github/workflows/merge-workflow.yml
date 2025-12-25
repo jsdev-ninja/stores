@@ -26,8 +26,7 @@ jobs:
            with:
               node-version: "20.x"
               registry-url: "https://registry.npmjs.org"
-              # Defaults to the user or organization that owns the workflow file
-              scope: "@octocat"
+              scope: "@jsdev_ninja"
               cache: "yarn"
          - name: Cache Yarn Dependencies
            uses: actions/cache@v4
@@ -46,15 +45,15 @@ jobs:
               echo "CORE_CHANGE=true" >> $GITHUB_OUTPUT
               fi
 
-         - name: publich core package
+         - name: publish core package
            if: steps.core-check.outputs.CORE_CHANGE == 'true'
            run: |
               echo "open core package folder"
               cd packages/core
               echo "install"
               yarn --ignore-engines
-              echo "publish"
-              yarn publish
+              echo "publish to npm"
+              npm publish
 
          - name: install dependencies
            run: |
