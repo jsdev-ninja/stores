@@ -10,10 +10,18 @@ import {
 	Input,
 	NumberInput,
 	Button,
+	Select,
+	SelectItem,
+	Modal,
+	ModalContent,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppApi } from "src/appApi";
-import { TProduct } from "@jsdev_ninja/core";
+import { NewSupplierInvoiceSchema, SupplierInvoiceSchema, TProduct, TSupplier, TSupplierInvoice } from "@jsdev_ninja/core";
+import { FirebaseApi } from "src/lib/firebase";
 
 // Helper function to round numbers
 function round(value: number, digits = 2): number {
@@ -35,34 +43,43 @@ function priceFromCostMarginPercent(cost: number, marginPercent: number): number
 	return round(cost / (1 - marginPercent / 100));
 }
 
-interface InventoryCertificateRow {
-	id: string;
-	rowNumber: number;
-	sku: string;
-	itemName: string;
-	quantity: number; // quantity of units
-	purchasePrice: number; // purchase price per unit
-	lineDiscount: number; // line discount percentage (on purchase price)
-	profitPercentage: number; // profit percentage (margin) on purchase price
-	price: number; // product price
-	totalPurchasePrice: number; // quantity * purchasePrice
-	vat: boolean;
-}
-
 export function AdminInventoryCertificatePage() {
 	const { t } = useTranslation(["common"]);
 	const appApi = useAppApi();
 
 	// Document header state
-	const [documentDate, setDocumentDate] = useState<string>(new Date().toISOString().split("T")[0]);
-	const [supplierNumber, setSupplierNumber] = useState<string>("");
-	const [invoiceNumber, setInvoiceNumber] = useState<string>("");
+	const [supplierInvoice, setSupplierInvoice] = useState<Partial<TSupplierInvoice>>({
+		type: "SupplierInvoice",
+		date: new Date().getTime(),
+		invoiceNumber: "",
+		rows: [],
+		productsToUpdate: [],
+	});
 
-	// Table rows state
-	const [rows, setRows] = useState<InventoryCertificateRow[]>([]);
+	// Suppliers state
+	const [suppliers, setSuppliers] = useState<TSupplier[]>([]);
+
+	// Save modal state
+	const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
 	// Debounce timers for SKU lookups
 	const skuDebounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
+
+	// Load suppliers on mount
+	useEffect(() => {
+		const loadSuppliers = async () => {
+			try {
+				const result = await appApi.admin.listSuppliers();
+				if (result?.success) {
+					setSuppliers((result.data || []) as TSupplier[]);
+				}
+			} catch (error) {
+				console.error("Failed to load suppliers:", error);
+			}
+		};
+		loadSuppliers();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	// Cleanup debounce timers on unmount
 	useEffect(() => {
@@ -77,9 +94,9 @@ export function AdminInventoryCertificatePage() {
 	// Calculate profit percentage and net purchase value
 	// Only auto-calculate when source fields change, but allow manual override
 	const calculateRowValues = (
-		row: InventoryCertificateRow,
-		changedField?: keyof InventoryCertificateRow
-	): InventoryCertificateRow => {
+		row: TSupplierInvoice["rows"][number],
+		changedField?: keyof TSupplierInvoice["rows"][number]
+	): TSupplierInvoice["rows"][number] => {
 		// If user manually edited calculated fields, don't auto-recalculate them
 		const shouldAutoCalculate =
 			changedField &&
@@ -130,12 +147,22 @@ export function AdminInventoryCertificatePage() {
 				setRows((prevRows) => {
 					return prevRows.map((row) => {
 						if (row.id === rowId) {
-							const updatedRow: InventoryCertificateRow = {
+							// Store original product values for comparison
+							const originalProduct =
+								product.profitPercentage !== undefined
+									? {
+											purchasePrice: product.purchasePrice || 0,
+											price: product.price || 0,
+											profitPercentage: product.profitPercentage,
+									  }
+									: undefined;
+							const updatedRow: TSupplierInvoice["rows"][number] = {
 								...row,
 								itemName: product.name[0]?.value || "",
 								price: product.price || 0,
 								purchasePrice: product.purchasePrice || 0,
 								vat: product.vat || false,
+								...(originalProduct && { originalProduct }),
 							};
 							return calculateRowValues(updatedRow, "purchasePrice");
 						}
@@ -148,7 +175,23 @@ export function AdminInventoryCertificatePage() {
 		}
 	};
 
-	const updateRow = (id: string, field: keyof InventoryCertificateRow, value: any) => {
+	// Helper to set rows
+	const setRows = (
+		updater:
+			| TSupplierInvoice["rows"][number][]
+			| ((prev: TSupplierInvoice["rows"][number][]) => TSupplierInvoice["rows"][number][])
+	) => {
+		setSupplierInvoice((prev: Partial<TSupplierInvoice>) => {
+			const currentRows = (prev.rows || []) as TSupplierInvoice["rows"][number][];
+			const newRows = typeof updater === "function" ? updater(currentRows) : updater;
+			return {
+				...prev,
+				rows: newRows,
+			};
+		});
+	};
+
+	const updateRow = (id: string, field: keyof TSupplierInvoice["rows"][number], value: any) => {
 		// Clear existing debounce timer for this row
 		console.log("updateRow", id, field, value);
 		if (skuDebounceTimers.current[id]) {
@@ -176,9 +219,9 @@ export function AdminInventoryCertificatePage() {
 	};
 
 	const addRow = (): string => {
-		const newRow: InventoryCertificateRow = {
+		const newRow: TSupplierInvoice["rows"][number] = {
 			id: `row-${Date.now()}-${Math.random()}`,
-			rowNumber: rows.length + 1,
+			rowNumber: supplierInvoice.rows?.length || 0 + 1,
 			sku: "",
 			itemName: "",
 			quantity: 0,
@@ -189,7 +232,7 @@ export function AdminInventoryCertificatePage() {
 			totalPurchasePrice: 0,
 			vat: true,
 		};
-		setRows(rows => [...rows, newRow]);
+		setRows((rows) => [...rows, newRow]);
 		return newRow.id;
 	};
 
@@ -205,7 +248,7 @@ export function AdminInventoryCertificatePage() {
 	};
 
 	// Field order for navigation
-	const fieldOrder: (keyof InventoryCertificateRow)[] = [
+	const fieldOrder: (keyof TSupplierInvoice["rows"][number])[] = [
 		"sku",
 		"itemName",
 		"quantity",
@@ -218,7 +261,7 @@ export function AdminInventoryCertificatePage() {
 	const handleKeyDown = (
 		e: React.KeyboardEvent,
 		rowId: string,
-		currentField: keyof InventoryCertificateRow
+		currentField: keyof TSupplierInvoice["rows"][number]
 	) => {
 		if (e.key !== "Enter") return;
 
@@ -246,8 +289,12 @@ export function AdminInventoryCertificatePage() {
 			}
 		} else {
 			// Last field - move to first field of next row
-			const currentRowIndex = rows.findIndex((row) => row.id === rowId);
-			if (currentRowIndex < rows.length - 1) {
+			const currentRowIndex = supplierInvoice.rows?.findIndex((row) => row.id === rowId);
+			if (
+				currentRowIndex &&
+				supplierInvoice.rows &&
+				currentRowIndex < supplierInvoice.rows.length - 1
+			) {
 				// Move to next existing row
 				const nextRow = currentRow.nextElementSibling as HTMLTableRowElement;
 				if (nextRow) {
@@ -294,6 +341,82 @@ export function AdminInventoryCertificatePage() {
 		[t]
 	);
 
+	// Get products that will be updated (have originalProduct and changed values)
+	const productsToUpdate = useMemo(() => {
+		return (supplierInvoice.rows || [])
+			.filter((row) => row.sku && row.originalProduct)
+			.map((row) => {
+				const original = row.originalProduct!;
+				const hasChanges =
+					original.purchasePrice !== row.purchasePrice ||
+					original.price !== row.price ||
+					(original.profitPercentage !== undefined &&
+						original.profitPercentage !== row.profitPercentage) ||
+					(original.profitPercentage === undefined && row.profitPercentage !== 0);
+
+				if (!hasChanges) return null;
+
+				return {
+					sku: row.sku,
+					itemName: row.itemName,
+					oldPurchasePrice: original.purchasePrice,
+					newPurchasePrice: row.purchasePrice,
+					oldPrice: original.price,
+					newPrice: row.price,
+					oldProfitPercentage: original.profitPercentage,
+					newProfitPercentage: row.profitPercentage,
+				};
+			})
+			.filter((item): item is NonNullable<typeof item> => item !== null);
+	}, [supplierInvoice.rows]);
+
+	const handleSave = () => {
+		if (!supplierInvoice.supplier) {
+			// TODO: Show error message
+			return;
+		}
+		if (supplierInvoice.rows?.length === 0) {
+			// TODO: Show error message
+			return;
+		}
+		setIsSaveModalOpen(true);
+	};
+
+	// Helper to get date as string for the date input
+	const documentDate = supplierInvoice.date
+		? new Date(supplierInvoice.date).toISOString().split("T")[0]
+		: "";
+
+	// Helper to set date from date string
+	const setDocumentDate = (dateString: string) => {
+		setSupplierInvoice((prev: Partial<TSupplierInvoice>) => ({
+			...prev,
+			date: new Date(dateString).getTime(),
+		}));
+	};
+
+	// Helper to get invoice number
+	const invoiceNumber = supplierInvoice.invoiceNumber || "";
+
+	// Helper to set invoice number
+	const setInvoiceNumber = (value: string) => {
+		setSupplierInvoice((prev: Partial<TSupplierInvoice>) => ({
+			...prev,
+			invoiceNumber: value,
+		}));
+	};
+
+	// Helper to get selected supplier
+	const selectedSupplier = supplierInvoice.supplier || null;
+
+	// Helper to set selected supplier
+	const setSelectedSupplier = (supplier: TSupplier | null) => {
+		setSupplierInvoice((prev: Partial<TSupplierInvoice>) => ({
+			...prev,
+			supplier: supplier || undefined,
+		}));
+	};
+
 	return (
 		<div className="p-6">
 			<div className="mb-6">
@@ -309,12 +432,20 @@ export function AdminInventoryCertificatePage() {
 						value={documentDate}
 						onValueChange={setDocumentDate}
 					/>
-					<Input
+					<Select
 						label={t("common:inventoryCertificatePage.supplier")}
-						value={supplierNumber}
-						onValueChange={setSupplierNumber}
-						type="number"
-					/>
+						selectedKeys={selectedSupplier ? [selectedSupplier.id] : []}
+						onChange={(e) => {
+							const supplier = suppliers.find((s) => s.id === e.target.value);
+							setSelectedSupplier(supplier || null);
+						}}
+					>
+						{suppliers.map((supplier) => (
+							<SelectItem key={supplier.id}>
+								{supplier.name} {supplier.code ? `(${supplier.code})` : ""}
+							</SelectItem>
+						))}
+					</Select>
 					<Input
 						label={t("common:inventoryCertificatePage.invoiceNumber")}
 						value={invoiceNumber}
@@ -329,9 +460,23 @@ export function AdminInventoryCertificatePage() {
 					<h2 className="text-xl font-semibold text-gray-900">
 						{t("common:inventoryCertificatePage.itemName")}
 					</h2>
-					<Button color="primary" onPress={addRow} startContent={<Icon icon="lucide:plus" />}>
-						{t("common:inventoryCertificatePage.addRow")}
-					</Button>
+					<div className="flex gap-2">
+						<Button
+							color="primary"
+							onPress={addRow}
+							startContent={<Icon icon="lucide:plus" />}
+						>
+							{t("common:inventoryCertificatePage.addRow")}
+						</Button>
+						<Button
+							color="success"
+							onPress={handleSave}
+							startContent={<Icon icon="lucide:save" />}
+							isDisabled={!selectedSupplier || supplierInvoice.rows?.length === 0}
+						>
+							{t("common:inventoryCertificatePage.save" as any)}
+						</Button>
+					</div>
 				</div>
 
 				<div className="overflow-x-auto">
@@ -358,22 +503,22 @@ export function AdminInventoryCertificatePage() {
 							)}
 						</TableHeader>
 						<TableBody
-							items={rows}
+							items={supplierInvoice.rows || []}
 							emptyContent={t("common:inventoryCertificatePage.addRow")}
 						>
 							{(row) => (
 								<TableRow key={row.id}>
 									<TableCell>
-										<div className="text-[14px] px-2 min-w-[50px]">
-											{row.rowNumber}
-										</div>
+										<div className="text-[14px] px-2 min-w-[50px]">{row.rowNumber}</div>
 									</TableCell>
 									<TableCell>
 										<Input
 											value={row.sku}
 											onValueChange={(value) => updateRow(row.id, "sku", value)}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
-											aria-label={`${t("common:sku")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t("common:sku")} ${t(
+												"common:inventoryCertificatePage.rowNumber"
+											)} ${row.rowNumber}`}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -387,7 +532,9 @@ export function AdminInventoryCertificatePage() {
 											value={row.itemName}
 											onValueChange={(value) => updateRow(row.id, "itemName", value)}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "itemName")}
-											aria-label={`${t("common:inventoryCertificatePage.itemName")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t("common:inventoryCertificatePage.itemName")} ${t(
+												"common:inventoryCertificatePage.rowNumber"
+											)} ${row.rowNumber}`}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -403,7 +550,9 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "quantity", value ?? 0);
 											}}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
-											aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t(
+												"common:inventoryCertificatePage.rowNumber"
+											)} ${row.rowNumber}`}
 											size="sm"
 											classNames={{
 												input: "text-[14px]",
@@ -420,7 +569,11 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "purchasePrice", value ?? 0)
 											}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
-											aria-label={`${t("common:inventoryCertificatePage.purchasePriceIn")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t(
+												"common:inventoryCertificatePage.purchasePriceIn"
+											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+												row.rowNumber
+											}`}
 											size="sm"
 											startContent={<span className="text-gray-500">₪</span>}
 											classNames={{
@@ -437,7 +590,11 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "lineDiscount", value ?? 0)
 											}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
-											aria-label={`${t("common:inventoryCertificatePage.lineDiscount")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t(
+												"common:inventoryCertificatePage.lineDiscount"
+											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+												row.rowNumber
+											}`}
 											size="sm"
 											endContent={<span className="text-gray-500">%</span>}
 											classNames={{
@@ -454,7 +611,11 @@ export function AdminInventoryCertificatePage() {
 												updateRow(row.id, "profitPercentage", value ?? 0)
 											}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
-											aria-label={`${t("common:inventoryCertificatePage.profitPercent")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t(
+												"common:inventoryCertificatePage.profitPercent"
+											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+												row.rowNumber
+											}`}
 											size="sm"
 											endContent={<span className="text-gray-500">%</span>}
 											classNames={{
@@ -469,7 +630,11 @@ export function AdminInventoryCertificatePage() {
 											value={row.price}
 											onValueChange={(value) => updateRow(row.id, "price", value ?? 0)}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
-											aria-label={`${t("common:inventoryCertificatePage.salesPriceFrom")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t(
+												"common:inventoryCertificatePage.salesPriceFrom"
+											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+												row.rowNumber
+											}`}
 											size="sm"
 											startContent={<span className="text-gray-500">₪</span>}
 											classNames={{
@@ -491,7 +656,9 @@ export function AdminInventoryCertificatePage() {
 											variant="light"
 											size="sm"
 											onPress={() => removeRow(row.id)}
-											aria-label={`${t("common:actionsLabel")} ${t("common:inventoryCertificatePage.rowNumber")} ${row.rowNumber}`}
+											aria-label={`${t("common:actionsLabel")} ${t(
+												"common:inventoryCertificatePage.rowNumber"
+											)} ${row.rowNumber}`}
 										>
 											<Icon icon="lucide:trash" />
 										</Button>
@@ -502,6 +669,139 @@ export function AdminInventoryCertificatePage() {
 					</Table>
 				</div>
 			</div>
+
+			{/* Save Confirmation Modal */}
+			<Modal
+				isOpen={isSaveModalOpen}
+				onClose={() => setIsSaveModalOpen(false)}
+				size="5xl"
+				scrollBehavior="inside"
+			>
+				<ModalContent>
+					{(onClose) => (
+						<>
+							<ModalHeader className="flex flex-col gap-1">
+								{t("common:inventoryCertificatePage.saveModalTitle" as any)}
+							</ModalHeader>
+							<ModalBody>
+								<p className="text-gray-700 mb-4">
+									{t("common:inventoryCertificatePage.saveModalDescription" as any)}
+								</p>
+								{productsToUpdate.length > 0 ? (
+									<div className="overflow-x-auto">
+										<Table
+											aria-label="Products comparison table"
+											classNames={{
+												wrapper: "shadow-none border border-gray-300",
+												thead: "[&>tr]:border-b [&>tr]:border-gray-300",
+												tbody: "[&>tr]:border-b [&>tr]:border-gray-300",
+												th: "text-[14px] leading-[22px] font-medium text-[#949CA9] bg-gray-50 p-2 border-r border-gray-300 [&:last-child]:border-r-0",
+												td: "text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 [&:last-child]:border-r-0",
+											}}
+											removeWrapper
+										>
+											<TableHeader>
+												<TableColumn>{t("common:sku")}</TableColumn>
+												<TableColumn>
+													{t("common:inventoryCertificatePage.itemName")}
+												</TableColumn>
+												<TableColumn>
+													{t("common:inventoryCertificatePage.purchasePriceIn")}
+												</TableColumn>
+												<TableColumn>
+													{t("common:inventoryCertificatePage.salesPriceFrom")}
+												</TableColumn>
+												<TableColumn>
+													{t("common:inventoryCertificatePage.profitPercent")}
+												</TableColumn>
+											</TableHeader>
+											<TableBody items={productsToUpdate}>
+												{(item) => (
+													<TableRow key={item.sku}>
+														<TableCell>
+															<div className="font-medium">{item.sku}</div>
+														</TableCell>
+														<TableCell>{item.itemName || "-"}</TableCell>
+														<TableCell>
+															<div className="flex flex-col gap-1">
+																<div className="text-red-600 line-through">
+																	₪ {item.oldPurchasePrice.toFixed(2)}
+																</div>
+																<div className="text-green-600 font-medium">
+																	₪ {item.newPurchasePrice.toFixed(2)}
+																</div>
+															</div>
+														</TableCell>
+														<TableCell>
+															<div className="flex flex-col gap-1">
+																<div className="text-red-600 line-through">
+																	₪ {item.oldPrice.toFixed(2)}
+																</div>
+																<div className="text-green-600 font-medium">
+																	₪ {item.newPrice.toFixed(2)}
+																</div>
+															</div>
+														</TableCell>
+														<TableCell>
+															<div className="flex flex-col gap-1">
+																{item.oldProfitPercentage !== undefined && (
+																	<div className="text-red-600 line-through">
+																		{item.oldProfitPercentage.toFixed(2)}%
+																	</div>
+																)}
+																<div className="text-green-600 font-medium">
+																	{item.newProfitPercentage.toFixed(2)}%
+																</div>
+															</div>
+														</TableCell>
+													</TableRow>
+												)}
+											</TableBody>
+										</Table>
+									</div>
+								) : (
+									<p className="text-gray-500 text-center py-4">
+										{t("common:inventoryCertificatePage.noProductsToUpdate" as any)}
+									</p>
+								)}
+							</ModalBody>
+							<ModalFooter>
+								<Button color="danger" variant="light" onPress={onClose}>
+									{t("common:actions.cancel")}
+								</Button>
+								<Button
+									color="primary"
+									onPress={async () => {
+										// TODO: Implement actual save logic
+										console.log("Save supplier invoice", {
+											supplierInvoice: {
+												...supplierInvoice,
+												rows: supplierInvoice.rows || [],
+												productsToUpdate: productsToUpdate,
+											},
+										});
+										// is valid schema
+										const isValid = NewSupplierInvoiceSchema.safeParse(supplierInvoice);
+										if (!isValid.success) {
+											console.error("Invalid supplier invoice", isValid.error);
+											return;
+										}
+										await appApi.admin.uploadSupplierInvoice({
+											...isValid.data,
+											productsToUpdate: productsToUpdate,
+											id: FirebaseApi.firestore.generateDocId("supplierInvoices"),
+										});
+										onClose();
+									}}
+									isDisabled={productsToUpdate.length === 0}
+								>
+									{t("common:inventoryCertificatePage.confirmSave" as any)}
+								</Button>
+							</ModalFooter>
+						</>
+					)}
+				</ModalContent>
+			</Modal>
 		</div>
 	);
 }

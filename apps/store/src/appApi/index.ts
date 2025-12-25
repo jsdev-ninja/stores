@@ -13,6 +13,7 @@ import {
 	TNewSupplier,
 	NewSupplierSchema,
 	SupplierSchema,
+	TSupplierInvoice,
 } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
@@ -139,6 +140,19 @@ export const useAppApi = () => {
 			},
 		},
 		admin: {
+			uploadSupplierInvoice: async (invoice: TSupplierInvoice) => {
+				if (!isValidAdmin) return;
+
+				return await FirebaseApi.firestore.createV2({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "supplierInvoices",
+						companyId,
+						storeId,
+					}),
+					doc: invoice,
+					id: invoice.id,
+				});
+			},
 			deleteDiscount: async (id: string) => {
 				if (!isValidAdmin) return;
 
@@ -978,16 +992,16 @@ export const useAppApi = () => {
 
 				const doc = validation.data;
 
-				const result = await FirebaseApi.firestore.createV2<TNewOrganizationGroup & { id?: string }>(
-					{
-						collection: FirebaseAPI.firestore.getPath({
-							storeId,
-							companyId,
-							collectionName: "organizationGroups",
-						}),
-						doc: doc,
-					}
-				);
+				const result = await FirebaseApi.firestore.createV2<
+					TNewOrganizationGroup & { id?: string }
+				>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "organizationGroups",
+					}),
+					doc: doc,
+				});
 				updateLoading({ "admin.createOrganizationGroup": false });
 
 				logger({
