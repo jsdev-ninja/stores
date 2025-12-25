@@ -22,12 +22,12 @@ jobs:
               fetch-depth: 2;
 
          - uses: actions/setup-node@v4
-           name: Setup .npmrc file to publish to npm
+           name: Setup Node.js and npm for publishing
            with:
               node-version: "20.x"
               registry-url: "https://registry.npmjs.org"
-              scope: "@jsdev_ninja"
               cache: "yarn"
+              always-auth: true
          - name: Cache Yarn Dependencies
            uses: actions/cache@v4
            with:
@@ -55,7 +55,9 @@ jobs:
               echo "build package"
               yarn build
               echo "verify npm configuration"
-              cat ~/.npmrc || echo "No .npmrc found"
+              cat ~/.npmrc || echo "No .npmrc found in home"
+              echo "check if .npmrc exists in workspace"
+              cat .npmrc || echo "No .npmrc in workspace"
               echo "publish to npm using trusted publishing"
               npm publish --provenance --access public
 
