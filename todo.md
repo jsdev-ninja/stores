@@ -37,6 +37,7 @@ TODO
 13.   fix sync data between order and payments (user can edit data on payment)
 14.   clean products when remove category
 15.   store backend validation for cart cost and order
+16. client history
 
 <!-- payment types -->
 1. j5
