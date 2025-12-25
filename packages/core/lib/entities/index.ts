@@ -14,4 +14,5 @@ export * from "./Organization";
 export * from "./OrganizationGroup";
 export * from "./DeliveryNote";
 export * from "./Payment";
+export * from "./Supplier";
 
