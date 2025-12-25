@@ -52,8 +52,10 @@ jobs:
               cd packages/core
               echo "install"
               yarn --ignore-engines
-              echo "publish to npm"
-              npm publish
+              echo "build package"
+              yarn build
+              echo "publish to npm using trusted publishing"
+              npm publish --provenance --access public
 
          - name: install dependencies
            run: |
