@@ -124,6 +124,7 @@ export const resources = {
 			name: "שם",
 			organizations: "ארגונים",
 			organizationGroups: "קבוצות ארגונים",
+			suppliers: "ספקים",
 			inventoryCertificate: "תעודת מלאי",
 			inventoryCertificatePage: {
 				documentDate: "תאריך תעודה",
@@ -615,6 +616,17 @@ export const resources = {
 				namePlaceholder: "הכנס שם קבוצת ארגונים",
 				actionsLabel: "פעולות",
 				confirmDelete: "האם אתה בטוח שברצונך למחוק את קבוצת הארגונים הזו?",
+			},
+			suppliersPage: {
+				title: "ספקים",
+				createSupplier: "צור ספק",
+				editSupplier: "ערוך ספק",
+				name: "שם",
+				code: "קוד ספק",
+				namePlaceholder: "הכנס שם ספק",
+				codePlaceholder: "הכנס קוד ספק",
+				actionsLabel: "פעולות",
+				confirmDelete: "האם אתה בטוח שברצונך למחוק את הספק הזה?",
 			},
 			invoiceDetails: {
 				title: "פרטי חשבונית",

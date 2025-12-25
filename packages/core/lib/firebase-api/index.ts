@@ -17,6 +17,7 @@ export const storeCollections = {
 	organizations: "organizations",
 	organizationGroups: "organization-groups",
 	invoices: "invoices",
+	suppliers: "suppliers",
 } as const;
 
 export const FirestoreApi = {

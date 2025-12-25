@@ -97,6 +97,9 @@ export const routes = {
 			organizationGroups: {
 				path: "/organization-groups",
 			},
+			suppliers: {
+				path: "/suppliers",
+			},
 			invoices: {
 				path: "/invoices",
 			},

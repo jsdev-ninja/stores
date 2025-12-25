@@ -9,6 +9,10 @@ import {
 	TOrganizationGroup,
 	TNewOrganizationGroup,
 	NewOrganizationGroupSchema,
+	TSupplier,
+	TNewSupplier,
+	NewSupplierSchema,
+	SupplierSchema,
 } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
@@ -1052,6 +1056,120 @@ export const useAppApi = () => {
 					sort: [{ name: "name", value: "asc" }],
 				});
 				updateLoading({ "admin.listOrganizationGroups": false });
+
+				return result;
+			},
+			// Supplier management
+			createSupplier: async (supplier: TNewSupplier) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.createSupplier": true });
+
+				const validation = NewSupplierSchema.safeParse(supplier);
+				if (!validation.success) {
+					logger({
+						message: "create supplier",
+						severity: "ERROR",
+						error: validation.error,
+						supplier,
+					});
+					return { success: false, error: validation.error };
+				}
+
+				const doc = validation.data;
+
+				const result = await FirebaseApi.firestore.createV2<TNewSupplier & { id?: string }>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "suppliers",
+					}),
+					doc: doc,
+				});
+				updateLoading({ "admin.createSupplier": false });
+
+				logger({
+					message: "create supplier",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					supplier,
+				});
+
+				return result;
+			},
+			updateSupplier: async (supplier: TSupplier) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.updateSupplier": true });
+
+				const validation = SupplierSchema.safeParse(supplier);
+				if (!validation.success) {
+					logger({
+						message: "update supplier",
+						severity: "ERROR",
+						error: validation.error,
+						supplier,
+					});
+					updateLoading({ "admin.updateSupplier": false });
+					return { success: false, error: validation.error };
+				}
+
+				const result = await FirebaseApi.firestore.update<TSupplier>(
+					supplier.id,
+					supplier,
+					FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "suppliers",
+					})
+				);
+				updateLoading({ "admin.updateSupplier": false });
+
+				logger({
+					message: "update supplier",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					supplier,
+				});
+
+				return result;
+			},
+			deleteSupplier: async (supplierId: string) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.deleteSupplier": true });
+				const result = await FirebaseApi.firestore.remove({
+					id: supplierId,
+					collectionName: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "suppliers",
+					}),
+				});
+				updateLoading({ "admin.deleteSupplier": false });
+
+				logger({
+					message: "delete supplier",
+					severity: result.success ? "INFO" : "ERROR",
+					result,
+					supplierId,
+				});
+
+				return result;
+			},
+			listSuppliers: async () => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.listSuppliers": true });
+				const result = await FirebaseApi.firestore.listV2<TSupplier>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "suppliers",
+					}),
+					sort: [{ name: "name", value: "asc" }],
+				});
+				updateLoading({ "admin.listSuppliers": false });
 
 				return result;
 			},

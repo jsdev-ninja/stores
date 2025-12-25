@@ -14,6 +14,7 @@ import AdminClientProfile from "../AdminClientProfile/AdminClientProfile";
 import { AdminOrganizationsPage } from "../AdminOrganizationsPage";
 import { AdminOrganizationDetailPage } from "../AdminOrganizationDetailPage/AdminOrganizationDetailPage";
 import { AdminOrganizationGroupsPage } from "../AdminOrganizationGroupsPage";
+import { AdminSuppliersPage } from "../AdminSuppliersPage";
 import { useEffect, useRef, useState } from "react";
 
 import { Header } from "./Header";
@@ -136,6 +137,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.organizationGroups">
 						<AdminOrganizationGroupsPage />
+					</Route>
+					<Route name="admin.suppliers">
+						<AdminSuppliersPage />
 					</Route>
 					<Route name="admin.invoices">
 						<AdminInvoicesPage />
