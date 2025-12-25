@@ -11,6 +11,7 @@ permissions:
    contents: read
 env:
    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
 jobs:
    on_merge_master:
@@ -27,7 +28,6 @@ jobs:
               node-version: "20.x"
               registry-url: "https://registry.npmjs.org"
               cache: "yarn"
-              always-auth: true
          - name: Cache Yarn Dependencies
            uses: actions/cache@v4
            with:
@@ -48,6 +48,11 @@ jobs:
          - name: publish core package
            if: steps.core-check.outputs.CORE_CHANGE == 'true'
            run: |
+              echo "check npm version (requires 11.5.1+ for trusted publishing)"
+              npm --version
+              echo "ensure npm is up to date"
+              npm install -g npm@latest
+              npm --version
               echo "open core package folder"
               cd packages/core
               echo "install"
@@ -56,8 +61,6 @@ jobs:
               yarn build
               echo "verify npm configuration"
               cat ~/.npmrc || echo "No .npmrc found in home"
-              echo "check if .npmrc exists in workspace"
-              cat .npmrc || echo "No .npmrc in workspace"
               echo "publish to npm using trusted publishing"
               npm publish --provenance --access public
 
