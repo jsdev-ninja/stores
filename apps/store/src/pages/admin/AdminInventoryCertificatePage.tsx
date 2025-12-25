@@ -20,7 +20,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppApi } from "src/appApi";
-import { NewSupplierInvoiceSchema, SupplierInvoiceSchema, TProduct, TSupplier, TSupplierInvoice } from "@jsdev_ninja/core";
+import { NewSupplierInvoiceSchema, TProduct, TSupplier, TSupplierInvoice } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
 
 // Helper function to round numbers
