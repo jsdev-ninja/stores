@@ -1,10 +1,14 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.13.47",
+	"version": "0.13.48",
 	"type": "module",
 	"main": "dist/core.cjs.js",
 	"module": "dist/core.es.js",
 	"types": "dist/lib/index.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jsdev-ninja/stores.git"
+	},
 	"files": [
 		"dist",
 		"package.json",
