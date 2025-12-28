@@ -10,7 +10,10 @@ export default defineConfig({
 			entry: resolve(__dirname, "lib/index.tsx"),
 			name: "core",
 			formats: ["es", "cjs", "umd"],
-			fileName: (format) => `core.${format}.js`,
+			fileName: (format) => {
+				if (format === "cjs") return "core.cjs";
+				return `core.${format}.js`;
+			},
 		},
 		rollupOptions: {
 			external: ["react", "react-dom"], // Exclude dependencies from the bundle

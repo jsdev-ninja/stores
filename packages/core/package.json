@@ -1,10 +1,17 @@
 {
 	"name": "@jsdev_ninja/core",
-	"version": "0.13.50",
+	"version": "0.13.51",
 	"type": "module",
-	"main": "dist/core.cjs.js",
+	"main": "dist/core.cjs",
 	"module": "dist/core.es.js",
 	"types": "dist/lib/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/core.es.js",
+			"require": "./dist/core.cjs",
+			"types": "./dist/lib/index.d.ts"
+		}
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/jsdev-ninja/stores.git"
