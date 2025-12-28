@@ -103,6 +103,7 @@ export function AdminInventoryCertificatePage() {
 			(changedField === "price" ||
 				changedField === "purchasePrice" ||
 				changedField === "profitPercentage" ||
+				changedField === "lineDiscount" ||
 				changedField === "quantity");
 
 		if (!shouldAutoCalculate) {
@@ -113,11 +114,19 @@ export function AdminInventoryCertificatePage() {
 		let price = row.price;
 		const priceWithoutVat = row.vat ? price / (1 + 18 / 100) : price;
 		const purchasePrice = row.purchasePrice;
-		const purchasePriceWithVat = round(purchasePrice * 1.18);
+		let purchasePriceAfterDiscount = purchasePrice;
+		if (row.lineDiscount) {
+			purchasePriceAfterDiscount = purchasePrice * (1 - row.lineDiscount / 100);
+		}
+		const purchasePriceWithVat = round(purchasePriceAfterDiscount * 1.18);
 
-		if (changedField === "price" || changedField === "purchasePrice") {
+		if (
+			changedField === "price" ||
+			changedField === "purchasePrice" ||
+			changedField === "lineDiscount"
+		) {
 			// calculate profit percentage (margin) on purchase price
-			profitPercentage = marginPercentFromCostPrice(purchasePrice, priceWithoutVat);
+			profitPercentage = marginPercentFromCostPrice(purchasePriceAfterDiscount, priceWithoutVat);
 		}
 
 		if (changedField === "profitPercentage") {
@@ -126,7 +135,7 @@ export function AdminInventoryCertificatePage() {
 		}
 
 		// Calculate totalPurchasePrice = quantity * purchasePrice
-		const totalPurchasePrice = (row.quantity || 0) * purchasePrice;
+		const totalPurchasePrice = (row.quantity || 0) * purchasePriceAfterDiscount;
 
 		return {
 			...row,
