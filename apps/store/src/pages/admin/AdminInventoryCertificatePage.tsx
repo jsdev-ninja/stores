@@ -118,7 +118,9 @@ export function AdminInventoryCertificatePage() {
 		if (row.lineDiscount) {
 			purchasePriceAfterDiscount = purchasePrice * (1 - row.lineDiscount / 100);
 		}
-		const purchasePriceWithVat = round(purchasePriceAfterDiscount * 1.18);
+		const purchasePriceWithVat = row.vat
+			? round(purchasePriceAfterDiscount * 1.18)
+			: purchasePriceAfterDiscount;
 
 		if (
 			changedField === "price" ||
