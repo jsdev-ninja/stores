@@ -11,13 +11,29 @@ import {
 	ModalFooter,
 	Select,
 	SelectItem,
+	Tabs,
+	Tab,
+	Table,
+	TableHeader,
+	TableColumn,
+	TableBody,
+	TableRow,
+	TableCell,
 } from "@heroui/react";
 import { Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { useParams, navigate } from "src/navigation";
-import { TOrganization, TPaymentType, TProfile, TOrganizationGroup } from "@jsdev_ninja/core";
+import {
+	TOrganization,
+	TPaymentType,
+	TProfile,
+	TOrganizationGroup,
+	TOrder,
+} from "@jsdev_ninja/core";
+import { DateView } from "src/components/DateView";
+import { Price } from "src/components/Price";
 
 type ClientFormState = {
 	displayName: string;
@@ -100,6 +116,11 @@ export function AdminOrganizationDetailPage() {
 	const [isSubmittingOrganization, setIsSubmittingOrganization] = useState(false);
 	const [organizationGroups, setOrganizationGroups] = useState<TOrganizationGroup[]>([]);
 	const [organizationGroupsLoading, setOrganizationGroupsLoading] = useState(false);
+	const [organizationOrders, setOrganizationOrders] = useState<TOrder[]>([]);
+	const [organizationInvoices, setOrganizationInvoices] = useState<TOrder[]>([]);
+	const [ordersLoading, setOrdersLoading] = useState(false);
+	const [invoicesLoading, setInvoicesLoading] = useState(false);
+	const [activeTab, setActiveTab] = useState<string>("details");
 
 	const appApi = useAppApi();
 
@@ -136,6 +157,8 @@ export function AdminOrganizationDetailPage() {
 				if (org) {
 					setOrganization(org as TOrganization);
 					await loadOrganizationClients(org.id);
+					await loadOrganizationOrders(org.id);
+					await loadOrganizationInvoices(org.id);
 				} else {
 					setError(t("admin:organizationsPage.organizationNotFound"));
 				}
@@ -147,6 +170,34 @@ export function AdminOrganizationDetailPage() {
 			setError(t("admin:organizationsPage.failedToLoad"));
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const loadOrganizationOrders = async (organizationId: string) => {
+		setOrdersLoading(true);
+		try {
+			const result = await appApi.admin.getOrganizationOrders(organizationId);
+			if (result?.success) {
+				setOrganizationOrders((result.data || []) as TOrder[]);
+			}
+		} catch (error) {
+			console.error("Failed to load organization orders:", error);
+		} finally {
+			setOrdersLoading(false);
+		}
+	};
+
+	const loadOrganizationInvoices = async (organizationId: string) => {
+		setInvoicesLoading(true);
+		try {
+			const result = await appApi.admin.getOrganizationInvoices(organizationId);
+			if (result?.success) {
+				setOrganizationInvoices((result.data || []) as TOrder[]);
+			}
+		} catch (error) {
+			console.error("Failed to load organization invoices:", error);
+		} finally {
+			setInvoicesLoading(false);
 		}
 	};
 
@@ -557,7 +608,8 @@ export function AdminOrganizationDetailPage() {
 			if (field === "groupId") {
 				return {
 					...prev,
-					[field]: value === "" || value === "none" ? undefined : (value as string | undefined),
+					[field]:
+						value === "" || value === "none" ? undefined : (value as string | undefined),
 				};
 			}
 			return {
@@ -642,6 +694,20 @@ export function AdminOrganizationDetailPage() {
 		);
 	}
 
+	const getStatusColor = (status: TOrder["status"]): string => {
+		const statusColors: Record<TOrder["status"], string> = {
+			completed: "#22c38f",
+			pending: "#fea73e",
+			cancelled: "#fc424a",
+			processing: "#fea73e",
+			in_delivery: "#fea73e",
+			delivered: "#22c38f",
+			draft: "#949ca9",
+			refunded: "#fc424a",
+		};
+		return statusColors[status] || "#949ca9";
+	};
+
 	return (
 		<div className="w-full p-6">
 			<div className="flex items-center gap-4 mb-6">
@@ -655,231 +721,415 @@ export function AdminOrganizationDetailPage() {
 				<h1 className="text-2xl font-bold text-start">{organization.name}</h1>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between">
-						<h2 className="text-lg font-semibold text-start">
-							{t("admin:organizationsPage.basicInfo")}
-						</h2>
-						<Button
-							size="sm"
-							variant="light"
-							onPress={openEditOrganizationModal}
-							startContent={<Icon icon="lucide:edit" />}
-						>
-							{t("common:edit")}
-						</Button>
-					</CardHeader>
-					<CardBody className="space-y-4">
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
-								{t("admin:organizationsPage.name")}
-							</label>
-							<div className="text-lg text-start">{organization.name}</div>
+			<Tabs
+				selectedKey={activeTab}
+				onSelectionChange={(key) => setActiveTab(key as string)}
+				aria-label="Organization tabs"
+			>
+				<Tab key="details" title={t("admin:organizationsPage.details" as any)}>
+					<div className="mt-6">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<Card>
+								<CardHeader className="flex flex-row items-center justify-between">
+									<h2 className="text-lg font-semibold text-start">
+										{t("admin:organizationsPage.basicInfo")}
+									</h2>
+									<Button
+										size="sm"
+										variant="light"
+										onPress={openEditOrganizationModal}
+										startContent={<Icon icon="lucide:edit" />}
+									>
+										{t("common:edit")}
+									</Button>
+								</CardHeader>
+								<CardBody className="space-y-4">
+									<div>
+										<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+											{t("admin:organizationsPage.name")}
+										</label>
+										<div className="text-lg text-start">{organization.name}</div>
+									</div>
+									<div>
+										<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+											{t("admin:organizationsPage.discountPercentage")}
+										</label>
+										<div className="text-lg text-start">
+											{organization.discountPercentage
+												? `${organization.discountPercentage}%`
+												: t("admin:organizationsPage.noDiscount")}
+										</div>
+									</div>
+									<div>
+										<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+											{t("admin:organizationsPage.nameOnInvoice")}
+										</label>
+										<div className="text-lg text-start">
+											{organization.nameOnInvoice || t("admin:organizationsPage.notSet")}
+										</div>
+									</div>
+									<div>
+										<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+											{t("common:paymentType")}
+										</label>
+										<div className="text-lg text-start">
+											{t(
+												`common:paymentTypes.${
+													(organization as any).paymentType || "default"
+												}` as any
+											)}
+										</div>
+									</div>
+									<div>
+										<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+											{t("admin:organizationsPage.companyNumber")}
+										</label>
+										<div className="text-lg text-start">
+											{organization.companyNumber || t("admin:organizationsPage.notSet")}
+										</div>
+									</div>
+									<div>
+										<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
+											{t("admin:organizationsPage.group")}
+										</label>
+										<div className="text-lg text-start">
+											{organization.groupId
+												? organizationGroups.find((g) => g.id === organization.groupId)
+														?.name || t("admin:organizationsPage.notSet")
+												: t("admin:organizationsPage.notSet")}
+										</div>
+									</div>
+								</CardBody>
+							</Card>
+
+							<Card>
+								<CardHeader>
+									<h2 className="text-lg font-semibold text-start">
+										{t("admin:organizationsPage.organizationId")}
+									</h2>
+								</CardHeader>
+								<CardBody>
+									<div className="text-sm font-mono bg-gray-100 p-3 rounded text-start">
+										{organization.id}
+									</div>
+								</CardBody>
+							</Card>
 						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
-								{t("admin:organizationsPage.discountPercentage")}
-							</label>
-							<div className="text-lg text-start">
-								{organization.discountPercentage
-									? `${organization.discountPercentage}%`
-									: t("admin:organizationsPage.noDiscount")}
-							</div>
+
+						{/* Organization Clients Section */}
+						<div className="mt-6">
+							<Card>
+								<CardHeader className="flex flex-row items-center justify-between">
+									<h2 className="text-lg font-semibold text-start">
+										{t("admin:organizationsPage.organizationUsers")}
+									</h2>
+									<Button
+										color="primary"
+										size="sm"
+										onPress={handleOpenAddClientModal}
+										startContent={<Icon icon="lucide:plus" />}
+									>
+										{t("admin:organizationsPage.addOrganizationUser")}
+									</Button>
+								</CardHeader>
+								<CardBody>
+									{clientsLoading ? (
+										<div className="text-center py-8 text-gray-500">
+											<div className="text-start">{t("common:loading")}</div>
+										</div>
+									) : clientsError ? (
+										<div className="text-sm text-red-500 text-start">{clientsError}</div>
+									) : organizationClients.length > 0 ? (
+										<div className="space-y-4">
+											{organizationClients.map((client) => (
+												<div
+													key={client.id}
+													className="flex items-center justify-between p-4 border rounded-lg"
+												>
+													<div className="flex-1">
+														<div className="font-medium text-start">
+															{client.displayName}
+														</div>
+														<div className="text-sm text-gray-500 text-start">
+															{client.email}
+														</div>
+														<div className="text-xs text-gray-400 text-start mt-1">
+															{t("common:clientType")}:{" "}
+															{t(`common:clientTypes.${client.clientType}`)} •{" "}
+															{t("common:paymentType")}:{" "}
+															{t(`common:paymentTypes.${client.paymentType}`)}
+														</div>
+													</div>
+													<div className="flex gap-2">
+														<Button
+															size="sm"
+															variant="light"
+															onPress={() => openEditClientModal(client)}
+															startContent={<Icon icon="lucide:edit" />}
+														>
+															{t("common:edit")}
+														</Button>
+														<Button
+															size="sm"
+															color="danger"
+															variant="light"
+															onPress={() => handleRemoveClient(client)}
+															startContent={<Icon icon="lucide:trash" />}
+														>
+															{t("common:delete")}
+														</Button>
+													</div>
+												</div>
+											))}
+										</div>
+									) : (
+										<div className="text-center py-8 text-gray-500">
+											<div className="text-start">
+												{t("admin:organizationsPage.noOrganizationUsers")}
+											</div>
+										</div>
+									)}
+								</CardBody>
+							</Card>
 						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
-								{t("admin:organizationsPage.nameOnInvoice")}
-							</label>
-							<div className="text-lg text-start">
-								{organization.nameOnInvoice || t("admin:organizationsPage.notSet")}
-							</div>
+
+						{/* Billing Accounts Section */}
+						<div className="mt-6">
+							<Card>
+								<CardHeader className="flex flex-row items-center justify-between">
+									<h2 className="text-lg font-semibold text-start">
+										{t("admin:organizationsPage.billingAccounts")}
+									</h2>
+									<Button
+										color="primary"
+										size="sm"
+										onPress={() => setIsAddBillingModalOpen(true)}
+										startContent={<Icon icon="lucide:plus" />}
+									>
+										{t("admin:organizationsPage.addBillingAccount")}
+									</Button>
+								</CardHeader>
+								<CardBody>
+									{organization.billingAccounts &&
+									organization.billingAccounts.length > 0 ? (
+										<div className="space-y-4">
+											{organization.billingAccounts.map(
+												(account: any, index: number) => (
+													<div
+														key={index}
+														className="flex items-center justify-between p-4 border rounded-lg"
+													>
+														<div className="flex-1">
+															<div className="font-medium text-start">
+																{account.name}
+															</div>
+															<div className="text-sm font-mono text-gray-500 text-start">
+																{account.number}
+															</div>
+														</div>
+														<div className="flex gap-2">
+															<Button
+																size="sm"
+																variant="light"
+																onPress={() => openEditBillingModal(account)}
+																startContent={<Icon icon="lucide:edit" />}
+															>
+																{t("common:edit")}
+															</Button>
+															<Button
+																size="sm"
+																color="danger"
+																variant="light"
+																onPress={() =>
+																	handleRemoveBillingAccount(account.id)
+																}
+																startContent={<Icon icon="lucide:trash" />}
+															>
+																{t("common:delete")}
+															</Button>
+														</div>
+													</div>
+												)
+											)}
+										</div>
+									) : (
+										<div className="text-center py-8 text-gray-500">
+											<div className="text-start">
+												{t("admin:organizationsPage.noBillingAccounts")}
+											</div>
+										</div>
+									)}
+								</CardBody>
+							</Card>
 						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
-								{t("common:paymentType")}
-							</label>
-							<div className="text-lg text-start">
-								{t(
-									`common:paymentTypes.${
-										(organization as any).paymentType || "default"
-									}` as any
+					</div>
+				</Tab>
+
+				<Tab key="orders" title={t("admin:organizationsPage.orders" as any)}>
+					<div className="mt-6">
+						<Card>
+							<CardHeader>
+								<h2 className="text-lg font-semibold text-start">
+									{t("admin:organizationsPage.ordersHistory" as any)}
+								</h2>
+							</CardHeader>
+							<CardBody>
+								{ordersLoading ? (
+									<div className="text-center py-8 text-gray-500">
+										<div className="text-start">{t("common:loading")}</div>
+									</div>
+								) : organizationOrders.length > 0 ? (
+									<Table aria-label="Orders table">
+										<TableHeader>
+											<TableColumn>
+												{t("ordersPage:columns.orderId", "Order ID")}
+											</TableColumn>
+											<TableColumn>{t("ordersPage:columns.date", "Date")}</TableColumn>
+											<TableColumn>{t("ordersPage:columns.sum", "Total")}</TableColumn>
+											<TableColumn>
+												{t("ordersPage:columns.status", "Status")}
+											</TableColumn>
+											<TableColumn>
+												{t("ordersPage:columns.paymentType", "Payment Type")}
+											</TableColumn>
+										</TableHeader>
+										<TableBody>
+											{organizationOrders.map((order) => (
+												<TableRow key={order.id}>
+													<TableCell>
+														<span className="text-sm font-mono">
+															#{order.id.slice(-8)}
+														</span>
+													</TableCell>
+													<TableCell>
+														<DateView date={order.date} />
+													</TableCell>
+													<TableCell>
+														<Price price={order.cart.cartTotal} />
+													</TableCell>
+													<TableCell>
+														<div className="flex gap-2 items-center">
+															<div
+																className="rounded-full size-2"
+																style={{
+																	backgroundColor: getStatusColor(order.status),
+																}}
+															/>
+															<span className="text-sm">
+																{t(
+																	`common:orderStatutes.${order.status}`,
+																	order.status
+																)}
+															</span>
+														</div>
+													</TableCell>
+													<TableCell>
+														<span className="text-sm">
+															{order.paymentType
+																? t(
+																		`common:paymentTypes.${order.paymentType}`,
+																		order.paymentType
+																  )
+																: "-"}
+														</span>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								) : (
+									<div className="text-center py-8 text-gray-500">
+										<div className="text-start">
+											{t("admin:organizationsPage.noOrders" as any)}
+										</div>
+									</div>
 								)}
-							</div>
-						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
-								{t("admin:organizationsPage.companyNumber")}
-							</label>
-							<div className="text-lg text-start">
-								{organization.companyNumber || t("admin:organizationsPage.notSet")}
-							</div>
-						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1 text-start">
-								{t("admin:organizationsPage.group")}
-							</label>
-							<div className="text-lg text-start">
-								{organization.groupId
-									? organizationGroups.find((g) => g.id === organization.groupId)?.name ||
-									  t("admin:organizationsPage.notSet")
-									: t("admin:organizationsPage.notSet")}
-							</div>
-						</div>
-					</CardBody>
-				</Card>
+							</CardBody>
+						</Card>
+					</div>
+				</Tab>
 
-				<Card>
-					<CardHeader>
-						<h2 className="text-lg font-semibold text-start">
-							{t("admin:organizationsPage.organizationId")}
-						</h2>
-					</CardHeader>
-					<CardBody>
-						<div className="text-sm font-mono bg-gray-100 p-3 rounded text-start">
-							{organization.id}
-						</div>
-					</CardBody>
-				</Card>
-			</div>
-
-			{/* Organization Clients Section */}
-			<div className="mt-6">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between">
-						<h2 className="text-lg font-semibold text-start">
-							{t("admin:organizationsPage.organizationUsers")}
-						</h2>
-						<Button
-							color="primary"
-							size="sm"
-							onPress={handleOpenAddClientModal}
-							startContent={<Icon icon="lucide:plus" />}
-						>
-							{t("admin:organizationsPage.addOrganizationUser")}
-						</Button>
-					</CardHeader>
-					<CardBody>
-						{clientsLoading ? (
-							<div className="text-center py-8 text-gray-500">
-								<div className="text-start">{t("common:loading")}</div>
-							</div>
-						) : clientsError ? (
-							<div className="text-sm text-red-500 text-start">{clientsError}</div>
-						) : organizationClients.length > 0 ? (
-							<div className="space-y-4">
-								{organizationClients.map((client) => (
-									<div
-										key={client.id}
-										className="flex items-center justify-between p-4 border rounded-lg"
-									>
-										<div className="flex-1">
-											<div className="font-medium text-start">{client.displayName}</div>
-											<div className="text-sm text-gray-500 text-start">
-												{client.email}
-											</div>
-											<div className="text-xs text-gray-400 text-start mt-1">
-												{t("common:clientType")}:{" "}
-												{t(`common:clientTypes.${client.clientType}`)} •{" "}
-												{t("common:paymentType")}:{" "}
-												{t(`common:paymentTypes.${client.paymentType}`)}
-											</div>
-										</div>
-										<div className="flex gap-2">
-											<Button
-												size="sm"
-												variant="light"
-												onPress={() => openEditClientModal(client)}
-												startContent={<Icon icon="lucide:edit" />}
-											>
-												{t("common:edit")}
-											</Button>
-											<Button
-												size="sm"
-												color="danger"
-												variant="light"
-												onPress={() => handleRemoveClient(client)}
-												startContent={<Icon icon="lucide:trash" />}
-											>
-												{t("common:delete")}
-											</Button>
+				<Tab key="invoices" title={t("admin:organizationsPage.invoices" as any)}>
+					<div className="mt-6">
+						<Card>
+							<CardHeader>
+								<h2 className="text-lg font-semibold text-start">
+									{t("admin:organizationsPage.invoicesHistory" as any)}
+								</h2>
+							</CardHeader>
+							<CardBody>
+								{invoicesLoading ? (
+									<div className="text-center py-8 text-gray-500">
+										<div className="text-start">{t("common:loading")}</div>
+									</div>
+								) : organizationInvoices.length > 0 ? (
+									<Table aria-label="Invoices table">
+										<TableHeader>
+											<TableColumn>
+												{t("ordersPage:columns.orderId", "Order ID")}
+											</TableColumn>
+											<TableColumn>{t("ordersPage:columns.date", "Date")}</TableColumn>
+											<TableColumn>{t("ordersPage:columns.sum", "Total")}</TableColumn>
+											<TableColumn>
+												{t("admin:organizationsPage.invoiceNumber" as any)}
+											</TableColumn>
+											<TableColumn>
+												{t("ordersPage:columns.status", "Status")}
+											</TableColumn>
+										</TableHeader>
+										<TableBody>
+											{organizationInvoices.map((order) => (
+												<TableRow key={order.id}>
+													<TableCell>
+														<span className="text-sm font-mono">
+															#{order.id.slice(-8)}
+														</span>
+													</TableCell>
+													<TableCell>
+														<DateView date={order.date} />
+													</TableCell>
+													<TableCell>
+														<Price price={order.cart.cartTotal} />
+													</TableCell>
+													<TableCell>
+														<span className="text-sm font-mono">
+															{order.ezInvoice?.doc_number ||
+																order.invoice?.number ||
+																"-"}
+														</span>
+													</TableCell>
+													<TableCell>
+														<div className="flex gap-2 items-center">
+															<div
+																className="rounded-full size-2"
+																style={{
+																	backgroundColor: getStatusColor(order.status),
+																}}
+															/>
+															<span className="text-sm">
+																{t(
+																	`common:orderStatutes.${order.status}`,
+																	order.status
+																)}
+															</span>
+														</div>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								) : (
+									<div className="text-center py-8 text-gray-500">
+										<div className="text-start">
+											{t("admin:organizationsPage.noInvoices" as any)}
 										</div>
 									</div>
-								))}
-							</div>
-						) : (
-							<div className="text-center py-8 text-gray-500">
-								<div className="text-start">
-									{t("admin:organizationsPage.noOrganizationUsers")}
-								</div>
-							</div>
-						)}
-					</CardBody>
-				</Card>
-			</div>
-
-			{/* Billing Accounts Section */}
-			<div className="mt-6">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between">
-						<h2 className="text-lg font-semibold text-start">
-							{t("admin:organizationsPage.billingAccounts")}
-						</h2>
-						<Button
-							color="primary"
-							size="sm"
-							onPress={() => setIsAddBillingModalOpen(true)}
-							startContent={<Icon icon="lucide:plus" />}
-						>
-							{t("admin:organizationsPage.addBillingAccount")}
-						</Button>
-					</CardHeader>
-					<CardBody>
-						{organization.billingAccounts && organization.billingAccounts.length > 0 ? (
-							<div className="space-y-4">
-								{organization.billingAccounts.map((account: any, index: number) => (
-									<div
-										key={index}
-										className="flex items-center justify-between p-4 border rounded-lg"
-									>
-										<div className="flex-1">
-											<div className="font-medium text-start">{account.name}</div>
-											<div className="text-sm font-mono text-gray-500 text-start">
-												{account.number}
-											</div>
-										</div>
-										<div className="flex gap-2">
-											<Button
-												size="sm"
-												variant="light"
-												onPress={() => openEditBillingModal(account)}
-												startContent={<Icon icon="lucide:edit" />}
-											>
-												{t("common:edit")}
-											</Button>
-											<Button
-												size="sm"
-												color="danger"
-												variant="light"
-												onPress={() => handleRemoveBillingAccount(account.id)}
-												startContent={<Icon icon="lucide:trash" />}
-											>
-												{t("common:delete")}
-											</Button>
-										</div>
-									</div>
-								))}
-							</div>
-						) : (
-							<div className="text-center py-8 text-gray-500">
-								<div className="text-start">
-									{t("admin:organizationsPage.noBillingAccounts")}
-								</div>
-							</div>
-						)}
-					</CardBody>
-				</Card>
-			</div>
+								)}
+							</CardBody>
+						</Card>
+					</div>
+				</Tab>
+			</Tabs>
 
 			{/* Add Organization Client Modal */}
 			<Modal
@@ -1231,7 +1481,9 @@ export function AdminOrganizationDetailPage() {
 								<Select
 									label={t("admin:organizationsPage.group")}
 									placeholder={t("admin:organizationsPage.selectGroup")}
-									selectedKeys={organizationFormData.groupId ? [organizationFormData.groupId] : []}
+									selectedKeys={
+										organizationFormData.groupId ? [organizationFormData.groupId] : []
+									}
 									onChange={(event) =>
 										handleOrganizationFormChange(
 											"groupId",
@@ -1242,8 +1494,13 @@ export function AdminOrganizationDetailPage() {
 									classNames={{
 										label: "text-start",
 									}}
-									startContent={<Icon icon="lucide:folder-tree" className="text-default-400" />}
-									items={[{ id: "none", name: t("admin:organizationsPage.noGroup") }, ...organizationGroups]}
+									startContent={
+										<Icon icon="lucide:folder-tree" className="text-default-400" />
+									}
+									items={[
+										{ id: "none", name: t("admin:organizationsPage.noGroup") },
+										...organizationGroups,
+									]}
 								>
 									{(group) => (
 										<SelectItem textValue={group.name} key={group.id}>

@@ -298,6 +298,69 @@ export const useAppApi = () => {
 					sort: [{ name: "date", value: "desc" }],
 				});
 			},
+			getOrganizationOrders: async (organizationId: string) => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.listV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: [
+						{
+							name: "storeId" as const,
+							operator: "==" as const,
+							value: store.id,
+						},
+						{
+							name: "companyId" as const,
+							operator: "==" as const,
+							value: companyId,
+						},
+						{
+							name: "organizationId" as const,
+							operator: "==" as const,
+							value: organizationId,
+						},
+					],
+					sort: [{ name: "date", value: "desc" }],
+				});
+			},
+			getOrganizationInvoices: async (organizationId: string) => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.listV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: [
+						{
+							name: "storeId" as const,
+							operator: "==" as const,
+							value: store.id,
+						},
+						{
+							name: "companyId" as const,
+							operator: "==" as const,
+							value: companyId,
+						},
+						{
+							name: "organizationId" as const,
+							operator: "==" as const,
+							value: organizationId,
+						},
+						{
+							name: "invoice" as const,
+							operator: "!=" as const,
+							value: null,
+						},
+					],
+					sort: [{ name: "date", value: "desc" }],
+				});
+			},
 			removeProductImage: async ({ product }: { product: TProduct }) => {
 				if (!isValidAdmin) return;
 
