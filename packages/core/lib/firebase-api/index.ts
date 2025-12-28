@@ -15,10 +15,12 @@ export const storeCollections = {
 	settings: "settings",
 	discounts: "discounts",
 	organizations: "organizations",
-	organizationGroups: "organization-groups",
+	organizationGroups: "organization-groups", // todo remove
+	"organization-groups": "organization-groups", // todo remove
 	invoices: "invoices",
 	suppliers: "suppliers",
 	supplierInvoices: "supplier-invoices",
+	"supplier-invoices": "supplier-invoices",
 } as const;
 
 export const FirestoreApi = {
