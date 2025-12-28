@@ -25,28 +25,44 @@ function PriceSection() {
 	const purchasePrice = form.watch("purchasePrice") ?? 0;
 	const profitPercentage = form.watch("profitPercentage") ?? 0;
 
+	console.log("price", price);
+	console.log("purchasePrice", purchasePrice);
+	console.log("profitPercentage", profitPercentage);
+
 	useEffect(() => {
 		// Count how many valid values we have
 		const validValues = [
 			isValidValue(price),
 			isValidValue(purchasePrice),
-			isValidValue(profitPercentage)
+			isValidValue(profitPercentage),
 		].filter(Boolean).length;
 
 		// Only calculate if we have exactly 2 valid values
 		if (validValues === 2) {
 			// Case 1: price and purchasePrice exist, calculate profitPercentage
-			if (isValidValue(price) && isValidValue(purchasePrice) && !isValidValue(profitPercentage)) {
+			if (
+				isValidValue(price) &&
+				isValidValue(purchasePrice) &&
+				!isValidValue(profitPercentage)
+			) {
 				const calculatedProfit = ((price - purchasePrice) / price) * 100;
 				form.setValue("profitPercentage", parseFloat(calculatedProfit.toFixed(2)));
 			}
 			// Case 2: price and profitPercentage exist, calculate purchasePrice
-			else if (isValidValue(price) && isValidValue(profitPercentage) && !isValidValue(purchasePrice)) {
+			else if (
+				isValidValue(price) &&
+				isValidValue(profitPercentage) &&
+				!isValidValue(purchasePrice)
+			) {
 				const calculatedPurchasePrice = price * (1 - profitPercentage / 100);
 				form.setValue("purchasePrice", parseFloat(calculatedPurchasePrice.toFixed(2)));
 			}
 			// Case 3: purchasePrice and profitPercentage exist, calculate price
-			else if (isValidValue(purchasePrice) && isValidValue(profitPercentage) && !isValidValue(price)) {
+			else if (
+				isValidValue(purchasePrice) &&
+				isValidValue(profitPercentage) &&
+				!isValidValue(price)
+			) {
 				const calculatedPrice = purchasePrice / ((100 - profitPercentage) / 100);
 				form.setValue("price", parseFloat(calculatedPrice.toFixed(2)));
 			}
@@ -96,6 +112,7 @@ export function EditProductPage() {
 	const params = useParams("admin.editProduct");
 
 	const [product, setProduct] = useState<TProduct | null>(null);
+	console.log("product", product);
 
 	const appApi = useAppApi();
 
@@ -150,11 +167,7 @@ export function EditProductPage() {
 			<Form<TNewProduct>
 				className="flex flex-wrap shadow flex-col gap-4 mx-auto mt-10  p-4 justify-center max-w-screen-md"
 				schema={NewProductSchema}
-				defaultValues={
-					product
-						? { isDiscountable: false, ...product, profitPercentage: 0, purchasePrice: 0 }
-						: undefined
-				}
+				defaultValues={product}
 				onSubmit={async (data) => {
 					await appApi.admin.saveProduct(data);
 

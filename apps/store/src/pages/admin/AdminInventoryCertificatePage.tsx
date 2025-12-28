@@ -30,17 +30,17 @@ function round(value: number, digits = 2): number {
 }
 
 function marginPercentFromCostPrice(cost: number, price: number): number {
-	if (cost <= 0 || price <= 0) return 0;
+	if (cost <= 0 || price <= 0 || cost > price) return 0;
 
 	const profit = price - cost;
-	if (profit <= 0) return 0; // UI-friendly: no negative margins
 
 	return round((profit / price) * 100);
 }
 
 function priceFromCostMarginPercent(cost: number, marginPercent: number): number {
 	if (cost <= 0 || marginPercent <= 0) return 0;
-	return round(cost / (1 - marginPercent / 100));
+	const margin = marginPercent / 100;
+	return round(cost / (1 - margin));
 }
 
 export function AdminInventoryCertificatePage() {
@@ -113,6 +113,7 @@ export function AdminInventoryCertificatePage() {
 		let price = row.price;
 		const priceWithoutVat = row.vat ? price / (1 + 18 / 100) : price;
 		const purchasePrice = row.purchasePrice;
+		const purchasePriceWithVat = round(purchasePrice * 1.18);
 
 		if (changedField === "price" || changedField === "purchasePrice") {
 			// calculate profit percentage (margin) on purchase price
@@ -121,7 +122,7 @@ export function AdminInventoryCertificatePage() {
 
 		if (changedField === "profitPercentage") {
 			// calculate price from profit percentage margin (from top) and purchase price
-			price = priceFromCostMarginPercent(purchasePrice, profitPercentage);
+			price = priceFromCostMarginPercent(purchasePriceWithVat, profitPercentage);
 		}
 
 		// Calculate totalPurchasePrice = quantity * purchasePrice
@@ -158,13 +159,14 @@ export function AdminInventoryCertificatePage() {
 									: undefined;
 							const updatedRow: TSupplierInvoice["rows"][number] = {
 								...row,
+								profitPercentage: product.profitPercentage ?? 0,
 								itemName: product.name[0]?.value || "",
 								price: product.price || 0,
 								purchasePrice: product.purchasePrice || 0,
 								vat: product.vat || false,
 								...(originalProduct && { originalProduct }),
 							};
-							return calculateRowValues(updatedRow, "purchasePrice");
+							return calculateRowValues(updatedRow);
 						}
 						return row;
 					});
@@ -627,6 +629,7 @@ export function AdminInventoryCertificatePage() {
 									</TableCell>
 									<TableCell>
 										<NumberInput
+											type="number"
 											value={row.price}
 											onValueChange={(value) => updateRow(row.id, "price", value ?? 0)}
 											onKeyDown={(e) => handleKeyDown(e, row.id, "price")}

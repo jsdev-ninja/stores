@@ -16,7 +16,7 @@ export function AdminProductsPage() {
 		<ProductsWidgetAdmin>
 			<div className="">
 				<div className="flex items-center">
-					<div className="mx-4 flex-grow">
+					<div className="mx-4 grow">
 						<ProductsWidgetAdmin.SearchBox />
 					</div>
 					<div className="p-4 flex items-center gap-4">
