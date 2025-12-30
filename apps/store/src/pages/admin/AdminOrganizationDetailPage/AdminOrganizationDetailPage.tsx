@@ -471,7 +471,7 @@ export function AdminOrganizationDetailPage() {
 			)}
 			<Select
 				label={t("common:paymentType")}
-				selectedKeys={[clientFormData.paymentType]}
+				selectedKeys={clientFormData.paymentType ? [clientFormData.paymentType] : []}
 				onChange={(event) =>
 					handleClientFormChange(
 						"paymentType",
@@ -857,7 +857,7 @@ export function AdminOrganizationDetailPage() {
 															{t("common:clientType")}:{" "}
 															{t(`common:clientTypes.${client.clientType}`)} •{" "}
 															{t("common:paymentType")}:{" "}
-															{t(`common:paymentTypes.${client.paymentType}`)}
+															{client.paymentType ? t(`common:paymentTypes.${client.paymentType}`) : t("common:paymentTypes.none")}
 														</div>
 													</div>
 													<div className="flex gap-2">
@@ -1191,7 +1191,7 @@ export function AdminOrganizationDetailPage() {
 											</div>
 											<div className="text-xs text-gray-500">
 												{t("common:paymentType")}:{" "}
-												{t(`common:paymentTypes.${clientSearchResult.paymentType}`)}
+												{clientSearchResult.paymentType ? t(`common:paymentTypes.${clientSearchResult.paymentType}`) : t("common:paymentTypes.none")}
 											</div>
 											{clientSearchExistingOrg && (
 												<div className="mt-3 rounded-md border border-warning-300 bg-warning-50 p-3 text-xs text-warning-600">

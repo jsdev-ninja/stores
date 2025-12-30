@@ -336,7 +336,7 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 
 						<Select
 							label={t("common:paymentType")}
-							selectedKeys={[formData.paymentType]}
+							selectedKeys={formData.paymentType ? [formData.paymentType] : []}
 							onChange={(e) => handleChange("paymentType", e.target.value)}
 							isRequired
 						>

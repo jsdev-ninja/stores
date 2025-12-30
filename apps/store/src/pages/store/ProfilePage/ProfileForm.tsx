@@ -134,7 +134,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 					<Select
 						{...form.register("paymentType")}
 						label="Payment Type"
-						selectedKeys={[formData.paymentType]}
+						selectedKeys={formData.paymentType ? [formData.paymentType] : []}
 						onChange={(e) => handleChange("paymentType", e.target.value)}
 						className="col-span-full md:col-span-1"
 					>
