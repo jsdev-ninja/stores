@@ -18,7 +18,7 @@ export const ProfileSchema = z.object({
 	isAnonymous: z.boolean(),
 	createdDate: z.number(),
 	lastActivityDate: z.number(),
-	paymentType: PaymentTypeSchema,
+	paymentType: PaymentTypeSchema.optional(),
 	organizationId: z.string().optional().nullable(),
 });
 
