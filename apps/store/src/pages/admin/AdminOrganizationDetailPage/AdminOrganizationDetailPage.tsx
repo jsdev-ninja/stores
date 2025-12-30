@@ -998,7 +998,7 @@ export function AdminOrganizationDetailPage() {
 												<TableRow key={order.id}>
 													<TableCell>
 														<span className="text-sm font-mono">
-															#{order.id.slice(-8)}
+															{order.id}
 														</span>
 													</TableCell>
 													<TableCell>
