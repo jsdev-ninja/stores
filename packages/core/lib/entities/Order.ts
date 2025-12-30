@@ -25,7 +25,7 @@ export const OrderSchema = z.object({
 	userId: notEmptyTextSchema,
 	status: z.enum([
 		"draft", // before payment
-		"pending", // after payment
+		"pending", // after payment or external payment
 		"processing", // after admin approve
 		"in_delivery", //
 		"delivered",
