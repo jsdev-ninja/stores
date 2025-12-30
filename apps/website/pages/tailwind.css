@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-#hero::before {
+/* #hero::before {
 	--size: 40px;
 	--line: black;
 	content: "";
@@ -15,4 +15,4 @@
 	transform-style: flat;
 	pointer-events: none;
 	z-index: -1;
-}
+} */

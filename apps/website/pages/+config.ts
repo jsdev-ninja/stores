@@ -8,7 +8,7 @@ export default {
 	// https://vike.dev/head-tags
 	title: "jsdev stores",
 	description: "חנות אונליין",
-	prerender: false,
+	prerender: true,
 	ssr: false,
 	htmlAttributes: {
 		lang: "he",
