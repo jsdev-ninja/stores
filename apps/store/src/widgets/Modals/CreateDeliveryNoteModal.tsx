@@ -73,21 +73,17 @@ export function CreateDeliveryNoteModal({
 			const { fromDate, toDate } = getMonthRange(selectedMonth);
 			const allOrders: TOrder[] = [];
 
-			// Load orders from all organizations
-			for (const org of organizations) {
-				try {
-					const result = await appApi.admin.getOrdersForDeliveryNote({
-						organizationId: org.id,
-						fromDate,
-						toDate,
-					});
+			try {
+				const result = await appApi.admin.getOrdersForDeliveryNote({
+					fromDate,
+					toDate,
+				});
 
-					if (result?.success && result.data) {
-						allOrders.push(...result.data);
-					}
-				} catch (error) {
-					console.error(`Failed to fetch orders for organization ${org.id}:`, error);
+				if (result?.success && result.data) {
+					allOrders.push(...result.data);
 				}
+			} catch (error) {
+				console.error(`Failed to fetch orders`, error);
 			}
 
 			// Sort by date descending

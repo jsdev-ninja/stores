@@ -299,13 +299,9 @@ export const useAppApi = () => {
 				});
 			},
 			getOrdersForDeliveryNote: async ({
-				organizationId,
-				billingAccount,
 				fromDate,
 				toDate,
 			}: {
-				organizationId: string;
-				billingAccount?: string;
 				fromDate: number;
 				toDate: number;
 			}) => {
@@ -322,11 +318,7 @@ export const useAppApi = () => {
 						operator: "==" as const,
 						value: companyId,
 					},
-					{
-						name: "organizationId" as const,
-						operator: "==" as const,
-						value: organizationId,
-					},
+
 					{
 						name: "date" as const,
 						operator: ">=" as const,
@@ -338,14 +330,6 @@ export const useAppApi = () => {
 						value: toDate,
 					},
 				];
-
-				if (billingAccount) {
-					whereClauses.push({
-						name: "billingAccount.number" as any,
-						operator: "==" as const,
-						value: billingAccount,
-					});
-				}
 
 				return FirebaseApi.firestore.listV2<TOrder>({
 					collection: FirebaseAPI.firestore.getPath({
@@ -420,13 +404,7 @@ export const useAppApi = () => {
 					sort: [{ name: "date", value: "desc" }],
 				});
 			},
-			getDeliveryNotes: async ({
-				fromDate,
-				toDate,
-			}: {
-				fromDate: number;
-				toDate: number;
-			}) => {
+			getDeliveryNotes: async ({ fromDate, toDate }: { fromDate: number; toDate: number }) => {
 				if (!isValidAdmin) return;
 
 				return FirebaseApi.firestore.listV2<TOrder>({

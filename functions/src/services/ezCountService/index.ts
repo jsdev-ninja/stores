@@ -178,6 +178,13 @@ export const ezCountService = {
 					vat_type: VAT_TYPE.INC,
 				});
 			}
+			logger.write({
+				severity: "INFO",
+				message: "createDeliveryNote items",
+				itemsSum: items.reduce((acc, item) => acc + item.price * item.amount, 0).toFixed(2),
+				cart: order.cart,
+				order,
+			});
 			const data = JSON.stringify({
 				developer_email: "philip@jsdev.ninja",
 				api_key: ezcount_key,
