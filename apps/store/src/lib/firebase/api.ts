@@ -151,4 +151,33 @@ async function createCompanyClient(company: TCompany) {
 	}
 }
 
-export const api = { init, createCompanyClient, createPayment, chargeOrder, uiLogs, createInvoice };
+async function createDeliveryNote({
+	order,
+	options,
+}: {
+	order: TOrder;
+	options?: { date?: number; sendEmailToClient?: boolean };
+}) {
+	try {
+		const func = httpsCallable(functions, "createDeliveryNote");
+
+		const response = await func({ order, options });
+		return { success: true, data: response.data };
+	} catch (error: any) {
+		const code = error.code;
+		const message = error.message;
+		const details = error.details;
+		console.log(code, message, details);
+		return { success: false, data: null, error: message };
+	}
+}
+
+export const api = {
+	init,
+	createCompanyClient,
+	createPayment,
+	chargeOrder,
+	uiLogs,
+	createInvoice,
+	createDeliveryNote,
+};

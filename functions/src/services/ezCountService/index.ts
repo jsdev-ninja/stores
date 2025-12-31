@@ -135,6 +135,7 @@ export const ezCountService = {
 			clientName,
 			date,
 			isVatIncludedInPrice = false,
+			sendEmailToClient = true,
 		}: {
 			ezcount_key: string;
 			clientName: string;
@@ -142,11 +143,19 @@ export const ezCountService = {
 			ezcount_api: string;
 			date: string;
 			isVatIncludedInPrice: boolean;
+			sendEmailToClient?: boolean;
 		}
 	) {
 		try {
-			console.log("createDeliveryNote", clientEmail, clientName);
-			console.log("URLLLL", `${ezcount_api}/api/createDoc`);
+			logger.write({
+				severity: "INFO",
+				message: "createDeliveryNote",
+				order,
+				clientEmail,
+				clientName,
+				date,
+				isVatIncludedInPrice,
+			});
 
 			const items = order.cart.items.map((item) => {
 				return {
@@ -176,15 +185,9 @@ export const ezCountService = {
 				customer_name: clientName,
 				customer_email: clientEmail,
 				item: items,
-				// payment: [
-				// 	{
-				// 		payment_type: 9,
-				// 		payment_sum: order.cart.cartTotal,
-				// 		other_payment_type_name: "תשלום עתידי",
-				// 	},
-				// ],
 				price_total: order.cart.cartTotal,
 				date,
+				dont_send_email: sendEmailToClient ? 0 : 1,
 			});
 
 			const res = await axios({
@@ -197,11 +200,18 @@ export const ezCountService = {
 				data: data,
 			});
 
-			console.log("res", res.status);
-			console.log(JSON.stringify(res.data));
+			logger.write({
+				severity: "INFO",
+				message: "createDeliveryNote result",
+				result: res,
+			});
 			return { error: null, data: res.data as TEzDeliveryNote };
 		} catch (error: any) {
-			console.error(error.message);
+			logger.write({
+				severity: "ALERT",
+				message: "createDeliveryNote error",
+				error: error,
+			});
 			return { error, data: null };
 		}
 	},

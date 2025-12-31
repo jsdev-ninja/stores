@@ -21,6 +21,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import AdminCreateOrderPage from "../AdminCreateOrderPage/AdminCreateOrderPage";
 import AdminInvoicesPage from "../AdminInvoicesPage/AdminInvoicesPage";
+import AdminDeliveryNotesPage from "../AdminDeliveryNotesPage/AdminDeliveryNotesPage";
 import { AdminInventoryCertificatePage } from "../AdminInventoryCertificatePage";
 import { useAppApi } from "src/appApi";
 import { OrganizationSlice } from "src/domains/Organization";
@@ -143,6 +144,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.invoices">
 						<AdminInvoicesPage />
+					</Route>
+					<Route name="admin.deliveryNotes">
+						<AdminDeliveryNotesPage />
 					</Route>
 					<Route name="admin.inventoryCertificate">
 						<AdminInventoryCertificatePage />

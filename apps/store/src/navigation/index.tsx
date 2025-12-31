@@ -103,6 +103,9 @@ export const routes = {
 			invoices: {
 				path: "/invoices",
 			},
+			deliveryNotes: {
+				path: "/delivery-notes",
+			},
 			inventoryCertificate: {
 				path: "/inventory-certificate",
 			},

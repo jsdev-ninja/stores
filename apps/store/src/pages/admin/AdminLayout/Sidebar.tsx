@@ -102,6 +102,11 @@ const sidebarCategories = [
 				path: "admin.invoices" as RouteKeys<typeof routes>,
 				icon: "lucide:receipt",
 			},
+			{
+				name: "deliveryNotes",
+				path: "admin.deliveryNotes" as RouteKeys<typeof routes>,
+				icon: "lucide:file-text",
+			},
 		],
 	},
 	{

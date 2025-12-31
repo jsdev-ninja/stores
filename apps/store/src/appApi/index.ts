@@ -298,6 +298,65 @@ export const useAppApi = () => {
 					sort: [{ name: "date", value: "desc" }],
 				});
 			},
+			getOrdersForDeliveryNote: async ({
+				organizationId,
+				billingAccount,
+				fromDate,
+				toDate,
+			}: {
+				organizationId: string;
+				billingAccount?: string;
+				fromDate: number;
+				toDate: number;
+			}) => {
+				if (!isValidAdmin) return;
+
+				const whereClauses = [
+					{
+						name: "storeId" as const,
+						operator: "==" as const,
+						value: store.id,
+					},
+					{
+						name: "companyId" as const,
+						operator: "==" as const,
+						value: companyId,
+					},
+					{
+						name: "organizationId" as const,
+						operator: "==" as const,
+						value: organizationId,
+					},
+					{
+						name: "date" as const,
+						operator: ">=" as const,
+						value: fromDate,
+					},
+					{
+						name: "date" as const,
+						operator: "<=" as const,
+						value: toDate,
+					},
+				];
+
+				if (billingAccount) {
+					whereClauses.push({
+						name: "billingAccount.number" as any,
+						operator: "==" as const,
+						value: billingAccount,
+					});
+				}
+
+				return FirebaseApi.firestore.listV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: whereClauses,
+					sort: [{ name: "date", value: "desc" }],
+				});
+			},
 			getOrganizationOrders: async (organizationId: string) => {
 				if (!isValidAdmin) return;
 
@@ -360,6 +419,60 @@ export const useAppApi = () => {
 					],
 					sort: [{ name: "date", value: "desc" }],
 				});
+			},
+			getDeliveryNotes: async ({
+				fromDate,
+				toDate,
+			}: {
+				fromDate: number;
+				toDate: number;
+			}) => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.listV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: [
+						{
+							name: "storeId" as const,
+							operator: "==" as const,
+							value: store.id,
+						},
+						{
+							name: "companyId" as const,
+							operator: "==" as const,
+							value: companyId,
+						},
+						{
+							name: "ezDeliveryNote.success" as const,
+							operator: "==" as const,
+							value: true,
+						},
+						{
+							name: "date" as const,
+							operator: ">=" as const,
+							value: fromDate,
+						},
+						{
+							name: "date" as const,
+							operator: "<=" as const,
+							value: toDate,
+						},
+					],
+					sort: [{ name: "date", value: "desc" }],
+				});
+			},
+			createDeliveryNote: async (
+				order: TOrder,
+				options?: { date?: number; sendEmailToClient?: boolean; nameOnInvoice?: string }
+			) => {
+				if (!isValidAdmin) return;
+
+				const { api } = await import("src/lib/firebase/api");
+				return await api.createDeliveryNote({ order, options });
 			},
 			removeProductImage: async ({ product }: { product: TProduct }) => {
 				if (!isValidAdmin) return;

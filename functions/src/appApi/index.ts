@@ -33,10 +33,13 @@ export function createAppApi(context: TContext) {
 
 	return {
 		documents: {
-			createDeliveryNote: async (order: TOrder) => {
+			createDeliveryNote: async (
+				order: TOrder,
+				options?: { date?: number; sendEmailToClient?: boolean; nameOnInvoice?: string }
+			) => {
 				try {
-					const date = new Date();
-
+					const date = options?.date ? new Date(options.date) : new Date();
+					const sendEmailToClient = options?.sendEmailToClient ?? true;
 					const store = await getStoreData(storeId);
 					const storePrivateData = await getStorePrivateData(storeId);
 
@@ -61,19 +64,21 @@ export function createAppApi(context: TContext) {
 
 					const res = await ezCountService.createDeliveryNote(order, {
 						ezcount_key: storePrivateData.ezcount_key,
-						clientName: order.nameOnInvoice ?? "",
+						clientName: options?.nameOnInvoice ?? order.nameOnInvoice ?? "",
 						clientEmail: order.client?.email ?? "",
 						ezcount_api: storePrivateData.ezcount_api,
 						date: formatDateDDMMYYYY(date.toLocaleDateString()),
 						isVatIncludedInPrice:
 							order.storeOptions?.isVatIncludedInPrice ?? store.isVatIncludedInPrice,
+						sendEmailToClient,
 					});
+
 					logger.write({
 						severity: "INFO",
 						message: "createDeliveryNote result",
 						result: res,
 					});
-					if (res.data?.success) {
+					if (res.data?.success && res.data?.doc_number) {
 						const html = renderDeliveryNoteToHTML({
 							order,
 							organization,
@@ -175,11 +180,12 @@ export function createAppApi(context: TContext) {
 							orderId: order.id,
 							storeId: storeId,
 							companyId: companyId,
-							error: res.error?.message,
+							error: (res.error as any)?.message,
+							res,
 						});
 						return {
 							success: false,
-							error: new Error(res.error?.message ?? "unknown error"),
+							error: res.error,
 						};
 					}
 				} catch (error: any) {
