@@ -264,7 +264,7 @@ export const useAppApi = () => {
 						value: organizationId,
 					},
 					{
-						name: "deliveryNote.success" as const,
+						name: "ezDeliveryNote.success" as const,
 						operator: "==" as const,
 						value: true,
 					},
