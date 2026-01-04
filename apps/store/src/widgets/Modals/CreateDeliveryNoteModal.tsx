@@ -95,14 +95,12 @@ export function CreateDeliveryNoteModal({
 		} finally {
 			setIsLoadingOrders(false);
 		}
-	}, [selectedMonth, organizations]);
+	}, [selectedMonth]);
 
 	// Auto-load orders when month changes
 	useEffect(() => {
-		if (organizations.length > 0) {
-			loadOrders();
-		}
-	}, [selectedMonth, organizations.length, loadOrders]);
+		loadOrders();
+	}, [selectedMonth, loadOrders]);
 
 	const handleMonthChange = (newMonth: Date) => {
 		setSelectedMonth(newMonth);

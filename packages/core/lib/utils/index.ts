@@ -65,6 +65,8 @@ export function getCartCost({
 		};
 	});
 
+	// isVatIncludedInPrice = false
+
 	const cartDetails = result.reduce(
 		(acc, item) => {
 			const { product, amount, finalPrice, finalDiscount } = item;
@@ -74,7 +76,7 @@ export function getCartCost({
 				let vat = 0;
 
 				if (isVatIncludedInPrice) {
-					const vat_amount = finalPrice * (CONFIG.VAT / (100 + CONFIG.VAT));
+					const vat_amount = finalPrice * (CONFIG.VAT / 100);
 					productVatValue = Number(vat_amount.toFixed(2));
 					productVatValue = productVatValue * amount;
 
@@ -102,6 +104,14 @@ export function getCartCost({
 			acc.discount = Number(acc.discount.toFixed(2));
 			acc.finalCost = Number(acc.finalCost.toFixed(2));
 			acc.productsCost = Number(acc.productsCost.toFixed(2));
+
+			// console.log(
+			// 	"product",
+			// 	product.name[0].value,
+			// 	finalPrice,
+			// 	amount,
+			// 	amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue)
+			// );
 
 			return acc;
 		},

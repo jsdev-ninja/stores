@@ -14,7 +14,7 @@ type RenderInvoiceOptions = {
 type RenderDeliveryNoteOptions = {
 	order: TOrder;
 	store: TStore;
-	organization?: TOrganization;
+	organization?: TOrganization | null;
 	deliveryNoteNumber?: string;
 	deliveryNoteDate?: string;
 };

@@ -70,9 +70,14 @@ export const hypPaymentService = {
 				TransId: params.transactionId,
 			});
 
+			console.log("tokenParams", tokenParams);
+
 			const tokenResponse = await fetch(`${baseUrl}?${tokenParams}`);
 			const body = await tokenResponse.text();
 			const tokenData = parseQueryString<THypTokenResponse>(body);
+
+			console.log("tokenData", tokenData);
+			console.log("params", params);
 
 			const cardValidityDate = splitYYMM(tokenData.Tokef);
 

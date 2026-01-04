@@ -43,18 +43,21 @@ export function createAppApi(context: TContext) {
 					const store = await getStoreData(storeId);
 					const storePrivateData = await getStorePrivateData(storeId);
 
-					const organizationSnapshot = await admin
-						.firestore()
-						.collection(
-							FirebaseAPI.firestore.getPath({
-								collectionName: "organizations",
-								companyId,
-								storeId,
-							})
-						)
-						.doc(order.organizationId ?? "")
-						.get();
-					const organization: TOrganization = organizationSnapshot.data() as TOrganization;
+					let organization: TOrganization | null = null;
+					if (order.organizationId) {
+						const organizationSnapshot = await admin
+							.firestore()
+							.collection(
+								FirebaseAPI.firestore.getPath({
+									collectionName: "organizations",
+									companyId,
+									storeId,
+								})
+							)
+							.doc(order.organizationId)
+							.get();
+						organization = organizationSnapshot.data() as TOrganization;
+					}
 
 					logger.write({
 						severity: "INFO",
