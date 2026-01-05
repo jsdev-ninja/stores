@@ -8,6 +8,7 @@ import { TProfile } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
 import { useProfile } from "src/domains/profile";
 import { useAppApi } from "src/appApi";
+import { useAppSelector } from "src/infra/store";
 
 const ProfilePage = () => {
 	const [isEditing, setIsEditing] = React.useState(false);
@@ -15,8 +16,11 @@ const ProfilePage = () => {
 	const { t } = useTranslation(["profilePage", "common"]);
 
 	const appApi = useAppApi();
+	const user = useAppSelector((state) => state.user.user);
 
 	const profile = useProfile();
+	console.log("profile", profile);
+	console.log("user", user);
 
 	const handleSave = async (updatedProfile: TProfile) => {
 		setIsSaving(true);
@@ -55,8 +59,6 @@ const ProfilePage = () => {
 		// todo
 		return null;
 	}
-
-	console.log("is", isEditing);
 
 	return (
 		<div className="container mx-auto px-4 py-8 max-w-3xl text-start">

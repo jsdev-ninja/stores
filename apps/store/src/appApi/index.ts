@@ -1924,7 +1924,7 @@ export const useAppApi = () => {
 					storeId: store.id,
 					tenantId: store.tenantId,
 					displayName: newUser.fullName,
-					companyName: newUser.companyName,
+					companyName: newUser.companyName ?? "",
 					email: newUser.email,
 					isAnonymous: false,
 					phoneNumber: "",
@@ -1964,7 +1964,8 @@ export const useAppApi = () => {
 				logger({
 					severity: "INFO",
 					message: "new user sign up",
-					user,
+					userId: res.user?.uid,
+					userEmail: newUser.email,
 					profile,
 				});
 

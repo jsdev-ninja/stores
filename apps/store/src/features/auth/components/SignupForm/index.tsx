@@ -93,6 +93,7 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 									password: data.password,
 									companyName: data.companyName,
 								});
+								console.log("result", result);
 								if (!result?.success) {
 									form.setError("global", { message: getError(result) });
 									return;

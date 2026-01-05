@@ -43,6 +43,7 @@ async function uiLogs(payload: LogPayload) {
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
+		console.log("error", error);
 		console.error(code, message, details);
 		return { success: false, data: null };
 	}
