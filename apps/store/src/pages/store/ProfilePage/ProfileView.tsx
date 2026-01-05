@@ -1,5 +1,5 @@
 import React from "react";
-import { Chip, Divider } from "@heroui/react";
+import { Chip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { TProfile } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
@@ -13,8 +13,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile }) => {
 
 	return (
 		<div className="space-y-6 text-start">
-			<section className="">
-				<h2 className="text-medium font-semibold mb-3">{t("profilePage:basicInfo")}</h2>
+			<section className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5 border-0">
+				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+					<Icon icon="lucide:user" className="text-primary-500" width={20} />
+					{t("profilePage:basicInfo")}
+				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<InfoItem label={t("common:fullName")} value={profile.displayName} />
 					<InfoItem label={t("common:email")} value={profile.email} icon="lucide:mail" />
@@ -57,10 +60,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile }) => {
 				</div>
 			</section>
 
-			<Divider />
-
-			<section>
-				<h2 className="text-medium font-semibold mb-3">{t("addressInfo")}</h2>
+			<section className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5 border-0">
+				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+					<Icon icon="lucide:map-pin" className="text-primary-500" width={20} />
+					{t("addressInfo")}
+				</h2>
 				{profile.address ? (
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<InfoItem
@@ -93,11 +97,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile }) => {
 						/>
 					</div>
 				) : (
-					<p className="text-default-500">אין כתובת להצגה</p>
+					<p className="text-gray-500 dark:text-gray-400">אין כתובת להצגה</p>
 				)}
 			</section>
-
-			<Divider />
 
 			{/* todo admin only data */}
 			{/* <section>
@@ -144,11 +146,19 @@ interface InfoItemProps {
 
 const InfoItem: React.FC<InfoItemProps> = ({ label, value, icon, monospace = false }) => {
 	return (
-		<div className="space-y-1">
-			<p className="text-small text-default-500">{label}</p>
+		<div className="space-y-1.5">
+			<p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+				{label}
+			</p>
 			<div className="flex items-center gap-2">
-				{icon && <Icon icon={icon} className="text-default-400" width={16} />}
-				<p className={`${monospace ? "font-mono text-small" : ""}`}>{value}</p>
+				{icon && <Icon icon={icon} className="text-gray-400 dark:text-gray-500" width={16} />}
+				<p
+					className={`text-sm text-gray-900 dark:text-gray-100 ${
+						monospace ? "font-mono" : ""
+					}`}
+				>
+					{value}
+				</p>
 			</div>
 		</div>
 	);

@@ -7,7 +7,6 @@ import {
 	Checkbox,
 	Select,
 	SelectItem,
-	Divider,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
@@ -89,8 +88,12 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ duration: 0.3 }}
+				className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5 border-0"
 			>
-				<h2 className="text-medium font-semibold mb-3">Basic Information</h2>
+				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+					<Icon icon="lucide:user" className="text-primary-500" width={20} />
+					Basic Information
+				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<Input
 						{...form.register("displayName")}
@@ -114,14 +117,17 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 						startContent={<Icon icon="lucide:phone" className="text-default-400" />}
 					/>
 
-					<RadioGroup
-						label={t("clientType")}
-						orientation="horizontal"
-						{...form.register("clientType")}
-					>
-						<Radio value="user">{t("individual")}</Radio>
-						<Radio value="company">{t("company")}</Radio>
-					</RadioGroup>
+					<div className="col-span-full">
+						<RadioGroup
+							label={t("clientType")}
+							orientation="horizontal"
+							{...form.register("clientType")}
+							className="bg-white dark:bg-gray-800 rounded-lg p-4 border-0 shadow-sm"
+						>
+							<Radio value="user">{t("individual")}</Radio>
+							<Radio value="company">{t("company")}</Radio>
+						</RadioGroup>
+					</div>
 
 					{formData.clientType === "company" && (
 						<Input
@@ -154,14 +160,16 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 				</div>
 			</motion.section>
 
-			<Divider />
-
 			<motion.section
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ duration: 0.3, delay: 0.1 }}
+				className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5 border-0"
 			>
-				<h2 className="text-medium font-semibold mb-3">Address</h2>
+				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+					<Icon icon="lucide:map-pin" className="text-primary-500" width={20} />
+					Address
+				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<Input
 						label="Country"
@@ -207,14 +215,16 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 				</div>
 			</motion.section>
 
-			<Divider />
-
 			<motion.section
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ duration: 0.3, delay: 0.2 }}
+				className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5 border-0"
 			>
-				<h2 className="text-medium font-semibold mb-3">System Information</h2>
+				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+					<Icon icon="lucide:settings" className="text-primary-500" width={20} />
+					System Information
+				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<Input
 						label="User ID"
@@ -254,14 +264,20 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 				</div>
 			</motion.section>
 
-			<div className="flex justify-end gap-2 pt-4">
-				<Button variant="flat" onPress={onCancel} disabled={isSaving}>
+			<div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+				<Button
+					variant="flat"
+					onPress={onCancel}
+					disabled={isSaving}
+					className="min-w-24"
+				>
 					Cancel
 				</Button>
 				<Button
 					color="primary"
 					type="submit"
 					isLoading={isSaving}
+					className="min-w-32 shadow-md hover:shadow-lg transition-shadow"
 					startContent={!isSaving && <Icon icon="lucide:save" width={18} />}
 				>
 					Save Changes
