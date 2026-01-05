@@ -34,7 +34,7 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 
 	const loginSchema = useMemo(() => {
 		const isOnlyCompanyAlloew =
-			store?.clientTypes.includes("company") && store.clientTypes.length === 1;
+			store?.clientTypes?.includes("company") && store?.clientTypes?.length === 1;
 
 		const loginSchema = z.object({
 			fullName: z.string({}).min(1, {}),
@@ -61,7 +61,7 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 		}
 	}, []);
 
-	const isCompanyFlow = store?.clientTypes.includes("company");
+	const isCompanyFlow = store?.clientTypes?.includes("company");
 
 	console.log(store);
 

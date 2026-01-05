@@ -17,7 +17,8 @@
 		"build-storybook": "storybook build",
 		"dev:balasistore": "vite --port=5170",
 		"dev:pecanis": "vite --port=5174",
-		"dev:test": "vite --port=5175"
+		"dev:test": "vite --port=5175",
+		"dev:test2": "vite --port=5176"
 	},
 	"dependencies": {
 		"@dnd-kit/core": "^6.1.0",

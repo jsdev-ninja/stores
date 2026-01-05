@@ -19,7 +19,6 @@ export function CatalogPage() {
 	const cart = useCart();
 	const discounts = useDiscounts();
 
-
 	if (!store) return null;
 
 	const cartCost = getCartCost({
@@ -35,6 +34,7 @@ export function CatalogPage() {
 			<div className="hidden md:block shrink-0 max-w-80 grow  overflow-auto p-4 sticky top-0 h-[calc(100vh-64px)]">
 				<CategoryMenu />
 			</div>
+
 			<div className="grow p-6 flex flex-col justify-start items-start gap-4  ">
 				<div className="mx-auto  w-full">
 					<ProductsWidget.SearchBox />
@@ -49,7 +49,7 @@ export function CatalogPage() {
 					</ProductsWidget.Products>
 				</div>
 			</div>
-			<div className="hidden  md:flex min-w-[280px] grow max-w-[300px] flex-col sticky top-0 h-[calc(100vh-64px)]">
+			<div className="hidden  md:flex w-96 flex-col sticky top-0 h-[calc(100vh-64px)]">
 				<div className="grow h-full">
 					<Cart />
 				</div>
