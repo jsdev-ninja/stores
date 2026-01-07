@@ -9,6 +9,7 @@ export const ProfileSchema = z.object({
 	companyId: notEmptyTextSchema,
 	storeId: notEmptyTextSchema,
 	tenantId: notEmptyTextSchema,
+	// @deprecated
 	clientType: z.enum(["user", "company"]),
 	companyName: z.string().optional(),
 	displayName: notEmptyTextSchema,
@@ -17,7 +18,7 @@ export const ProfileSchema = z.object({
 	address: AddressSchema.optional(),
 	isAnonymous: z.boolean(),
 	createdDate: z.number(),
-	lastActivityDate: z.number(),
+	lastActivityDate: z.number(), //todo
 	paymentType: PaymentTypeSchema.optional(),
 	organizationId: z.string().optional().nullable(),
 });

@@ -1602,7 +1602,7 @@ export const useAppApi = () => {
 					id: id,
 				});
 			},
-			async profileUpdate({ profile }: { profile: TProfile }) {
+			async profileUpdate({ newProfile }: { newProfile: TProfile }) {
 				try {
 					if (!user || !store || !profile) return;
 					if (user.isAnonymous && !allowAnonymousClients) {
@@ -1613,14 +1613,20 @@ export const useAppApi = () => {
 					if (!isValidStoreData) return;
 
 					await FirebaseApi.firestore.update(
-						profile.id,
-						profile,
+						user.uid,
+						newProfile,
 						FirebaseAPI.firestore.getPath({
 							collectionName: "profiles",
 							storeId,
 							companyId,
 						})
 					);
+					logger({
+						message: "profile updated",
+						severity: "INFO",
+						profile,
+						newProfile,
+					});
 					return { success: true, data: profile };
 				} catch (error) {
 					return { success: false, error };

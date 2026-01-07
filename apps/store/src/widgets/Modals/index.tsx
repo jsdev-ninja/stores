@@ -6,31 +6,48 @@ import { AnimatePresence } from "framer-motion";
 import { ReactNode, cloneElement } from "react";
 import { useAppSelector } from "src/infra";
 import { AdminCompanyCreateModal } from "./modals/AdminCompanyCreateModal";
-import { ProfileEditModal } from "./ProfileEditModal";
 import { CreateInvoiceModal } from "./CreateInvoiceModal";
 import { InvoiceDetailsModal } from "./InvoiceDetailsModal";
 import { CreateDeliveryNoteModal } from "./CreateDeliveryNoteModal";
 import { DeliveryNoteDetailsModal } from "./DeliveryNoteDetailsModal";
-import { TProfile, TOrder } from "@jsdev_ninja/core";
+import { TOrder } from "@jsdev_ninja/core";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
 	return <AnimatePresence>{children}</AnimatePresence>;
 };
 
 export const modals = {
-	profileEdit: ({ profile }: { profile: TProfile }) => <ProfileEditModal profile={profile} />,
 	authModal: () => <AuthModal />,
 	AdminCompanyCreateModal: () => <AdminCompanyCreateModal />,
 	categoryFormModal: ({ categoryId, onSave }: { categoryId: string; onSave?: any }) => (
 		<CategoryFormModal categoryId={categoryId} onSave={onSave} />
 	),
-	createInvoice: ({ onOrdersFound }: { onOrdersFound?: (orders: any[]) => void }) => <CreateInvoiceModal onOrdersFound={onOrdersFound} />,
-	invoiceDetails: ({ selectedOrders, onInvoiceCreated }: { selectedOrders: TOrder[]; onInvoiceCreated?: () => void }) => (
+	createInvoice: ({ onOrdersFound }: { onOrdersFound?: (orders: any[]) => void }) => (
+		<CreateInvoiceModal onOrdersFound={onOrdersFound} />
+	),
+	invoiceDetails: ({
+		selectedOrders,
+		onInvoiceCreated,
+	}: {
+		selectedOrders: TOrder[];
+		onInvoiceCreated?: () => void;
+	}) => (
 		<InvoiceDetailsModal selectedOrders={selectedOrders} onInvoiceCreated={onInvoiceCreated} />
 	),
-	createDeliveryNote: ({ onDeliveryNoteCreated }: { onDeliveryNoteCreated?: () => void }) => <CreateDeliveryNoteModal onDeliveryNoteCreated={onDeliveryNoteCreated} />,
-	deliveryNoteDetails: ({ selectedOrders, onDeliveryNoteCreated }: { selectedOrders: TOrder[]; onDeliveryNoteCreated?: () => void }) => (
-		<DeliveryNoteDetailsModal selectedOrders={selectedOrders} onDeliveryNoteCreated={onDeliveryNoteCreated} />
+	createDeliveryNote: ({ onDeliveryNoteCreated }: { onDeliveryNoteCreated?: () => void }) => (
+		<CreateDeliveryNoteModal onDeliveryNoteCreated={onDeliveryNoteCreated} />
+	),
+	deliveryNoteDetails: ({
+		selectedOrders,
+		onDeliveryNoteCreated,
+	}: {
+		selectedOrders: TOrder[];
+		onDeliveryNoteCreated?: () => void;
+	}) => (
+		<DeliveryNoteDetailsModal
+			selectedOrders={selectedOrders}
+			onDeliveryNoteCreated={onDeliveryNoteCreated}
+		/>
 	),
 };
 

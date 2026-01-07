@@ -8,7 +8,6 @@ import { TProfile } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
 import { useProfile } from "src/domains/profile";
 import { useAppApi } from "src/appApi";
-import { useAppSelector } from "src/infra/store";
 
 const ProfilePage = () => {
 	const [isEditing, setIsEditing] = React.useState(false);
@@ -16,21 +15,14 @@ const ProfilePage = () => {
 	const { t } = useTranslation(["profilePage", "common"]);
 
 	const appApi = useAppApi();
-	const user = useAppSelector((state) => state.user.user);
 
 	const profile = useProfile();
-	console.log("profile", profile);
-	console.log("user", user);
 
 	const handleSave = async (updatedProfile: TProfile) => {
 		setIsSaving(true);
 
-		console.log("update profile", updatedProfile);
-
 		try {
-			// Simulate API call
-			const res = await appApi.user.profileUpdate({ profile: updatedProfile });
-			console.log("res", res);
+			await appApi.user.profileUpdate({ newProfile: updatedProfile });
 
 			setIsEditing(false);
 			addToast({
@@ -75,7 +67,9 @@ const ProfilePage = () => {
 									{t("profilePage:title")}
 								</h1>
 								<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-									{isEditing ? t("profilePage:subTitleEdit") : t("profilePage:subTitleView")}
+									{isEditing
+										? t("profilePage:subTitleEdit")
+										: t("profilePage:subTitleView")}
 								</p>
 							</div>
 							{!isEditing && (
