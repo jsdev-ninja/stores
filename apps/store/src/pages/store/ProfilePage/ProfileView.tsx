@@ -97,7 +97,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile }) => {
 						/>
 					</div>
 				) : (
-					<p className="text-gray-500 dark:text-gray-400">אין כתובת להצגה</p>
+					<p className="text-gray-500 dark:text-gray-400">{t("profilePage:noAddress")}</p>
 				)}
 			</section>
 

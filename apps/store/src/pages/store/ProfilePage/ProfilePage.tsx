@@ -34,16 +34,16 @@ const ProfilePage = () => {
 
 			setIsEditing(false);
 			addToast({
-				title: "Profile Updated",
-				description: "Your profile has been successfully updated.",
+				title: t("profilePage:updateSuccessTitle" as any),
+				description: t("profilePage:updateSuccessDescription" as any),
 				color: "success",
 			});
 		} catch (error) {
 			console.log("error", error);
 
 			addToast({
-				title: "Update Failed",
-				description: "There was an error updating your profile.",
+				title: t("profilePage:updateFailedTitle" as any),
+				description: t("profilePage:updateFailedDescription" as any),
 				color: "danger",
 			});
 		} finally {

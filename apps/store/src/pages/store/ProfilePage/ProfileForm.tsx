@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { ProfileSchema, TProfile } from "@jsdev_ninja/core";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 interface ProfileFormProps {
 	profile: TProfile;
@@ -28,6 +28,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 	onCancel,
 	isSaving,
 }) => {
+	const { t } = useTranslation(["profilePage", "common"]);
 	const [formData, setFormData] = React.useState<TProfile>({ ...profile });
 	const [errors, setErrors] = React.useState<Record<string, string>>({});
 
@@ -92,7 +93,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 			>
 				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
 					<Icon icon="lucide:user" className="text-primary-500" width={20} />
-					Basic Information
+					{t("profilePage:basicInfo")}
 				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<Input
@@ -119,19 +120,19 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
 					<div className="col-span-full">
 						<RadioGroup
-							label={t("clientType")}
+							label={t("common:clientType")}
 							orientation="horizontal"
 							{...form.register("clientType")}
 							className="bg-white dark:bg-gray-800 rounded-lg p-4 border-0 shadow-sm"
 						>
-							<Radio value="user">{t("individual")}</Radio>
-							<Radio value="company">{t("company")}</Radio>
+							<Radio value="user">{t("common:individual")}</Radio>
+							<Radio value="company">{t("common:company")}</Radio>
 						</RadioGroup>
 					</div>
 
 					{formData.clientType === "company" && (
 						<Input
-							label={t("companyName")}
+							label={t("common:companyName")}
 							{...form.register("companyName")}
 							className="col-span-full md:col-span-1"
 						/>
@@ -139,13 +140,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
 					<Select
 						{...form.register("paymentType")}
-						label="Payment Type"
+						label={t("common:paymentType")}
 						selectedKeys={formData.paymentType ? [formData.paymentType] : []}
 						onChange={(e) => handleChange("paymentType", e.target.value)}
 						className="col-span-full md:col-span-1"
 					>
-						<SelectItem key="default">Default Payment</SelectItem>
-						<SelectItem key="delayed">Delayed Payment</SelectItem>
+						<SelectItem key="default">{t("profilePage:paymentTypeDefault" as any)}</SelectItem>
+						<SelectItem key="delayed">{t("profilePage:paymentTypeDelayed" as any)}</SelectItem>
 					</Select>
 
 					<div className="col-span-full">
@@ -154,7 +155,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 							isSelected={formData.isAnonymous}
 							onValueChange={(value) => handleChange("isAnonymous", value)}
 						>
-							{t("anonymousUser")}
+							{t("common:anonymousUser")}
 						</Checkbox>
 					</div>
 				</div>
@@ -168,47 +169,47 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 			>
 				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
 					<Icon icon="lucide:map-pin" className="text-primary-500" width={20} />
-					Address
+					{t("profilePage:addressInfo")}
 				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<Input
-						label="Country"
+						label={t("common:country")}
 						value={formData.address?.country || ""}
 						onChange={(e) => handleAddressChange("country", e.target.value)}
 					/>
 
 					<Input
-						label="City"
+						label={t("common:city")}
 						value={formData.address?.city || ""}
 						onChange={(e) => handleAddressChange("city", e.target.value)}
 					/>
 
 					<Input
-						label="Street"
+						label={t("common:street")}
 						value={formData.address?.street || ""}
 						onChange={(e) => handleAddressChange("street", e.target.value)}
 					/>
 
 					<Input
-						label="Street Number"
+						label={t("common:streetNumber")}
 						value={formData.address?.streetNumber || ""}
 						onChange={(e) => handleAddressChange("streetNumber", e.target.value)}
 					/>
 
 					<Input
-						label="Floor"
+						label={t("common:floor")}
 						value={formData.address?.floor || ""}
 						onChange={(e) => handleAddressChange("floor", e.target.value)}
 					/>
 
 					<Input
-						label="Apartment Enter Number"
+						label={t("common:apartmentEnterNumber")}
 						value={formData.address?.apartmentEnterNumber || ""}
 						onChange={(e) => handleAddressChange("apartmentEnterNumber", e.target.value)}
 					/>
 
 					<Input
-						label="Apartment Number"
+						label={t("common:apartmentNumber")}
 						value={formData.address?.apartmentNumber || ""}
 						onChange={(e) => handleAddressChange("apartmentNumber", e.target.value)}
 					/>
@@ -223,11 +224,11 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 			>
 				<h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
 					<Icon icon="lucide:settings" className="text-primary-500" width={20} />
-					System Information
+					{t("profilePage:systemInfo")}
 				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<Input
-						label="User ID"
+						label={t("profilePage:systemFieldUserId" as any)}
 						value={formData.id}
 						onChange={(e) => handleChange("id", e.target.value)}
 						isRequired
@@ -236,7 +237,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 					/>
 
 					<Input
-						label="Company ID"
+						label={t("profilePage:systemFieldCompanyId" as any)}
 						value={formData.companyId}
 						onChange={(e) => handleChange("companyId", e.target.value)}
 						isRequired
@@ -245,7 +246,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 					/>
 
 					<Input
-						label="Store ID"
+						label={t("profilePage:systemFieldStoreId" as any)}
 						value={formData.storeId}
 						onChange={(e) => handleChange("storeId", e.target.value)}
 						isRequired
@@ -254,7 +255,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 					/>
 
 					<Input
-						label="Tenant ID"
+						label={t("profilePage:systemFieldTenantId" as any)}
 						value={formData.tenantId}
 						onChange={(e) => handleChange("tenantId", e.target.value)}
 						isRequired
@@ -271,7 +272,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 					disabled={isSaving}
 					className="min-w-24"
 				>
-					Cancel
+					{t("common:actions.cancel")}
 				</Button>
 				<Button
 					color="primary"
@@ -280,7 +281,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 					className="min-w-32 shadow-md hover:shadow-lg transition-shadow"
 					startContent={!isSaving && <Icon icon="lucide:save" width={18} />}
 				>
-					Save Changes
+					{t("profilePage:saveChanges")}
 				</Button>
 			</div>
 		</form>

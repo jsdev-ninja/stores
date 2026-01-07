@@ -1603,23 +1603,28 @@ export const useAppApi = () => {
 				});
 			},
 			async profileUpdate({ profile }: { profile: TProfile }) {
-				if (!user || !store || !profile) return;
-				if (user.isAnonymous && !allowAnonymousClients) {
-					modalApi.openModal("authModal");
-					return;
+				try {
+					if (!user || !store || !profile) return;
+					if (user.isAnonymous && !allowAnonymousClients) {
+						modalApi.openModal("authModal");
+						return;
+					}
+
+					if (!isValidStoreData) return;
+
+					await FirebaseApi.firestore.update(
+						profile.id,
+						profile,
+						FirebaseAPI.firestore.getPath({
+							collectionName: "profiles",
+							storeId,
+							companyId,
+						})
+					);
+					return { success: true, data: profile };
+				} catch (error) {
+					return { success: false, error };
 				}
-
-				if (!isValidStoreData) return;
-
-				await FirebaseApi.firestore.update(
-					profile.id,
-					profile,
-					FirebaseAPI.firestore.getPath({
-						collectionName: "profiles",
-						storeId,
-						companyId,
-					})
-				);
 			},
 			async createPaymentLink({ order }: { order: TOrder }) {
 				if (!user || !store || !order) return;
