@@ -73,12 +73,6 @@ function AdminCreateOrderPage() {
 		}
 	};
 
-	useEffect(() => {
-		if (cartData.isReady && !cart) {
-			navigate({ to: "admin.orders" });
-		}
-	}, [cartData, cart]);
-
 	if (!store || !user || (!cartData.isReady && !cart)) {
 		// todo
 		return;

@@ -9,7 +9,6 @@ import { getCartCost, OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
-import { useEffect } from "react";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
 
 function CheckoutPage() {
@@ -41,12 +40,6 @@ function CheckoutPage() {
 
 	const minDate = tomorrow.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 	const maxDate = twoWeeksFromToday.toISOString().split("T")[0]; // Format: YYYY-MM-DD
-
-	useEffect(() => {
-		if (cartData.isReady && !cart) {
-			navigate({ to: "store.catalog" });
-		}
-	}, [cartData, cart]);
 
 	if (!store || !user || (!cartData.isReady && !cart)) {
 		// todo
