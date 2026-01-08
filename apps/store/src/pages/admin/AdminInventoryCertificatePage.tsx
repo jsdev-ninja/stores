@@ -17,6 +17,8 @@ import {
 	ModalHeader,
 	ModalBody,
 	ModalFooter,
+	Tabs,
+	Tab,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppApi } from "src/appApi";
@@ -63,6 +65,12 @@ export function AdminInventoryCertificatePage() {
 	// Save modal state
 	const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
+	// Tab state
+	const [activeTab, setActiveTab] = useState<string>("create");
+
+	// Supplier invoices list state (for view tab)
+	const [supplierInvoices, setSupplierInvoices] = useState<TSupplierInvoice[]>([]);
+
 	// Debounce timers for SKU lookups
 	const skuDebounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
 
@@ -81,6 +89,24 @@ export function AdminInventoryCertificatePage() {
 		loadSuppliers();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	// Load supplier invoices when view tab is active
+	useEffect(() => {
+		if (activeTab === "view") {
+			const loadSupplierInvoices = async () => {
+				try {
+					const result = await appApi.admin.listSupplierInvoices();
+					if (result?.success) {
+						setSupplierInvoices((result.data || []) as TSupplierInvoice[]);
+					}
+				} catch (error) {
+					console.error("Failed to load supplier invoices:", error);
+				}
+			};
+			loadSupplierInvoices();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeTab]);
 
 	// Cleanup debounce timers on unmount
 	useEffect(() => {
@@ -459,13 +485,32 @@ export function AdminInventoryCertificatePage() {
 		}));
 	};
 
+	// View tab columns
+	const viewColumns = useMemo(
+		() => [
+			{ name: t("common:inventoryCertificatePage.documentDate"), uid: "date" },
+			{ name: t("common:inventoryCertificatePage.supplier"), uid: "supplier" },
+			{ name: t("common:inventoryCertificatePage.invoiceNumber"), uid: "invoiceNumber" },
+			{ name: t("common:inventoryCertificatePage.totalWithVat"), uid: "total" },
+			{ name: t("common:inventoryCertificatePage.rowsCount"), uid: "rowsCount" },
+		],
+		[t]
+	);
+
 	return (
 		<div className="p-6">
 			<div className="mb-6">
 				<h1 className="text-2xl font-bold text-gray-900">{t("common:inventoryCertificate")}</h1>
 			</div>
 
-			<div className="bg-white rounded-lg shadow p-6 mb-6">
+			<Tabs
+				selectedKey={activeTab}
+				onSelectionChange={(key) => setActiveTab(key as string)}
+				aria-label="Inventory certificate tabs"
+			>
+				<Tab key="create" title={t("common:inventoryCertificatePage.createTab")}>
+					<div className="mt-6">
+						<div className="bg-white rounded-lg shadow p-6 mb-6">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 					<Input
 						label={t("common:inventoryCertificatePage.documentDate")}
@@ -873,6 +918,13 @@ export function AdminInventoryCertificatePage() {
 											totalBeforeVat: invoiceSummary.totalBeforeVat,
 										});
 										onClose();
+										// Refresh supplier invoices list if view tab is active
+										if (activeTab === "view") {
+											const result = await appApi.admin.listSupplierInvoices();
+											if (result?.success) {
+												setSupplierInvoices((result.data || []) as TSupplierInvoice[]);
+											}
+										}
 									}}
 								>
 									{t("common:inventoryCertificatePage.confirmSave")}
@@ -882,6 +934,55 @@ export function AdminInventoryCertificatePage() {
 					)}
 				</ModalContent>
 			</Modal>
+					</div>
+				</Tab>
+				<Tab key="view" title={t("common:inventoryCertificatePage.viewTab")}>
+					<div className="mt-6">
+						<div className="bg-white rounded-lg shadow p-6">
+							<Table
+								aria-label="Supplier invoices table"
+								classNames={{
+									wrapper: "shadow-none border border-gray-300",
+									thead: "[&>tr]:border-b [&>tr]:border-gray-300",
+									tbody: "[&>tr]:border-b [&>tr]:border-gray-300",
+									th: "text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-2 border-r border-gray-300 [&:last-child]:border-r-0",
+									td: "text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 [&:last-child]:border-r-0",
+								}}
+								removeWrapper
+							>
+								<TableHeader columns={viewColumns}>
+									{(column: { name: string; uid: string }) => (
+										<TableColumn key={column.uid} align={column.uid === "total" ? "end" : "start"}>
+											{column.name}
+										</TableColumn>
+									)}
+								</TableHeader>
+								<TableBody
+									items={supplierInvoices}
+									emptyContent={t("common:inventoryCertificatePage.noInvoices")}
+								>
+									{(invoice) => (
+										<TableRow key={invoice.id}>
+											<TableCell>
+												{new Date(invoice.date).toLocaleDateString()}
+											</TableCell>
+											<TableCell>
+												{invoice.supplier?.name || "-"}
+												{invoice.supplier?.code && ` (${invoice.supplier.code})`}
+											</TableCell>
+											<TableCell>{invoice.invoiceNumber || "-"}</TableCell>
+											<TableCell className="text-right">
+												₪ {invoice.total?.toFixed(2) || "0.00"}
+											</TableCell>
+											<TableCell>{invoice.rows?.length || 0}</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+						</div>
+					</div>
+				</Tab>
+			</Tabs>
 		</div>
 	);
 }
