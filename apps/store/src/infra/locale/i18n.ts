@@ -402,6 +402,7 @@ export const resources = {
 				setOnDelivery: "יצא למשלוח",
 				chargeOrder: "חייב הזמנה",
 				endOrder: "סיום הזמנה",
+				createPaymentLink: "צור לינק חיוב",
 			},
 			filters: {
 				allCategory: "כל הקטגוריות",

@@ -16,7 +16,7 @@ import {
 	Chip,
 } from "@heroui/react";
 import { TOrder } from "@jsdev_ninja/core";
-import { Calendar, Printer, User, Package, MapPin, ChevronDown, Download } from "lucide-react";
+import { Calendar, User, Package, MapPin, ChevronDown, Download, Edit } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
@@ -33,6 +33,108 @@ export default function AdminOrderPageNew() {
 	console.log("order", order);
 	const appApi = useAppApi();
 	const organizations = useAppSelector((state) => state.organization.organizations);
+
+	// Get organization from Redux if order has organizationId
+	const organization = useMemo(() => {
+		if (!order?.organizationId) return null;
+		return organizations.find((org) => org.id === order.organizationId) || null;
+	}, [order?.organizationId, organizations]);
+
+	function updateOrder(id: string, status: TOrder["status"]) {
+		setOrder((order) => (order?.id === id ? { ...order, status: status } : order));
+	}
+
+	const actions = [
+		{
+			id: "createPaymentLink",
+			label: t("ordersPage:actions.createPaymentLink"),
+			color: "primary",
+			className: "text-primary",
+		},
+		{
+			id: "endOrder",
+			label: t("ordersPage:actions.endOrder"),
+			color: "success",
+			className: "text-success",
+		},
+		{
+			id: "cancelOrder",
+			label: t("ordersPage:actions.cancelOrder"),
+			color: "danger",
+			className: "text-danger",
+		},
+	] as const;
+
+	const mainActions = () => {
+		if (!order) return null;
+		const actionByStatus: Partial<Record<TOrder["status"], React.ReactNode>> = {
+			pending: (
+				<Button
+					type="button"
+					onPress={async () => {
+						const res = await appApi.admin.orderAccept({ order });
+						if (!res?.success) {
+							return;
+						}
+						updateOrder(order.id, "processing");
+					}}
+				>
+					{t("ordersPage:actions.acceptOrder")}
+				</Button>
+			),
+			in_delivery: (
+				<Button
+					onPress={async () => {
+						const res = await appApi.admin.orderDelivered({ order });
+						if (!res?.success) {
+							return;
+						}
+						updateOrder(order.id, "delivered");
+					}}
+				>
+					{t("ordersPage:actions.deliveredOrder")}
+				</Button>
+			),
+			processing: (
+				<Button
+					color="primary"
+					onPress={async () => {
+						const res = await appApi.admin.orderInDelivery({ order });
+						if (!res?.success) {
+							return;
+						}
+						updateOrder(order.id, "in_delivery");
+					}}
+				>
+					{t("ordersPage:actions.setOnDelivery")}
+				</Button>
+			),
+			delivered: order.paymentType == "j5" && (
+				<Button
+					onPress={async () => {
+						// charge for order
+						const res = await appApi.admin.chargeOrder({ order });
+						console.log("res", res);
+
+						if (!res?.success) {
+							return;
+						}
+						updateOrder(order.id, "completed");
+						updateOrder(order.paymentStatus, "completed");
+					}}
+				>
+					{t("ordersPage:actions.chargeOrder")}
+				</Button>
+			),
+		};
+		return actionByStatus[order.status] ?? null;
+	};
+
+	const disabledKeys = [];
+	if (order?.paymentStatus === "completed" || order?.paymentType === "external") {
+		disabledKeys.push("createPaymentLink");
+	}
+
 	useEffect(() => {
 		if (!id) return;
 
@@ -43,12 +145,6 @@ export default function AdminOrderPageNew() {
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
-
-	// Get organization from Redux if order has organizationId
-	const organization = useMemo(() => {
-		if (!order?.organizationId) return null;
-		return organizations.find((org) => org.id === order.organizationId) || null;
-	}, [order?.organizationId, organizations]);
 
 	return (
 		<div
@@ -94,34 +190,47 @@ export default function AdminOrderPageNew() {
 									startContent={isRTL ? <ChevronDown className="w-4 h-4" /> : undefined}
 									className="text-sm md:text-base"
 								>
-									{t("ordersPage:orderDetails.changeStatus")}
+									{t("common:actionsLabel")}
 								</Button>
 							</DropdownTrigger>
-							<DropdownMenu aria-label="Status options">
-								<DropdownItem key="new">
-									{t("common:orderStatutes.pending", "New")}
-								</DropdownItem>
-								<DropdownItem key="processing">
-									{t("common:orderStatutes.processing")}
-								</DropdownItem>
-								<DropdownItem key="completed">
-									{t("common:orderStatutes.completed")}
-								</DropdownItem>
-								<DropdownItem key="cancelled">
-									{t("common:orderStatutes.cancelled")}
-								</DropdownItem>
+							<DropdownMenu
+								disabledKeys={disabledKeys}
+								onAction={async (key) => {
+									if (!order) return;
+									console.log("key", key);
+									if (key === "cancelOrder") {
+										const res = await appApi.admin.cancelOrder({ order });
+										if (!res?.success) {
+											return;
+										}
+										updateOrder(order.id, "cancelled");
+									}
+									if (key === "createPaymentLink") {
+										const payment = await appApi.user.createPaymentLink({ order });
+										window.location.href = payment.data.paymentLink;
+									}
+									if (key === "endOrder") {
+										const res = await appApi.admin.endOrder({ order });
+										if (!res?.success) {
+											return;
+										}
+										updateOrder(order.id, "completed");
+									}
+								}}
+								aria-label="actions"
+							>
+								{actions.map((action) => (
+									<DropdownItem
+										className={action.className}
+										color={action.color}
+										key={action.id}
+									>
+										{action.label}
+									</DropdownItem>
+								))}
 							</DropdownMenu>
 						</Dropdown>
-						<Button color="primary" className="text-sm md:text-base">
-							{t("ordersPage:orderDetails.save")}
-						</Button>
-						<Button
-							isIconOnly
-							variant="light"
-							aria-label={t("ordersPage:orderDetails.print")}
-						>
-							<Printer className="w-5 h-5" />
-						</Button>
+						{mainActions()}
 					</div>
 				</div>
 			</div>
@@ -501,9 +610,24 @@ export default function AdminOrderPageNew() {
 			{/* Product List Section */}
 			<Card className="shadow-sm mb-6">
 				<CardBody className="p-4 md:p-6">
-					<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
-						{t("ordersPage:orderDetails.products.title")}
-					</h3>
+					<div className="flex justify-between items-center mb-4">
+						<h3 className="text-lg font-semibold text-gray-900  text-start">
+							{t("ordersPage:orderDetails.products.title")}
+						</h3>
+						{/* edit icon button */}
+						<Button
+							onPress={() => {
+								// naivgate to pick order items page
+							}}
+							isIconOnly
+							color="primary"
+							variant="light"
+							size="sm"
+							className="shrink-0 grow-0"
+						>
+							<Edit className="size-6" />
+						</Button>
+					</div>
 					<div className="overflow-x-auto">
 						<Table aria-label="Products table" removeWrapper>
 							<TableHeader>

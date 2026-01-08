@@ -4,11 +4,10 @@ import { AdminProductsPage } from "../AdminProductsPage";
 import { AdminCategoriesPages } from "../AdminCategoriesPages";
 import { AddCategoryPage } from "../AddCategoryPage";
 import { EditProductPage } from "../EditProductPage/EditProductPage";
-import AdminOrdersPages from "../Orders/AdminOrdersPages";
 import AdminSettingsPage from "../AdminSettingsPage";
 import AdminHomePage from "../AdminHomePage";
 import AdminUsersPage from "../AdminUsersPage";
-import AdminOrderPage from "../Orders/AdminOrderPage";
+// import AdminOrderPage from "../Orders/AdminOrderPage";
 import AdminDiscountsPage from "../AdminDiscountsPage";
 import AdminClientProfile from "../AdminClientProfile/AdminClientProfile";
 import { AdminOrganizationsPage } from "../AdminOrganizationsPage";
@@ -26,6 +25,11 @@ import { AdminInventoryCertificatePage } from "../AdminInventoryCertificatePage"
 import { useAppApi } from "src/appApi";
 import { OrganizationSlice } from "src/domains/Organization";
 import { useAppDispatch } from "src/infra";
+
+import AdminOrdersPage from "../Orders/AdminOrdersPage";
+import AdminOrderPageNew from "../Orders/AdminOrderPageNew";
+// import AdminOrdersPages from "../Orders/AdminOrdersPages";
+
 
 export default function AdminLayout() {
 	const [isMenuOpen, setIsMenuOpen] = useState(true);
@@ -110,10 +114,12 @@ export default function AdminLayout() {
 						<AddCategoryPage />
 					</Route>
 					<Route name="admin.orders">
-						<AdminOrdersPages />
+						{/* <AdminOrdersPages /> */}
+						<AdminOrdersPage />
 					</Route>
 					<Route name="admin.order">
-						<AdminOrderPage />
+						{/* <AdminOrderPage /> */}
+						<AdminOrderPageNew />
 					</Route>
 					<Route name="admin.settings">
 						<AdminSettingsPage />

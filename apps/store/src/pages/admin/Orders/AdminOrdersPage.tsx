@@ -138,7 +138,7 @@ function AdminOrdersPages() {
 				case "id":
 					return (
 						<span className="text-[14px] leading-[22px] font-normal text-[#282828]">
-							#{order.id.slice(-8)}
+							{order.id}
 						</span>
 					);
 				case "customerName": {

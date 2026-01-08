@@ -2,8 +2,9 @@
 alwaysApply: true
 ---
 
-file length should be up to 150 line maximum
+* file length should be up to 150 line maximum
 if file grow split into smaller files
-
+* use clean code
+* use design pattern to solve problems
 
 never use appApi.* in react dependency like useEffect (example appApi.admin)
