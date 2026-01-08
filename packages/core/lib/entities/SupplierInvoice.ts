@@ -41,6 +41,9 @@ export const SupplierInvoiceSchema = z.object({
 			newProfitPercentage: z.number(),
 		})
 	),
+	total: z.number().optional(),
+	totalBeforeVat: z.number().optional(),
+	vat: z.number().optional(),
 });
 
 export const NewSupplierInvoiceSchema = SupplierInvoiceSchema.omit({ id: true });

@@ -1044,8 +1044,6 @@ export const useAppApi = () => {
 
 				const doc = validation.data;
 
-				console.log("doc", doc);
-
 				const result = await FirebaseApi.firestore.createV2<TNewOrganization & { id?: string }>(
 					{
 						collection: FirebaseAPI.firestore.getPath({
@@ -1065,7 +1063,7 @@ export const useAppApi = () => {
 					organization,
 				});
 
-				return result;
+				return { success: true, data: { ...organization, id: result.docId } };
 			},
 			updateOrganization: async (organization: TOrganization) => {
 				if (!isValidAdmin || !companyId || !storeId) return;

@@ -54,6 +54,7 @@ export function AdminInventoryCertificatePage() {
 		invoiceNumber: "",
 		rows: [],
 		productsToUpdate: [],
+		supplier: undefined,
 	});
 
 	// Suppliers state
@@ -155,7 +156,6 @@ export function AdminInventoryCertificatePage() {
 			const response = await appApi.system.getProductById({ id: sku });
 			if (response?.success && response.data) {
 				const product: TProduct = response.data;
-				console.log("find product", product);
 				setRows((prevRows) => {
 					return prevRows.map((row) => {
 						if (row.id === rowId) {
@@ -206,7 +206,6 @@ export function AdminInventoryCertificatePage() {
 
 	const updateRow = (id: string, field: keyof TSupplierInvoice["rows"][number], value: any) => {
 		// Clear existing debounce timer for this row
-		console.log("updateRow", id, field, value);
 		if (skuDebounceTimers.current[id]) {
 			clearTimeout(skuDebounceTimers.current[id]);
 			delete skuDebounceTimers.current[id];
@@ -383,6 +382,36 @@ export function AdminInventoryCertificatePage() {
 			.filter((item): item is NonNullable<typeof item> => item !== null);
 	}, [supplierInvoice.rows]);
 
+	// Calculate totals for summary
+	const invoiceSummary = useMemo(() => {
+		const rows = supplierInvoice.rows || [];
+
+		let totalBeforeVat = 0;
+		let totalVat = 0;
+
+		rows.forEach((row) => {
+			// Calculate purchase price after discount
+			const purchasePriceAfterDiscount = row.purchasePrice * (1 - (row.lineDiscount || 0) / 100);
+			// Total for this row (quantity * price after discount)
+			const rowTotal = (row.quantity || 0) * purchasePriceAfterDiscount;
+
+			totalBeforeVat += rowTotal;
+
+			// If VAT applies, calculate VAT (18%)
+			if (row.vat) {
+				totalVat += rowTotal * 0.18;
+			}
+		});
+
+		const totalWithVat = totalBeforeVat + totalVat;
+
+		return {
+			totalBeforeVat: round(totalBeforeVat, 2),
+			totalVat: round(totalVat, 2),
+			totalWithVat: round(totalWithVat, 2),
+		};
+	}, [supplierInvoice.rows]);
+
 	const handleSave = () => {
 		if (!supplierInvoice.supplier) {
 			// TODO: Show error message
@@ -436,7 +465,6 @@ export function AdminInventoryCertificatePage() {
 				<h1 className="text-2xl font-bold text-gray-900">{t("common:inventoryCertificate")}</h1>
 			</div>
 
-			{/* Document Header Section */}
 			<div className="bg-white rounded-lg shadow p-6 mb-6">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 					<Input
@@ -454,7 +482,10 @@ export function AdminInventoryCertificatePage() {
 						}}
 					>
 						{suppliers.map((supplier) => (
-							<SelectItem key={supplier.id}>
+							<SelectItem
+								textValue={`${supplier.name}${supplier.code ? ` (${supplier.code})` : ""}`}
+								key={supplier.id}
+							>
 								{supplier.name} {supplier.code ? `(${supplier.code})` : ""}
 							</SelectItem>
 						))}
@@ -487,7 +518,7 @@ export function AdminInventoryCertificatePage() {
 							startContent={<Icon icon="lucide:save" />}
 							isDisabled={!selectedSupplier || supplierInvoice.rows?.length === 0}
 						>
-							{t("common:inventoryCertificatePage.save" as any)}
+							{t("common:inventoryCertificatePage.save")}
 						</Button>
 					</div>
 				</div>
@@ -695,12 +726,13 @@ export function AdminInventoryCertificatePage() {
 					{(onClose) => (
 						<>
 							<ModalHeader className="flex flex-col gap-1">
-								{t("common:inventoryCertificatePage.saveModalTitle" as any)}
+								{t("common:inventoryCertificatePage.saveModalTitle")}
 							</ModalHeader>
 							<ModalBody>
 								<p className="text-gray-700 mb-4">
-									{t("common:inventoryCertificatePage.saveModalDescription" as any)}
+									{t("common:inventoryCertificatePage.saveModalDescription")}
 								</p>
+
 								{productsToUpdate.length > 0 ? (
 									<div className="overflow-x-auto">
 										<Table
@@ -775,9 +807,41 @@ export function AdminInventoryCertificatePage() {
 									</div>
 								) : (
 									<p className="text-gray-500 text-center py-4">
-										{t("common:inventoryCertificatePage.noProductsToUpdate" as any)}
+										{t("common:inventoryCertificatePage.noProductsToUpdate")}
 									</p>
 								)}
+								{/* Summary Section */}
+								<div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
+									<h3 className="text-lg font-semibold text-gray-900 mb-3">
+										{t("common:inventoryCertificatePage.summary" as any)}
+									</h3>
+									<div className="space-y-2">
+										<div className="flex justify-between items-center">
+											<span className="text-gray-700">
+												{t("common:inventoryCertificatePage.totalBeforeVat" as any)}:
+											</span>
+											<span className="font-medium text-gray-900">
+												₪ {invoiceSummary.totalBeforeVat.toFixed(2)}
+											</span>
+										</div>
+										<div className="flex justify-between items-center">
+											<span className="text-gray-700">
+												{t("common:inventoryCertificatePage.vatAmount" as any)}:
+											</span>
+											<span className="font-medium text-gray-900">
+												₪ {invoiceSummary.totalVat.toFixed(2)}
+											</span>
+										</div>
+										<div className="flex justify-between items-center pt-2 border-t border-gray-300">
+											<span className="text-lg font-semibold text-gray-900">
+												{t("common:inventoryCertificatePage.totalWithVat" as any)}:
+											</span>
+											<span className="text-lg font-bold text-gray-900">
+												₪ {invoiceSummary.totalWithVat.toFixed(2)}
+											</span>
+										</div>
+									</div>
+								</div>
 							</ModalBody>
 							<ModalFooter>
 								<Button color="danger" variant="light" onPress={onClose}>
@@ -804,12 +868,14 @@ export function AdminInventoryCertificatePage() {
 											...isValid.data,
 											productsToUpdate: productsToUpdate,
 											id: FirebaseApi.firestore.generateDocId("supplierInvoices"),
+											vat: invoiceSummary.totalVat,
+											total: invoiceSummary.totalWithVat,
+											totalBeforeVat: invoiceSummary.totalBeforeVat,
 										});
 										onClose();
 									}}
-									isDisabled={productsToUpdate.length === 0}
 								>
-									{t("common:inventoryCertificatePage.confirmSave" as any)}
+									{t("common:inventoryCertificatePage.confirmSave")}
 								</Button>
 							</ModalFooter>
 						</>
