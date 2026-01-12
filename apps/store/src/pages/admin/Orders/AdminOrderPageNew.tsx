@@ -109,7 +109,7 @@ export default function AdminOrderPageNew() {
 					{t("ordersPage:actions.setOnDelivery")}
 				</Button>
 			),
-			delivered: order.paymentType == "j5" && (
+			delivered: (order.paymentType == "j5"|| order.paymentStatus == "pending_j5") && (
 				<Button
 					onPress={async () => {
 						// charge for order

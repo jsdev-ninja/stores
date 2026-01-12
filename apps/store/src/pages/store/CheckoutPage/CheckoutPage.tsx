@@ -148,6 +148,7 @@ function CheckoutPage() {
 					const order = await appApi.orders.order({
 						order: {
 							...values,
+							paymentType: 'j5',
 							storeOptions: {
 								deliveryPrice: store.deliveryPrice,
 								freeDeliveryPrice: store.freeDeliveryPrice,

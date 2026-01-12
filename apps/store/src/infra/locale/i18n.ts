@@ -478,7 +478,7 @@ export const resources = {
 				summary: {
 					title: "סיכום הזמנה",
 					subtotal: "סכום ביניים",
-					tax: "מע״מ (20%)",
+					tax: "מע״מ (18%)",
 					discount: "הנחה",
 					total: "סה״כ",
 					paymentDone: "תשלום בוצע",
