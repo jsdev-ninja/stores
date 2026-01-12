@@ -28,6 +28,7 @@ import { useAppDispatch } from "src/infra";
 
 import AdminOrdersPage from "../Orders/AdminOrdersPage";
 import AdminOrderPageNew from "../Orders/AdminOrderPageNew";
+import AdminOrderPickPage from "../Orders/AdminOrderPickPage";
 // import AdminOrdersPages from "../Orders/AdminOrdersPages";
 
 
@@ -120,6 +121,9 @@ export default function AdminLayout() {
 					<Route name="admin.order">
 						{/* <AdminOrderPage /> */}
 						<AdminOrderPageNew />
+					</Route>
+					<Route name="admin.pickOrder">
+						<AdminOrderPickPage />
 					</Route>
 					<Route name="admin.settings">
 						<AdminSettingsPage />

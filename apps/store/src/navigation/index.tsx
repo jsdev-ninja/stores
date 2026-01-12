@@ -82,6 +82,9 @@ export const routes = {
 			order: {
 				path: "/orders/:id",
 			},
+			pickOrder: {
+				path: "/orders/:id/to-pick",
+			},
 			users: {
 				path: "/users",
 			},

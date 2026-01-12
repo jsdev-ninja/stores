@@ -20,7 +20,7 @@ import { Calendar, User, Package, MapPin, ChevronDown, Download, Edit } from "lu
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
-import { useParams } from "src/navigation";
+import { useParams, navigate } from "src/navigation";
 import { useAppSelector } from "src/infra";
 import { formatter } from "src/utils/formatter";
 
@@ -617,7 +617,10 @@ export default function AdminOrderPageNew() {
 						{/* edit icon button */}
 						<Button
 							onPress={() => {
-								// naivgate to pick order items page
+								navigate({
+									to: "admin.pickOrder",
+									params: { id: order?.id || "" },
+								});
 							}}
 							isIconOnly
 							color="primary"
@@ -649,7 +652,7 @@ export default function AdminOrderPageNew() {
 									<TableRow key={item.product.id || index}>
 										<TableCell className="text-start">
 											<div className={`flex items-center gap-3`}>
-												<div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+												<div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center shrink-0">
 													<Package className="w-6 h-6 text-gray-400" />
 												</div>
 												<span className="font-medium text-gray-900">
