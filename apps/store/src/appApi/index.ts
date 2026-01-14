@@ -40,6 +40,7 @@ import { LogPayload } from "src/lib/firebase/api";
 import { useApiState } from "./useApiState";
 import { modalApi } from "src/infra/modals";
 import diff from "microdiff";
+import { removeUndefinedFields } from "src/utils/removeUndefinedFields";
 
 function productInCart(cart: TCart | null, product: TProduct) {
 	return !!cart?.items?.find((item) => item.product.id === product.id);
@@ -480,7 +481,7 @@ export const useAppApi = () => {
 				newProduct.images = [];
 
 				return await FirebaseApi.firestore.setV2({
-					doc: newProduct,
+					doc: removeUndefinedFields(newProduct),
 					collection: FirebaseAPI.firestore.getPath({
 						collectionName: "products",
 						companyId,
