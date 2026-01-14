@@ -1424,6 +1424,8 @@ export const useAppApi = () => {
 					id: "categories",
 				});
 
+				console.log("res", res);
+
 				return res;
 			},
 
