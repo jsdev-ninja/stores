@@ -2,6 +2,7 @@ import { FirebaseAPI } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
 import { SentryApi } from "src/lib/sentry";
 import { ProductSchema, TNewProduct, TProduct } from "@jsdev_ninja/core";
+import { removeUndefinedFields } from "src/utils/removeUndefinedFields";
 
 export async function productCreate(newProduct: TNewProduct) {
 	const { image, ...rest } = newProduct;
@@ -44,7 +45,7 @@ export async function productCreate(newProduct: TNewProduct) {
 				companyId: product.companyId,
 				collectionName: "products",
 			}),
-			doc: product,
+			doc: removeUndefinedFields(product),
 		});
 	} else {
 		console.error("validation.error", validation.error.issues);
