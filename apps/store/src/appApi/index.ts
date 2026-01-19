@@ -170,6 +170,22 @@ export const useAppApi = () => {
 
 				return result;
 			},
+			getSupplierInvoice: async (id: string) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.getSupplierInvoice": true });
+				const result = await FirebaseApi.firestore.getV2<TSupplierInvoice>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "supplierInvoices",
+					}),
+					id,
+				});
+				updateLoading({ "admin.getSupplierInvoice": false });
+
+				return result;
+			},
 			deleteDiscount: async (id: string) => {
 				if (!isValidAdmin) return;
 

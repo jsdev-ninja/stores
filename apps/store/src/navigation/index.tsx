@@ -112,6 +112,9 @@ export const routes = {
 			inventoryCertificate: {
 				path: "/inventory-certificate",
 			},
+			inventoryCertificateDetail: {
+				path: "/inventory-certificate/:id",
+			},
 		},
 	},
 	superAdmin: {

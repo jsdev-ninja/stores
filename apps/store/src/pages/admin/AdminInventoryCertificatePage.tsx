@@ -24,6 +24,7 @@ import { Icon } from "@iconify/react";
 import { useAppApi } from "src/appApi";
 import { NewSupplierInvoiceSchema, TProduct, TSupplier, TSupplierInvoice } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
+import { navigate } from "src/navigation";
 
 // Helper function to round numbers
 function round(value: number, digits = 2): number {
@@ -962,7 +963,16 @@ export function AdminInventoryCertificatePage() {
 									emptyContent={t("common:inventoryCertificatePage.noInvoices")}
 								>
 									{(invoice) => (
-										<TableRow key={invoice.id}>
+										<TableRow
+											key={invoice.id}
+											className="cursor-pointer hover:bg-gray-50"
+											onClick={() => {
+												navigate({
+													to: "admin.inventoryCertificateDetail",
+													params: { id: invoice.id },
+												});
+											}}
+										>
 											<TableCell>
 												{new Date(invoice.date).toLocaleDateString()}
 											</TableCell>
