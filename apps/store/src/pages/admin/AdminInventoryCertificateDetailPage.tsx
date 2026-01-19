@@ -8,9 +8,6 @@ import {
 	TableRow,
 	TableCell,
 	Button,
-	Card,
-	CardBody,
-	CardHeader,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppApi } from "src/appApi";
@@ -47,11 +44,11 @@ export function AdminInventoryCertificateDetailPage() {
 			if (result?.success && result.data) {
 				setSupplierInvoice(result.data);
 			} else {
-				setError(t("common:inventoryCertificatePage.invoiceNotFound"));
+				setError(t("common:inventoryCertificatePage.noInvoices" as any) || "Invoice not found");
 			}
 		} catch (error) {
 			console.error("Failed to load supplier invoice:", error);
-			setError(t("common:inventoryCertificatePage.failedToLoad"));
+			setError("Failed to load invoice");
 		} finally {
 			setLoading(false);
 		}
@@ -142,7 +139,7 @@ export function AdminInventoryCertificateDetailPage() {
 				<div className="flex items-center justify-center h-64">
 					<div className="text-center">
 						<div className="text-lg mb-4 text-start">
-							{t("common:inventoryCertificatePage.invoiceNotFound")}
+							{t("common:inventoryCertificatePage.noInvoices" as any) || "Invoice not found"}
 						</div>
 						<Button onPress={handleBack} startContent={<Icon icon="lucide:arrow-right" />}>
 							{t("common:back")}
@@ -232,7 +229,7 @@ export function AdminInventoryCertificateDetailPage() {
 						</TableHeader>
 						<TableBody
 							items={supplierInvoice.rows || []}
-							emptyContent={t("common:inventoryCertificatePage.noItems")}
+							emptyContent={t("common:inventoryCertificatePage.addRow") || "No items"}
 						>
 							{(row) => (
 								<TableRow key={row.id}>
