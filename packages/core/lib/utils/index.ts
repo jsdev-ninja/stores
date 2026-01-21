@@ -76,7 +76,8 @@ export function getCartCost({
 				let vat = 0;
 
 				if (isVatIncludedInPrice) {
-					const vat_amount = finalPrice * (CONFIG.VAT / 100);
+					const beforeVat = Number((finalPrice / (1 + CONFIG.VAT / 100)).toFixed(2));
+					const vat_amount = finalPrice - beforeVat;
 					productVatValue = Number(vat_amount.toFixed(2));
 					productVatValue = productVatValue * amount;
 
