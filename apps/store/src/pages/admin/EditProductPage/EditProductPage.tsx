@@ -23,6 +23,11 @@ function PriceSection() {
 	const purchasePrice = form.watch("purchasePrice") ?? 0;
 	const profitPercentage = form.watch("profitPercentage") ?? 0;
 
+	const vat = form.watch("vat") ?? false;
+
+
+	const purchasePriceWithVat = vat ? purchasePrice * 1.18 : purchasePrice;
+
 
 	console.log("AAAAA", form.watch('price'))
 
@@ -42,7 +47,7 @@ function PriceSection() {
 					onChange={(value) => {
 						console.log("value", value);
 						if (purchasePrice > 0) {
-							const margin = storeCalculator.calcMarginFromSalePrice(+value, purchasePrice);
+							const margin = storeCalculator.calcMarginFromSalePrice(+value, purchasePriceWithVat);
 							form.setValue("profitPercentage", margin);
 						}
 					}}
@@ -56,7 +61,7 @@ function PriceSection() {
 					type="number"
 					onChange={(value) => {
 						if (+value > 0 && price > 0) {
-							const margin = storeCalculator.calcMarginFromSalePrice(price, +value);
+							const margin = storeCalculator.calcMarginFromSalePrice(price, vat ? (+value) * 1.18 : +value);
 							form.setValue("profitPercentage", margin);
 						}
 					}}
@@ -70,7 +75,7 @@ function PriceSection() {
 					type="number"
 					onChange={(value) => {
 						if (+value > 0 && profitPercentage > 0) {
-							const newPrice = storeCalculator.calcSalePriceFromMargin(+value, purchasePrice);
+							const newPrice = storeCalculator.calcSalePriceFromMargin(+value, purchasePriceWithVat);
 							form.setValue("price", newPrice);
 						}
 					}}

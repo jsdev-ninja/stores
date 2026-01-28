@@ -1,5 +1,6 @@
 import { expect, describe, test } from "vitest";
 import { storeCalculator } from "./storeCalculator";
+import { math } from "../math/math";
 
 
 describe("storeCalculator", () => {
@@ -25,7 +26,9 @@ describe("storeCalculator", () => {
         test("is reversible", () => {
             expect(storeCalculator.calcMarginFromSalePrice(storeCalculator.calcSalePriceFromMargin(30, 100), 100)).toBe(30);
         });
-
+        test("return purchase price when purchase price is not include VAT", () => {
+            expect(storeCalculator.calcSalePriceFromMargin(30.31, 8.8 * 1.18)).toBe(14.9);
+        });
     });
     describe("calcMarginFromSalePrice", () => {
         test("calculate correct margin for sale price 111.11 and purchase price 100", () => {
@@ -48,6 +51,9 @@ describe("storeCalculator", () => {
         });
         test("return 0 when margin is 100", () => {
             expect(storeCalculator.calcMarginFromSalePrice(100, 100)).toBe(0);
+        });
+        test("return margin when purchase price is not include VAT", () => {
+            expect(storeCalculator.calcMarginFromSalePrice(14.90, 8.8 * 1.18)).toBe(30.31);
         });
 
     });
