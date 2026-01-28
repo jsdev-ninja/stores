@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ReactNode } from "react";
+import { ChangeEvent, ReactNode } from "react";
 import { useFormContext } from "react-hook-form";
 import { NestedKeys } from "src/shared/types";
 import { tv } from "tailwind-variants";
@@ -16,6 +16,7 @@ type Props<T extends object> = {
 	min?: string;
 	max?: string;
 	defaultValue?: string;
+	onChange?: (value: string) => void;
 };
 
 const style = tv({
@@ -31,7 +32,7 @@ const style = tv({
 });
 
 export function Input<T extends object>(props: Props<T>) {
-	const { name, label, placeholder, type, disabled, startAdornment, endAdornment, min, max, defaultValue } = props;
+	const { name, label, placeholder, type, disabled, startAdornment, endAdornment, min, max, defaultValue, onChange } = props;
 
 	const methods = useFormContext();
 
@@ -57,9 +58,12 @@ export function Input<T extends object>(props: Props<T>) {
 					{...methods.register(name, {
 						valueAsNumber: type === "number",
 						setValueAs:
-							type === "date" 
+							type === "date"
 								? (value: string) => value ? new Date(value).getTime() : ""
 								: undefined,
+						onChange: (e: ChangeEvent<HTMLInputElement>) => {
+							onChange?.(e.target.value);
+						},
 					})}
 					defaultValue={defaultValue}
 					step=".01"

@@ -1,4 +1,4 @@
-import { NewProductSchema, TCategory, TNewProduct, TProduct } from "@jsdev_ninja/core";
+import { NewProductSchema, storeCalculator, TCategory, TNewProduct, TProduct } from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -12,9 +12,7 @@ import { navigate, useParams } from "src/navigation";
 import { flatten } from "src/utils/flatten";
 import { FlattenedItem } from "src/widgets/Category/CategoryTree/utils";
 
-function isValidValue(number: number): boolean {
-	return !isNaN(number) && number > 0;
-}
+
 
 function PriceSection() {
 	const form = useFormContext<TNewProduct>();
@@ -25,49 +23,10 @@ function PriceSection() {
 	const purchasePrice = form.watch("purchasePrice") ?? 0;
 	const profitPercentage = form.watch("profitPercentage") ?? 0;
 
-	console.log("price", price);
-	console.log("purchasePrice", purchasePrice);
-	console.log("profitPercentage", profitPercentage);
 
-	useEffect(() => {
-		// Count how many valid values we have
-		const validValues = [
-			isValidValue(price),
-			isValidValue(purchasePrice),
-			isValidValue(profitPercentage),
-		].filter(Boolean).length;
+	console.log("AAAAA", form.watch('price'))
 
-		// Only calculate if we have exactly 2 valid values
-		if (validValues === 2) {
-			// Case 1: price and purchasePrice exist, calculate profitPercentage
-			if (
-				isValidValue(price) &&
-				isValidValue(purchasePrice) &&
-				!isValidValue(profitPercentage)
-			) {
-				const calculatedProfit = ((price - purchasePrice) / price) * 100;
-				form.setValue("profitPercentage", parseFloat(calculatedProfit.toFixed(2)));
-			}
-			// Case 2: price and profitPercentage exist, calculate purchasePrice
-			else if (
-				isValidValue(price) &&
-				isValidValue(profitPercentage) &&
-				!isValidValue(purchasePrice)
-			) {
-				const calculatedPurchasePrice = price * (1 - profitPercentage / 100);
-				form.setValue("purchasePrice", parseFloat(calculatedPurchasePrice.toFixed(2)));
-			}
-			// Case 3: purchasePrice and profitPercentage exist, calculate price
-			else if (
-				isValidValue(purchasePrice) &&
-				isValidValue(profitPercentage) &&
-				!isValidValue(price)
-			) {
-				const calculatedPrice = purchasePrice / ((100 - profitPercentage) / 100);
-				form.setValue("price", parseFloat(calculatedPrice.toFixed(2)));
-			}
-		}
-	}, [price, purchasePrice, profitPercentage, form]);
+
 
 	return (
 		<Flex gap={"4"} wrap align={"start"}>
@@ -80,6 +39,13 @@ function PriceSection() {
 					label={t("common:price")}
 					placeholder={t("common:price")}
 					type="number"
+					onChange={(value) => {
+						console.log("value", value);
+						if (purchasePrice > 0) {
+							const margin = storeCalculator.calcMarginFromSalePrice(+value, purchasePrice);
+							form.setValue("profitPercentage", margin);
+						}
+					}}
 				/>
 			</Flex.Item>
 			<Flex.Item>
@@ -88,6 +54,12 @@ function PriceSection() {
 					label={t("common:purchasePrice")}
 					placeholder={t("common:purchasePrice")}
 					type="number"
+					onChange={(value) => {
+						if (+value > 0 && price > 0) {
+							const margin = storeCalculator.calcMarginFromSalePrice(price, +value);
+							form.setValue("profitPercentage", margin);
+						}
+					}}
 				/>
 			</Flex.Item>
 			<Flex.Item>
@@ -96,6 +68,12 @@ function PriceSection() {
 					label={t("common:profitPercentage")}
 					placeholder={t("common:profitPercentage")}
 					type="number"
+					onChange={(value) => {
+						if (+value > 0 && profitPercentage > 0) {
+							const newPrice = storeCalculator.calcSalePriceFromMargin(+value, purchasePrice);
+							form.setValue("price", newPrice);
+						}
+					}}
 				/>
 			</Flex.Item>
 		</Flex>
