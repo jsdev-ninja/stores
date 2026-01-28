@@ -14,7 +14,7 @@
 		"rootDir": "./src",
 		"paths": {
 			"src/*": ["./src/*"],
-			"@jsdev_ninja/core": ["../packages/core/lib/index.tsx"]
+			"@jsdev_ninja/core": ["../packages/core/lib/index.ts"]
 		}
 	},
 	"compileOnSave": true,

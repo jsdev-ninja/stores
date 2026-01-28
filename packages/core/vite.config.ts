@@ -7,7 +7,7 @@ export default defineConfig({
 
 	build: {
 		lib: {
-			entry: resolve(__dirname, "lib/index.tsx"),
+			entry: resolve(__dirname, "lib/index.ts"),
 			name: "core",
 			formats: ["es", "cjs", "umd"],
 			fileName: (format) => {

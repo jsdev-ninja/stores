@@ -220,7 +220,7 @@ export const useAppApi = () => {
 				return;
 			},
 			subscribeToDiscounts: (callback: (discounts: TDiscount[]) => void) => {
-				if (!isValidAdmin) return () => {};
+				if (!isValidAdmin) return () => { };
 
 				return FirebaseApi.firestore.subscribeList<TDiscount>({
 					collection: FirebaseAPI.firestore.getPath({
@@ -532,7 +532,7 @@ export const useAppApi = () => {
 			saveProduct: async (newProduct: TNewProduct) => {
 				setLoading({ ...loading, "admin.productCreate": true });
 
-				const res = await productCreate(newProduct);
+				const res = await productCreate(removeUndefinedFields(newProduct));
 				setLoading({ ...loading, "admin.productCreate": false });
 				return res;
 			},
