@@ -49,7 +49,7 @@ export function CatalogPage() {
 					</ProductsWidget.Products>
 				</div>
 			</div>
-			<div className="hidden  md:flex w-96 flex-col sticky top-0 h-[calc(100vh-64px)]">
+			<div className="hidden  md:flex min-w-80 flex-col sticky  top-0 h-[calc(100vh-64px)]">
 				<div className="grow h-full">
 					<Cart />
 				</div>
