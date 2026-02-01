@@ -15,7 +15,7 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 	return (
 		<Product key={product.id} product={product}>
 			<div
-				className="shadow p-2 w-64 h-fit bg-gray-50 flex flex-col  rounded-2xl relative"
+				className="shadow p-2 w-64 h-[520px] bg-gray-50 flex flex-col  rounded-2xl relative"
 				onClick={async () => {
 					navigate({
 						to: "store.product",

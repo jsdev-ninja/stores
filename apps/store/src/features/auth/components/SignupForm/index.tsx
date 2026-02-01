@@ -71,7 +71,7 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 		<div className="min-h-[80vh] w-full flex items-center justify-center px-4 py-12">
 			<div ref={formRef} className="w-full max-w-md">
 				<Card className="w-full">
-					<div className="absolute top-2 end-2 z-10">
+					<div className="absolute top-2 end-2 z-50">
 						<Icon
 							name="close"
 							onClick={() => {
