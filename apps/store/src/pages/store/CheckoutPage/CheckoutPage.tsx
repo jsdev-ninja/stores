@@ -5,7 +5,7 @@ import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
-import { AddressSchema, getCartCost, OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
+import { AddressSchema, getCartCost, TOrder, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
@@ -110,7 +110,6 @@ function CheckoutPage() {
 					address: profile?.address ?? emptyAddress,
 					email: profile?.email ?? "",
 					phone: profile?.phoneNumber ?? "",
-					deliveryDate: tomorrow.toISOString(),
 					clientComment: "",
 				}}
 				onError={(errors) => {
@@ -247,7 +246,7 @@ function CheckoutPage() {
 									label={t("common:deliveryDate")}
 									min={minDate}
 									max={maxDate}
-									defaultValue={minDate}
+									defaultValue={tomorrow.toISOString().split("T")[0]}
 								/>
 								<Form.Input<TOrder>
 									name="nameOnInvoice"
