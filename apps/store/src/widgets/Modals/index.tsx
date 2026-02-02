@@ -10,6 +10,7 @@ import { CreateInvoiceModal } from "./CreateInvoiceModal";
 import { InvoiceDetailsModal } from "./InvoiceDetailsModal";
 import { CreateDeliveryNoteModal } from "./CreateDeliveryNoteModal";
 import { DeliveryNoteDetailsModal } from "./DeliveryNoteDetailsModal";
+import { SelectDateForDocumentModal } from "./SelectDateForDocumentModal";
 import { TOrder } from "@jsdev_ninja/core";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
@@ -28,11 +29,17 @@ export const modals = {
 	invoiceDetails: ({
 		selectedOrders,
 		onInvoiceCreated,
+		initialInvoiceDate,
 	}: {
 		selectedOrders: TOrder[];
 		onInvoiceCreated?: () => void;
+		initialInvoiceDate?: number;
 	}) => (
-		<InvoiceDetailsModal selectedOrders={selectedOrders} onInvoiceCreated={onInvoiceCreated} />
+		<InvoiceDetailsModal
+			selectedOrders={selectedOrders}
+			onInvoiceCreated={onInvoiceCreated}
+			initialInvoiceDate={initialInvoiceDate}
+		/>
 	),
 	createDeliveryNote: ({ onDeliveryNoteCreated }: { onDeliveryNoteCreated?: () => void }) => (
 		<CreateDeliveryNoteModal onDeliveryNoteCreated={onDeliveryNoteCreated} />
@@ -48,6 +55,15 @@ export const modals = {
 			selectedOrders={selectedOrders}
 			onDeliveryNoteCreated={onDeliveryNoteCreated}
 		/>
+	),
+	selectDateForDocument: ({
+		documentType,
+		onConfirm,
+	}: {
+		documentType: "deliveryNote" | "invoice";
+		onConfirm: (date: number) => void | Promise<void>;
+	}) => (
+		<SelectDateForDocumentModal documentType={documentType} onConfirm={onConfirm} />
 	),
 };
 

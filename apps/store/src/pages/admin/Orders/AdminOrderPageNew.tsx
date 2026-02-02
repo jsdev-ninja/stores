@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { useParams, navigate } from "src/navigation";
 import { useAppSelector } from "src/infra";
+import { modalApi } from "src/infra/modals";
 import { formatter } from "src/utils/formatter";
 
 export default function AdminOrderPageNew() {
@@ -30,8 +31,14 @@ export default function AdminOrderPageNew() {
 	const { id } = useParams("admin.order");
 
 	const [order, setOrder] = useState<TOrder | null>(null);
-	console.log("order", order);
+	const [isCreatingDeliveryNote, setIsCreatingDeliveryNote] = useState(false);
 	const appApi = useAppApi();
+
+	async function refetchOrder() {
+		if (!id) return;
+		const res = await appApi.admin.getOrder(id);
+		if (res?.success) setOrder(res.data);
+	}
 	const organizations = useAppSelector((state) => state.organization.organizations);
 
 	// Get organization from Redux if order has organizationId
@@ -531,7 +538,8 @@ export default function AdminOrderPageNew() {
 			{(order?.deliveryNote?.link ||
 				order?.invoice?.link ||
 				order?.ezInvoice?.pdf_link ||
-				order?.ezDeliveryNote?.pdf_link) && (
+				order?.ezDeliveryNote?.pdf_link ||
+				(order && ["completed", "delivered"].includes(order.status))) && (
 				<Card className="shadow-sm mb-6">
 					<CardBody className="p-4 md:p-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
@@ -602,6 +610,71 @@ export default function AdminOrderPageNew() {
 									</a>
 								</div>
 							)}
+							{order &&
+								["completed", "delivered"].includes(order.status) && (
+									<>
+										{!order?.deliveryNote?.link && !order?.ezDeliveryNote?.pdf_link && (
+											<div className="flex items-center justify-between p-2 rounded border border-dashed border-gray-200">
+												<span className="text-gray-600">
+													{t("ordersPage:orderDetails.documents.deliveryNote")}
+												</span>
+												<Button
+													size="sm"
+													color="primary"
+													variant="flat"
+													isLoading={isCreatingDeliveryNote}
+													isDisabled={isCreatingDeliveryNote}
+													onPress={() => {
+														if (!order) return;
+														modalApi.openModal("selectDateForDocument", {
+															documentType: "deliveryNote",
+															onConfirm: async (date) => {
+																setIsCreatingDeliveryNote(true);
+																try {
+																	const res = await appApi.admin.createDeliveryNote(order, {
+																		date,
+																	});
+																	if (res?.success) await refetchOrder();
+																} finally {
+																	setIsCreatingDeliveryNote(false);
+																}
+															},
+														});
+													}}
+												>
+													{t("ordersPage:orderDetails.documents.createDeliveryNote")}
+												</Button>
+											</div>
+										)}
+										{!order?.invoice?.link && !order?.ezInvoice?.pdf_link && (
+											<div className="flex items-center justify-between p-2 rounded border border-dashed border-gray-200">
+												<span className="text-gray-600">
+													{t("ordersPage:orderDetails.documents.invoice")}
+												</span>
+												<Button
+													size="sm"
+													color="primary"
+													variant="flat"
+													onPress={() => {
+														if (!order) return;
+														modalApi.openModal("selectDateForDocument", {
+															documentType: "invoice",
+															onConfirm: (date) => {
+																modalApi.openModal("invoiceDetails", {
+																	selectedOrders: [order],
+																	initialInvoiceDate: date,
+																	onInvoiceCreated: refetchOrder,
+																});
+															},
+														});
+													}}
+												>
+													{t("ordersPage:orderDetails.documents.createInvoice")}
+												</Button>
+											</div>
+										)}
+									</>
+								)}
 						</div>
 					</CardBody>
 				</Card>

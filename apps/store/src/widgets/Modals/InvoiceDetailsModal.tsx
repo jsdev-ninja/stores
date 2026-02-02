@@ -16,18 +16,26 @@ type InvoiceDetailsForm = {
 	customerAddress: string;
 };
 
+function formatTimestampToDateString(timestamp: number): string {
+	return new Date(timestamp).toISOString().split("T")[0];
+}
+
 export function InvoiceDetailsModal({
 	selectedOrders,
 	onInvoiceCreated,
+	initialInvoiceDate,
 }: {
 	selectedOrders: TOrder[];
 	onInvoiceCreated?: () => void;
+	initialInvoiceDate?: number;
 }) {
 	const { t } = useTranslation(["common", "admin"]);
 	const appApi = useAppApi();
 	const { store } = useApiState();
 	const [formData, setFormData] = useState<InvoiceDetailsForm>({
-		invoiceDate: new Date().toISOString().split("T")[0],
+		invoiceDate: initialInvoiceDate
+			? formatTimestampToDateString(initialInvoiceDate)
+			: new Date().toISOString().split("T")[0],
 		customerName: "",
 		customerAddress: "",
 	});
