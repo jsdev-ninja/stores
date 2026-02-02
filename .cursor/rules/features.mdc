@@ -6,9 +6,9 @@ ORDER
 
 1. order should me mark as completed
 
--  order.paymentType is external -> completed on delivery
--  order.paymentType is j5 -> completed on charge by admin
-
-CART
+- order.paymentType is external -> completed on delivery
+- order.paymentType is j5 -> completed on charge by admin
+- order.paymentType priority: client -> organization -> store
+  CART
 
 1. cart completed when order created

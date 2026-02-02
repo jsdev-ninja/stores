@@ -5,11 +5,24 @@ import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
-import { getCartCost, OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
+import { AddressSchema, getCartCost, OrderSchema, TOrder, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
+import { z } from "zod";
+
+
+const checkoutSchema = z.object({
+	nameOnInvoice: z.string().nonempty(),
+	clientComment: z.string().optional(),
+	deliveryDate: z.coerce.date(),
+	address: AddressSchema,
+	email: z.string().email(),
+	phone: z.string().optional(),
+});
+
+type TCheckout = z.infer<typeof checkoutSchema>;
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout"]);
@@ -18,16 +31,13 @@ function CheckoutPage() {
 
 	const profile = useProfile();
 
-	console.log("profile", profile);
 
 	const profileOrganization = useAppSelector((state) => state.userOrganization.organization);
-	console.log("profileOrganization", profileOrganization);
 
 	const appApi = useAppApi();
 
 	const cartData = useAppSelector((state) => state.cart);
 	const cart = cartData.currentCart;
-	console.log("CART", cart);
 
 	const store = useAppSelector((state) => state.store.data);
 	const discounts = useDiscounts();
@@ -82,38 +92,26 @@ function CheckoutPage() {
 		freeDeliveryPrice: store.freeDeliveryPrice,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
-	console.log("store", store);
-	console.log("cartCost", cartCost);
+
 
 	if (cartData.isReady && !cart) {
 		return null;
 	}
 
+
+
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16 px-4">
-			<Form<TOrder>
+			<Form<TCheckout>
 				className="mx-auto max-w-screen-xl px-4 2xl:px-0"
-				schema={OrderSchema}
+				schema={checkoutSchema}
 				defaultValues={{
-					type: "Order",
-					id: FirebaseApi.firestore.generateDocId("orders"),
-					createdBy: "user",
-					userId: user.uid,
-					companyId: store.companyId,
-					storeId: store.id,
-					status: "draft",
-					paymentStatus: store.paymentType === "external" ? "external" : "pending",
-					client: _profile,
-					organizationId: profileOrganization?.id,
-					cart: {
-						id: cart?.id,
-						items: cartCost.items,
-						cartDiscount: cartCost.discount,
-						cartTotal: cartCost.finalCost,
-						cartVat: cartCost.vat,
-						deliveryPrice: cartCost.deliveryPrice,
-					},
-					date: Date.now(), //todo: set on submit event
+					nameOnInvoice: profileOrganization?.nameOnInvoice ?? "",
+					address: profile?.address ?? emptyAddress,
+					email: profile?.email ?? "",
+					phone: profile?.phoneNumber ?? "",
+					deliveryDate: tomorrow.toISOString(),
+					clientComment: "",
 				}}
 				onError={(errors) => {
 					console.warn("errors", errors);
@@ -121,22 +119,53 @@ function CheckoutPage() {
 				onSubmit={async (values) => {
 					if (!user || !cart) return;
 
+					console.log("values", values);
+
+
+
+					const newOrder: TOrder = {
+						type: "Order",
+						id: FirebaseApi.firestore.generateDocId("orders"),
+						createdBy: "user",
+						userId: user.uid,
+						companyId: store.companyId,
+						storeId: store.id,
+						status: "draft",
+						paymentStatus: store.paymentType === "external" ? "external" : "pending",
+						client: _profile,
+						organizationId: profileOrganization?.id,
+						cart: {
+							id: cart?.id,
+							items: cartCost.items,
+							cartDiscount: cartCost.discount,
+							cartTotal: cartCost.finalCost,
+							cartVat: cartCost.vat,
+							deliveryPrice: cartCost.deliveryPrice,
+						},
+						date: Date.now(), //todo: set on submit event
+						storeOptions: {
+							deliveryPrice: store.deliveryPrice,
+							freeDeliveryPrice: store.freeDeliveryPrice,
+							isVatIncludedInPrice: store.isVatIncludedInPrice,
+						},
+						// form data
+						deliveryDate: values.deliveryDate.getTime(),
+						address: values.address,
+						nameOnInvoice: values.nameOnInvoice,
+						clientComment: values.clientComment,
+						emailOnInvoice: values.email,
+						phoneNumberOnInvoice: values.phone,
+					}
+
 					if (
 						store.paymentType === "external" ||
 						profileOrganization?.paymentType === "external" ||
 						profile?.paymentType === "external"
 					) {
-						values.status = "pending";
+						newOrder.status = "pending";
+						newOrder.paymentType = "external";
 						const order = await appApi.orders.order({
-							order: {
-								...values,
-								paymentType: "external",
-								storeOptions: {
-									deliveryPrice: store.deliveryPrice,
-									freeDeliveryPrice: store.freeDeliveryPrice,
-									isVatIncludedInPrice: store.isVatIncludedInPrice,
-								},
-							},
+							order: newOrder,
 						});
 						console.log("new external order", order);
 
@@ -145,20 +174,14 @@ function CheckoutPage() {
 						return;
 					}
 
+					newOrder.paymentType = "j5";
+
 					const order = await appApi.orders.order({
-						order: {
-							...values,
-							paymentType: 'j5',
-							storeOptions: {
-								deliveryPrice: store.deliveryPrice,
-								freeDeliveryPrice: store.freeDeliveryPrice,
-								isVatIncludedInPrice: store.isVatIncludedInPrice,
-							},
-						},
+						order: newOrder,
 					});
 					if (!order?.success) return null; //todo
 
-					const payment = await appApi.user.createPaymentLink({ order: values });
+					const payment = await appApi.user.createPaymentLink({ order: newOrder });
 					window.location.href = payment.data.paymentLink;
 				}}
 			>

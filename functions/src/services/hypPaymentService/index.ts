@@ -80,6 +80,7 @@ export const hypPaymentService = {
 			console.log("params", params);
 
 			const cardValidityDate = splitYYMM(tokenData.Tokef);
+			console.log("cardValidityDate", cardValidityDate);
 
 			// todo Tmonth=mm&Tyear=yyyy
 
