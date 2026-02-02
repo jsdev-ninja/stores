@@ -1,3 +1,5 @@
+import { logger } from "../../core";
+
 import {
 	THypSoftTransactionRequest,
 	THypTokenRequest,
@@ -62,6 +64,13 @@ function parseQueryString<T extends Record<string, string>>(query: string): T {
 export const hypPaymentService = {
 	async chargeJ5Transaction(params: chargeJ5TransactionParams) {
 		try {
+
+			logger.write({
+				severity: "INFO",
+				message: "hypPaymentService.chargeJ5Transaction",
+				params,
+			});
+
 			const tokenParams = objectToQueryParams<THypTokenRequest>({
 				action: "getToken",
 				allowFalse: "True",
@@ -70,22 +79,19 @@ export const hypPaymentService = {
 				TransId: params.transactionId,
 			});
 
-			console.log("tokenParams", tokenParams);
 
 			const tokenResponse = await fetch(`${baseUrl}?${tokenParams}`);
 			const body = await tokenResponse.text();
 			const tokenData = parseQueryString<THypTokenResponse>(body);
 
-			console.log("tokenData", tokenData);
-			console.log("params", params);
+			logger.write({
+				severity: "INFO",
+				message: "hypPaymentService.chargeJ5Transaction tokenData",
+				tokenData,
+			});
 
 			const cardValidityDate = splitYYMM(tokenData.Tokef);
-			console.log("cardValidityDate", cardValidityDate);
-
-			// todo Tmonth=mm&Tyear=yyyy
-
 			const originalAmount = Math.round(Number(params.originalAmount) * 100);
-
 			const transParams = objectToQueryParams<THypSoftTransactionRequest>({
 				action: "soft",
 				MoreData: "True",
@@ -115,42 +121,66 @@ export const hypPaymentService = {
 				heshDesc: params.heshDesc,
 				Pritim: params.Pritim,
 			});
-			console.log("transParams", transParams);
 
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
 			const transactionData = await transactionCommit.text();
-			console.log("actualAmount", params.actualAmount.toString());
-			console.log("originalAmount", params.originalAmount.toString());
-			console.log("transactionData", transactionData);
 			const transactionResult: any = parseQueryString(transactionData);
-			console.log("JSON.stringify(transactionResult)", JSON.stringify(transactionResult));
+			logger.write({
+				severity: "INFO",
+				message: "hypPaymentService.chargeJ5Transaction transactionResult",
+				transactionResult,
+				transactionData,
+				transParams,
+				cardValidityDate,
+				originalAmount,
+			});
 
-			return { success: Number(transactionResult.CCode) === 0, data: transactionResult };
+			return { success: Number(transactionResult.CCode) === 0, data: transactionResult, errMessage: null };
 		} catch (error: any) {
-			console.log(error);
+			logger.write({
+				severity: "ALERT",
+				message: "hypPaymentService.chargeJ5Transaction error",
+				error: error,
+				params,
+			});
 			return { success: false, errMessage: error.message, data: null };
 		}
 	},
 	async createPaymentLink(params: TPaymentLinkRequest) {
 		try {
+			logger.write({
+				severity: "INFO",
+				message: "hypPaymentService.createPaymentLink",
+				params,
+			});
 			const queryString = objectToQueryParams(params);
 
 			const url = `${baseUrl}?${queryString}`;
-
-			console.log("createPaymentLink url", url);
 
 			const signResponse = await fetch(url);
 
 			const linkData = await signResponse.text();
 
-			console.log("linkData", linkData);
-
 			const paymentLink = `${baseUrl}?${linkData}`;
 
-			return { success: true, paymentLink };
+			logger.write({
+				severity: "INFO",
+				message: "hypPaymentService.createPaymentLink success",
+				params,
+				paymentLink,
+				url,
+				linkData,
+			});
+
+			return { success: true, paymentLink, errMessage: null };
 		} catch (error: any) {
-			console.log(error);
-			return { success: false, errMessage: error.message };
+			logger.write({
+				severity: "ALERT",
+				message: "hypPaymentService.createPaymentLink error",
+				error: error,
+				params,
+			});
+			return { success: false, errMessage: error.message, paymentLink: null };
 		}
 	},
 } as const;
