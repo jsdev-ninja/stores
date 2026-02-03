@@ -7,7 +7,6 @@ import { removeUndefinedFields } from "src/utils/removeUndefinedFields";
 export async function productCreate(newProduct: TNewProduct) {
 	const { image, ...rest } = newProduct;
 
-	console.log('newProduct', newProduct)
 
 	const productId = newProduct.sku;
 
