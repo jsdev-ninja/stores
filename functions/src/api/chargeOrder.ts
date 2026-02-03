@@ -74,6 +74,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			(item) =>
 				`[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${item.finalPrice}]`
 		);
+		console.log('item', items)
 
 		const [clientName, clientLastName] = (payment.payment.Fild1 ?? "").split(" ");
 		const res = await hypPaymentService.chargeJ5Transaction({
@@ -88,7 +89,7 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			clientName: order?.nameOnInvoice || clientName,
 			clientLastName,
 			email: order.client?.email ?? "",
-			heshDesc: items.join(""),
+			// heshDesc: items.join(""),
 			Pritim: "False",
 		});
 		if (res.success) {

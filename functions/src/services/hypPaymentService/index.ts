@@ -46,7 +46,7 @@ type chargeJ5TransactionParams = {
 	clientName: string;
 	clientLastName: string;
 	email: string;
-	heshDesc: string;
+	heshDesc?: string;
 	Pritim: string;
 };
 

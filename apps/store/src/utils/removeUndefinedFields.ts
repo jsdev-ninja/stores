@@ -1,6 +1,7 @@
 // remove all undefined fields from object (recursively handles nested objects)
 export function removeUndefinedFields(obj: any): any {
-    if (obj === null || obj === undefined) {
+    console.log('obj', obj)
+    if (obj === null || obj === undefined || obj instanceof File) {
         return obj;
     }
 
