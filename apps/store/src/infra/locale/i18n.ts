@@ -254,7 +254,7 @@ export const resources = {
 			included: "כלול",
 			viewProducts: "צפה במוצרים",
 			deliveryDate: "תאריך משלוח מועדף",
-			nameOnInvoice: "שם בחשבונית",
+			nameOnInvoice: "שם מלא בחשבונית",
 			clientComment: "הערות ללקוח",
 		},
 		auth: {
@@ -276,6 +276,10 @@ export const resources = {
 					invalidEmail: "אימייל לא תקין",
 					codes: {
 						"auth/invalid-credential": "אימייל או סיסמה לא נכונים",
+						"auth/email-already-in-use": "כתובת האימייל כבר רשומה במערכת",
+						"auth/invalid-email": "אימייל לא תקין",
+						"auth/weak-password": "הסיסמה חייבת להכיל לפחות 6 תווים",
+						generic: "אירעה שגיאה. נסה שוב.",
 					},
 				},
 				email: {

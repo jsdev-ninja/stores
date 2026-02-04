@@ -4,12 +4,12 @@ import { hypPaymentService } from "../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
 
-export const createPayment = functions.https.onCall(async (data: { order: TOrder }, context) => {
+export const createPayment = functions.https.onCall(async (data: { order: TOrder, isJ5?: boolean }, context) => {
 	try {
-		console.log("createPayment", context.rawRequest.headers.origin);
+		console.log("createPayment", context);
 		console.log("create payment data", JSON.stringify(data));
 
-		const { order } = data;
+		const { order, isJ5 = true } = data;
 
 		const storeId = order.storeId;
 		console.log("storeId", storeId);
@@ -41,16 +41,16 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			Masof: storePrivateData.hypData.masof,
 			Sign: "True",
 			Amount: order.cart.cartTotal.toString(),
-			J5: "True",
+			J5: isJ5 ? "True" : "False",
 			MoreData: "True",
 			Order: order.id,
 			// client data
-			cell: order.client?.phoneNumber??'',
+			cell: order.client?.phoneNumber ?? '',
 			ClientName: nameOnInvoice ?? "",
 			ClientLName: "",
-			email: order.client?.email??'',
-			street: order.client?.address?.street??'',
-			city: order.client?.address?.city??'',
+			email: order.client?.email ?? '',
+			street: order.client?.address?.street ?? '',
+			city: order.client?.address?.city ?? '',
 			UserId: "",
 			phone: "",
 			zip: "",

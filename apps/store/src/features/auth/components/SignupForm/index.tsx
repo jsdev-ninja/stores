@@ -1,10 +1,8 @@
 import React, { useMemo } from "react";
 import { Card, CardBody, CardHeader, Link } from "@heroui/react";
-// import { Icon } from "@iconify/react";
 import gsap from "gsap";
 import { Form } from "src/components/Form";
 import { z } from "zod";
-import { FirebaseError } from "firebase/app";
 import { useAppApi } from "src/appApi";
 import { i18n, useStoreActions } from "src/infra";
 import { useTranslation } from "react-i18next";
@@ -12,15 +10,36 @@ import { modalApi } from "src/infra/modals";
 import { Icon } from "src/components";
 import { useStore } from "src/domains/Store";
 
-function getError(error: unknown) {
-	if (error instanceof FirebaseError) {
-		if (error.code === "auth/invalid-credential") {
-			return i18n.t("auth:form.errors.codes.auth/invalid-credential");
-		}
-		return "global";
+type SignupErrorResult = { success: false; code: string; errMessage: string };
+
+const EMAIL_FIELD_CODES = ["auth/invalid-email"] as const;
+const PASSWORD_CODES = ["auth/weak-password"] as const;
+
+const AUTH_CODE_KEYS: Record<string, string> = {
+	"auth/invalid-email": "auth:form.errors.codes.auth/invalid-email",
+	"auth/weak-password": "auth:form.errors.codes.auth/weak-password",
+};
+
+const GENERIC_ERROR_KEY = "auth:form.errors.codes.generic";
+
+function getErrorMessage(code: string): string {
+	const key = AUTH_CODE_KEYS[code] ?? GENERIC_ERROR_KEY;
+	return i18n.t(key as "auth:form.errors.codes.generic");
+}
+
+function parseSignupError(result: unknown): { field?: "email" | "password"; message: string } | { root: string } {
+	const r = result as SignupErrorResult | undefined;
+	if (!r?.code) return { root: i18n.t(GENERIC_ERROR_KEY) };
+
+	// Don't reveal that email exists (security: avoid account enumeration)
+	if (r.code === "auth/email-already-in-use") {
+		return { root: i18n.t(GENERIC_ERROR_KEY) };
 	}
 
-	return "global";
+	const message = getErrorMessage(r.code);
+	if (EMAIL_FIELD_CODES.includes(r.code as (typeof EMAIL_FIELD_CODES)[number])) return { field: "email", message };
+	if (PASSWORD_CODES.includes(r.code as (typeof PASSWORD_CODES)[number])) return { field: "password", message };
+	return { root: message };
 }
 
 export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
@@ -63,8 +82,6 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 
 	const isCompanyFlow = store?.clientTypes?.includes("company");
 
-	console.log(store);
-
 	if (!store) return null;
 
 	return (
@@ -93,16 +110,21 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 									password: data.password,
 									companyName: data.companyName,
 								});
-								console.log("result", result);
+
 								if (!result?.success) {
-									form.setError("global", { message: getError(result) });
+									form.clearErrors();
+									const parsed = parseSignupError(result);
+									if ("field" in parsed && parsed.field) {
+										form.setError(parsed.field, { message: parsed.message });
+									} else if ("root" in parsed) {
+										form.setError("global", { message: parsed.root });
+									}
 									return;
 								}
 
 								if (result?.success) {
 									actions.dispatch(actions.user.setUser(result.user));
 									modalApi.closeModal("authModal");
-									return;
 								}
 							}}
 							className="flex flex-col gap-4 h-full"
@@ -134,10 +156,8 @@ export const SignupForm = ({ changeForm }: { changeForm: () => void }) => {
 								placeholder={t("auth:form.password.placeholder")}
 							/>
 
-							<div className="my-4">
+							<div className="mt-auto flex flex-col gap-3">
 								<Form.GlobalError />
-							</div>
-							<div className="mt-auto">
 								<Form.Submit fullWidth>הרשמה</Form.Submit>
 							</div>
 						</Form>

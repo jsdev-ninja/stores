@@ -12,7 +12,7 @@ import {
 	TableColumn,
 	TableRow,
 	TableCell,
-	Textarea,
+	Alert,
 	Chip,
 } from "@heroui/react";
 import { TOrder } from "@jsdev_ninja/core";
@@ -524,12 +524,13 @@ export default function AdminOrderPageNew() {
 						<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
 							{t("ordersPage:orderDetails.notes.title")}
 						</h3>
-						<Textarea
-							className="mb-4"
-							minRows={4}
-							variant="bordered"
-							value={order?.clientComment || ""}
-						/>
+						{order?.clientComment ? (
+							<Alert color="warning" variant="flat" className="py-4 text-start">
+								<p className="whitespace-pre-wrap">{order.clientComment}</p>
+							</Alert>
+						) : (
+							<p className="text-sm text-gray-400 italic py-2">{t("common:emptyField")}</p>
+						)}
 					</CardBody>
 				</Card>
 			</div>

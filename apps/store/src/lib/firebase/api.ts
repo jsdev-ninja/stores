@@ -108,11 +108,11 @@ async function createInvoice(
 	}
 }
 
-async function createPayment({ order }: { order: TOrder }) {
+async function createPayment({ order, isJ5 }: { order: TOrder, isJ5?: boolean }) {
 	try {
 		const func = httpsCallable(functions, "createPayment");
 
-		const response = await func({ order });
+		const response = await func({ order, isJ5 });
 		return { success: true, data: response.data };
 	} catch (error: any) {
 		const code = error.code;

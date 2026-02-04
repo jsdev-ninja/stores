@@ -1674,6 +1674,7 @@ export const useAppApi = () => {
 
 				const payment: any = await FirebaseApi.api.createPayment({
 					order: { ...order, client: undefined },
+					isJ5: false
 				});
 				logger({
 					message: "client create payment link",

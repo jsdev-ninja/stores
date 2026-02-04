@@ -46,6 +46,11 @@ export const ProductSchema = z.object({
 	updated_at: z.number(),
 	categoryIds: z.array(z.string().nonempty()),
 
+	stock: z.object({
+		quantity: z.number().min(0),
+		unit: z.enum(["piece", "kg", "gram", "liter", "ml"]),
+	}).optional(),
+
 	// @deprecated
 	categoryList: z.array(CategorySchema).optional(),
 	// @deprecated

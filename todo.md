@@ -4,9 +4,9 @@ ItQnx
 masof 0010302921
 password hyp1234
 
-Fake Card - 5326105300985614
-CVV 125
-date - 12/25
+Fake Card - 5326107300020772
+CVV 033
+date - 05/31
 
 itayna@hyp.co.il תמיכה
 support@hyp.co.il
