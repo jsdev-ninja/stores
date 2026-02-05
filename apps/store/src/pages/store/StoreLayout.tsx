@@ -19,6 +19,7 @@ import TermsPage from "./TermsPage/TermsPage";
 import DiscountsPage from "./DiscountsPage/DiscountsPage";
 import ClientOrderPage from "./ClientOrderPage";
 import { ProductsWidget } from "src/widgets/Products";
+import { ChatbotFeature } from "src/features/chatbot";
 // import { UnPaidPendingOrder } from "src/widgets/UnPaidPendingOrder/UnPaidPendingOrder";
 import { useProfile } from "src/domains/profile";
 
@@ -111,6 +112,7 @@ export default function StoreLayout() {
 						<FavoritesProductsPage />
 					</Route>
 				</main>
+				<ChatbotFeature />
 			</div>
 		</ProductsWidget>
 	);
