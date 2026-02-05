@@ -1,15 +1,21 @@
+import { Tabs, Tab } from "@heroui/react";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
+import { EmptyState } from "src/components/EmptyState/EmptyState";
 import { navigate } from "src/navigation";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
 import { Product } from "src/widgets/Product";
 
 import { ProductsWidgetAdmin } from "src/widgets/Products";
 
+const TAB_ALL = "all";
+const TAB_WITHOUT_IMAGE = "noImage";
+
 export function AdminProductsPage() {
 	const appApi = useAppApi();
-
+	const [activeTab, setActiveTab] = useState<string>(TAB_ALL);
 	const { t } = useTranslation(["common", "admin"]);
 
 	return (
@@ -33,6 +39,16 @@ export function AdminProductsPage() {
 					</div>
 				</div>
 
+				<Tabs
+					selectedKey={activeTab}
+					onSelectionChange={(key) => setActiveTab(key as string)}
+					aria-label="Products view tabs"
+					className="px-4"
+				>
+					<Tab key={TAB_ALL} title={t("admin:productsPage.tabAll")} />
+					<Tab key={TAB_WITHOUT_IMAGE} title={t("admin:productsPage.tabWithoutImage")} />
+				</Tabs>
+
 				<div className="flex">
 					<div id="SideNavigator" className="w-[240px] flex-shrink-0 max-h-full">
 						<CategoryMenu isAdmin />
@@ -40,7 +56,23 @@ export function AdminProductsPage() {
 					<div className="flex-grow p-4 flex flex-wrap gap-4">
 						<ProductsWidgetAdmin.Products emptyStateAction={() => {}}>
 							{(products) => {
-								return products.map((product) => (
+								const filtered =
+									activeTab === TAB_WITHOUT_IMAGE
+										? products.filter((p) => !p.images?.length)
+										: products;
+
+								if (activeTab === TAB_WITHOUT_IMAGE && filtered.length === 0) {
+									return (
+										<div className="mx-auto self-center">
+											<EmptyState
+												title={t("admin:productsPage.noImageEmptyTitle")}
+												description={t("admin:productsPage.noImageEmptyDescription")}
+											/>
+										</div>
+									);
+								}
+
+								return filtered.map((product) => (
 									<Product key={product.id} product={product}>
 										<div className="w-80 shadow p-4 flex flex-col h-fit ">
 											<div className="h-40 w-40 mx-auto">
