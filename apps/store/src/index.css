@@ -10,9 +10,27 @@ html body,
 }
 
 @theme {
+	/* Custom homepage colors (not in HeroUI ThemeColors) */
+	--color-hero: #ffffff;
+	--color-hero-foreground: #0f172a;
+	--color-hero-muted: #64748b;
+	--color-section-alt: #f8fafc;
+	--color-accent: #dbeafe;
+	/* Depth: card shadow (light top glow + soft bottom shadow) */
+	--shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(0, 0, 0, 0.06);
+	--shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.06), 0 12px 28px rgba(0, 0, 0, 0.08);
+	--shadow-hero-image: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 12px 24px -4px rgba(0, 0, 0, 0.1);
+	--shadow-header: 0 1px 0 rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 @utility container {
 	margin-inline: auto;
 	padding-inline: 2rem;
+}
+
+@utility shadow-card {
+	box-shadow: var(--shadow-card);
+}
+@utility shadow-card-hover {
+	box-shadow: var(--shadow-card-hover);
 }
