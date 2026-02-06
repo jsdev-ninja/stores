@@ -2048,6 +2048,11 @@ export const useAppApi = () => {
 				actions.dispatch(actions.profile.setProfile(null));
 			},
 		},
+		chatbot: {
+			sendMessage: async (prompt: string) => {
+				return await FirebaseApi.api.openAiChat(prompt);
+			},
+		},
 	};
 
 	return { ...api, loading };

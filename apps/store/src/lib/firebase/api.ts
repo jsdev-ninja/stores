@@ -173,6 +173,25 @@ async function createDeliveryNote({
 	}
 }
 
+export type OpenAiChatResult = {
+	success: boolean;
+	data: { content: string | null; role: string } | null;
+	error?: string;
+};
+
+async function openAiChat(prompt: string): Promise<OpenAiChatResult> {
+	try {
+		const func = httpsCallable(functions, "openAiAPi");
+		const response = await func({ prompt });
+		const data = response.data as { content: string | null; role: string };
+		return { success: true, data };
+	} catch (error: any) {
+		const message = error?.message ?? "Unknown error";
+		console.error("openAiChat", error);
+		return { success: false, data: null, error: message };
+	}
+}
+
 export const api = {
 	init,
 	createCompanyClient,
@@ -181,4 +200,5 @@ export const api = {
 	uiLogs,
 	createInvoice,
 	createDeliveryNote,
+	openAiChat,
 };

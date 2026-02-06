@@ -242,6 +242,7 @@ export const resources = {
 			chatbotInputPlaceholder: "הקלד הודעה...",
 			chatbotSend: "שלח",
 			chatbotEmptyState: "שלח הודעה כדי להתחיל",
+			chatbotError: "שגיאה בשליחת ההודעה. נסה שוב.",
 			bundle: "חבילה",
 			discountName: "שם מצבע",
 			noDiscountsAvailable: "אין מבצעים זמינים",

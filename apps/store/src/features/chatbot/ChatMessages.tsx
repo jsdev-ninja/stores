@@ -8,6 +8,7 @@ export function ChatMessages() {
 	if (!ctx?.isFeatureOn) return null;
 
 	const { messages } = ctx;
+	console.log("messages", messages);
 
 	if (messages.length === 0) {
 		return (

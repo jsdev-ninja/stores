@@ -8,14 +8,11 @@ export function ChatInput() {
 	const [value, setValue] = useState("");
 	const { t } = useTranslation(["common"]);
 
-	if (!ctx?.isFeatureOn) return null;
-
-	const { sendMessage } = ctx;
-
 	const handleSend = useCallback(() => {
-		sendMessage(value);
+		if (!ctx?.isFeatureOn) return;
+		ctx.sendMessage(value);
 		setValue("");
-	}, [value, sendMessage]);
+	}, [value, ctx]);
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
@@ -26,6 +23,8 @@ export function ChatInput() {
 		},
 		[handleSend]
 	);
+
+	if (!ctx?.isFeatureOn) return null;
 
 	return (
 		<div className="flex gap-2 p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80">
@@ -46,7 +45,8 @@ export function ChatInput() {
 				isIconOnly
 				aria-label={t("chatbotSend")}
 				onPress={handleSend}
-				isDisabled={!value.trim()}
+				isDisabled={!value.trim() || ctx.isLoading}
+				isLoading={ctx.isLoading}
 			>
 				<svg
 					className="w-5 h-5"

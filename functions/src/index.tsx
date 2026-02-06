@@ -23,6 +23,7 @@ export const uiLogs = functionsV2.https.onCall((opts) => {
 	functionsV2.logger.write(data);
 });
 
+export { openAiAPi } from "./api/openaiApi";
 export { appInit } from "./api/init";
 export { getMixpanelData } from "./api/mixpanel-ts";
 export { createCompanyClient } from "./api/createCompany";
