@@ -367,6 +367,12 @@ export const resources = {
 				clientAuth: "לקוח רשום",
 			},
 		},
+		contactForm: {
+			submitSuccessTitle: "הטופס נשלח",
+			submitSuccessDescription: "תודה! נחזור אליכם בהקדם.",
+			submitFailedTitle: "שליחה נכשלה",
+			submitFailedDescription: "אירעה שגיאה בשליחת הטופס. נסו שוב.",
+		},
 		discountsPage: {
 			noDiscountsAvailable: "אין מבצעים זמינים",
 			checkBackLater: "בואו נחזור בעוד מספר ימים",

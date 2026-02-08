@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Clock, Shield, Send } from "lucide-react";
-import { Button, Input, Textarea } from "@heroui/react";
+import { Button, Input, Textarea, addToast } from "@heroui/react";
+import { useTranslation } from "react-i18next";
+import { useAppApi } from "src/appApi";
 
 interface ContactFormProps {
     variant?: "light" | "dark";
@@ -13,6 +15,8 @@ const ContactForm = ({
     title = "הפכו ללקוח משרד קבוע",
     subtitle = "מלאו את הטופס ונחזור אליכם לשיחה על צרכי המשרד שלכם."
 }: ContactFormProps) => {
+    const { t } = useTranslation(["common"]);
+    const appApi = useAppApi();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
@@ -25,13 +29,37 @@ const ContactForm = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-
-        // Simulate form submission
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // toast.success("תודה! נחזור אליכם בהקדם.");
-        setFormData({ name: "", email: "", company: "", phone: "", message: "" });
-        setIsSubmitting(false);
+        try {
+            const result = await appApi.contactForm.submit({
+                name: formData.name,
+                email: formData.email,
+                company: formData.company,
+                phone: formData.phone || undefined,
+                message: formData.message || undefined,
+            });
+            if (result?.success) {
+                setFormData({ name: "", email: "", company: "", phone: "", message: "" });
+                addToast({
+                    title: t("common:contactForm.submitSuccessTitle" as any),
+                    description: t("common:contactForm.submitSuccessDescription" as any),
+                    color: "success",
+                });
+            } else {
+                addToast({
+                    title: t("common:contactForm.submitFailedTitle" as any),
+                    description: t("common:contactForm.submitFailedDescription" as any),
+                    color: "danger",
+                });
+            }
+        } catch {
+            addToast({
+                title: t("common:contactForm.submitFailedTitle" as any),
+                description: t("common:contactForm.submitFailedDescription" as any),
+                color: "danger",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

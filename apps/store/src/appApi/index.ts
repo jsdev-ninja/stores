@@ -140,6 +140,24 @@ export const useAppApi = () => {
 				});
 			},
 		},
+		contactForm: {
+			submit: async (data: { name: string; email: string; company: string; phone?: string; message?: string }) => {
+				if (!isValidStoreData) return { success: false, docId: "" };
+
+				const doc = {
+					...data,
+					createdAt: Date.now(),
+				};
+				return await FirebaseApi.firestore.createV2<typeof doc & { id?: string }>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "contactSubmissions",
+						companyId,
+						storeId,
+					}),
+					doc,
+				});
+			},
+		},
 		admin: {
 			uploadSupplierInvoice: async (invoice: TSupplierInvoice) => {
 				if (!isValidAdmin) return;

@@ -32,6 +32,7 @@ export { chargeOrder } from "./api/chargeOrder";
 export { createInvoice } from "./api/createInvoice";
 export { createDeliveryNote } from "./api/createDeliveryNote";
 export { onSupplierInvoiceCreate } from "./events/supplier-invoice-events";
+export { onContactFormSubmit } from "./events/contact-form-events";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
