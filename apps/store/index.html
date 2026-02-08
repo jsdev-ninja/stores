@@ -26,16 +26,19 @@
 				fbq("track", "PageView");
 			}
 		</script>
-		<noscript
-			><img
+		<!-- End Meta Pixel Code -->
+	</head>
+	<body>
+		<!-- Meta Pixel (noscript) - must be in body; img not allowed in head noscript -->
+		<noscript>
+			<img
 				height="1"
 				width="1"
 				style="display: none"
 				src="https://www.facebook.com/tr?id=1231612299080027&ev=PageView&noscript=1"
-		/></noscript>
-		<!-- End Meta Pixel Code -->
-	</head>
-	<body>
+				alt=""
+			/>
+		</noscript>
 		<div id="root"></div>
 		<script type="module" src="/src/main.tsx"></script>
 	</body>
