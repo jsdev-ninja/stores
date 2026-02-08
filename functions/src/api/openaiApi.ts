@@ -10,21 +10,49 @@ export const openAiAPi = functionsV2.https.onCall(
 		invoker: "public",
 	},
 	async (request) => {
-		const { data } = request;
+		try {
+			const { data, auth } = request;
 
-		const openAiService = new OpenAiService(defineSecret("OPENAI_API_KEY").value());
-		logger.write({
-			severity: "INFO",
-			message: "openAiAPi",
-			data,
-		});
-		const { prompt } = data;
-		const response = await openAiService.generateText(prompt);
-		logger.write({
-			severity: "INFO",
-			message: "openAiAPi response",
-			response,
-		});
-		return response;
+			logger.write({
+				severity: "INFO",
+				message: "openAiAPi request",
+				data,
+				auth,
+			});
+
+			const companyId = auth?.token.companyId;
+			const storeId = auth?.token.storeId;
+			const userId = auth?.uid;
+			const isAdmin = auth?.token.admin;
+
+			const { prompt, context } = data as { prompt: string; context: { cartId?: string } };
+
+			const openAiService = new OpenAiService(defineSecret("OPENAI_API_KEY").value(), {
+				companyId,
+				storeId,
+				userId,
+				isAdmin,
+				cartId: context?.cartId ?? "",
+			});
+			logger.write({
+				severity: "INFO",
+				message: "openAiAPi",
+				data,
+			});
+			const response = await openAiService.generateText(prompt);
+			logger.write({
+				severity: "INFO",
+				message: "openAiAPi response",
+				response,
+			});
+			return response;
+		} catch (error) {
+			logger.write({
+				severity: "ERROR",
+				message: "openAiAPi error",
+				error,
+			});
+			throw error;
+		}
 	},
 );

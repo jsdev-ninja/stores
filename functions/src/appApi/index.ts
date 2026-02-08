@@ -1,6 +1,6 @@
 import admin from "firebase-admin";
 import { logger } from "../core";
-import { FirebaseAPI, TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
+import { FirebaseAPI, TCart, TOrder, TOrganization, TProduct, TStore } from "@jsdev_ninja/core";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
@@ -9,6 +9,9 @@ import { renderDeliveryNoteToHTML } from "../services/documents/renderToHTML";
 type TContext = {
 	storeId: string;
 	companyId: string;
+	userId?: string;
+	isAdmin?: boolean;
+	cartId?: string;
 };
 
 function formatDateDDMMYYYY(input: string) {
@@ -29,13 +32,13 @@ async function getStoreData(storeId: string) {
 }
 
 export function createAppApi(context: TContext) {
-	const { storeId, companyId } = context;
+	const { storeId, companyId, userId, isAdmin } = context;
 
 	return {
 		documents: {
 			createDeliveryNote: async (
 				order: TOrder,
-				options?: { date?: number; sendEmailToClient?: boolean; nameOnInvoice?: string }
+				options?: { date?: number; sendEmailToClient?: boolean; nameOnInvoice?: string },
 			) => {
 				try {
 					const date = options?.date ? new Date(options.date) : new Date();
@@ -52,7 +55,7 @@ export function createAppApi(context: TContext) {
 									collectionName: "organizations",
 									companyId,
 									storeId,
-								})
+								}),
 							)
 							.doc(order.organizationId)
 							.get();
@@ -170,7 +173,7 @@ export function createAppApi(context: TContext) {
 									collectionName: "orders",
 									companyId,
 									storeId,
-								})
+								}),
 							)
 							.doc(order.id)
 							.update(newOrder);
@@ -205,6 +208,57 @@ export function createAppApi(context: TContext) {
 			},
 		},
 		cart: {
+			async addItem({ product, cartId }: { product: TProduct; cartId: string }) {
+				try {
+					logger.write({
+						severity: "INFO",
+						message: "add item to cart",
+						product,
+						storeId: storeId,
+						companyId: companyId,
+					});
+					const cart = await admin
+						.firestore()
+						.collection(
+							FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }),
+						)
+						.doc(cartId)
+						.get();
+					if (!cart.exists) {
+						return { success: false, error: "Cart not found" };
+					}
+					const cartData = cart.data() as TCart;
+					const cartItems = cartData.items;
+					const productIndex = cartItems.findIndex((item) => item.product.id === product.id);
+					if (productIndex !== -1) {
+						cartItems[productIndex].amount += 1;
+					} else {
+						cartItems.push({
+							product,
+							amount: 1,
+						});
+					}
+					await admin
+						.firestore()
+						.collection(
+							FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }),
+						)
+						.doc(cartId)
+						.update({
+							items: cartItems,
+						});
+					return { success: true, error: null };
+				} catch (error: any) {
+					logger.write({
+						severity: "ERROR",
+						message: "error adding item to cart error: " + error?.message,
+						product,
+						storeId: storeId,
+						companyId: companyId,
+					});
+					return { success: false, error: error as Error };
+				}
+			},
 			close: async (cartId: string) => {
 				try {
 					logger.write({
@@ -217,7 +271,7 @@ export function createAppApi(context: TContext) {
 					await admin
 						.firestore()
 						.collection(
-							FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId })
+							FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }),
 						)
 						.doc(cartId)
 						.update({

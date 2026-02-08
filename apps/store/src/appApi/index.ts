@@ -62,7 +62,7 @@ export const useAppApi = () => {
 	>({});
 
 	function updateLoading(
-		update: Partial<Record<SubNestedKeys<Omit<typeof api, "loading">>, boolean | undefined>>
+		update: Partial<Record<SubNestedKeys<Omit<typeof api, "loading">>, boolean | undefined>>,
 	) {
 		setLoading({ ...loading, ...update });
 	}
@@ -89,7 +89,7 @@ export const useAppApi = () => {
 		(
 			payload: { message: LogPayload["message"]; severity: LogPayload["severity"] } & {
 				[key: string]: any;
-			}
+			},
 		) => {
 			FirebaseApi.api.uiLogs({
 				companyId,
@@ -99,7 +99,7 @@ export const useAppApi = () => {
 				...payload,
 			});
 		},
-		[companyId, storeId, tenantId, userId]
+		[companyId, storeId, tenantId, userId],
 	);
 	useEffect(() => {
 		if (appReady && !isValidStoreData) {
@@ -220,7 +220,7 @@ export const useAppApi = () => {
 				return;
 			},
 			subscribeToDiscounts: (callback: (discounts: TDiscount[]) => void) => {
-				if (!isValidAdmin) return () => { };
+				if (!isValidAdmin) return () => {};
 
 				return FirebaseApi.firestore.subscribeList<TDiscount>({
 					collection: FirebaseAPI.firestore.getPath({
@@ -478,7 +478,7 @@ export const useAppApi = () => {
 			},
 			createDeliveryNote: async (
 				order: TOrder,
-				options?: { date?: number; sendEmailToClient?: boolean; nameOnInvoice?: string }
+				options?: { date?: number; sendEmailToClient?: boolean; nameOnInvoice?: string },
 			) => {
 				if (!isValidAdmin) return;
 
@@ -565,7 +565,7 @@ export const useAppApi = () => {
 						collectionName: "profiles",
 						storeId,
 						companyId,
-					})
+					}),
 				);
 
 				logger({
@@ -622,7 +622,7 @@ export const useAppApi = () => {
 				}
 
 				const match = result.data.find(
-					(client) => client.email?.trim().toLowerCase() === trimmedEmail
+					(client) => client.email?.trim().toLowerCase() === trimmedEmail,
 				);
 
 				return { success: true, data: match ?? null };
@@ -724,7 +724,7 @@ export const useAppApi = () => {
 						collectionName: "profiles",
 						storeId,
 						companyId,
-					})
+					}),
 				);
 
 				logger({
@@ -793,7 +793,7 @@ export const useAppApi = () => {
 				try {
 					// Remove null values to unset fields
 					const cleanSettings = Object.fromEntries(
-						Object.entries(settings).filter(([, value]) => value !== null)
+						Object.entries(settings).filter(([, value]) => value !== null),
 					);
 
 					const result = await FirebaseApi.firestore.setV2({
@@ -889,7 +889,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 						collectionName: "orders",
-					})
+					}),
 				);
 				return { success: true };
 				// create token
@@ -908,7 +908,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 						collectionName: "orders",
-					})
+					}),
 				);
 			},
 			orderInDelivery({ order }: { order: TOrder }) {
@@ -925,7 +925,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 						collectionName: "orders",
-					})
+					}),
 				);
 			},
 			orderDelivered({ order }: { order: TOrder }) {
@@ -942,7 +942,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 						collectionName: "orders",
-					})
+					}),
 				);
 			},
 			orderAccept({ order }: { order: TOrder }) {
@@ -960,7 +960,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 						collectionName: "orders",
-					})
+					}),
 				);
 			},
 			cancelOrder({ order }: { order: TOrder }) {
@@ -978,7 +978,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 						collectionName: "orders",
-					})
+					}),
 				);
 			},
 
@@ -1085,7 +1085,7 @@ export const useAppApi = () => {
 							collectionName: "organizations",
 						}),
 						doc: doc,
-					}
+					},
 				);
 				updateLoading({ "admin.createOrganization": false });
 
@@ -1108,7 +1108,7 @@ export const useAppApi = () => {
 						storeId,
 						companyId,
 						collectionName: "organizations",
-					})
+					}),
 				);
 				logger({
 					message: "update organization",
@@ -1208,7 +1208,7 @@ export const useAppApi = () => {
 						storeId,
 						companyId,
 						collectionName: "organizationGroups",
-					})
+					}),
 				);
 				logger({
 					message: "update organization group",
@@ -1320,7 +1320,7 @@ export const useAppApi = () => {
 						storeId,
 						companyId,
 						collectionName: "suppliers",
-					})
+					}),
 				);
 				updateLoading({ "admin.updateSupplier": false });
 
@@ -1472,7 +1472,7 @@ export const useAppApi = () => {
 					if (!isValid) return [];
 					const res = await FirebaseApi.firestore.get<{ categories: TCategory[] }>(
 						store.id,
-						"categories"
+						"categories",
 					);
 
 					return res?.data?.categories ?? [];
@@ -1541,7 +1541,7 @@ export const useAppApi = () => {
 					return unsubscribe;
 				},
 				favoriteProductsSubscribe: (
-					callback: (favoriteProducts: TFavoriteProduct[]) => void
+					callback: (favoriteProducts: TFavoriteProduct[]) => void,
 				) => {
 					if (!user || !company || !store || user.isAnonymous || !companyId || !storeId)
 						return;
@@ -1652,7 +1652,7 @@ export const useAppApi = () => {
 							collectionName: "profiles",
 							storeId,
 							companyId,
-						})
+						}),
 					);
 					logger({
 						message: "profile updated",
@@ -1674,7 +1674,7 @@ export const useAppApi = () => {
 
 				const payment: any = await FirebaseApi.api.createPayment({
 					order: { ...order, client: undefined },
-					isJ5: false
+					isJ5: false,
 				});
 				logger({
 					message: "client create payment link",
@@ -1698,7 +1698,7 @@ export const useAppApi = () => {
 						companyId,
 						storeId,
 						collectionName: "orders",
-					})
+					}),
 				);
 			},
 			async createCartFromOrder({ order }: { order: TOrder }) {
@@ -1778,7 +1778,7 @@ export const useAppApi = () => {
 				if (isProductInCart) {
 					const items = structuredClone(cartItems ?? []);
 					const productIndex = (cartItems ?? []).findIndex(
-						(cartItem) => cartItem.product.id === product?.id
+						(cartItem) => cartItem.product.id === product?.id,
 					);
 					items[productIndex].amount += 1;
 					FirebaseApi.firestore.setV2<TCart>({
@@ -1839,7 +1839,7 @@ export const useAppApi = () => {
 				const cartItems = cart?.items ?? [];
 
 				const productIndex = cartItems.findIndex(
-					(cartItem) => cartItem.product.id === product.id
+					(cartItem) => cartItem.product.id === product.id,
 				);
 				const productInCart = productIndex !== -1;
 				if (!productInCart) return;
@@ -1902,7 +1902,7 @@ export const useAppApi = () => {
 				const cartItems = cart?.items ?? [];
 
 				const productIndex = cartItems.findIndex(
-					(cartItem) => cartItem.product.id === product.id
+					(cartItem) => cartItem.product.id === product.id,
 				);
 				const productInCart = productIndex !== -1;
 				if (!productInCart) return;
@@ -2050,7 +2050,7 @@ export const useAppApi = () => {
 		},
 		chatbot: {
 			sendMessage: async (prompt: string) => {
-				return await FirebaseApi.api.openAiChat(prompt);
+				return await FirebaseApi.api.openAiChat(prompt, { cartId: cart?.id ?? "" });
 			},
 		},
 	};

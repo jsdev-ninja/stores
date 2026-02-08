@@ -92,7 +92,7 @@ export enum DOC_TYPE {
 
 async function createInvoice(
 	storeId: string,
-	{ orders, params }: { orders: TOrder[]; params: Params }
+	{ orders, params }: { orders: TOrder[]; params: Params },
 ) {
 	try {
 		const func = httpsCallable(functions, "createInvoice");
@@ -108,7 +108,7 @@ async function createInvoice(
 	}
 }
 
-async function createPayment({ order, isJ5 }: { order: TOrder, isJ5?: boolean }) {
+async function createPayment({ order, isJ5 }: { order: TOrder; isJ5?: boolean }) {
 	try {
 		const func = httpsCallable(functions, "createPayment");
 
@@ -179,10 +179,10 @@ export type OpenAiChatResult = {
 	error?: string;
 };
 
-async function openAiChat(prompt: string): Promise<OpenAiChatResult> {
+async function openAiChat(prompt: string, context: { cartId?: string }): Promise<OpenAiChatResult> {
 	try {
 		const func = httpsCallable(functions, "openAiAPi");
-		const response = await func({ prompt });
+		const response = await func({ prompt, context });
 		const data = response.data as { content: string | null; role: string };
 		return { success: true, data };
 	} catch (error: any) {

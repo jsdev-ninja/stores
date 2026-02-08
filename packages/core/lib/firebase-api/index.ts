@@ -19,6 +19,8 @@ export const storeCollections = {
 	invoices: "invoices",
 	suppliers: "suppliers",
 	supplierInvoices: "supplierInvoices",
+	chatSessions: "chatSessions",
+	chatSessionMessages: "chatSessionMessages",
 } as const;
 
 export const FirestoreApi = {
@@ -38,9 +40,33 @@ export const FirestoreApi = {
 	}) => {
 		return `${companyId}/${storeId}/${collectionName}${id ? `/${id}` : ""}`;
 	},
+	getSubPath: ({
+		companyId,
+		storeId,
+		collectionName,
+		subCollectionName,
+		id,
+		subId,
+	}: {
+		companyId: string;
+		storeId: string;
+		collectionName: keyof typeof storeCollections;
+		subCollectionName: keyof typeof storeCollections;
+		id: string;
+		subId?: string;
+	}) => {
+		return `${companyId}/${storeId}/${collectionName}/${id}/${subCollectionName}${subId ? `/${subId}` : ""}`;
+	},
 	// for firestore events
 	getDocPath: (collectionName: keyof typeof storeCollections) => {
 		return `{companyId}/{storeId}/${collectionName}/{id}`;
+	},
+	getSubDocPath: (
+		collectionName: keyof typeof storeCollections,
+		id: string,
+		subCollectionName: keyof typeof storeCollections,
+	) => {
+		return `{companyId}/{storeId}/${collectionName}/${id}/${subCollectionName}/{id}`;
 	},
 };
 
