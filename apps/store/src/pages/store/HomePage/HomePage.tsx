@@ -1,46 +1,24 @@
-import { useRef } from "react";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import CompleteSolution from "./components/CompleteSolution";
-import ProductCategories from "./components/ProductCategories";
-import WhyBlesi from "./components/WhyBlesi";
-import OrderingOptions from "./components/OrderingOptions";
-import ContactForm from "./components/ContactForm";
-import Footer from "./components/Footer";
+import { ComponentType, LazyExoticComponent, Suspense, lazy } from "react";
+import type { TStore } from "@jsdev_ninja/core";
+import { useStore } from "src/domains/Store";
 
-const Index = () => {
-	const contactFormRef = useRef<HTMLDivElement>(null);
+const HOME_PAGE_CONFIG: Record<
+	TStore["id"],
+	{ homePage?: LazyExoticComponent<ComponentType<object>> }
+> = {
+	balasistore_store: {
+		homePage: lazy(() => import("../../../websites/balasistore/HomePage")),
+	},
+} as const;
 
-	const scrollToContact = () => {
-		contactFormRef.current?.scrollIntoView({ behavior: "smooth" });
-	};
+const DefaultHomePage = lazy(() => import("../../../websites/default/DefaultHomePage"));
 
-	return (
-		<div className="min-h-screen bg-background" dir="rtl">
-			<Header onContact={scrollToContact} />
+export default function HomePage() {
+	const store = useStore();
 
-			<Hero onContact={scrollToContact} />
+	if (!store) return null;
 
-			{/* Complete Office Solution */}
-			<CompleteSolution />
+	const Component = HOME_PAGE_CONFIG[store.id]?.homePage;
 
-			{/* Product Categories */}
-			<ProductCategories />
-
-			{/* Why Offices Choose Blesi Store */}
-			<WhyBlesi />
-
-			{/* Ordering Options CTA */}
-			<OrderingOptions onContact={scrollToContact} />
-
-			{/* Contact Form */}
-			<div ref={contactFormRef}>
-				<ContactForm variant="light" />
-			</div>
-
-			<Footer />
-		</div>
-	);
-};
-
-export default Index;
+	return <Suspense fallback={null}>{Component ? <Component /> : <DefaultHomePage />}</Suspense>;
+}
