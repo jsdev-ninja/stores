@@ -15,7 +15,7 @@ const ContactForm = ({
     title = "הפכו ללקוח משרד קבוע",
     subtitle = "מלאו את הטופס ונחזור אליכם לשיחה על צרכי המשרד שלכם."
 }: ContactFormProps) => {
-    const { t } = useTranslation(["common"]);
+    const { t } = useTranslation(["common", "contactForm"]);
     const appApi = useAppApi();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
@@ -40,21 +40,21 @@ const ContactForm = ({
             if (result?.success) {
                 setFormData({ name: "", email: "", company: "", phone: "", message: "" });
                 addToast({
-                    title: t("common:contactForm.submitSuccessTitle" as any),
-                    description: t("common:contactForm.submitSuccessDescription" as any),
+                    title: t("contactForm:submitSuccessTitle"),
+                    description: t("contactForm:submitSuccessDescription"),
                     color: "success",
                 });
             } else {
                 addToast({
-                    title: t("common:contactForm.submitFailedTitle" as any),
-                    description: t("common:contactForm.submitFailedDescription" as any),
+                    title: t("contactForm:submitFailedTitle"),
+                    description: t("contactForm:submitFailedDescription"),
                     color: "danger",
                 });
             }
         } catch {
             addToast({
-                title: t("common:contactForm.submitFailedTitle" as any),
-                description: t("common:contactForm.submitFailedDescription" as any),
+                title: t("contactForm:submitFailedTitle"),
+                description: t("contactForm:submitFailedDescription"),
                 color: "danger",
             });
         } finally {

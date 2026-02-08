@@ -11,7 +11,7 @@ import { useStore } from "src/domains/Store";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { useAppApi } from "src/appApi";
 import { SentryApi } from "src/lib/sentry";
 
@@ -179,6 +179,7 @@ function App() {
 
 	return (
 		<HeroUIProvider className="min-h-screen min-w-screen">
+			<ToastProvider placement="top-center" />
 			{/* todo fix fallback */}
 			<Suspense fallback="loading">
 				<ModalProvider />
