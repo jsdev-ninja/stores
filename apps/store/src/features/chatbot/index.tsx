@@ -9,7 +9,7 @@ export { ChatInput } from "./ChatInput";
 
 export function ChatbotFeature() {
 	return (
-		<ChatbotProvider isFeatureOn={true}>
+		<ChatbotProvider isFeatureOn={false}>
 			<ChatbotToggle />
 		</ChatbotProvider>
 	);
