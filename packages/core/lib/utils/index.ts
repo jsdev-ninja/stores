@@ -1,11 +1,11 @@
-import { TCart, TDiscount, TProduct, TStore } from "../entities";
-import { DiscountEngine } from "../entities/Discount/engine";
+import { TCart, TDiscount, TProduct } from "../entities";
+// import { DiscountEngine } from "../entities/Discount/engine";
 
 const CONFIG = {
 	VAT: 18,
 };
 
-function calculateDiscount(product: TProduct) {
+function calculateDiscount(product: TProduct, isVatIncludedInPrice: boolean) {
 	if (product.discount?.type === "percent") {
 		return (product.price * (product.discount.value ?? 100)) / 100;
 	}
@@ -15,16 +15,21 @@ function calculateDiscount(product: TProduct) {
 	return 0;
 }
 
-function getPriceAfterDiscount(product: TProduct) {
+function getPriceAfterDiscount(product: TProduct, isVatIncludedInPrice: boolean) {
+	const price =
+		isVatIncludedInPrice && product.vat
+			? product.price + (product.price * CONFIG.VAT) / 100
+			: product.price;
+
 	if (product.discount?.type === "percent") {
-		const dscountAmount = (product.price * product.discount.value) / 100;
+		const dscountAmount = (price * product.discount.value) / 100;
 		return product.price - dscountAmount;
 	}
 	if (product.discount?.type === "number") {
-		const dscountAmount = product.price - product.discount.value;
+		const dscountAmount = price - product.discount.value;
 		return dscountAmount;
 	}
-	return product.price;
+	return price;
 }
 
 // main
@@ -42,26 +47,26 @@ export function getCartCost({
 	isVatIncludedInPrice?: boolean;
 }) {
 	// Convert cart items to the format expected by the discount engine
-	const cartForEngine = cart.map((item) => ({
-		amount: item.amount,
-		product: {
-			id: item.product.id,
-			price: item.product.price,
-		},
-	}));
+	// const cartForEngine = cart.map((item) => ({
+	// 	amount: item.amount,
+	// 	product: {
+	// 		id: item.product.id,
+	// 		price: item.product.price,
+	// 	},
+	// }));
 
 	// Apply discounts using the new discount engine
-	const discountResult = DiscountEngine.calculateDiscounts(cartForEngine, discounts);
+	// const discountResult = DiscountEngine.calculateDiscounts(cartForEngine, discounts);
 
 	// Map the results back to the original format with additional product info
 	const result = cart.map((item, index) => {
-		const engineItem = discountResult.items[index];
+		// const engineItem = discountResult.items[index];
 		return {
 			amount: item.amount,
 			product: { ...item.product },
 			originalPrice: item.product.price,
-			finalPrice: engineItem ? engineItem.finalPrice : getPriceAfterDiscount(item.product),
-			finalDiscount: engineItem ? engineItem.finalDiscount : calculateDiscount(item.product),
+			finalPrice: getPriceAfterDiscount(item.product, isVatIncludedInPrice),
+			finalDiscount: calculateDiscount(item.product, isVatIncludedInPrice),
 		};
 	});
 
@@ -106,14 +111,6 @@ export function getCartCost({
 			acc.finalCost = Number(acc.finalCost.toFixed(2));
 			acc.productsCost = Number(acc.productsCost.toFixed(2));
 
-			// console.log(
-			// 	"product",
-			// 	product.name[0].value,
-			// 	finalPrice,
-			// 	amount,
-			// 	amount * roundedFinalPrice + (isVatIncludedInPrice ? 0 : productVatValue)
-			// );
-
 			return acc;
 		},
 		{
@@ -123,7 +120,7 @@ export function getCartCost({
 			vat: 0,
 			productsCost: 0,
 			deliveryPrice: deliveryPrice,
-		}
+		},
 	);
 
 	if (cartDetails.deliveryPrice && cartDetails.productsCost >= freeDeliveryPrice) {
@@ -131,8 +128,6 @@ export function getCartCost({
 	} else {
 		cartDetails.finalCost += cartDetails.deliveryPrice;
 	}
-
-	console.log("cartDetails", cartDetails);
 
 	return { items: result, ...cartDetails };
 }
