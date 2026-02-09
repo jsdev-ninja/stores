@@ -13,10 +13,12 @@ import { ProductWeight } from "./ProductWeight";
 import { ProductBrand } from "./ProductBrand";
 import { ProductManufacturer } from "./ProductManufacturer";
 import { ProductSupplier } from "./ProductSupplier";
-import { TProduct } from "@jsdev_ninja/core";
+import { math, TProduct } from "@jsdev_ninja/core";
 import { ProductAddToFavorite } from "./ProductAddToFavorite";
 import { ProductDiscountBadge } from "./ProductDiscountBadge";
 import { formatter } from "src/utils/formatter";
+import { useStore } from "src/domains/Store";
+import { CONFIG } from "src/config";
 
 export type ProductProps = {
 	product: TProduct;
@@ -65,9 +67,11 @@ Product.Description = function Description() {
 Product.Price = function Price() {
 	const { product } = useProduct();
 
-	if (!product) return null;
+	const store = useStore();
 
-	const finalPrice = getPriceAfterDiscount(product);
+	if (!product || !store) return null;
+
+	const finalPrice = getPriceAfterDiscount(product, store.isVatIncludedInPrice);
 
 	return (
 		<p className="text-lg font-bold text-primary-500 dark:text-white">
@@ -105,14 +109,20 @@ Product.ProductBrand = ProductBrand;
 Product.ProductManufacturer = ProductManufacturer;
 Product.Supplier = ProductSupplier;
 
-function getPriceAfterDiscount(product: TProduct) {
+function getPriceAfterDiscount(product: TProduct, isVatIncludedInPrice: boolean) {
+	// if isVatIncludedInPrice is true, add vat to product price
+	const price =
+		isVatIncludedInPrice && product.vat
+			? product.price + (product.price * CONFIG.VAT) / 100
+			: product.price;
+
 	if (product.discount?.type === "percent") {
-		const dscountAmount = (product.price * product.discount.value) / 100;
-		return product.price - dscountAmount;
+		const dscountAmount = (price * product.discount.value) / 100;
+		return math.round(price - dscountAmount, 2);
 	}
 	if (product.discount?.type === "number") {
-		const dscountAmount = product.price - product.discount.value;
-		return dscountAmount;
+		const dscountAmount = price - product.discount.value;
+		return math.round(dscountAmount, 2);
 	}
-	return product.price;
+	return math.round(price, 2);
 }

@@ -148,9 +148,14 @@ function AdminCreateOrderPage() {
 						cartDiscount: cartCost.discount,
 						cartTotal: cartCost.finalCost,
 						cartVat: cartCost.vat,
-						deliveryPrice: store.deliveryPrice ?? 0,
+						deliveryPrice: cartCost.deliveryPrice ?? 0,
 					},
 					date: Date.now(), //todo: set on submit event
+					storeOptions: {
+						deliveryPrice: store.deliveryPrice,
+						freeDeliveryPrice: store.freeDeliveryPrice,
+						isVatIncludedInPrice: store.isVatIncludedInPrice,
+					},
 				}}
 				onError={(errors) => {
 					console.warn("errors", errors);

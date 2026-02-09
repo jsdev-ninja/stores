@@ -63,7 +63,7 @@ export function CatalogPage() {
 							})
 						}
 					>
-						{t("common:goToCart")} {formatter.price(cartCost.productsCost)}
+						{t("common:goToCart")} {formatter.price(cartCost.cost)}
 					</Button>
 				</div>
 			</div>

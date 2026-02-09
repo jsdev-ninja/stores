@@ -1,6 +1,13 @@
 import admin from "firebase-admin";
 import { logger } from "../core";
-import { FirebaseAPI, TCart, TOrder, TOrganization, TProduct, TStore } from "@jsdev_ninja/core";
+import {
+	FirebaseAPI,
+	TCart,
+	TOrder,
+	TOrganization,
+	TProduct,
+	TStore,
+} from "@jsdev_ninja/core";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
@@ -66,13 +73,16 @@ export function createAppApi(context: TContext) {
 						severity: "INFO",
 						message: "organization",
 						organization,
+						storePrivateData,
+						store,
+						order
 					});
 
 					const res = await ezCountService.createDeliveryNote(order, {
 						ezcount_key: storePrivateData.ezcount_key,
+						ezcount_api: storePrivateData.ezcount_api,
 						clientName: options?.nameOnInvoice ?? order.nameOnInvoice ?? "",
 						clientEmail: order.client?.email ?? "",
-						ezcount_api: storePrivateData.ezcount_api,
 						date: formatDateDDMMYYYY(date.toLocaleDateString()),
 						isVatIncludedInPrice:
 							order.storeOptions?.isVatIncludedInPrice ?? store.isVatIncludedInPrice,

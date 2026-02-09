@@ -1,4 +1,4 @@
-import { TOrder, TEzDeliveryNote } from "@jsdev_ninja/core";
+import { TOrder, TEzDeliveryNote, getCartCost } from "@jsdev_ninja/core";
 import axios from "axios";
 import { logger } from "../../core";
 
@@ -157,11 +157,19 @@ export const ezCountService = {
 				isVatIncludedInPrice,
 			});
 
-			const items = order.cart.items.map((item) => {
+			const cartCost = getCartCost({
+				cart: order.cart.items,
+				discounts: [],
+				deliveryPrice: order.storeOptions?.deliveryPrice,
+				freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice,
+				isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice,
+			});
+
+			const items = cartCost.items.map((item) => {
 				return {
 					// catalog_number: item.product.sku,
 					details: item.product.name[0].value,
-					price: item.product.price,
+					price: item.finalPrice,
 					amount: item.amount,
 					vat_type: item.product.vat
 						? isVatIncludedInPrice

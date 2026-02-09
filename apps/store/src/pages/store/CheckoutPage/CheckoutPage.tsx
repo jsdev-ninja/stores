@@ -92,6 +92,7 @@ function CheckoutPage() {
 		freeDeliveryPrice: store.freeDeliveryPrice,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
+	console.log("cartCost", cartCost);
 
 
 	if (cartData.isReady && !cart) {
