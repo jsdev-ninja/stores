@@ -1,4 +1,4 @@
-import { TProduct, ProductSchema, TCategory, FirebaseAPI } from "@jsdev_ninja/core";
+import { TProduct, ProductSchema, TCategory, FirebaseAPI, math } from "@jsdev_ninja/core";
 import { getDownloadURL } from "firebase-admin/storage";
 import _allProducts from "./data/all-products.json";
 import axios from "axios";
@@ -8,6 +8,10 @@ import { admin } from "./admin";
 
 const companyId = "balasistore_company";
 const storeId = "balasistore_store";
+
+// tester-store
+// const companyId = "tester_company";
+// const storeId = "tester_store";
 
 const db = admin.firestore();
 
@@ -37,8 +41,12 @@ async function main() {
 
 			// Example update operations
 			// admin.firestore.FieldValue.delete()
+
+			if(!docData.vat) {
+				continue;
+			}
 			const updateData: Partial<TProduct> = {
-				categoryIds: docData.categoryList.map((c) => c.id),
+				price: math.round(docData.price/(1.18), 2),
 			};
 
 			// Add to batch update
