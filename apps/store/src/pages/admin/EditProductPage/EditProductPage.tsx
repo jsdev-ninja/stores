@@ -1,4 +1,10 @@
-import { NewProductSchema, storeCalculator, TCategory, TNewProduct, TProduct } from "@jsdev_ninja/core";
+import {
+	NewProductSchema,
+	storeCalculator,
+	TCategory,
+	TNewProduct,
+	TProduct,
+} from "@jsdev_ninja/core";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -12,26 +18,22 @@ import { navigate, useParams } from "src/navigation";
 import { flatten } from "src/utils/flatten";
 import { FlattenedItem } from "src/widgets/Category/CategoryTree/utils";
 
-
-
 function PriceSection() {
 	const form = useFormContext<TNewProduct>();
 
 	const { t } = useTranslation(["admin", "common"]);
 
 	const price = form.watch("price") ?? 0;
+	const store = useStore();
+	const isVatIncludedInPrice = store?.isVatIncludedInPrice ?? false;
 	const purchasePrice = form.watch("purchasePrice") ?? 0;
 	const profitPercentage = form.watch("profitPercentage") ?? 0;
 
 	const vat = form.watch("vat") ?? false;
 
+	const purchasePriceWithVat = isVatIncludedInPrice && vat ? purchasePrice * 1.18 : purchasePrice;
 
-	const purchasePriceWithVat = vat ? purchasePrice * 1.18 : purchasePrice;
-
-
-	console.log("AAAAA", form.watch('price'))
-
-
+	console.log("AAAAA", form.watch("price"));
 
 	return (
 		<Flex gap={"4"} wrap align={"start"}>
@@ -47,7 +49,10 @@ function PriceSection() {
 					onChange={(value) => {
 						console.log("value", value);
 						if (purchasePrice > 0) {
-							const margin = storeCalculator.calcMarginFromSalePrice(+value, purchasePriceWithVat);
+							const margin = storeCalculator.calcMarginFromSalePrice(
+								+value,
+								purchasePriceWithVat,
+							);
 							form.setValue("profitPercentage", margin);
 						}
 					}}
@@ -61,7 +66,10 @@ function PriceSection() {
 					type="number"
 					onChange={(value) => {
 						if (+value > 0 && price > 0) {
-							const margin = storeCalculator.calcMarginFromSalePrice(price, vat ? (+value) * 1.18 : +value);
+							const margin = storeCalculator.calcMarginFromSalePrice(
+								price,
+								 isVatIncludedInPrice && vat ? +value * 1.18 : +value,
+							);
 							form.setValue("profitPercentage", margin);
 						}
 					}}
@@ -75,7 +83,10 @@ function PriceSection() {
 					type="number"
 					onChange={(value) => {
 						if (+value > 0 && profitPercentage > 0) {
-							const newPrice = storeCalculator.calcSalePriceFromMargin(+value, purchasePriceWithVat);
+							const newPrice = storeCalculator.calcSalePriceFromMargin(
+								+value,
+								purchasePriceWithVat,
+							);
 							form.setValue("price", newPrice);
 						}
 					}}
