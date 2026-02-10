@@ -25,6 +25,7 @@ import { useAppApi } from "src/appApi";
 import { NewSupplierInvoiceSchema, TProduct, TSupplier, TSupplierInvoice } from "@jsdev_ninja/core";
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate } from "src/navigation";
+import { useStore } from "src/domains/Store";
 
 // Helper function to round numbers
 function round(value: number, digits = 2): number {
@@ -50,6 +51,8 @@ export function AdminInventoryCertificatePage() {
 	const { t } = useTranslation(["common"]);
 	const appApi = useAppApi();
 
+	const store = useStore();
+	const isVatIncludedInPrice = store?.isVatIncludedInPrice ?? false;
 	// Document header state
 	const [supplierInvoice, setSupplierInvoice] = useState<Partial<TSupplierInvoice>>({
 		type: "SupplierInvoice",
@@ -140,13 +143,13 @@ export function AdminInventoryCertificatePage() {
 
 		let profitPercentage = row.profitPercentage;
 		let price = row.price;
-		const priceWithoutVat = row.vat ? price / (1 + 18 / 100) : price;
+		const priceWithoutVat = isVatIncludedInPrice && row.vat ? price / (1 + 18 / 100) : price;
 		const purchasePrice = row.purchasePrice;
 		let purchasePriceAfterDiscount = purchasePrice;
 		if (row.lineDiscount) {
 			purchasePriceAfterDiscount = purchasePrice * (1 - row.lineDiscount / 100);
 		}
-		const purchasePriceWithVat = row.vat
+		const purchasePriceWithVat = isVatIncludedInPrice && row.vat
 			? round(purchasePriceAfterDiscount * 1.18)
 			: purchasePriceAfterDiscount;
 
