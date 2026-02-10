@@ -751,8 +751,11 @@ export const resources = {
 				addProduct: "הוסף מוצר",
 				tabAll: "הכל",
 				tabWithoutImage: "ללא תמונה",
+				tabWithoutPurchasePrice: "ללא מחיר רכישה",
 				noImageEmptyTitle: "אין מוצרים ללא תמונה",
 				noImageEmptyDescription: "כל המוצרים כוללים תמונה",
+				noPurchasePriceEmptyTitle: "אין מוצרים ללא מחיר רכישה",
+				noPurchasePriceEmptyDescription: "כל המוצרים כוללים מחיר רכישה",
 			},
 			productForm: {
 				edit: {

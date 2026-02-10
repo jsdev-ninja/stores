@@ -12,6 +12,7 @@ import { ProductsWidgetAdmin } from "src/widgets/Products";
 
 const TAB_ALL = "all";
 const TAB_WITHOUT_IMAGE = "noImage";
+const TAB_WITHOUT_PURCHASE_PRICE = "noPurchasePrice";
 
 export function AdminProductsPage() {
 	const appApi = useAppApi();
@@ -47,6 +48,10 @@ export function AdminProductsPage() {
 				>
 					<Tab key={TAB_ALL} title={t("admin:productsPage.tabAll")} />
 					<Tab key={TAB_WITHOUT_IMAGE} title={t("admin:productsPage.tabWithoutImage")} />
+					<Tab
+						key={TAB_WITHOUT_PURCHASE_PRICE}
+						title={t("admin:productsPage.tabWithoutPurchasePrice")}
+					/>
 				</Tabs>
 
 				<div className="flex">
@@ -59,7 +64,9 @@ export function AdminProductsPage() {
 								const filtered =
 									activeTab === TAB_WITHOUT_IMAGE
 										? products.filter((p) => !p.images?.length)
-										: products;
+										: activeTab === TAB_WITHOUT_PURCHASE_PRICE
+											? products.filter((p) => p.purchasePrice == null || p.purchasePrice <= 0)
+											: products;
 
 								if (activeTab === TAB_WITHOUT_IMAGE && filtered.length === 0) {
 									return (
@@ -67,6 +74,17 @@ export function AdminProductsPage() {
 											<EmptyState
 												title={t("admin:productsPage.noImageEmptyTitle")}
 												description={t("admin:productsPage.noImageEmptyDescription")}
+											/>
+										</div>
+									);
+								}
+
+								if (activeTab === TAB_WITHOUT_PURCHASE_PRICE && filtered.length === 0) {
+									return (
+										<div className="mx-auto self-center">
+											<EmptyState
+												title={t("admin:productsPage.noPurchasePriceEmptyTitle")}
+												description={t("admin:productsPage.noPurchasePriceEmptyDescription")}
 											/>
 										</div>
 									);

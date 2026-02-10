@@ -25,7 +25,7 @@ async function main() {
 				collectionName: "products",
 				companyId,
 				storeId,
-			})
+			}),
 		);
 		const snapshot = await collectionRef.get();
 		console.log("snapshot", snapshot.size);
@@ -42,11 +42,11 @@ async function main() {
 			// Example update operations
 			// admin.firestore.FieldValue.delete()
 
-			if(!docData.vat) {
+			if (!docData.vat) {
 				continue;
 			}
 			const updateData: Partial<TProduct> = {
-				price: math.round(docData.price/(1.18), 2),
+				price: math.round(docData.price, 1),
 			};
 
 			// Add to batch update

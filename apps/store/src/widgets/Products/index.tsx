@@ -1,10 +1,4 @@
-import {
-	ClearRefinements,
-	Configure,
-	InstantSearch,
-	useInfiniteHits,
-	useInstantSearch,
-} from "react-instantsearch";
+import { Configure, InstantSearch, useInfiniteHits, useInstantSearch } from "react-instantsearch";
 import { AlgoliaClient } from "src/services";
 import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ProductFilter } from "./ProductFilter/ProductFilter";
@@ -129,7 +123,6 @@ export function ProductsWidgetAdmin({
 				{...(filters ? { filters: filters } : {})}
 				attributesToHighlight={[]}
 			/>
-			<ClearRefinements />
 			{children}
 		</InstantSearch>
 	);
@@ -188,7 +181,7 @@ export function Products({
 						}
 					});
 				},
-				{ threshold: 1 }
+				{ threshold: 1 },
 			);
 
 			observer.observe(sentinelRef.current);
