@@ -15,7 +15,7 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 	return (
 		<Product key={product.id} product={product}>
 			<div
-				className="shadow p-2 w-64 h-[520px] bg-gray-50 flex flex-col  rounded-2xl relative"
+				className="shadow p-2 w-full max-w-64 h-[320px] md:h-[520px] bg-gray-50 flex flex-col rounded-xl md:rounded-2xl relative"
 				onClick={async () => {
 					navigate({
 						to: "store.product",
@@ -28,10 +28,10 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 				<div className="absolute top-0 end-0 z-10">
 					<Product.ProductAddToFavorite />
 				</div>
-				<div className="size-60  mx-auto">
+				<div className="size-28 md:size-60 mx-auto shrink-0">
 					<Product.Image prefix="productCard" />
 				</div>
-				<div className="flex flex-col gap-1 mt-4">
+				<div className="flex flex-col gap-1 mt-2 md:mt-4 min-w-0">
 					<Product.Name />
 					<div className="flex gap-1">
 						<Product.Price />
@@ -43,7 +43,7 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 						<Product.ProductBrand />
 					</div>
 				</div>
-				<div className="my-4 text-sm text-gray-500 max-h-10 overflow-hidden  text-ellipsis">
+				<div className="my-2 md:my-4 text-xs md:text-sm text-gray-500 max-h-8 md:max-h-10 overflow-hidden text-ellipsis">
 					<Product.Description />
 				</div>
 				<div className="w-full mt-auto">

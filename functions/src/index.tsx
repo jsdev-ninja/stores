@@ -111,6 +111,13 @@ export const onOrderUpdate = functions
 			await appApi.documents.createDeliveryNote(after);
 		}
 
+		const paymentCompleted = before.paymentStatus !== "completed" && after.paymentStatus === "completed";
+
+		if (paymentCompleted) {
+			// track payment completed
+			await appApi.payments.trackPaymentCompleted(after);
+		}
+
 		return;
 	});
 

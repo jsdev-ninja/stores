@@ -1,13 +1,6 @@
 import admin from "firebase-admin";
 import { logger } from "../core";
-import {
-	FirebaseAPI,
-	TCart,
-	TOrder,
-	TOrganization,
-	TProduct,
-	TStore,
-} from "@jsdev_ninja/core";
+import { FirebaseAPI, TCart, TOrder, TOrganization, TProduct, TStore } from "@jsdev_ninja/core";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
@@ -42,6 +35,31 @@ export function createAppApi(context: TContext) {
 	const { storeId, companyId, userId, isAdmin } = context;
 
 	return {
+		payments: {
+			trackPaymentCompleted: async (order: TOrder) => {
+				try {
+					logger.write({
+						severity: "INFO",
+						message: "track payment completed",
+						orderId: order.id,
+						storeId: storeId,
+						companyId: companyId,
+						order,
+					});
+					// save revenue
+				} catch (error: any) {
+					logger.write({
+						severity: "ERROR",
+						message: "error tracking payment completed",
+						orderId: order.id,
+						storeId: storeId,
+						companyId: companyId,
+						order,
+						error,
+					});
+				}
+			},
+		},
 		documents: {
 			createDeliveryNote: async (
 				order: TOrder,
@@ -75,7 +93,7 @@ export function createAppApi(context: TContext) {
 						organization,
 						storePrivateData,
 						store,
-						order
+						order,
 					});
 
 					const res = await ezCountService.createDeliveryNote(order, {

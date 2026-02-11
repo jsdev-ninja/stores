@@ -31,25 +31,35 @@ export function CatalogPage() {
 
 	return (
 		<div className="flex w-full h-full">
-			<div className="hidden md:block shrink-0 max-w-80 grow  overflow-auto p-4 sticky top-0 h-[calc(100vh-64px)]">
+			<div className="hidden md:block shrink-0 max-w-80 grow overflow-auto p-4 sticky top-0 h-[calc(100vh-64px)]">
 				<CategoryMenu />
 			</div>
 
-			<div className="grow p-6 flex flex-col justify-start items-start gap-4  ">
-				<div className="mx-auto  w-full">
+			<div className="grow p-3 md:p-6 flex flex-col justify-start items-start gap-4 min-w-0">
+				<div className="mx-auto w-full">
 					<ProductsWidget.SearchBox />
 				</div>
-				<div className="flex gap-4 w-full flex-wrap justify-center grow">
+				{/* Small screen only: 2-col grid. Desktop: original flex wrap, no change */}
+				<div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:gap-4 md:justify-center w-full grow content-start">
 					<ProductsWidget.Products emptyStateAction={() => {}}>
 						{(products) => {
 							return products.map((product) => {
-								return <ProductRender key={product.id} product={product} />;
+								return (
+									<div
+										key={product.id}
+										className="w-full min-w-0 flex justify-center md:w-auto"
+									>
+										<ProductRender product={product} />
+									</div>
+								);
 							});
 						}}
 					</ProductsWidget.Products>
 				</div>
 			</div>
-			<div className="hidden  md:flex min-w-80 flex-col sticky  top-0 h-[calc(100vh-64px)]">
+
+			{/* Desktop cart sidebar */}
+			<div className="hidden md:flex min-w-80 flex-col sticky top-0 h-[calc(100vh-64px)]">
 				<div className="grow h-full">
 					<Cart />
 				</div>
@@ -57,16 +67,26 @@ export function CatalogPage() {
 					<Button
 						isDisabled={!cartCost?.items?.length}
 						fullWidth
-						onPress={() =>
-							navigate({
-								to: "store.cart",
-							})
-						}
+						onPress={() => navigate({ to: "store.cart" })}
 					>
 						{t("common:goToCart")} {formatter.price(cartCost.cost)}
 					</Button>
 				</div>
 			</div>
+
+			{/* Mobile: sticky cart bar so user can go to cart */}
+			<div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-background border-t shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
+				<Button
+					isDisabled={!cartCost?.items?.length}
+					fullWidth
+					size="lg"
+					onPress={() => navigate({ to: "store.cart" })}
+				>
+					{t("common:goToCart")} {formatter.price(cartCost.cost)}
+				</Button>
+			</div>
+			{/* Spacer so content is not hidden behind fixed cart bar on mobile */}
+			<div className="md:hidden h-16 shrink-0" aria-hidden />
 		</div>
 	);
 }

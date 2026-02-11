@@ -37,6 +37,10 @@ describe("storeCalculator", () => {
         test("return 0 when sale price is 0", () => {
             expect(storeCalculator.calcMarginFromSalePrice(0, 100)).toBe(0);
         });
+        test("return 24.53 when sale price is less than purchase price", () => {
+            expect(storeCalculator.calcMarginFromSalePrice(10.6, 8)).toBe(24.53);
+        });
+
         test("return 0 when purchase price is 0", () => {
             expect(storeCalculator.calcMarginFromSalePrice(100, 0)).toBe(0);
         });

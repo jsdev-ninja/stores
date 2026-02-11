@@ -59,22 +59,27 @@ type InputButtonProps = Omit<ButtonProps, "value" | "onChange"> & {
 export function InputButton(props: InputButtonProps) {
 	const { onChange, value, size = "md", product, ...rest } = props;
 
-	// Map size prop to height class
+	// Desktop: original heights only. Small screen: touch-friendly mins via max-md:
 	const sizeToHeight = {
 		sm: "h-8",
 		md: "h-10",
 		lg: "h-12",
 	};
-	const heightClass = sizeToHeight[size] || "h-10";
+	const heightClass = sizeToHeight[size] || sizeToHeight.md;
 
-	// Check if product is kg type and should allow decimal input
 	const isKgProduct = product?.priceType?.type === "kg";
+
+	// Desktop unchanged. Small screen only: touch-friendly min height
+	const groupClass =
+		"mx-auto w-full rounded-lg overflow-hidden max-md:min-h-11 max-md:touch-manipulation";
+	const btnClass = "rounded-none rounded-s-lg shrink-0 max-md:min-w-11 max-md:min-h-11";
+	const btnClassEnd = "rounded-none rounded-e-lg shrink-0 max-md:min-w-11 max-md:min-h-11";
 
 	if (isKgProduct) {
 		return (
-			<ButtonGroup size={size} color="primary" className="mx-auto w-full">
+			<ButtonGroup size={size} color="primary" className={groupClass}>
 				<Button
-					className="rounded-none rounded-s-lg"
+					className={btnClass}
 					onPress={() => {
 						const newAmount = Math.max(0, value - 0.5);
 						onChange(newAmount, "update");
@@ -94,11 +99,10 @@ export function InputButton(props: InputButtonProps) {
 						const newAmount = parseFloat(e.target.value) || 0;
 						onChange(newAmount, "update");
 					}}
-					className={`flex-1 text-center border-none outline-none bg-primary text-primary-foreground m-0 p-0 align-middle ${heightClass}`}
-					style={{ minWidth: "60px" }}
+					className={`flex-1 text-center border-none outline-none bg-primary text-primary-foreground m-0 px-1 align-middle min-w-[60px] max-md:min-w-0 max-md:w-14 max-md:text-sm ${heightClass}`}
 				/>
 				<Button
-					className="rounded-none rounded-e-lg"
+					className={btnClassEnd}
 					onPress={() => {
 						const newAmount = value + 0.5;
 						onChange(newAmount, "update");
@@ -113,20 +117,26 @@ export function InputButton(props: InputButtonProps) {
 	}
 
 	return (
-		<ButtonGroup size={size} color="primary" className="mx-auto w-full">
+		<ButtonGroup size={size} color="primary" className={groupClass}>
 			<Button
-				className="rounded-none rounded-s-lg"
+				className={btnClass}
 				onPress={() => onChange(value - 1, "decrease")}
 				isIconOnly
 				{...rest}
 			>
 				-
 			</Button>
-			<Button fullWidth disableRipple disableAnimation disabled>
+			<Button
+				fullWidth
+				disableRipple
+				disableAnimation
+				disabled
+				className={`min-w-8 flex-1 tabular-nums max-md:text-sm ${heightClass}`}
+			>
 				{value}
 			</Button>
 			<Button
-				className=" rounded-none rounded-e-lg"
+				className={btnClassEnd}
 				onPress={() => onChange(value + 1, "increase")}
 				isIconOnly
 				{...rest}
