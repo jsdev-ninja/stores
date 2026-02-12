@@ -105,7 +105,8 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 				.doc(orderId)
 				.set(
 					{
-						paymentStatus: "completed", // TODO,
+						paymentStatus: "completed",
+						status: "completed",
 					},
 					{ merge: true }
 				);

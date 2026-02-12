@@ -96,6 +96,7 @@ export const useAppApi = () => {
 				storeId,
 				tenantId,
 				userId,
+				url: window.location.href,
 				...payload,
 			});
 		},

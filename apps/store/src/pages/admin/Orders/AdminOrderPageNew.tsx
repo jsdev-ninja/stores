@@ -127,7 +127,6 @@ export default function AdminOrderPageNew() {
 							return;
 						}
 						updateOrder(order.id, "completed");
-						updateOrder(order.paymentStatus, "completed");
 					}}
 				>
 					{t("ordersPage:actions.chargeOrder")}
