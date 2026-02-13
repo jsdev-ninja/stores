@@ -58,9 +58,7 @@ export function ChatbotProvider({
 			setMessages((prev) => [...prev, userMsg]);
 			setIsLoading(true);
 			try {
-				console.log("sending message", trimmed);
 				const result = await appApi.chatbot.sendMessage(trimmed);
-				console.log("result", result);
 				const botText = result.success && result.data?.content
 					? result.data.content
 					: result.error ?? t("chatbotError");

@@ -31,8 +31,6 @@ const ProfilePage = () => {
 				color: "success",
 			});
 		} catch (error) {
-			console.log("error", error);
-
 			addToast({
 				title: t("profilePage:updateFailedTitle" as any),
 				description: t("profilePage:updateFailedDescription" as any),

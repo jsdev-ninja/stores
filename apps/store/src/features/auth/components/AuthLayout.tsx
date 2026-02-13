@@ -7,7 +7,6 @@ export const AuthLayout = () => {
 	const { i18n } = useTranslation(["auth"]);
 	const dir = i18n.dir();
 	const [isLoginForm, setIsLoginForm] = useState(true);
-	console.log("isLoginForm", isLoginForm);
 
 	// const title = isLoginForm ? t("auth:welcome.login.title") : t("welcome.signup.title");
 	// const button = isLoginForm ? t("auth:welcome.login.button") : t("welcome.signup.button");

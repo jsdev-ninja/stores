@@ -35,7 +35,6 @@ function App() {
 	const user = useAppSelector((state) => state.user.user);
 
 	const appReady = useAppSelector((state) => state.ui.appReady);
-	console.log("appReady", appReady);
 
 	const storeId = store?.id ?? "";
 	const companyId = store?.companyId ?? "";
@@ -125,8 +124,6 @@ function App() {
 				{ name: "status", operator: "==", value: "active" },
 			],
 			callback: (cart) => {
-				console.log("set cart", cart);
-
 				actions.dispatch(actions.cart.setCart({ cart: cart ?? null, isReady: true }));
 			},
 		});

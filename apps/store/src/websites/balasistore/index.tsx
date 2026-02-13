@@ -4,7 +4,6 @@ import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
 function BalasiStoreProduct({ product }: { product: TProduct }) {
-	console.log("product", product);
 	const productWeightOrVolume =
 		product.weight.unit !== "none" ? (
 			<Product.Weight />

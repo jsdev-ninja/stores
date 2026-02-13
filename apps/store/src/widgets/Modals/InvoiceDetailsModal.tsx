@@ -113,7 +113,6 @@ export function InvoiceDetailsModal({
 
 		setIsSubmitting(true);
 		try {
-			console.log("formData", formData);
 			const res = await FirebaseApi.api.createInvoice(store.id, {
 				orders: selectedOrders,
 				params: {

@@ -63,9 +63,7 @@ export function AdminCompanyCreateModal() {
 							});
 							modalApi.closeModal("AdminCompanyCreateModal");
 						}}
-						onError={(errors) => {
-							console.log("errors", errors);
-						}}
+						onError={() => {}}
 					>
 						<div className="flex flex-col gap-4">
 							<div className="">

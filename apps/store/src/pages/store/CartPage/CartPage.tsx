@@ -31,8 +31,6 @@ function CartPage() {
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
-	console.log("cartCost", cartCost);
-
 	return (
 		<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
 			<div className="mx-auto max-w-screen-xl px-4 2xl:px-0">

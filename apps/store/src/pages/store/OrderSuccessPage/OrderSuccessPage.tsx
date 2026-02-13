@@ -40,8 +40,6 @@ export function OrderSuccessPage() {
 			await appApi.system.onOrderPaid(queryParams);
 
 			appApi.user.getOrder({ id: queryParams.Order }).then((res) => {
-				console.log("RES", res);
-
 				if (res.success) {
 					setOrder(res.data);
 				} else {
@@ -53,8 +51,6 @@ export function OrderSuccessPage() {
 		}
 		load();
 	}, [queryParams.Order, window.location.href]);
-
-	console.log("ORDER", order);
 
 	// todo
 	if (!order || !store) return null;

@@ -120,7 +120,6 @@ function AdminSettingsPage() {
 			
 			if (result?.success) {
 				// Show success message or update local state
-				console.log(t("deliverySettings:settingsUpdated"));
 			}
 		} catch (error) {
 			console.error("Failed to update delivery settings:", error);

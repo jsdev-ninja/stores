@@ -900,13 +900,6 @@ export function AdminInventoryCertificatePage() {
 									color="primary"
 									onPress={async () => {
 										// TODO: Implement actual save logic
-										console.log("Save supplier invoice", {
-											supplierInvoice: {
-												...supplierInvoice,
-												rows: supplierInvoice.rows || [],
-												productsToUpdate: productsToUpdate,
-											},
-										});
 										// is valid schema
 										const isValid = NewSupplierInvoiceSchema.safeParse(supplierInvoice);
 										if (!isValid.success) {

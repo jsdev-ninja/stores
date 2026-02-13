@@ -32,7 +32,6 @@ export const CategorySelect = <T extends FieldValues>({
 			multiple
 			label={label}
 			onChange={(newValue: TCategory[]) => {
-				console.log("newValue", newValue);
 				return form.setValue(name, newValue as any);
 			}}
 			placeholder={placeholder}

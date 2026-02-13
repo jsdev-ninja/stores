@@ -101,18 +101,14 @@ export const DiscountForm: React.FC<DiscountFormProps> = ({ onSubmit }) => {
 	const appApi = useAppApi();
 
 	const onFormSubmit = async (data: TDiscount) => {
-		console.log("data", data);
 		if (data.variant.variantType === "bundle") {
 			//todo default image from product - removed from new schema
 		}
-		const res = await appApi.admin.createDiscount(data);
-		console.log("appApi", res);
+		await appApi.admin.createDiscount(data);
 		onSubmit(data);
 
 		// onSubmit(data as any);
 	};
-
-	console.log("form", watch());
 
 	return (
 		<Card className="w-full max-w-2xl mx-auto">
@@ -456,7 +452,6 @@ export const DiscountList: React.FC<DiscountListProps> = ({ discounts, setDiscou
 									onPress={async () => {
 										// handle delete
 										const res = await appApi.admin.deleteDiscount(discount.id);
-										console.log("res", res);
 										if (res?.success) {
 											setDiscounts(discounts.filter((d) => d.id !== discount.id));
 										}

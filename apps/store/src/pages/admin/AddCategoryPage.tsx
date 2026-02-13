@@ -35,8 +35,7 @@ export function AddCategoryPage() {
 							depth: 0,
 						};
 
-						const res = await appApi.admin.category.create(newCategory);
-						console.log("AddCategoryPage", res);
+						await appApi.admin.category.create(newCategory);
 						navigate({
 							to: "admin.categories",
 						});

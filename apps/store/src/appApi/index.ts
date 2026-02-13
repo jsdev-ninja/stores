@@ -142,7 +142,13 @@ export const useAppApi = () => {
 			},
 		},
 		contactForm: {
-			submit: async (data: { name: string; email: string; company: string; phone?: string; message?: string }) => {
+			submit: async (data: {
+				name: string;
+				email: string;
+				company: string;
+				phone?: string;
+				message?: string;
+			}) => {
 				if (!isValidStoreData) return { success: false, docId: "" };
 
 				const doc = {
@@ -969,7 +975,6 @@ export const useAppApi = () => {
 				mixPanelApi.track("ADMIN_ORDER_ACCEPT", {
 					order,
 				});
-				console.log("update", order.id);
 				return FirebaseApi.firestore.update<TOrder>(
 					order.id,
 					{
@@ -987,7 +992,6 @@ export const useAppApi = () => {
 				mixPanelApi.track("ADMIN_ORDER_CANCEL", {
 					order,
 				});
-				console.log("update", order.id);
 				return FirebaseApi.firestore.update<TOrder>(
 					order.id,
 					{
@@ -1460,8 +1464,6 @@ export const useAppApi = () => {
 					id: "categories",
 				});
 
-				console.log("res", res);
-
 				return res;
 			},
 
@@ -1581,7 +1583,6 @@ export const useAppApi = () => {
 				},
 			},
 			getProfileOrganization: async () => {
-				console.log("AAAAAAAAAAAAAAA2", profile, isValidUser, profile?.organizationId);
 				if (!isValidUser || !profile?.organizationId) return;
 
 				const res = await FirebaseApi.firestore.getV2<TOrganization>({
@@ -1592,7 +1593,6 @@ export const useAppApi = () => {
 					}),
 					id: profile.organizationId,
 				});
-				console.log("AAAAAAAAAAAAAAA3", res);
 				return res;
 			},
 			getOrder: async ({ id }: { id: string }) => {

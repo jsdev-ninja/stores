@@ -60,7 +60,6 @@ export default function AdminLayout() {
 
 	useEffect(() => {
 		appApi.admin.listOrganizations().then((response) => {
-			console.log("response", response);
 
 			if (response?.success && response.data) {
 				dispatch(OrganizationSlice.actions.setOrganizations(response.data));

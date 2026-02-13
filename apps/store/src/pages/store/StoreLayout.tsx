@@ -31,13 +31,11 @@ export default function StoreLayout() {
 	const actions = useStoreActions();
 
 	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
-	console.log("unPaidPendingOrder", unPaidPendingOrder);
 
 	useEffect(() => {
 		// load profile organization
 		if (user?.uid) {
 			appApi.user.getProfileOrganization().then((res) => {
-				console.log("AAAAAAAAAAAAAAA", res);
 				if (res?.success && res.data) {
 					actions.dispatch(actions.userOrganization.setOrganization(res?.data || null));
 				}

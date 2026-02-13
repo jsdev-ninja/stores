@@ -28,7 +28,6 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 	});
 
 	const handleSubmit = (newProfile: TProfile) => {
-		console.log("newProfile", newProfile);
 		onSave(newProfile);
 	};
 

@@ -92,8 +92,6 @@ function CheckoutPage() {
 		freeDeliveryPrice: store.freeDeliveryPrice,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
-	console.log("cartCost", cartCost);
-
 
 	if (cartData.isReady && !cart) {
 		return null;
@@ -118,10 +116,6 @@ function CheckoutPage() {
 				}}
 				onSubmit={async (values) => {
 					if (!user || !cart) return;
-
-					console.log("values", values);
-
-
 
 					const newOrder: TOrder = {
 						type: "Order",
@@ -164,10 +158,9 @@ function CheckoutPage() {
 					) {
 						newOrder.status = "pending";
 						newOrder.paymentType = "external";
-						const order = await appApi.orders.order({
+						await appApi.orders.order({
 							order: newOrder,
 						});
-						console.log("new external order", order);
 
 						navigate({ to: "store.orders" });
 

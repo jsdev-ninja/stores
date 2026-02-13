@@ -43,9 +43,7 @@ export function CategoryFormModal({ categoryId, onSave }: { categoryId: string; 
 					onSave?.(buildTree(newCategories as any));
 					modalApi.closeModal("categoryFormModal");
 				}}
-				onError={(errors) => {
-					console.log("err", errors);
-				}}
+				onError={() => {}}
 			>
 				<Modal.CloseButton onClick={() => modalApi.closeModal("categoryFormModal")} />
 				<div className="p-4 w-96 bg-white">

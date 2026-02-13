@@ -121,7 +121,6 @@ export default function AdminOrderPageNew() {
 					onPress={async () => {
 						// charge for order
 						const res = await appApi.admin.chargeOrder({ order });
-						console.log("res", res);
 
 						if (!res?.success) {
 							return;
@@ -203,7 +202,6 @@ export default function AdminOrderPageNew() {
 								disabledKeys={disabledKeys}
 								onAction={async (key) => {
 									if (!order) return;
-									console.log("key", key);
 									if (key === "cancelOrder") {
 										const res = await appApi.admin.cancelOrder({ order });
 										if (!res?.success) {

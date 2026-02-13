@@ -120,11 +120,6 @@ export function CreateDeliveryNoteModal({
 		try {
 			const dateTimestamp = new Date(deliveryNoteDate).getTime();
 
-			console.log("selectedOrder", {
-				date: dateTimestamp,
-				nameOnInvoice: nameOnInvoice,
-				sendEmailToClient,
-			});
 			const result = await appApi.admin.createDeliveryNote(selectedOrder, {
 				date: dateTimestamp,
 				nameOnInvoice: nameOnInvoice,

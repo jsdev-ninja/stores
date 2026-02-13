@@ -33,8 +33,6 @@ export function AdminCategoriesPages() {
 	const noChanged = isEqual(categories, categoriesToEdit);
 
 	async function save() {
-		console.log("saved");
-
 		await appApi.admin.category.update(categoriesToEdit, categories);
 		setCategories(categoriesToEdit);
 	}

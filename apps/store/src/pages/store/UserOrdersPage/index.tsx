@@ -15,11 +15,6 @@ function UserOrdersPage() {
 
 	const orders = useAppSelector((state) => state.orders.orders);
 
-	const user = useUser();
-	console.log("user", user?.uid);
-
-	console.log("orders", orders);
-
 	return (
 		<div className="">
 			<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
@@ -115,7 +110,6 @@ function OrderItem({ order }: { order: TOrder }) {
 									setLoading(false);
 									window.location.href = payment.data.paymentLink;
 								} catch (error) {
-									console.log(error);
 									setLoading(false);
 								}
 							}}

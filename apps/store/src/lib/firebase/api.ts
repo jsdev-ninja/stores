@@ -43,7 +43,6 @@ async function uiLogs(payload: LogPayload) {
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
-		console.log("error", error);
 		console.error(code, message, details);
 		return { success: false, data: null };
 	}
@@ -97,13 +96,12 @@ async function createInvoice(
 	try {
 		const func = httpsCallable(functions, "createInvoice");
 		const response = await func({ orders, params, storeId });
-		console.log("create invoice response", response.data);
 		return { success: true, data: response.data };
 	} catch (error: any) {
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
-		console.log(code, message, details);
+		console.error(code, message, details);
 		return { success: false, data: null };
 	}
 }
@@ -118,7 +116,7 @@ async function createPayment({ order, isJ5 }: { order: TOrder; isJ5?: boolean })
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
-		console.log(code, message, details);
+		console.error(code, message, details);
 		return { success: false, data: null };
 	}
 }
@@ -132,7 +130,7 @@ async function chargeOrder({ order }: { order: TOrder }) {
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
-		console.log(code, message, details);
+		console.error(code, message, details);
 		return { success: false, data: null };
 	}
 }
@@ -147,7 +145,7 @@ async function createCompanyClient(company: TCompany) {
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
-		console.log(code, message, details);
+		console.error(code, message, details);
 		return { success: false, data: null };
 	}
 }
@@ -168,7 +166,7 @@ async function createDeliveryNote({
 		const code = error.code;
 		const message = error.message;
 		const details = error.details;
-		console.log(code, message, details);
+		console.error(code, message, details);
 		return { success: false, data: null, error: message };
 	}
 }

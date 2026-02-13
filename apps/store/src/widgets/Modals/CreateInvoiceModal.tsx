@@ -279,7 +279,6 @@ export function CreateInvoiceModal({ onOrdersFound }: { onOrdersFound?: (orders:
 		>
 			<Form<TCreateInvoice>
 				onSubmit={async (data) => {
-					console.log("Creating invoice with data:", data);
 					setIsLoadingOrders(true);
 					setHasSearched(true);
 					try {
@@ -293,8 +292,7 @@ export function CreateInvoiceModal({ onOrdersFound }: { onOrdersFound?: (orders:
 						if (result?.success) {
 							const foundOrders = result.data || [];
 							setOrders(foundOrders);
-							console.log("Found orders:", foundOrders);
-							
+
 							// If orders found, close modal and pass results to parent
 							if (foundOrders.length > 0) {
 								onOrdersFound?.(foundOrders);
@@ -308,9 +306,7 @@ export function CreateInvoiceModal({ onOrdersFound }: { onOrdersFound?: (orders:
 						setIsLoadingOrders(false);
 					}
 				}}
-				onError={(errors) => {
-					console.log("Form errors:", errors);
-				}}
+				onError={() => {}}
 				defaultValues={{
 					organizationId: "",
 					billingAccount: "",

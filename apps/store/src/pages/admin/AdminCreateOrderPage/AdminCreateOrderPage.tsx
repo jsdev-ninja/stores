@@ -26,7 +26,6 @@ function AdminCreateOrderPage() {
 
 	const cartData = useAppSelector((state) => state.cart);
 	const cart = cartData.currentCart;
-	console.log("CART", cart);
 
 	const store = useAppSelector((state) => state.store.data);
 	const discounts = useDiscounts();
@@ -111,8 +110,6 @@ function AdminCreateOrderPage() {
 		freeDeliveryPrice: store.freeDeliveryPrice,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
-	console.log("store", store);
-	console.log("cartCost", cartCost);
 
 	if (cartData.isReady && !cart) {
 		return null;
@@ -167,7 +164,7 @@ function AdminCreateOrderPage() {
 					values.status = "pending";
 
 					if (store.paymentType === "external") {
-						const order = await appApi.orders.order({
+						await appApi.orders.order({
 							order: {
 								...values,
 								storeOptions: {
@@ -177,7 +174,6 @@ function AdminCreateOrderPage() {
 								},
 							},
 						});
-						console.log("new external order", order);
 
 						navigate({ to: "admin.orders" });
 						return;

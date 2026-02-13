@@ -29,7 +29,7 @@ const Footer = () => {
 					<div>
 						<h4 className="font-semibold mb-4">למשרדים</h4>
 						<p className="text-sm text-hero-muted leading-relaxed">
-							משרתים משרדים וארגונים בכל הארץ.
+							מספקים מוצרים למשרדים במרכז הארץ בלבד.
 							<br />
 							לקוחות עסקיים בלבד.
 						</p>

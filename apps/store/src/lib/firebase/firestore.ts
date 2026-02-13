@@ -118,8 +118,6 @@ async function update<T extends object = any>(id: string, item: UpdateData<T>, c
 
 		const data = { ...item };
 
-		console.log("firestore.update success", data);
-
 		return { success: true, data };
 	} catch (error) {
 		console.error(error);

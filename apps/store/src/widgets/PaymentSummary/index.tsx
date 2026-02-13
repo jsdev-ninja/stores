@@ -27,7 +27,6 @@ export function PaymentSummary({ children }: { children?: ReactNode }) {
 		freeDeliveryPrice: store.freeDeliveryPrice,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
-	console.log("cartCost", cartCost);
 
 	return (
 		<div

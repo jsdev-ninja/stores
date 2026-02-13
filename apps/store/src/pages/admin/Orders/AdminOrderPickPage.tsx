@@ -56,8 +56,6 @@ export default function AdminOrderPickPage() {
 	const [isSearching, setIsSearching] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
-    console.log("order id", id);
-
 	const {
 		isOpen: isExternalOpen,
 		onOpen: onExternalOpen,
@@ -364,8 +362,6 @@ export default function AdminOrderPickPage() {
 	function cancelChanges() {
 		navigate({ to: "admin.order", params: { id: order?.id || "" } });
 	}
-
-    console.log("order", order);
 
 	if (!order) {
 		return (

@@ -5,8 +5,7 @@ function SuperAdminLayout() {
 	const appApi = useAppApi();
 
 	useEffect(() => {
-		appApi.superAdmin.getAllStores().then((res) => {
-			console.log("all stores", res.data);
+		appApi.superAdmin.getAllStores().then(() => {
 		});
 	}, []);
 

@@ -56,8 +56,6 @@ export function ProductsWidget({
 
 	const _filter = filter ? `AND ${filter}` : "";
 
-	console.log("_filter", _filter);
-
 	const filters = `companyId:${store.companyId} AND storeId:${store.id} ${_filter}`;
 
 	return (

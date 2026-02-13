@@ -112,8 +112,6 @@ export default function AdminOrderPage() {
 	const [externalProductPrice, setExternalProductPrice] = useState<number>(0);
 	const [externalProductQuantity, setExternalProductQuantity] = useState<number>(1);
 
-	console.log(JSON.stringify(order?.cart.items));
-	console.log("order", order);
 	// 1617.95; //
 
 	const appApi = useAppApi();
@@ -129,7 +127,6 @@ export default function AdminOrderPage() {
 
 	async function save() {
 		if (!order) return;
-		console.log("order", order);
 
 		const res = await appApi.admin.updateOrder({ order });
 		if (res?.success) {

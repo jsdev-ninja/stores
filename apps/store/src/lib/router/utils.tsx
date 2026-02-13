@@ -1,6 +1,4 @@
 export function replaceParamsInPath(path: string, params?: object) {
-	console.log(path, params);
-
 	if (!params) return removeDynamicSegments(path);
 
 	let newPath = path;

@@ -21,11 +21,10 @@ function AdminOrdersPages() {
 	const appApi = useAppApi();
 
 	const [orders, setOrders] = useState<TOrder[]>([]);
-	console.log("orders.orders", orders);
 
 	function updateOrder(id: string, status: TOrder["status"]) {
 		setOrders((orders) =>
-			orders.map((order) => (order.id === id ? { ...order, status: status } : order))
+			orders.map((order) => (order.id === id ? { ...order, status: status } : order)),
 		);
 	}
 
@@ -110,10 +109,6 @@ function OrderRow({
 			);
 		}
 
-		console.log("order", order);
-
-		console.log("store?.paymentType", store?.paymentType);
-
 		if (order.status === "delivered") {
 			if (store?.paymentType === "external") {
 				return (
@@ -131,7 +126,7 @@ function OrderRow({
 					</Button>
 				);
 			}
-			// todo fixthis 
+			// todo fixthis
 			if (order.paymentStatus === "pending_j5") {
 				return (
 					<>
@@ -139,7 +134,6 @@ function OrderRow({
 							onPress={async () => {
 								// charge for order
 								const res = await appApi.admin.chargeOrder({ order });
-								console.log("res", res);
 
 								if (!res?.success) {
 									return;
@@ -314,7 +308,7 @@ function OrderRow({
 								<p>
 									{t(
 										"ordersPage:confirmCancel.message",
-										"Are you sure you want to cancel this order?"
+										"Are you sure you want to cancel this order?",
 									)}
 								</p>
 							</ModalBody>

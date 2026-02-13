@@ -33,8 +33,6 @@ function PriceSection() {
 
 	const purchasePriceWithVat = isVatIncludedInPrice && vat ? purchasePrice * 1.18 : purchasePrice;
 
-	console.log("AAAAA", form.watch("price"));
-
 	return (
 		<Flex gap={"4"} wrap align={"start"}>
 			<Flex.Item grow="none" className="h-full">
@@ -47,7 +45,6 @@ function PriceSection() {
 					placeholder={t("common:price")}
 					type="number"
 					onChange={(value) => {
-						console.log("value", value);
 						if (purchasePrice > 0) {
 							const margin = storeCalculator.calcMarginFromSalePrice(
 								+value,
@@ -106,7 +103,6 @@ export function EditProductPage() {
 	const params = useParams("admin.editProduct");
 
 	const [product, setProduct] = useState<TProduct | null>(null);
-	console.log("product", product);
 
 	const appApi = useAppApi();
 
@@ -167,7 +163,7 @@ export function EditProductPage() {
 
 					navigate({ to: "admin.products", state: window.history.state });
 				}}
-				onError={(err) => console.log(err)}
+				onError={() => {}}
 			>
 				<NameDetails />
 
@@ -312,7 +308,6 @@ function ImageSection() {
 			<FileUpload
 				value={existsImage ?? image}
 				onChange={(change) => {
-					console.log("change", change);
 					if (existsImage) {
 						methods.setValue("images", []);
 					}

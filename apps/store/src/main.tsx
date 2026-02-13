@@ -9,8 +9,6 @@ import { SentryApi } from "./lib/sentry/index.ts";
 
 import "./index.css";
 
-console.log("CONFIG", CONFIG);
-
 mixPanelApi.init({ debug: CONFIG.DEV });
 SentryApi.init();
 

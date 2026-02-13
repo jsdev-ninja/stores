@@ -62,7 +62,6 @@ export function AdminOrganizationDetailPage() {
 	const { t } = useTranslation(["common", "admin"]);
 	const { id } = useParams("admin.organization");
 	const [organization, setOrganization] = useState<TOrganization | null>(null);
-	console.log("organization", organization);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [organizationClients, setOrganizationClients] = useState<TProfile[]>([]);
@@ -618,8 +617,6 @@ export function AdminOrganizationDetailPage() {
 			};
 		});
 	};
-
-	console.log("organizationFormData", organizationFormData);
 
 	const handleUpdateOrganization = async () => {
 		if (!organization) return;

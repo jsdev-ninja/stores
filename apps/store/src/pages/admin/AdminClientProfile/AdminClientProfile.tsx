@@ -638,7 +638,6 @@ export default function AdminClientProfile() {
 			const result = await appApi.admin.updateClient(updatedProfile);
 			if (result?.success) {
 				setClient(updatedProfile);
-				console.log("Profile updated successfully");
 			} else {
 				console.error("Failed to update profile:", result);
 			}
@@ -649,7 +648,6 @@ export default function AdminClientProfile() {
 
 	function removeProfile() {
 		// TODO: Implement profile removal logic
-		console.log("Removing profile");
 	}
 
 	useEffect(() => {
