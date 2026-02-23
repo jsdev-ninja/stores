@@ -50,14 +50,11 @@ export default function AdminOrderPageNew() {
 		if (!order || !store) return;
 		setIsTogglingDeliveryPrice(true);
 		try {
-			// Toggle only order.cart.deliveryPrice. storeOptions is a snapshot at order creation and must not be changed.
-			const referenceDeliveryPrice = order.storeOptions?.deliveryPrice ?? store.deliveryPrice ?? 0;
-			const newCartDeliveryPrice =
-				(order.cart.deliveryPrice ?? 0) > 0 ? 0 : referenceDeliveryPrice;
+			const newDeliveryPrice = order.storeOptions?.deliveryPrice ? 0 : store.deliveryPrice;
 			const cartCost = getCartCost({
 				cart: order.cart.items ?? [],
 				discounts,
-				deliveryPrice: newCartDeliveryPrice,
+				deliveryPrice: newDeliveryPrice,
 				freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice ?? 0,
 				isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice ?? false,
 			});
@@ -70,6 +67,10 @@ export default function AdminOrderPageNew() {
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,
 					deliveryPrice: cartCost.deliveryPrice,
+				},
+				storeOptions: {
+					...order.storeOptions,
+					deliveryPrice: newDeliveryPrice,
 				},
 			};
 			setOrder(updatedOrder);
@@ -157,7 +158,7 @@ export default function AdminOrderPageNew() {
 					{t("ordersPage:actions.setOnDelivery")}
 				</Button>
 			),
-			delivered: (order.paymentType == "j5"|| order.paymentStatus == "pending_j5") && (
+			delivered: (order.paymentType == "j5" || order.paymentStatus == "pending_j5") && (
 				<Button
 					onPress={async () => {
 						// charge for order
@@ -251,7 +252,10 @@ export default function AdminOrderPageNew() {
 										updateOrder(order.id, "cancelled");
 									}
 									if (key === "createPaymentLink") {
-										const payment = await appApi.user.createPaymentLink({ order,isJ5: false });
+										const payment = await appApi.user.createPaymentLink({
+											order,
+											isJ5: false,
+										});
 										window.location.href = payment.data.paymentLink;
 									}
 									if (key === "endOrder") {
@@ -692,71 +696,73 @@ export default function AdminOrderPageNew() {
 									</a>
 								</div>
 							)}
-							{order &&
-								["completed", "delivered"].includes(order.status) && (
-									<>
-										{!order?.deliveryNote?.link && !order?.ezDeliveryNote?.pdf_link && (
-											<div className="flex items-center justify-between p-2 rounded border border-dashed border-gray-200">
-												<span className="text-gray-600">
-													{t("ordersPage:orderDetails.documents.deliveryNote")}
-												</span>
-												<Button
-													size="sm"
-													color="primary"
-													variant="flat"
-													isLoading={isCreatingDeliveryNote}
-													isDisabled={isCreatingDeliveryNote}
-													onPress={() => {
-														if (!order) return;
-														modalApi.openModal("selectDateForDocument", {
-															documentType: "deliveryNote",
-															onConfirm: async (date) => {
-																setIsCreatingDeliveryNote(true);
-																try {
-																	const res = await appApi.admin.createDeliveryNote(order, {
+							{order && ["completed", "delivered"].includes(order.status) && (
+								<>
+									{!order?.deliveryNote?.link && !order?.ezDeliveryNote?.pdf_link && (
+										<div className="flex items-center justify-between p-2 rounded border border-dashed border-gray-200">
+											<span className="text-gray-600">
+												{t("ordersPage:orderDetails.documents.deliveryNote")}
+											</span>
+											<Button
+												size="sm"
+												color="primary"
+												variant="flat"
+												isLoading={isCreatingDeliveryNote}
+												isDisabled={isCreatingDeliveryNote}
+												onPress={() => {
+													if (!order) return;
+													modalApi.openModal("selectDateForDocument", {
+														documentType: "deliveryNote",
+														onConfirm: async (date) => {
+															setIsCreatingDeliveryNote(true);
+															try {
+																const res = await appApi.admin.createDeliveryNote(
+																	order,
+																	{
 																		date,
-																	});
-																	if (res?.success) await refetchOrder();
-																} finally {
-																	setIsCreatingDeliveryNote(false);
-																}
-															},
-														});
-													}}
-												>
-													{t("ordersPage:orderDetails.documents.createDeliveryNote")}
-												</Button>
-											</div>
-										)}
-										{!order?.invoice?.link && !order?.ezInvoice?.pdf_link && (
-											<div className="flex items-center justify-between p-2 rounded border border-dashed border-gray-200">
-												<span className="text-gray-600">
-													{t("ordersPage:orderDetails.documents.invoice")}
-												</span>
-												<Button
-													size="sm"
-													color="primary"
-													variant="flat"
-													onPress={() => {
-														if (!order) return;
-														modalApi.openModal("selectDateForDocument", {
-															documentType: "invoice",
-															onConfirm: (date) => {
-																modalApi.openModal("invoiceDetails", {
-																	selectedOrders: [order],
-																	initialInvoiceDate: date,
-																	onInvoiceCreated: refetchOrder,
-																});
-															},
-														});
-													}}
-												>
-													{t("ordersPage:orderDetails.documents.createInvoice")}
-												</Button>
-											</div>
-										)}
-									</>
-								)}
+																	},
+																);
+																if (res?.success) await refetchOrder();
+															} finally {
+																setIsCreatingDeliveryNote(false);
+															}
+														},
+													});
+												}}
+											>
+												{t("ordersPage:orderDetails.documents.createDeliveryNote")}
+											</Button>
+										</div>
+									)}
+									{!order?.invoice?.link && !order?.ezInvoice?.pdf_link && (
+										<div className="flex items-center justify-between p-2 rounded border border-dashed border-gray-200">
+											<span className="text-gray-600">
+												{t("ordersPage:orderDetails.documents.invoice")}
+											</span>
+											<Button
+												size="sm"
+												color="primary"
+												variant="flat"
+												onPress={() => {
+													if (!order) return;
+													modalApi.openModal("selectDateForDocument", {
+														documentType: "invoice",
+														onConfirm: (date) => {
+															modalApi.openModal("invoiceDetails", {
+																selectedOrders: [order],
+																initialInvoiceDate: date,
+																onInvoiceCreated: refetchOrder,
+															});
+														},
+													});
+												}}
+											>
+												{t("ordersPage:orderDetails.documents.createInvoice")}
+											</Button>
+										</div>
+									)}
+								</>
+							)}
 						</div>
 					</CardBody>
 				</Card>
@@ -823,7 +829,7 @@ export default function AdminOrderPageNew() {
 										</TableCell>
 										<TableCell className="font-semibold text-gray-900 text-start">
 											{formatter.price(
-												(item.finalPrice || item.originalPrice || 0) * item.amount
+												(item.finalPrice || item.originalPrice || 0) * item.amount,
 											)}
 										</TableCell>
 									</TableRow>
