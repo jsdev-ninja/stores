@@ -50,11 +50,14 @@ export default function AdminOrderPageNew() {
 		if (!order || !store) return;
 		setIsTogglingDeliveryPrice(true);
 		try {
-			const newDeliveryPrice = order.storeOptions?.deliveryPrice ? 0 : (store.deliveryPrice ?? 0);
+			// Toggle only order.cart.deliveryPrice. storeOptions is a snapshot at order creation and must not be changed.
+			const referenceDeliveryPrice = order.storeOptions?.deliveryPrice ?? store.deliveryPrice ?? 0;
+			const newCartDeliveryPrice =
+				(order.cart.deliveryPrice ?? 0) > 0 ? 0 : referenceDeliveryPrice;
 			const cartCost = getCartCost({
 				cart: order.cart.items ?? [],
 				discounts,
-				deliveryPrice: newDeliveryPrice,
+				deliveryPrice: newCartDeliveryPrice,
 				freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice ?? 0,
 				isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice ?? false,
 			});
@@ -67,10 +70,6 @@ export default function AdminOrderPageNew() {
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,
 					deliveryPrice: cartCost.deliveryPrice,
-				},
-				storeOptions: {
-					...order.storeOptions,
-					deliveryPrice: newDeliveryPrice,
 				},
 			};
 			setOrder(updatedOrder);
@@ -252,7 +251,7 @@ export default function AdminOrderPageNew() {
 										updateOrder(order.id, "cancelled");
 									}
 									if (key === "createPaymentLink") {
-										const payment = await appApi.user.createPaymentLink({ order });
+										const payment = await appApi.user.createPaymentLink({ order,isJ5: false });
 										window.location.href = payment.data.paymentLink;
 									}
 									if (key === "endOrder") {
@@ -590,27 +589,25 @@ export default function AdminOrderPageNew() {
 									type="number"
 									min="0"
 									step="0.01"
-									value={(
-										order.storeOptions?.deliveryPrice ?? store.deliveryPrice ?? 0
-									).toFixed(2)}
+									value={(order.cart.deliveryPrice ?? 0).toFixed(2)}
 									isDisabled
 									placeholder="0.00"
 									className="flex-1 max-w-[120px]"
 								/>
 								<Button
-									color={order.storeOptions?.deliveryPrice ? "danger" : "success"}
+									color={(order.cart.deliveryPrice ?? 0) > 0 ? "danger" : "success"}
 									variant="light"
 									isLoading={isTogglingDeliveryPrice}
 									isDisabled={isTogglingDeliveryPrice}
 									onPress={toggleDeliveryPrice}
 								>
-									{order.storeOptions?.deliveryPrice
+									{(order.cart.deliveryPrice ?? 0) > 0
 										? t("common:removeDeliveryPrice")
 										: t("common:restoreDeliveryPrice")}
 								</Button>
 							</div>
 							<p className="text-sm text-gray-500">
-								{order.storeOptions?.deliveryPrice
+								{(order.cart.deliveryPrice ?? 0) > 0
 									? t("common:deliveryPriceRemoveDescription")
 									: t("common:deliveryPriceRemovedDescription")}
 							</p>

@@ -106,7 +106,10 @@ function OrderItem({ order }: { order: TOrder }) {
 							onPress={async () => {
 								try {
 									setLoading(true);
-									const payment = await appApi.user.createPaymentLink({ order: order });
+									const payment = await appApi.user.createPaymentLink({
+										order: order,
+										isJ5: true,
+									});
 									setLoading(false);
 									window.location.href = payment.data.paymentLink;
 								} catch (error) {

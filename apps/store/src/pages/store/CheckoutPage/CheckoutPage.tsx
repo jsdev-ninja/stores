@@ -174,7 +174,7 @@ function CheckoutPage() {
 					});
 					if (!order?.success) return null; //todo
 
-					const payment = await appApi.user.createPaymentLink({ order: newOrder });
+					const payment = await appApi.user.createPaymentLink({ order: newOrder,isJ5: true });
 					window.location.href = payment.data.paymentLink;
 				}}
 			>

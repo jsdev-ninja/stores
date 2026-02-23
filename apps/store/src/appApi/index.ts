@@ -1684,7 +1684,7 @@ export const useAppApi = () => {
 					return { success: false, error };
 				}
 			},
-			async createPaymentLink({ order }: { order: TOrder }) {
+			async createPaymentLink({ order, isJ5 = false }: { order: TOrder; isJ5?: boolean }) {
 				if (!user || !store || !order) return;
 				if (user.isAnonymous && !allowAnonymousClients) {
 					modalApi.openModal("authModal");
@@ -1693,7 +1693,7 @@ export const useAppApi = () => {
 
 				const payment: any = await FirebaseApi.api.createPayment({
 					order: { ...order, client: undefined },
-					isJ5: false,
+					isJ5,
 				});
 				logger({
 					message: "client create payment link",
