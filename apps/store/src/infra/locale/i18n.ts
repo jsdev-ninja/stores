@@ -311,6 +311,8 @@ export const resources = {
 			title: "כל מה שהמשרד שלך צריך",
 			description: "על איכות במשרד לא מתפשרים",
 			action: "מעבר לחנות",
+			pricesBeforeVat: "המחירים הינם לפני מע״מ",
+			forOfficesOnly: "האתר למשרדים בלבד",
 
 			services: {
 				shipping: {
