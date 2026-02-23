@@ -2,6 +2,7 @@ import {
 	Card,
 	CardBody,
 	Button,
+	Input,
 	Dropdown,
 	DropdownTrigger,
 	DropdownMenu,
@@ -15,7 +16,7 @@ import {
 	Alert,
 	Chip,
 } from "@heroui/react";
-import { TOrder } from "@jsdev_ninja/core";
+import { TOrder, getCartCost } from "@jsdev_ninja/core";
 import { Calendar, User, Package, MapPin, ChevronDown, Download, Edit } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,6 +25,8 @@ import { useParams, navigate } from "src/navigation";
 import { useAppSelector } from "src/infra";
 import { modalApi } from "src/infra/modals";
 import { formatter } from "src/utils/formatter";
+import { useStore } from "src/domains/Store";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
 
 export default function AdminOrderPageNew() {
 	const { t, i18n } = useTranslation(["common", "ordersPage"]);
@@ -32,13 +35,52 @@ export default function AdminOrderPageNew() {
 
 	const [order, setOrder] = useState<TOrder | null>(null);
 	const [isCreatingDeliveryNote, setIsCreatingDeliveryNote] = useState(false);
+	const [isTogglingDeliveryPrice, setIsTogglingDeliveryPrice] = useState(false);
 	const appApi = useAppApi();
+	const store = useStore();
+	const discounts = useDiscounts();
 
 	async function refetchOrder() {
 		if (!id) return;
 		const res = await appApi.admin.getOrder(id);
 		if (res?.success) setOrder(res.data);
 	}
+
+	async function toggleDeliveryPrice() {
+		if (!order || !store) return;
+		setIsTogglingDeliveryPrice(true);
+		try {
+			const newDeliveryPrice = order.storeOptions?.deliveryPrice ? 0 : (store.deliveryPrice ?? 0);
+			const cartCost = getCartCost({
+				cart: order.cart.items ?? [],
+				discounts,
+				deliveryPrice: newDeliveryPrice,
+				freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice ?? 0,
+				isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice ?? false,
+			});
+			const updatedOrder: TOrder = {
+				...order,
+				cart: {
+					...order.cart,
+					items: cartCost.items,
+					cartDiscount: cartCost.discount,
+					cartTotal: cartCost.finalCost,
+					cartVat: cartCost.vat,
+					deliveryPrice: cartCost.deliveryPrice,
+				},
+				storeOptions: {
+					...order.storeOptions,
+					deliveryPrice: newDeliveryPrice,
+				},
+			};
+			setOrder(updatedOrder);
+			const res = await appApi.admin.updateOrder({ order: updatedOrder });
+			if (res?.success) await refetchOrder();
+		} finally {
+			setIsTogglingDeliveryPrice(false);
+		}
+	}
+
 	const organizations = useAppSelector((state) => state.organization.organizations);
 
 	// Get organization from Redux if order has organizationId
@@ -531,6 +573,51 @@ export default function AdminOrderPageNew() {
 					</CardBody>
 				</Card>
 			</div>
+
+			{/* Delivery Price Toggle */}
+			{order && store && (
+				<Card className="shadow-sm mb-6">
+					<CardBody className="p-4 md:p-6">
+						<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
+							{t("common:deliveryPrice")}
+						</h3>
+						<div className="flex flex-col gap-2 text-start">
+							<label className="text-sm font-medium text-gray-700">
+								{t("common:currentDeliveryPrice")}
+							</label>
+							<div className={`flex gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
+								<Input
+									type="number"
+									min="0"
+									step="0.01"
+									value={(
+										order.storeOptions?.deliveryPrice ?? store.deliveryPrice ?? 0
+									).toFixed(2)}
+									isDisabled
+									placeholder="0.00"
+									className="flex-1 max-w-[120px]"
+								/>
+								<Button
+									color={order.storeOptions?.deliveryPrice ? "danger" : "success"}
+									variant="light"
+									isLoading={isTogglingDeliveryPrice}
+									isDisabled={isTogglingDeliveryPrice}
+									onPress={toggleDeliveryPrice}
+								>
+									{order.storeOptions?.deliveryPrice
+										? t("common:removeDeliveryPrice")
+										: t("common:restoreDeliveryPrice")}
+								</Button>
+							</div>
+							<p className="text-sm text-gray-500">
+								{order.storeOptions?.deliveryPrice
+									? t("common:deliveryPriceRemoveDescription")
+									: t("common:deliveryPriceRemovedDescription")}
+							</p>
+						</div>
+					</CardBody>
+				</Card>
+			)}
 
 			{/* Documents Section */}
 			{(order?.deliveryNote?.link ||
