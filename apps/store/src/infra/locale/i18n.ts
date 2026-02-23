@@ -552,7 +552,9 @@ export const resources = {
 			clientsPage: {
 				title: "לקוחות",
 				addClient: "הוסף לקוח",
+				searchPlaceholder: "חיפוש לפי שם, אימייל או מזהה",
 				noUsersFound: "לא נמצאו לקוחות",
+				showing: "מציג {{start}} עד {{end}} פריטים",
 				actions: {
 					view: "צפייה",
 					delete: "מחיקה",

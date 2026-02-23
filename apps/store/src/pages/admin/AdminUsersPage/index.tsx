@@ -16,6 +16,8 @@ import {
 	DropdownMenu,
 	DropdownItem,
 	User,
+	Input,
+	Pagination,
 } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { navigate } from "src/navigation";
@@ -45,11 +47,16 @@ const getColumns = (t: any) => [
 
 function AdminUsersPage() {
 	const appApi = useAppApi();
-	const { t } = useTranslation(["common", "admin"]);
+	const { t, i18n } = useTranslation(["common", "admin"]);
+	const isRTL = i18n.dir() === "rtl";
 	const [clients, setClients] = useState<TProfile[]>([]);
-	const [filterValue] = React.useState("");
+	const [filterValue, setFilterValue] = React.useState("");
 	const [rowsPerPage] = React.useState(10);
-	const [page] = React.useState(1);
+	const [page, setPage] = React.useState(1);
+
+	React.useEffect(() => {
+		setPage(1);
+	}, [filterValue]);
 
 	const headerColumns = React.useMemo(() => {
 		const columns = getColumns(t);
@@ -58,15 +65,15 @@ function AdminUsersPage() {
 
 	const filteredItems = React.useMemo(() => {
 		let filteredUsers = [...clients];
-
-		if (filterValue) {
+		const query = filterValue.trim().toLowerCase();
+		if (query) {
 			filteredUsers = filteredUsers.filter(
 				(user) =>
-					user.displayName?.toLowerCase().includes(filterValue.toLowerCase()) ||
-					user.email?.toLowerCase().includes(filterValue.toLowerCase())
+					user.displayName?.toLowerCase().includes(query) ||
+					user.email?.toLowerCase().includes(query) ||
+					user.id?.toLowerCase().includes(query)
 			);
 		}
-
 		return filteredUsers;
 	}, [clients, filterValue]);
 
@@ -76,12 +83,84 @@ function AdminUsersPage() {
 		return filteredItems.slice(start, end);
 	}, [page, filteredItems, rowsPerPage]);
 
+	const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1;
+
+	const topContent = React.useMemo(
+		() => (
+			<div className="flex flex-col gap-4">
+				<div className="flex justify-between items-center">
+					<Input
+						isClearable
+						className="w-full sm:max-w-[44%]"
+						placeholder={t("admin:clientsPage.searchPlaceholder", "Search by name, email or ID")}
+						startContent={
+							<svg
+								className="text-default-400"
+								aria-hidden="true"
+								fill="none"
+								focusable="false"
+								height={20}
+								role="presentation"
+								viewBox="0 0 24 24"
+								width={20}
+							>
+								<path
+									d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+									stroke="currentColor"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+								<path
+									d="M22 22L20 20"
+									stroke="currentColor"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							</svg>
+						}
+						value={filterValue}
+						onClear={() => setFilterValue("")}
+						onValueChange={setFilterValue}
+					/>
+				</div>
+			</div>
+		),
+		[filterValue, t]
+	);
+
+	const bottomContent = React.useMemo(
+		() =>
+			pages > 1 ? (
+				<div className="py-2 px-2 flex justify-between items-center">
+					<span className="text-small text-default-500">
+						{t("admin:clientsPage.showing", "Showing {{start}} to {{end}} items", {
+							start: filteredItems.length > 0 ? (page - 1) * rowsPerPage + 1 : 0,
+							end: Math.min(page * rowsPerPage, filteredItems.length),
+						})}
+					</span>
+					<Pagination
+						showControls
+						showShadow
+						color="primary"
+						page={page}
+						total={pages}
+						onChange={setPage}
+						classNames={{
+							wrapper: isRTL ? "[&_svg]:scale-x-[-1]" : "",
+						}}
+					/>
+				</div>
+			) : null,
+		[page, pages, filteredItems.length, rowsPerPage, t, isRTL]
+	);
+
 	useEffect(() => {
 		appApi.admin.getStoreClients().then((res) => {
 			if (res?.success) {
 				setClients(res.data);
 			}
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi is stable, do not add to deps
 	}, []);
 
 	const renderCell = React.useCallback(
@@ -203,12 +282,14 @@ function AdminUsersPage() {
 							</div>
 							<Table
 								isHeaderSticky
+								topContent={topContent}
+								topContentPlacement="outside"
+								bottomContent={bottomContent}
 								bottomContentPlacement="outside"
 								classNames={{
 									wrapper: "max-h-[500px]",
 								}}
 								selectionMode="none"
-								topContentPlacement="outside"
 							>
 								<TableHeader columns={headerColumns}>
 									{(column) => (
