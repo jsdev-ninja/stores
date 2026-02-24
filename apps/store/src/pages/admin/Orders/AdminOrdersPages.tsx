@@ -132,14 +132,9 @@ function OrderRow({
 					<>
 						<Button
 							onPress={async () => {
-								// charge for order
 								const res = await appApi.admin.chargeOrder({ order });
-
-								if (!res?.success) {
-									return;
-								}
+								if (!res?.success) return;
 								updateOrder(order.id, "completed");
-								updateOrder(order.paymentStatus, "completed");
 							}}
 						>
 							{t("ordersPage:actions.chargeOrder")}

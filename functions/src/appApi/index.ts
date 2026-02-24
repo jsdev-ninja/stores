@@ -160,40 +160,24 @@ export function createAppApi(context: TContext) {
 						// Get public URL (never expires since file is public)
 						const url = file.publicUrl();
 
-						const newOrder: TOrder = {
-							...order,
-							ezDeliveryNote: { ...res.data, date: date.getTime() },
-							deliveryNote: {
-								createdAt: date.getTime(),
-								date: date.getTime(),
-								id: res.data.doc_number,
-								number: res.data.doc_number,
-								status: "pending",
-								link: url,
-								// clientDetails: {
-								// 	name: order.nameOnInvoice ?? "",
-								// 	address: order.client.address?.street ?? "",
-								// 	phone: order.client.phoneNumber ?? "",
-								// 	email: order.client.email ?? "",
-
-								// },
-								// companyDetails: {
-								// 	name: store.name,
-								// 	address: store.address?.street ?? "",
-								// 	phone: store.phoneNumber		 ?? "",
-								// 	email: store.email ?? "",
-								// },
-								items: order.cart.items.map((item) => ({
-									name: item.product.name[0].value,
-									price: item.product.price,
-									quantity: item.amount,
-									total: item.product.price * item.amount,
-								})),
-								total: order.cart.cartTotal,
-								vat: order.cart.cartVat,
-							},
+						const ezDeliveryNote = { ...res.data, date: date.getTime() };
+						const deliveryNote = {
+							createdAt: date.getTime(),
+							date: date.getTime(),
+							id: res.data.doc_number,
+							number: res.data.doc_number,
+							status: "pending",
+							link: url,
+							items: order.cart.items.map((item) => ({
+								name: item.product.name[0].value,
+								price: item.product.price,
+								quantity: item.amount,
+								total: item.product.price * item.amount,
+							})),
+							total: order.cart.cartTotal,
+							vat: order.cart.cartVat,
 						};
-						// update order details with delivery
+						// Update only delivery note fields so we never overwrite order status
 						await admin
 							.firestore()
 							.collection(
@@ -204,7 +188,7 @@ export function createAppApi(context: TContext) {
 								}),
 							)
 							.doc(order.id)
-							.update(newOrder);
+							.update({ ezDeliveryNote, deliveryNote });
 						console.log("order updated with delivery note", order.id);
 						return { success: true, error: null };
 					} else {
