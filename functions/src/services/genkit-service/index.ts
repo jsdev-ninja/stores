@@ -92,11 +92,7 @@ export class GenkitChatService {
 										"add=increment quantity, remove=decrement quantity, update_amount=set final quantity (0 removes product)",
 									),
 								query: z.string().describe("Product name or phrase to search"),
-								quantity: z
-									.number()
-									.int()
-									.min(0)
-									.describe("Quantity value for the action"),
+								quantity: z.number().int().min(0).describe("Quantity value for the action"),
 							}),
 						)
 						.min(1),
