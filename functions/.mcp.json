@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "genkit": {
+      "type": "stdio",
+      "command": "/Users/philbro/workspace/@jsdev-store/functions/node_modules/.bin/genkit",
+      "args": [
+        "mcp"
+      ],
+      "env": {}
+    }
+  }
+}

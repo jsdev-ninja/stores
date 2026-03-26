@@ -1,8 +1,13 @@
 import { genkit, z } from "genkit";
-import { vertexAI } from "@genkit-ai/vertexai";
+import { vertexAI } from "@genkit-ai/google-genai";
 import { logger } from "firebase-functions/v2";
 import { AlgoliaService } from "../algolia-service";
 import { createAppApi } from "../../appApi";
+
+const ai = genkit({
+	plugins: [vertexAI({ location: "us-central1" })],
+	model: vertexAI.model("gemini-2.5-flash"),
+});
 
 export type ChatHistoryItem = {
 	role: "user" | "bot";
@@ -36,11 +41,6 @@ export class GenkitChatService {
 		if (!prompt || !prompt.trim()) {
 			return { content: null };
 		}
-
-		const ai = genkit({
-			plugins: [vertexAI({ projectId: "jsdev-stores-prod", location: "us-central1" })],
-			model: "vertexai/gemini-2.0-flash-001",
-		});
 
 		const algoliaService = new AlgoliaService({
 			storeId: this.context.storeId,
