@@ -31,7 +31,7 @@ module.exports = {
 		"import/no-unresolved": 0,
 		"no-tabs": "off",
 		"object-curly-spacing": 0,
-		indent: ["error", "tab"],
+		indent: ["warn", "tab"],
 		"quote-props": ["error", "as-needed"],
 		"require-jsdoc": "off",
 		"valid-jsdoc": "off",

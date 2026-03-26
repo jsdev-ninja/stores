@@ -1,5 +1,5 @@
 import { genkit, z } from "genkit";
-import { googleAI } from "@genkit-ai/googleai";
+import { vertexAI } from "@genkit-ai/vertexai";
 import { logger } from "firebase-functions/v2";
 import { AlgoliaService } from "../algolia-service";
 import { createAppApi } from "../../appApi";
@@ -19,10 +19,8 @@ type GenkitServiceContext = {
 
 export class GenkitChatService {
 	private context: GenkitServiceContext;
-	private apiKey: string;
 
-	constructor(apiKey: string, context: GenkitServiceContext) {
-		this.apiKey = apiKey;
+	constructor(context: GenkitServiceContext) {
 		this.context = context;
 	}
 
@@ -40,8 +38,8 @@ export class GenkitChatService {
 		}
 
 		const ai = genkit({
-			plugins: [googleAI({ apiKey: this.apiKey })],
-			model: "googleai/gemini-2.0-flash",
+			plugins: [vertexAI({ projectId: "jsdev-stores-prod", location: "us-central1" })],
+			model: "vertexai/gemini-2.0-flash-001",
 		});
 
 		const algoliaService = new AlgoliaService({

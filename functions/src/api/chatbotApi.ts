@@ -1,16 +1,12 @@
-import { defineString } from "firebase-functions/params";
 import { logger } from "../core";
 import { GenkitChatService, ChatHistoryItem } from "../services/genkit-service";
 import * as functionsV2 from "firebase-functions/v2";
-
-const googleAiApiKey = defineString("GOOGLE_GENAI_API_KEY");
 
 export const chatbotApi = functionsV2.https.onCall(
 	{
 		memory: "1GiB",
 		timeoutSeconds: 540,
 		invoker: "public",
-		secrets: [googleAiApiKey],
 	},
 	async (request) => {
 		try {
@@ -46,7 +42,7 @@ export const chatbotApi = functionsV2.https.onCall(
 				return { content: "Missing store context. Please refresh and try again." };
 			}
 
-			const service = new GenkitChatService(googleAiApiKey.value(), {
+			const service = new GenkitChatService({
 				companyId,
 				storeId,
 				userId,
@@ -74,11 +70,22 @@ export const chatbotApi = functionsV2.https.onCall(
 
 			return response;
 		} catch (error) {
+			const isQuotaError =
+				error instanceof Error &&
+				(error.message.includes("429") ||
+					error.message.includes("Too Many Requests") ||
+					error.message.includes("quota"));
+
 			logger.write({
-				severity: "ERROR",
-				message: "chatbotApi error",
+				severity: isQuotaError ? "WARNING" : "ERROR",
+				message: isQuotaError ? "chatbotApi quota exceeded" : "chatbotApi error",
 				error,
 			});
+
+			if (isQuotaError) {
+				return { content: "The assistant is temporarily unavailable. Please try again in a moment." };
+			}
+
 			throw error;
 		}
 	},
