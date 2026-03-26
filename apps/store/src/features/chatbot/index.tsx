@@ -11,7 +11,7 @@ export { ChatInput } from "./ChatInput";
 export function ChatbotFeature() {
 	const user = useUser();
 	return (
-		<ChatbotProvider isFeatureOn={user?.email === "balasistore6@gmail.com"}>
+		<ChatbotProvider isFeatureOn={true || user?.email === "balasistore6@gmail.com"}>
 			<ChatbotToggle />
 		</ChatbotProvider>
 	);

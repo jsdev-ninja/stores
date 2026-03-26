@@ -171,21 +171,30 @@ async function createDeliveryNote({
 	}
 }
 
-export type OpenAiChatResult = {
+export type ChatHistoryItem = {
+	role: "user" | "bot";
+	text: string;
+};
+
+export type ChatbotResult = {
 	success: boolean;
-	data: { content: string | null; role: string } | null;
+	data: { content: string | null } | null;
 	error?: string;
 };
 
-async function openAiChat(prompt: string, context: { cartId?: string }): Promise<OpenAiChatResult> {
+async function chatbotChat(
+	prompt: string,
+	history: ChatHistoryItem[],
+	context: { cartId?: string; storeId?: string; companyId?: string },
+): Promise<ChatbotResult> {
 	try {
-		const func = httpsCallable(functions, "openAiAPi");
-		const response = await func({ prompt, context });
-		const data = response.data as { content: string | null; role: string };
+		const func = httpsCallable(functions, "chatbotApi");
+		const response = await func({ prompt, history, context });
+		const data = response.data as { content: string | null };
 		return { success: true, data };
 	} catch (error: any) {
 		const message = error?.message ?? "Unknown error";
-		console.error("openAiChat", error);
+		console.error("chatbotChat", error);
 		return { success: false, data: null, error: message };
 	}
 }
@@ -198,5 +207,5 @@ export const api = {
 	uiLogs,
 	createInvoice,
 	createDeliveryNote,
-	openAiChat,
+	chatbotChat,
 };

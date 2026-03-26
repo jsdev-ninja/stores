@@ -2068,8 +2068,12 @@ export const useAppApi = () => {
 			},
 		},
 		chatbot: {
-			sendMessage: async (prompt: string) => {
-				return await FirebaseApi.api.openAiChat(prompt, { cartId: cart?.id ?? "" });
+			sendMessage: async (prompt: string, history: { role: "user" | "bot"; text: string }[] = []) => {
+				return await FirebaseApi.api.chatbotChat(prompt, history, {
+					cartId: cart?.id ?? "",
+					companyId,
+					storeId,
+				});
 			},
 		},
 	};

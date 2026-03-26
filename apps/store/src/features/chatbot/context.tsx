@@ -3,6 +3,7 @@ import {
 	useContext,
 	useState,
 	useCallback,
+	useRef,
 	type ReactNode,
 } from "react";
 import { useAppApi } from "src/appApi";
@@ -42,13 +43,24 @@ export function ChatbotProvider({
 	const [isOpen, setIsOpen] = useState(false);
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const messagesRef = useRef<ChatMessage[]>([]);
 	const appApi = useAppApi();
 	const { t } = useTranslation(["common"]);
+
+	// Keep ref in sync with state so sendMessage always sees latest messages
+	messagesRef.current = messages;
 
 	const sendMessage = useCallback(
 		async (text: string) => {
 			const trimmed = text.trim();
 			if (!trimmed) return;
+
+			// Capture history BEFORE adding new user message
+			const history = messagesRef.current.map((msg) => ({
+				role: msg.role,
+				text: msg.text,
+			}));
+
 			const userMsg: ChatMessage = {
 				id: `user-${Date.now()}`,
 				text: trimmed,
@@ -58,10 +70,11 @@ export function ChatbotProvider({
 			setMessages((prev) => [...prev, userMsg]);
 			setIsLoading(true);
 			try {
-				const result = await appApi.chatbot.sendMessage(trimmed);
-				const botText = result.success && result.data?.content
-					? result.data.content
-					: result.error ?? t("chatbotError");
+				const result = await appApi.chatbot.sendMessage(trimmed, history);
+				const botText =
+					result.success && result.data?.content
+						? result.data.content
+						: result.error ?? t("chatbotError");
 				const botMsg: ChatMessage = {
 					id: `bot-${Date.now()}`,
 					text: botText,
@@ -69,7 +82,7 @@ export function ChatbotProvider({
 					timestamp: Date.now(),
 				};
 				setMessages((prev) => [...prev, botMsg]);
-			} catch(error: any) {
+			} catch (error: any) {
 				console.error("sendMessage", error);
 				const botMsg: ChatMessage = {
 					id: `bot-${Date.now()}`,
@@ -82,7 +95,7 @@ export function ChatbotProvider({
 				setIsLoading(false);
 			}
 		},
-		[t]
+		[t, appApi],
 	);
 
 	const value: ChatbotContextValue = {

@@ -1,6 +1,14 @@
 import admin from "firebase-admin";
 import { logger } from "../core";
-import { FirebaseAPI, TCart, TOrder, TOrganization, TProduct, TStore } from "@jsdev_ninja/core";
+import {
+	FirebaseAPI,
+	ProductSchema,
+	TCart,
+	TOrder,
+	TOrganization,
+	TProduct,
+	TStore,
+} from "@jsdev_ninja/core";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
@@ -33,6 +41,48 @@ async function getStoreData(storeId: string) {
 
 export function createAppApi(context: TContext) {
 	const { storeId, companyId, userId, isAdmin } = context;
+	const cartCollectionPath = FirebaseAPI.firestore.getPath({
+		collectionName: "cart",
+		companyId,
+		storeId,
+	});
+
+	async function getOrCreateCartId(inputCartId?: string) {
+		if (inputCartId) {
+			return { success: true as const, cartId: inputCartId, error: null };
+		}
+		if (!userId) {
+			return { success: false as const, cartId: "", error: "Missing user id for cart creation" };
+		}
+
+		const activeCartSnapshot = await admin
+			.firestore()
+			.collection(cartCollectionPath)
+			.where("userId", "==", userId)
+			.where("storeId", "==", storeId)
+			.where("companyId", "==", companyId)
+			.where("status", "==", "active")
+			.limit(1)
+			.get();
+
+		if (!activeCartSnapshot.empty) {
+			return { success: true as const, cartId: activeCartSnapshot.docs[0].id, error: null };
+		}
+
+		const newCartRef = admin.firestore().collection(cartCollectionPath).doc();
+		const newCart: TCart = {
+			id: newCartRef.id,
+			companyId,
+			storeId,
+			userId,
+			items: [],
+			type: "Cart",
+			status: "active",
+		};
+
+		await newCartRef.set(newCart);
+		return { success: true as const, cartId: newCartRef.id, error: null };
+	}
 
 	return {
 		payments: {
@@ -220,46 +270,65 @@ export function createAppApi(context: TContext) {
 			},
 		},
 		cart: {
-			async addItem({ product, cartId }: { product: TProduct; cartId: string }) {
+			async addItem({ product, cartId, amount = 1 }: { product: TProduct; cartId: string; amount?: number }) {
 				try {
 					logger.write({
 						severity: "INFO",
 						message: "add item to cart",
 						product,
+						amount,
 						storeId: storeId,
 						companyId: companyId,
 					});
-					const cart = await admin
-						.firestore()
-						.collection(
-							FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }),
-						)
-						.doc(cartId)
-						.get();
+
+					const validation = ProductSchema.safeParse(product);
+					if (!validation.success) {
+						logger.write({
+							severity: "ERROR",
+							message: "add item to cart - invalid product data",
+							product,
+							amount,
+							error: validation.error,
+							storeId: storeId,
+							companyId: companyId,
+						});
+						return { success: false, error: "Invalid product data" };
+					}
+
+					const safeProduct = validation.data;
+					const normalizedAmount = Number.isFinite(amount) ? Math.floor(amount) : 1;
+					if (normalizedAmount <= 0) {
+						return { success: false, error: "Amount must be greater than 0" };
+					}
+
+					const cartMeta = await getOrCreateCartId(cartId);
+					if (!cartMeta.success) {
+						return { success: false, error: cartMeta.error };
+					}
+
+					const cart = await admin.firestore().collection(cartCollectionPath).doc(cartMeta.cartId).get();
 					if (!cart.exists) {
 						return { success: false, error: "Cart not found" };
 					}
 					const cartData = cart.data() as TCart;
-					const cartItems = cartData.items;
-					const productIndex = cartItems.findIndex((item) => item.product.id === product.id);
+					const cartItems = structuredClone(cartData.items ?? []);
+					const productIndex = cartItems.findIndex((item) => item.product.id === safeProduct.id);
 					if (productIndex !== -1) {
-						cartItems[productIndex].amount += 1;
+						cartItems[productIndex].amount += normalizedAmount;
 					} else {
 						cartItems.push({
-							product,
-							amount: 1,
+							product: safeProduct,
+							amount: normalizedAmount,
 						});
 					}
 					await admin
 						.firestore()
-						.collection(
-							FirebaseAPI.firestore.getPath({ collectionName: "cart", companyId, storeId }),
-						)
-						.doc(cartId)
+						.collection(cartCollectionPath)
+						.doc(cartMeta.cartId)
 						.update({
 							items: cartItems,
 						});
-					return { success: true, error: null };
+					return { success: true, error: null, cartId: cartMeta.cartId };
 				} catch (error: any) {
 					logger.write({
 						severity: "ERROR",
@@ -267,6 +336,117 @@ export function createAppApi(context: TContext) {
 						product,
 						storeId: storeId,
 						companyId: companyId,
+					});
+					return { success: false, error: error as Error };
+				}
+			},
+			async removeItem({ productId, cartId, amount = 1 }: { productId: string; cartId: string; amount?: number }) {
+				try {
+					const normalizedAmount = Number.isFinite(amount) ? Math.floor(amount) : 1;
+					if (normalizedAmount <= 0) {
+						return { success: false, error: "Amount must be greater than 0" };
+					}
+
+					const cartMeta = await getOrCreateCartId(cartId);
+					if (!cartMeta.success) {
+						return { success: false, error: cartMeta.error };
+					}
+
+					const cartDoc = await admin
+						.firestore()
+						.collection(cartCollectionPath)
+						.doc(cartMeta.cartId)
+						.get();
+					if (!cartDoc.exists) {
+						return { success: false, error: "Cart not found" };
+					}
+
+					const cartData = cartDoc.data() as TCart;
+					const items = structuredClone(cartData.items ?? []);
+					const productIndex = items.findIndex((item) => item.product.id === productId);
+					if (productIndex === -1) {
+						return { success: false, error: "Product not found in cart" };
+					}
+
+					if (items[productIndex].amount > normalizedAmount) {
+						items[productIndex].amount -= normalizedAmount;
+					} else {
+						items.splice(productIndex, 1);
+					}
+
+					await admin
+						.firestore()
+						.collection(cartCollectionPath)
+						.doc(cartMeta.cartId)
+						.update({ items });
+
+					return { success: true, error: null, cartId: cartMeta.cartId };
+				} catch (error: any) {
+					logger.write({
+						severity: "ERROR",
+						message: "error removing item from cart error: " + error?.message,
+						productId,
+						storeId,
+						companyId,
+						error,
+					});
+					return { success: false, error: error as Error };
+				}
+			},
+			async updateItemAmount({
+				productId,
+				cartId,
+				amount,
+			}: {
+				productId: string;
+				cartId: string;
+				amount: number;
+			}) {
+				try {
+					const normalizedAmount = Number.isFinite(amount) ? Math.floor(amount) : 0;
+					const cartMeta = await getOrCreateCartId(cartId);
+					if (!cartMeta.success) {
+						return { success: false, error: cartMeta.error };
+					}
+
+					const resolvedCartDoc = await admin
+						.firestore()
+						.collection(cartCollectionPath)
+						.doc(cartMeta.cartId)
+						.get();
+					if (!resolvedCartDoc.exists) {
+						return { success: false, error: "Cart not found" };
+					}
+
+					const cartData = resolvedCartDoc.data() as TCart;
+					const items = structuredClone(cartData.items ?? []);
+					const productIndex = items.findIndex((item) => item.product.id === productId);
+					if (productIndex === -1) {
+						return { success: false, error: "Product not found in cart" };
+					}
+
+					if (normalizedAmount <= 0) {
+						items.splice(productIndex, 1);
+					} else {
+						items[productIndex].amount = normalizedAmount;
+					}
+
+					await admin
+						.firestore()
+						.collection(cartCollectionPath)
+						.doc(cartMeta.cartId)
+						.update({ items });
+
+					return { success: true, error: null, cartId: cartMeta.cartId };
+				} catch (error: any) {
+					logger.write({
+						severity: "ERROR",
+						message: "error updating cart item amount error: " + error?.message,
+						productId,
+						amount,
+						storeId,
+						companyId,
+						error,
 					});
 					return { success: false, error: error as Error };
 				}
