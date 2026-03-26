@@ -98,12 +98,12 @@ export class GenkitChatService {
 				outputSchema: z.any(),
 			},
 			async ({ items }) => {
-				logger.info("manage_cart tool called", { items });
+				logger.info("manage_cart tool called", { items, cartId });
 
-				if (!cartId) {
+				if (!this.context.userId) {
 					return {
 						success: false,
-						error: "No active cart found. User must be logged in with an active cart to manage items.",
+						error: "User must be logged in to manage cart items.",
 					};
 				}
 
