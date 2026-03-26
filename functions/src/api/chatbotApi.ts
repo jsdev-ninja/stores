@@ -3,7 +3,7 @@ import { logger } from "../core";
 import { GenkitChatService, ChatHistoryItem } from "../services/genkit-service";
 import * as functionsV2 from "firebase-functions/v2";
 
-const googleAiApiKey = defineSecret("GOOGLE_AI_API_KEY");
+const googleAiApiKey = defineSecret("GOOGLE_GENAI_API_KEY");
 
 export const chatbotApi = functionsV2.https.onCall(
 	{
