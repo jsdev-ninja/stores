@@ -7,6 +7,8 @@ import { useStore } from "src/domains/Store";
 import { useTranslation } from "react-i18next";
 import { TAddress } from "@jsdev_ninja/core";
 
+const CHATBOT_CONTEXT_MAX = 3000;
+
 function AdminSettingsPage() {
 	const [logo, setLogo] = useState<File | null>(null);
 	const [deliveryPrice, setDeliveryPrice] = useState<string>("");
@@ -14,6 +16,9 @@ function AdminSettingsPage() {
 	const [minimumOrder, setMinimumOrder] = useState<string>("");
 	const [isVatIncludedInPrice, setIsVatIncludedInPrice] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [chatbotContext, setChatbotContext] = useState("");
+	const [savedChatbotContext, setSavedChatbotContext] = useState("");
+	const [chatbotContextLoading, setChatbotContextLoading] = useState(false);
 	const [address, setAddress] = useState<TAddress>({
 		country: "",
 		city: "",
@@ -27,6 +32,29 @@ function AdminSettingsPage() {
 	const store = useStore();
 	const appApi = useAppApi();
 	const { t } = useTranslation(["common", "deliverySettings"]);
+
+	// Load chatbot config on mount
+	useEffect(() => {
+		appApi.admin.getChatbotConfig().then((result) => {
+			if (result?.success && result.data?.storeContext) {
+				setChatbotContext(result.data.storeContext);
+				setSavedChatbotContext(result.data.storeContext);
+			}
+		});
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	async function saveChatbotContext() {
+		setChatbotContextLoading(true);
+		try {
+			await appApi.admin.updateChatbotConfig({ storeContext: chatbotContext });
+			setSavedChatbotContext(chatbotContext);
+		} catch (error) {
+			console.error("Failed to save chatbot context:", error);
+		} finally {
+			setChatbotContextLoading(false);
+		}
+	}
 
 	// Initialize form values when store data loads
 	useEffect(() => {
@@ -319,7 +347,38 @@ function AdminSettingsPage() {
 				</div>
 			</div>
 
-			{/* Action Buttons */}
+			{/* Chatbot Context Section */}
+			<div className="bg-white rounded-lg shadow p-6">
+				<h2 className="text-xl font-semibold mb-1">הגדרות צ'אטבוט</h2>
+				<p className="text-sm text-gray-500 mb-4">
+					הוסף מידע על החנות שהבוט ישתמש בו כדי לענות על שאלות לקוחות — שעות פעילות, מדיניות החזרות, אזורי משלוח וכדומה.
+				</p>
+				<textarea
+					value={chatbotContext}
+					onChange={(e) => setChatbotContext(e.target.value)}
+					rows={8}
+					maxLength={CHATBOT_CONTEXT_MAX}
+					placeholder="לדוגמה: החנות פתוחה ימים א׳-ה׳ בין 9:00-18:00. משלוח חינם מעל 200 ש״ח. ניתן להחזיר מוצרים תוך 14 יום..."
+					className="w-full border border-gray-300 rounded-lg p-3 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
+				/>
+				<div className="flex items-center justify-between mt-2">
+					<span className={`text-xs ${chatbotContext.length > CHATBOT_CONTEXT_MAX * 0.9 ? "text-red-500" : "text-gray-400"}`}>
+						{chatbotContext.length}/{CHATBOT_CONTEXT_MAX}
+					</span>
+					<Button
+						onPress={saveChatbotContext}
+						isLoading={chatbotContextLoading}
+						isDisabled={
+							chatbotContext.length > CHATBOT_CONTEXT_MAX ||
+							chatbotContext === savedChatbotContext
+						}
+					>
+						{t("common:save")}
+					</Button>
+				</div>
+			</div>
+
+		{/* Action Buttons */}
 			<div className="flex gap-4 justify-center">
 							<Button variant="bordered" onPress={() => window.history.back()}>
 				{t("common:cancel")}

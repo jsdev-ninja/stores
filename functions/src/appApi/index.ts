@@ -39,6 +39,21 @@ async function getStoreData(storeId: string) {
 	return (await admin.firestore().collection(`STORES`).doc(storeId).get()).data() as TStore;
 }
 
+export async function getChatbotConfig(storeId: string): Promise<{ storeContext?: string } | null> {
+	try {
+		const snap = await admin
+			.firestore()
+			.collection(`STORES/${storeId}/private`)
+			.doc("chatbotConfig")
+			.get();
+		if (!snap.exists) return null;
+		const data = snap.data() as { storeContext?: string };
+		return { storeContext: data.storeContext?.slice(0, 3000) };
+	} catch {
+		return null;
+	}
+}
+
 export function createAppApi(context: TContext) {
 	const { storeId, companyId, userId, isAdmin } = context;
 	const cartCollectionPath = FirebaseAPI.firestore.getPath({

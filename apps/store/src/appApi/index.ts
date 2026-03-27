@@ -1395,6 +1395,24 @@ export const useAppApi = () => {
 
 				return result;
 			},
+			getChatbotConfig: async () => {
+				if (!isValidAdmin) return { success: false as const, data: null };
+				return FirebaseApi.firestore.getV2<{ storeContext: string; updatedAt: number }>({
+					collection: `STORES/${storeId}/private`,
+					id: "chatbotConfig",
+				});
+			},
+			updateChatbotConfig: async ({ storeContext }: { storeContext: string }) => {
+				if (!isValidAdmin) return { success: false as const };
+				return FirebaseApi.firestore.setV2({
+					collection: `STORES/${storeId}/private`,
+					doc: {
+						id: "chatbotConfig",
+						storeContext: storeContext.trim().slice(0, 3000),
+						updatedAt: Date.now(),
+					},
+				});
+			},
 		},
 		system: {
 			getDiscounts: async () => {

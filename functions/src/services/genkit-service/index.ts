@@ -3,7 +3,7 @@ import { genkit, z } from "genkit";
 import { vertexAI } from "@genkit-ai/google-genai";
 import { logger } from "firebase-functions/v2";
 import { AlgoliaService } from "../algolia-service";
-import { createAppApi } from "../../appApi";
+import { createAppApi, getChatbotConfig } from "../../appApi";
 
 export type ChatHistoryItem = {
 	role: "user" | "bot";
@@ -196,10 +196,12 @@ export class GenkitChatService {
 			historyLength: genkitHistory.length,
 		});
 
+		const chatbotConfig = await getChatbotConfig(this.context.storeId);
+
 		// Run inside AsyncLocalStorage context so tools can safely read per-request data
 		return requestStore.run(this.context, async () => {
 			const response = await ai.generate({
-				system: buildChatbotSystemPrompt(),
+				system: buildChatbotSystemPrompt(chatbotConfig?.storeContext),
 				messages: genkitHistory,
 				prompt,
 				tools: [queryProductsTool, manageCartTool],
@@ -210,10 +212,14 @@ export class GenkitChatService {
 	}
 }
 
-function buildChatbotSystemPrompt(): string {
+function buildChatbotSystemPrompt(storeContext?: string): string {
+	const contextSection = storeContext?.trim()
+		? `\n## Store Information\n${storeContext.trim()}\n`
+		: "";
+
 	return `
 You are StoreBot, the official assistant for this online store.
-
+${contextSection}
 Help customers with products, cart management, orders, and store policies.
 
 ## Cart Management
