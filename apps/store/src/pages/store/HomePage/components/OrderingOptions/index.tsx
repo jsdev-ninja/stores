@@ -1,5 +1,6 @@
 import { ShoppingCart, Mail } from "lucide-react";
 import { Button } from "@heroui/react";
+import { navigate } from "src/navigation";
 
 interface OrderingOptionsProps {
     onContact: () => void;
@@ -34,12 +35,11 @@ const OrderingOptions = ({ onContact }: OrderingOptionsProps) => {
 						<Button
 							variant="bordered"
 							size="lg"
+							onPress={() => navigate({ to: "store.catalog" })}
 							className="text-base px-8 py-6 border-2 border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10"
 						>
-							<a href="#store" className="flex items-center gap-2">
-								<ShoppingCart className="w-5 h-5" />
-								כניסה לחנות והזמנה
-							</a>
+							<ShoppingCart className="w-5 h-5" />
+							כניסה לחנות והזמנה
 						</Button>
 					</div>
 				</div>

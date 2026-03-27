@@ -1,5 +1,6 @@
 import { Button } from "@heroui/react";
 import { ShoppingCart, Phone } from "lucide-react";
+import { navigate } from "src/navigation";
 
 interface HeaderProps {
 	onContact: () => void;
@@ -21,7 +22,7 @@ const Header = ({ onContact }: HeaderProps) => {
 							<Phone className="w-4 h-4 ml-2" />
 							צור קשר
 						</Button>
-						<Button isIconOnly size="sm" variant="flat" className="bg-hero-foreground/10 hover:bg-hero-foreground/15">
+						<Button isIconOnly size="sm" variant="flat" className="bg-hero-foreground/10 hover:bg-hero-foreground/15" onPress={() => navigate({ to: "store.catalog" })}>
 							<ShoppingCart className="w-4 h-4" />
 						</Button>
 					</div>
