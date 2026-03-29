@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "website",
+      "runtimeExecutable": "/Users/philbro/.nvm/versions/node/v20.19.4/bin/node",
+      "runtimeArgs": ["/Users/philbro/workspace/@jsdev-store/apps/website/node_modules/.bin/vike", "dev"],
+      "port": 3000
+    }
+  ]
+}
