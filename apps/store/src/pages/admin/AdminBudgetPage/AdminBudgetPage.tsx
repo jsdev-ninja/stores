@@ -200,7 +200,7 @@ export function AdminBudgetOrganizationPage() {
 				FirebaseApi.api.getBudgetTransactions(organizationId, billingAccountId || undefined),
 			]);
 			if (accRes.success) setAccount(accRes.data as TBudgetAccount | null);
-			if (txRes.success) setTransactions((txRes.data ?? []) as TBudgetTransaction[]);
+			if (txRes.success) setTransactions((txRes.data ?? []) as unknown as TBudgetTransaction[]);
 		} catch (e) {
 			console.error(e);
 		} finally {

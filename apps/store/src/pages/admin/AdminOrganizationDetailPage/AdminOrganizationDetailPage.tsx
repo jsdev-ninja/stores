@@ -1225,9 +1225,9 @@ export function AdminOrganizationDetailPage() {
 										}}
 									>
 										{[
-											<SelectItem key="" value="">כל חשבונות החיוב</SelectItem>,
+											<SelectItem key="">כל חשבונות החיוב</SelectItem>,
 											...(organization.billingAccounts as any[]).map((ba: any) => (
-												<SelectItem key={ba.id} value={ba.id}>{ba.name}</SelectItem>
+												<SelectItem key={ba.id}>{ba.name}</SelectItem>
 											)),
 										]}
 									</Select>
@@ -1270,7 +1270,7 @@ export function AdminOrganizationDetailPage() {
 													<TableCell>
 														<button
 															className="text-blue-600 hover:underline text-sm"
-															onClick={() => navigate("admin.order", { id: action.orderId })}
+															onClick={() => navigate({ to: "admin.order", params: { id: action.orderId } })}
 														>
 															{action.orderId.slice(0, 8)}...
 														</button>
