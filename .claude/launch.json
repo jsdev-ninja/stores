@@ -6,6 +6,12 @@
       "runtimeExecutable": "/Users/philbro/.nvm/versions/node/v20.19.4/bin/node",
       "runtimeArgs": ["/Users/philbro/workspace/@jsdev-store/apps/website/node_modules/.bin/vike", "dev"],
       "port": 3000
+    },
+    {
+      "name": "store",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["workspace", "store", "dev:test"],
+      "port": 5175
     }
   ]
 }

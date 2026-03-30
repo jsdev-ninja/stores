@@ -9,6 +9,8 @@ import OrderCreated from "./emails/OrderCreated";
 import { FirebaseAPI, TOrder, TStore } from "@jsdev_ninja/core";
 import { ezCountService } from "./services/ezCountService";
 import { createAppApi } from "./appApi";
+import { budgetService } from "./services/budgetService";
+import { organizationActionsService } from "./services/organizationActionsService";
 
 const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 
@@ -33,6 +35,14 @@ export { createInvoice } from "./api/createInvoice";
 export { createDeliveryNote } from "./api/createDeliveryNote";
 export { onSupplierInvoiceCreate } from "./events/supplier-invoice-events";
 export { onContactFormSubmit } from "./events/contact-form-events";
+export {
+	getBudgetAccount,
+	listBudgetAccounts,
+	getBudgetTransactions,
+	markOrderPaid,
+	addBudgetManualTransaction,
+} from "./api/budgetApi";
+export { getOrganizationActions } from "./api/organizationActionsApi";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
@@ -67,13 +77,22 @@ export const onOrderCreated = functions.firestore
 		await appApi.cart.close(order.cart.id);
 
 		// send email
-
 		const html = await render(<OrderCreated order={order} />);
 
 		await emailService.sendEmail({
 			html,
 			email: storePrivateData?.storeEmail ?? "",
 		});
+
+		// budget: create debit if order is linked to an organization (non-blocking)
+		if (order.organizationId) {
+			await budgetService.onOrderCreated(order, companyId, storeId).catch((err) => {
+				functionsV2.logger.write({ severity: "ERROR", message: "budget.onOrderCreated failed", err });
+			});
+			await organizationActionsService.onOrderCreated(order).catch((err) => {
+				functionsV2.logger.write({ severity: "ERROR", message: "organizationActions.onOrderCreated failed", err });
+			});
+		}
 	});
 export const onOrderUpdate = functions
 	.runWith({
@@ -116,6 +135,41 @@ export const onOrderUpdate = functions
 		if (paymentCompleted) {
 			// track payment completed
 			await appApi.payments.trackPaymentCompleted(after);
+			if (after.organizationId) {
+				await organizationActionsService.onPaymentCompleted(after).catch((err) => {
+					functionsV2.logger.write({ severity: "ERROR", message: "organizationActions.onPaymentCompleted failed", err });
+				});
+			}
+		}
+
+		const deliveryNoteCreated =
+			!(before as any).deliveryNote && !!(after as any).deliveryNote ||
+			!(before as any).ezDeliveryNote && !!(after as any).ezDeliveryNote;
+		if (deliveryNoteCreated && after.organizationId) {
+			await organizationActionsService.onDeliveryNoteCreated(after).catch((err) => {
+				functionsV2.logger.write({ severity: "ERROR", message: "organizationActions.onDeliveryNoteCreated failed", err });
+			});
+		}
+
+		const invoiceCreated =
+			!(before as any).invoice && !!(after as any).invoice ||
+			!(before as any).ezInvoice && !!(after as any).ezInvoice;
+		if (invoiceCreated && after.organizationId) {
+			await organizationActionsService.onInvoiceCreated(after).catch((err) => {
+				functionsV2.logger.write({ severity: "ERROR", message: "organizationActions.onInvoiceCreated failed", err });
+			});
+		}
+
+		// budget: reverse debit when order is cancelled or refunded (non-blocking)
+		if (after.organizationId) {
+			const wasCancelled = before.status !== "cancelled" && after.status === "cancelled";
+			const wasRefunded = before.status !== "refunded" && after.status === "refunded";
+			if (wasCancelled || wasRefunded) {
+				const type = wasCancelled ? "order_cancelled" : "order_refunded";
+				budgetService.onOrderCancelled(after, companyId, storeId, type).catch((err) => {
+					functionsV2.logger.write({ severity: "ERROR", message: "budget.onOrderCancelled failed", err });
+				});
+			}
 		}
 
 		return;

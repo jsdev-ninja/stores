@@ -107,6 +107,11 @@ const sidebarCategories = [
 				path: "admin.deliveryNotes" as RouteKeys<typeof routes>,
 				icon: "lucide:file-text",
 			},
+			{
+				name: "budget",
+				path: "admin.budget" as RouteKeys<typeof routes>,
+				icon: "lucide:wallet",
+			},
 		],
 	},
 	{

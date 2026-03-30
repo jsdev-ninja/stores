@@ -15,10 +15,21 @@ import {
 	TableCell,
 	Alert,
 	Chip,
+	Modal,
+	ModalContent,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	Select,
+	SelectItem,
+	Textarea,
 } from "@heroui/react";
 import { TOrder, getCartCost } from "@jsdev_ninja/core";
+
+type TPaymentMethod = "check" | "bank_transfer" | "cash" | "credit_card" | "other";
 import { Calendar, User, Package, MapPin, ChevronDown, Download, Edit } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
+import { FirebaseApi } from "src/lib/firebase";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { useParams, navigate } from "src/navigation";
@@ -36,6 +47,14 @@ export default function AdminOrderPageNew() {
 	const [order, setOrder] = useState<TOrder | null>(null);
 	const [isCreatingDeliveryNote, setIsCreatingDeliveryNote] = useState(false);
 	const [isTogglingDeliveryPrice, setIsTogglingDeliveryPrice] = useState(false);
+
+	// Mark as Paid modal state
+	const [markPaidOpen, setMarkPaidOpen] = useState(false);
+	const [markPaidLoading, setMarkPaidLoading] = useState(false);
+	const [paidAmount, setPaidAmount] = useState("");
+	const [paidMethod, setPaidMethod] = useState<TPaymentMethod>("bank_transfer");
+	const [paidReference, setPaidReference] = useState("");
+	const [paidNote, setPaidNote] = useState("");
 	const appApi = useAppApi();
 	const store = useStore();
 	const discounts = useDiscounts();
@@ -91,6 +110,29 @@ export default function AdminOrderPageNew() {
 
 	function updateOrder(id: string, status: TOrder["status"]) {
 		setOrder((order) => (order?.id === id ? { ...order, status: status } : order));
+	}
+
+	async function submitMarkPaid() {
+		if (!order || !organization) return;
+		const debt = parseFloat(paidAmount);
+		if (!debt) return;
+		setMarkPaidLoading(true);
+		await FirebaseApi.api.markOrderPaid({
+			order,
+			organizationId: organization.id,
+			organizationName: organization.name,
+			debt,
+			paymentMethod: paidMethod,
+			paymentReference: paidReference.trim() || null,
+			paymentDate: Date.now(),
+			note: paidNote.trim() || null,
+		});
+		setMarkPaidOpen(false);
+		setMarkPaidLoading(false);
+		setPaidAmount("");
+		setPaidReference("");
+		setPaidNote("");
+		refetchOrder();
 	}
 
 	const actions = [
@@ -194,6 +236,7 @@ export default function AdminOrderPageNew() {
 	}, [id]);
 
 	return (
+		<>
 		<div
 			className={`min-h-screen bg-gray-50 p-4 md:p-6 ${isRTL ? "rtl" : "ltr"}`}
 			dir={isRTL ? "rtl" : "ltr"}
@@ -280,6 +323,19 @@ export default function AdminOrderPageNew() {
 							</DropdownMenu>
 						</Dropdown>
 						{mainActions()}
+						{/* Mark as Paid button — shown for org orders not yet paid */}
+						{organization && order?.paymentStatus !== "completed" && (
+							<Button
+								color="success"
+								variant="flat"
+								onPress={() => {
+									setPaidAmount(String(order?.cart.cartTotal ?? ""));
+									setMarkPaidOpen(true);
+								}}
+							>
+								{t("ordersPage:actions.markAsPaid", "סמן כשולם")}
+							</Button>
+						)}
 					</div>
 				</div>
 			</div>
@@ -546,12 +602,12 @@ export default function AdminOrderPageNew() {
 								</p>
 							)}
 							{order?.paymentStatus && (
-								<p className="text-gray-600">
+								<div className="text-gray-600 flex items-center gap-2">
 									<span className="font-medium">{t("common:paymentStatus")}:</span>{" "}
 									<Chip size="sm" color="primary" variant="flat">
 										{t(`common:paymentStatuses.${order.paymentStatus}`)}
 									</Chip>
-								</p>
+								</div>
 							)}
 							{!order?.paymentType && !order?.paymentStatus && (
 								<p className="text-gray-400 italic">{t("common:emptyField")}</p>
@@ -914,5 +970,57 @@ export default function AdminOrderPageNew() {
 				</Card>
 			</div>
 		</div>
+
+		{/* Mark as Paid modal */}
+		<Modal isOpen={markPaidOpen} onClose={() => setMarkPaidOpen(false)}>
+			<ModalContent>
+				<ModalHeader>{t("ordersPage:actions.markAsPaid", "סמן כשולם")}</ModalHeader>
+				<ModalBody className="space-y-4">
+					<Input
+						label={t("ordersPage:payment.amount", "סכום ששולם (₪)")}
+						type="number"
+						min={0.01}
+						step={0.01}
+						value={paidAmount}
+						onValueChange={setPaidAmount}
+					/>
+					<Select
+						label={t("ordersPage:payment.method", "אמצעי תשלום")}
+						selectedKeys={[paidMethod]}
+						onSelectionChange={(keys) => setPaidMethod([...keys][0] as TPaymentMethod)}
+					>
+						<SelectItem key="check" textValue="צ׳ק">צ׳ק</SelectItem>
+						<SelectItem key="bank_transfer" textValue="העברה בנקאית">העברה בנקאית</SelectItem>
+						<SelectItem key="cash" textValue="מזומן">מזומן</SelectItem>
+						<SelectItem key="credit_card" textValue="כרטיס אשראי">כרטיס אשראי</SelectItem>
+						<SelectItem key="other" textValue="אחר">אחר</SelectItem>
+					</Select>
+					<Input
+						label={t("ordersPage:payment.reference", "אסמכתא / מספר צ׳ק")}
+						value={paidReference}
+						onValueChange={setPaidReference}
+					/>
+					<Textarea
+						label={t("common:note", "הערה")}
+						value={paidNote}
+						onValueChange={setPaidNote}
+					/>
+				</ModalBody>
+				<ModalFooter>
+					<Button variant="light" onPress={() => setMarkPaidOpen(false)}>
+						{t("common:cancel", "ביטול")}
+					</Button>
+					<Button
+						color="success"
+						isLoading={markPaidLoading}
+						isDisabled={!paidAmount}
+						onPress={submitMarkPaid}
+					>
+						{t("ordersPage:payment.confirm", "אשר תשלום")}
+					</Button>
+				</ModalFooter>
+			</ModalContent>
+		</Modal>
+		</>
 	);
 }

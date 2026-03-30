@@ -22,6 +22,8 @@ export const storeCollections = {
 	chatSessions: "chatSessions",
 	chatSessionMessages: "chatSessionMessages",
 	contactSubmissions: "contactSubmissions",
+	budgetAccounts: "budgetAccounts",
+	budgetTransactions: "budgetTransactions",
 } as const;
 
 export const FirestoreApi = {

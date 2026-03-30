@@ -17,3 +17,4 @@ export * from "./Payment";
 export * from "./Supplier";
 export * from "./SupplierInvoice";
 export * from "./Chatbot";
+export * from "./Budget";

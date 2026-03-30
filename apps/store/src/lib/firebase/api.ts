@@ -4,6 +4,39 @@ import { TOrder } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { CONFIG } from "src/config";
 
+type TBudgetAccount = {
+	id: string;
+	organizationId: string;
+	organizationName: string;
+	companyId: string;
+	storeId: string;
+	totalDebits: number;
+	totalCredits: number;
+	balance: number;
+	currency: "ILS";
+	updatedAt: number;
+};
+
+type TBudgetTransaction = {
+	id: string;
+	type: string;
+	amount: number;
+	runningBalance: number;
+	orderId: string | null;
+	orderTotal: number | null;
+	billingAccountId: string | null;
+	billingAccountName: string | null;
+	billingAccountNumber: string | null;
+	paymentReference: string | null;
+	paymentDate: number | null;
+	paymentMethod: string | null;
+	note: string | null;
+	createdAt: number;
+	createdBy: string;
+};
+
+type TPaymentMethod = "check" | "bank_transfer" | "cash" | "credit_card" | "other";
+
 const functions = getFunctions(app);
 
 async function init() {
@@ -199,6 +232,70 @@ async function chatbotChat(
 	}
 }
 
+async function listBudgetAccounts() {
+	const func = httpsCallable(functions, "listBudgetAccounts");
+	const res = await func();
+	return res.data as { success: boolean; data: TBudgetAccount[] };
+}
+
+async function getBudgetAccount(organizationId: string) {
+	const func = httpsCallable(functions, "getBudgetAccount");
+	const res = await func({ organizationId });
+	return res.data as { success: boolean; data: TBudgetAccount | null };
+}
+
+async function getBudgetTransactions(organizationId: string, billingAccountId?: string) {
+	const func = httpsCallable(functions, "getBudgetTransactions");
+	const res = await func({ organizationId, billingAccountId });
+	return res.data as { success: boolean; data: TBudgetTransaction[] };
+}
+
+async function markOrderPaid(params: {
+	order: TOrder;
+	organizationId: string;
+	organizationName: string;
+	debt: number;
+	paymentMethod: TPaymentMethod;
+	paymentReference: string | null;
+	paymentDate: number;
+	note: string | null;
+}) {
+	const func = httpsCallable(functions, "markOrderPaid");
+	const res = await func(params);
+	return res.data as { success: boolean };
+}
+
+async function addBudgetManualTransaction(params: {
+	organizationId: string;
+	organizationName: string;
+	type: "credit_note" | "debit_note";
+	debt: number;
+	note: string;
+}) {
+	const func = httpsCallable(functions, "addBudgetManualTransaction");
+	const res = await func(params);
+	return res.data as { success: boolean };
+}
+
+type TOrganizationAction = {
+	id: string;
+	type: "order.created" | "delivery_note.created" | "invoice.created" | "payment.completed";
+	orderId: string;
+	orderTotal: number;
+	billingAccountId: string | null;
+	billingAccountName: string | null;
+	billingAccountNumber: string | null;
+	date: number;
+	createdAt: number;
+	meta: Record<string, any>;
+};
+
+async function getOrganizationActions(organizationId: string, billingAccountId?: string) {
+	const func = httpsCallable(functions, "getOrganizationActions");
+	const res = await func({ organizationId, billingAccountId });
+	return res.data as { success: boolean; data: TOrganizationAction[] };
+}
+
 export const api = {
 	init,
 	createCompanyClient,
@@ -208,4 +305,10 @@ export const api = {
 	createInvoice,
 	createDeliveryNote,
 	chatbotChat,
+	listBudgetAccounts,
+	getBudgetAccount,
+	getBudgetTransactions,
+	markOrderPaid,
+	addBudgetManualTransaction,
+	getOrganizationActions,
 };

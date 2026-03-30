@@ -28,7 +28,8 @@ export function SelectDateForDocumentModal({
 	const handleConfirm = async () => {
 		setIsSubmitting(true);
 		try {
-			const dateTimestamp = new Date(documentDate).getTime();
+			const [year, month, day] = documentDate.split("-").map(Number);
+		const dateTimestamp = new Date(year, month - 1, day).getTime();
 			await onConfirm(dateTimestamp);
 			modalApi.closeModal("selectDateForDocument");
 		} finally {

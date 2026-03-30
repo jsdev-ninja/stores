@@ -115,6 +115,12 @@ export const routes = {
 			inventoryCertificateDetail: {
 				path: "/inventory-certificate/:id",
 			},
+			budget: {
+				path: "/budget",
+			},
+			budgetOrganization: {
+				path: "/budget/:organizationId",
+			},
 		},
 	},
 	superAdmin: {

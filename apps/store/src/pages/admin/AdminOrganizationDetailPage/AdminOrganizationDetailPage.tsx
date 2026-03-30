@@ -34,6 +34,7 @@ import {
 } from "@jsdev_ninja/core";
 import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
+import { FirebaseApi } from "src/lib/firebase";
 
 type ClientFormState = {
 	displayName: string;
@@ -120,12 +121,33 @@ export function AdminOrganizationDetailPage() {
 	const [ordersLoading, setOrdersLoading] = useState(false);
 	const [invoicesLoading, setInvoicesLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState<string>("details");
+	const [budgetAccount, setBudgetAccount] = useState<{
+		totalDebits: number;
+		totalCredits: number;
+		balance: number;
+	} | null>(null);
+	const [actions, setActions] = useState<Array<{
+		id: string;
+		type: "order.created" | "delivery_note.created" | "invoice.created" | "payment.completed";
+		orderId: string;
+		orderTotal: number;
+		billingAccountId: string | null;
+		billingAccountName: string | null;
+		billingAccountNumber: string | null;
+		date: number;
+		meta: Record<string, any>;
+	}>>([]);
+	const [actionsLoading, setActionsLoading] = useState(false);
+	const [actionsBillingFilter, setActionsBillingFilter] = useState<string>("");
 
 	const appApi = useAppApi();
 
 	useEffect(() => {
 		if (id) {
 			loadOrganization(id);
+			FirebaseApi.api.getBudgetAccount(id).then((res) => {
+				if (res.success && res.data) setBudgetAccount(res.data as any);
+			}).catch(() => {});
 		}
 		loadOrganizationGroups();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,6 +221,26 @@ export function AdminOrganizationDetailPage() {
 			setInvoicesLoading(false);
 		}
 	};
+
+	const loadActions = async (billingAccountId?: string) => {
+		if (!id) return;
+		setActionsLoading(true);
+		try {
+			const res = await FirebaseApi.api.getOrganizationActions(id, billingAccountId || undefined);
+			if (res.success) setActions(res.data);
+		} catch (err) {
+			console.error("Failed to load organization actions:", err);
+		} finally {
+			setActionsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (activeTab === "actions" && actions.length === 0 && !actionsLoading) {
+			loadActions();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeTab]);
 
 	const loadOrganizationClients = async (organizationId: string) => {
 		setClientsLoading(true);
@@ -813,6 +855,45 @@ export function AdminOrganizationDetailPage() {
 							</Card>
 						</div>
 
+						{/* Budget Balance Section */}
+						{budgetAccount && (
+							<div className="mt-6">
+								<Card>
+									<CardHeader className="flex flex-row items-center justify-between">
+										<h2 className="text-lg font-semibold text-start">
+											{t("admin:budget.title", "ניהול תקציב")}
+										</h2>
+										<Button
+											size="sm"
+											variant="light"
+											onPress={() => navigate({ to: "admin.budgetOrganization", params: { organizationId: id } })}
+											startContent={<Icon icon="lucide:wallet" />}
+										>
+											{t("common:view", "צפה")}
+										</Button>
+									</CardHeader>
+									<CardBody>
+										<div className="flex gap-6">
+											<div className="flex-1 text-center">
+												<p className="text-sm text-gray-500">{t("admin:budget.totalDebits", "סה״כ חיובים")}</p>
+												<p className="text-xl font-bold text-red-600"><Price price={budgetAccount.totalDebits} /></p>
+											</div>
+											<div className="flex-1 text-center">
+												<p className="text-sm text-gray-500">{t("admin:budget.totalCredits", "סה״כ תשלומים")}</p>
+												<p className="text-xl font-bold text-green-600"><Price price={budgetAccount.totalCredits} /></p>
+											</div>
+											<div className="flex-1 text-center">
+												<p className="text-sm text-gray-500">{t("admin:budget.balance", "יתרת חוב")}</p>
+												<p className={`text-xl font-bold ${budgetAccount.balance > 0 ? "text-red-600" : "text-green-600"}`}>
+													<Price price={budgetAccount.balance} />
+												</p>
+											</div>
+										</div>
+									</CardBody>
+								</Card>
+							</div>
+						)}
+
 						{/* Organization Clients Section */}
 						<div className="mt-6">
 							<Card>
@@ -1121,6 +1202,95 @@ export function AdminOrganizationDetailPage() {
 											{t("admin:organizationsPage.noInvoices" as any)}
 										</div>
 									</div>
+								)}
+							</CardBody>
+						</Card>
+					</div>
+				</Tab>
+				<Tab key="actions" title="פעולות">
+					<div className="flex flex-col gap-4">
+						<Card>
+							<CardHeader className="flex flex-row items-center justify-between gap-4">
+								<h3 className="text-lg font-semibold">היסטוריית פעולות</h3>
+								{organization?.billingAccounts && organization.billingAccounts.length > 0 && (
+									<Select
+										size="sm"
+										className="max-w-xs"
+										placeholder="כל חשבונות החיוב"
+										selectedKeys={actionsBillingFilter ? [actionsBillingFilter] : []}
+										onChange={(e) => {
+											const val = e.target.value;
+											setActionsBillingFilter(val);
+											loadActions(val || undefined);
+										}}
+									>
+										{[
+											<SelectItem key="" value="">כל חשבונות החיוב</SelectItem>,
+											...(organization.billingAccounts as any[]).map((ba: any) => (
+												<SelectItem key={ba.id} value={ba.id}>{ba.name}</SelectItem>
+											)),
+										]}
+									</Select>
+								)}
+							</CardHeader>
+							<CardBody>
+								{actionsLoading ? (
+									<div className="flex justify-center py-8">
+										<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+									</div>
+								) : actions.length > 0 ? (
+									<Table aria-label="organization actions">
+										<TableHeader>
+											<TableColumn>תאריך</TableColumn>
+											<TableColumn>פעולה</TableColumn>
+											<TableColumn>הזמנה</TableColumn>
+											<TableColumn>סכום</TableColumn>
+											<TableColumn>חשבון חיוב</TableColumn>
+											<TableColumn>פרטים</TableColumn>
+										</TableHeader>
+										<TableBody>
+											{actions.map((action) => (
+												<TableRow key={action.id}>
+													<TableCell>
+														<DateView date={action.date} />
+													</TableCell>
+													<TableCell>
+														<span className={`px-2 py-1 rounded text-xs font-medium ${
+															action.type === "order.created" ? "bg-pink-100 text-pink-800" :
+															action.type === "delivery_note.created" ? "bg-blue-100 text-blue-800" :
+															action.type === "invoice.created" ? "bg-purple-100 text-purple-800" :
+															"bg-green-100 text-green-800"
+														}`}>
+															{action.type === "order.created" ? "הזמנה נוצרה" :
+															action.type === "delivery_note.created" ? "תעודת משלוח" :
+															action.type === "invoice.created" ? "חשבונית" :
+															"תשלום הושלם"}
+														</span>
+													</TableCell>
+													<TableCell>
+														<button
+															className="text-blue-600 hover:underline text-sm"
+															onClick={() => navigate("admin.order", { id: action.orderId })}
+														>
+															{action.orderId.slice(0, 8)}...
+														</button>
+													</TableCell>
+													<TableCell>
+														<Price price={action.orderTotal} />
+													</TableCell>
+													<TableCell>
+														{action.billingAccountName ?? "—"}
+													</TableCell>
+													<TableCell>
+														{action.meta?.number ? `#${action.meta.number}` :
+														action.meta?.status ?? "—"}
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								) : (
+									<div className="text-center py-8 text-gray-500">אין פעולות</div>
 								)}
 							</CardBody>
 						</Card>

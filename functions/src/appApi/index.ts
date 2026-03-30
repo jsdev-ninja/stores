@@ -3,12 +3,16 @@ import { logger } from "../core";
 import {
 	FirebaseAPI,
 	ProductSchema,
+	TBudgetAccount,
+	TBudgetTransaction,
 	TCart,
 	TOrder,
 	TOrganization,
+	TPaymentMethod,
 	TProduct,
 	TStore,
 } from "@jsdev_ninja/core";
+import { budgetService } from "../services/budgetService";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
@@ -496,6 +500,123 @@ export function createAppApi(context: TContext) {
 					});
 					return { success: false, error: error as Error };
 				}
+			},
+		},
+		budget: {
+			async getBudgetAccount(organizationId: string): Promise<TBudgetAccount | null> {
+				const snap = await admin
+					.firestore()
+					.doc(
+						FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "budgetAccounts",
+							id: organizationId,
+						}),
+					)
+					.get();
+				return snap.exists ? (snap.data() as TBudgetAccount) : null;
+			},
+
+			async listBudgetAccounts(): Promise<TBudgetAccount[]> {
+				const snap = await admin
+					.firestore()
+					.collection(
+						FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "budgetAccounts",
+						}),
+					)
+					.orderBy("balance", "desc")
+					.get();
+				return snap.docs.map((d) => d.data() as TBudgetAccount);
+			},
+
+			async getBudgetTransactions(
+				organizationId: string,
+				filters?: { billingAccountId?: string },
+			): Promise<TBudgetTransaction[]> {
+				let query: admin.firestore.Query = admin
+					.firestore()
+					.collection(
+						`${FirebaseAPI.firestore.getPath({
+							companyId,
+							storeId,
+							collectionName: "budgetAccounts",
+							id: organizationId,
+						})}/budgetTransactions`,
+					)
+					.orderBy("createdAt", "desc");
+
+				if (filters?.billingAccountId) {
+					query = query.where("billingAccountId", "==", filters.billingAccountId);
+				}
+
+				const snap = await query.get();
+				return snap.docs.map((d) => d.data() as TBudgetTransaction);
+			},
+
+			async markOrderPaid(params: {
+				order: TOrder;
+				organizationId: string;
+				organizationName: string;
+				debt: number;
+				paymentMethod: TPaymentMethod;
+				paymentReference: string | null;
+				paymentDate: number;
+				note: string | null;
+				paidByUserId: string;
+			}): Promise<void> {
+				const db = admin.firestore();
+				const orderPath = FirebaseAPI.firestore.getPath({
+					companyId,
+					storeId,
+					collectionName: "orders",
+					id: params.order.id,
+				});
+
+				// Record payment in budget ledger
+				await budgetService.recordPayment({
+					companyId,
+					storeId,
+					organizationId: params.organizationId,
+					organizationName: params.organizationName,
+					order: params.order,
+					debt: params.debt,
+					paymentMethod: params.paymentMethod,
+					paymentReference: params.paymentReference,
+					paymentDate: params.paymentDate,
+					note: params.note,
+					createdBy: params.paidByUserId,
+				});
+
+				// Mark order as paid
+				await db.doc(orderPath).update({
+					paymentStatus: "completed",
+					status: "completed",
+					"externalPayment.amount": params.debt,
+					"externalPayment.method": params.paymentMethod,
+					"externalPayment.reference": params.paymentReference,
+					"externalPayment.date": params.paymentDate,
+					"externalPayment.note": params.note,
+					"externalPayment.recordedBy": params.paidByUserId,
+				});
+			},
+
+			async addManualTransaction(params: {
+				organizationId: string;
+				organizationName: string;
+				type: "credit_note" | "debit_note";
+				debt: number;
+				note: string;
+				createdBy: string;
+			}): Promise<void> {
+				await budgetService.addManualTransaction({
+					companyId,
+					storeId,
+					...params,
+				});
 			},
 		},
 	};
