@@ -1,3 +1,5 @@
+import logoUrl from "../../assets/logo.png";
+
 const features = [
 	{
 		icon: (
@@ -109,18 +111,15 @@ const testimonials = [
 	},
 ];
 
-function KomrsLogo({ size = 32 }: { size?: number }) {
+function StoreBrixLogo({ size = 32 }: { size?: number }) {
 	return (
 		<div className="flex items-center gap-2">
-			<svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
-				<rect width="32" height="32" rx="8" fill="#004c3f" />
-				<path d="M9 8h3.5v5.5l6-5.5h4.5l-6.5 6 7 8h-4.5l-5-6v6H9V8z" fill="#ffdb95" />
-			</svg>
+			<img src={logoUrl} alt="StoreBrix" width={size} height={size} style={{ objectFit: "contain" }} />
 			<span
 				style={{ fontFamily: "'Heebo', sans-serif", letterSpacing: "-0.5px" }}
 				className="text-[#004c3f] font-bold text-xl"
 			>
-				Komrs
+				StoreBrix
 			</span>
 		</div>
 	);
@@ -133,7 +132,7 @@ export default function Page() {
 			{/* ===== NAVBAR ===== */}
 			<header className="bg-[#fbf7ec] sticky top-0 z-50 border-b border-[#e8e0d0]">
 				<div className="container mx-auto px-5 py-4 flex items-center justify-between">
-					<KomrsLogo />
+					<StoreBrixLogo />
 					<nav className="hidden md:flex items-center gap-8 text-[#424c4a] text-sm font-medium">
 						<a href="#features" className="hover:text-[#004c3f] transition-colors">יתרונות</a>
 						<a href="#how" className="hover:text-[#004c3f] transition-colors">איך זה עובד</a>
@@ -387,11 +386,8 @@ export default function Page() {
 					<div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10">
 						<div>
 							<div className="flex items-center gap-2 mb-3">
-								<svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-									<rect width="32" height="32" rx="8" fill="#ffdb95" />
-									<path d="M9 8h3.5v5.5l6-5.5h4.5l-6.5 6 7 8h-4.5l-5-6v6H9V8z" fill="#004c3f" />
-								</svg>
-								<span className="text-white font-bold text-xl">Komrs</span>
+								<img src={logoUrl} alt="StoreBrix" width={28} height={28} style={{ objectFit: "contain" }} />
+								<span className="text-white font-bold text-xl">StoreBrix</span>
 							</div>
 							<p className="text-white/60 text-sm max-w-xs leading-relaxed">
 								פלטפורמת החנויות האונליין לעסקים ישראליים — פשוט, מהיר, ומשתלם.
@@ -418,7 +414,7 @@ export default function Page() {
 					</div>
 
 					<div className="border-t border-white/20 pt-6 flex flex-col md:flex-row justify-between items-center gap-2">
-						<p className="text-white/50 text-sm">© Komrs 2026. כל הזכויות שמורות.</p>
+						<p className="text-white/50 text-sm">© StoreBrix 2026. כל הזכויות שמורות.</p>
 						<p className="text-white/30 text-xs">עשוי באהבה בישראל 🇮🇱</p>
 					</div>
 				</div>
