@@ -1,6 +1,14 @@
 export default function Head() {
 	return (
 		<>
+			{/* Google Ads conversion tracking */}
+			<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18048902473"></script>
+			<script dangerouslySetInnerHTML={{ __html: `
+				window.dataLayer = window.dataLayer || [];
+				function gtag(){dataLayer.push(arguments);}
+				gtag('js', new Date());
+				gtag('config', 'AW-18048902473');
+			`}} />
 			<meta charSet="UTF-8" />
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<meta name="description" content="StoreBrix — פלטפורמת החנויות האונליין לעסקים ישראליים. פותחים חנות, מתחילים למכור, משלמים רק על מכירות." />

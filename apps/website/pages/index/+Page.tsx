@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logoUrl from "../../assets/logo.png";
 import { app } from "../../firebase/index";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -135,6 +135,14 @@ export default function Page() {
 	const [submitting, setSubmitting] = useState(false);
 	const [showSuccess, setShowSuccess] = useState(false);
 
+	useEffect(() => {
+		import("firebase/analytics").then(({ getAnalytics, isSupported }) => {
+			isSupported().then((supported) => {
+				if (supported) getAnalytics(app);
+			});
+		});
+	}, []);
+
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		setSubmitting(true);
@@ -143,6 +151,14 @@ export default function Page() {
 				...formData,
 				createdAt: serverTimestamp(),
 			});
+			// Fire Google Ads conversion event
+			if (typeof window !== "undefined" && (window as any).gtag) {
+				(window as any).gtag('event', 'conversion', {
+					send_to: 'AW-18048902473/MI7qCNOpm5QcEMnKsZ5D',
+					value: 1.0,
+					currency: 'ILS',
+				});
+			}
 			setFormData({ name: "", phone: "", email: "", message: "" });
 			setShowSuccess(true);
 		} catch (err) {
