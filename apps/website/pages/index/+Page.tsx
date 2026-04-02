@@ -1,4 +1,9 @@
+import { useState } from "react";
 import logoUrl from "../../assets/logo.png";
+import { app } from "../../firebase/index";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+
+const db = getFirestore(app);
 
 const features = [
 	{
@@ -126,8 +131,50 @@ function StoreBrixLogo({ size = 32 }: { size?: number }) {
 }
 
 export default function Page() {
+	const [formData, setFormData] = useState({ name: "", phone: "", email: "", message: "" });
+	const [submitting, setSubmitting] = useState(false);
+	const [showSuccess, setShowSuccess] = useState(false);
+
+	async function handleSubmit(e: React.FormEvent) {
+		e.preventDefault();
+		setSubmitting(true);
+		try {
+			await addDoc(collection(db, "landingLeads"), {
+				...formData,
+				createdAt: serverTimestamp(),
+			});
+			setFormData({ name: "", phone: "", email: "", message: "" });
+			setShowSuccess(true);
+		} catch (err) {
+			console.error("Failed to submit form", err);
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
 	return (
 		<div dir="rtl" style={{ fontFamily: "'Heebo', sans-serif" }} className="w-full min-h-screen bg-white text-right">
+
+			{/* ===== SUCCESS POPUP ===== */}
+			{showSuccess && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowSuccess(false)}>
+					<div className="bg-white rounded-2xl p-8 max-w-sm mx-4 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+						<div className="w-16 h-16 bg-[#e8f5e9] rounded-full flex items-center justify-center mx-auto mb-4">
+							<svg className="w-8 h-8 text-[#004c3f]" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+							</svg>
+						</div>
+						<h3 className="text-[#004c3f] text-xl font-black mb-2">הפרטים התקבלו!</h3>
+						<p className="text-[#57605e] text-sm mb-6">ניצור איתכם קשר תוך 24 שעות כדי לפתוח את החנות שלכם.</p>
+						<button
+							onClick={() => setShowSuccess(false)}
+							className="bg-[#004c3f] text-[#ffdb95] px-6 py-2.5 rounded-lg font-bold hover:bg-[#003830] transition-colors"
+						>
+							סגור
+						</button>
+					</div>
+				</div>
+			)}
 
 			{/* ===== NAVBAR ===== */}
 			<header className="bg-[#fbf7ec] sticky top-0 z-50 border-b border-[#e8e0d0]">
@@ -342,36 +389,45 @@ export default function Page() {
 					</p>
 					<form
 						className="flex flex-col gap-3 max-w-md mx-auto"
-						onSubmit={(e) => e.preventDefault()}
+						onSubmit={handleSubmit}
 					>
 						<input
 							type="text"
 							placeholder="שם מלא"
 							required
+							value={formData.name}
+							onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
 							className="border border-[#d0c8b8] rounded-lg px-4 py-3 text-[#212625] text-right focus:outline-none focus:ring-2 focus:ring-[#004c3f] bg-white"
 						/>
 						<input
 							type="tel"
 							placeholder="מספר טלפון"
 							required
+							value={formData.phone}
+							onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
 							className="border border-[#d0c8b8] rounded-lg px-4 py-3 text-[#212625] text-right focus:outline-none focus:ring-2 focus:ring-[#004c3f] bg-white"
 						/>
 						<input
 							type="email"
 							placeholder="אימייל"
 							required
+							value={formData.email}
+							onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
 							className="border border-[#d0c8b8] rounded-lg px-4 py-3 text-[#212625] text-right focus:outline-none focus:ring-2 focus:ring-[#004c3f] bg-white"
 						/>
 						<textarea
 							rows={3}
 							placeholder="תיאור קצר על העסק — אופציונלי"
+							value={formData.message}
+							onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
 							className="border border-[#d0c8b8] rounded-lg px-4 py-3 text-[#212625] text-right focus:outline-none focus:ring-2 focus:ring-[#004c3f] bg-white resize-none"
 						/>
 						<button
 							type="submit"
-							className="bg-[#004c3f] text-[#ffdb95] px-6 py-3 rounded-lg font-bold hover:bg-[#003830] transition-colors"
+							disabled={submitting}
+							className="bg-[#004c3f] text-[#ffdb95] px-6 py-3 rounded-lg font-bold hover:bg-[#003830] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
 						>
-							דברו איתי
+							{submitting ? "שולח..." : "דברו איתי"}
 						</button>
 					</form>
 					<p className="text-[#57605e] text-xs mt-4">

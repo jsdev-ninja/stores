@@ -35,6 +35,7 @@ export { createInvoice } from "./api/createInvoice";
 export { createDeliveryNote } from "./api/createDeliveryNote";
 export { onSupplierInvoiceCreate } from "./events/supplier-invoice-events";
 export { onContactFormSubmit } from "./events/contact-form-events";
+export { onLandingLeadCreated } from "./events/landing-lead-events";
 export {
 	getBudgetAccount,
 	listBudgetAccounts,
