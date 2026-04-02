@@ -219,12 +219,12 @@ export default function Page() {
 							className="text-[#004c3f] text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6"
 							style={{ lineHeight: "1.2" }}
 						>
-							פשוט מוכרים.
+							פתחו חנות אונליין לעסק שלכם —
 							<br />
-							<span className="text-[#57605e] font-light">אנחנו מטפלים בשאר.</span>
+							<span className="text-[#57605e] font-light">בחינם, תוך שעות.</span>
 						</h1>
 						<p className="text-[#57605e] text-lg md:text-xl mb-10 max-w-xl mx-auto leading-relaxed">
-							פלטפורמת החנויות האונליין לעסקים ישראליים — ללא עלות הקמה, ללא תשלום חודשי. משלמים רק כשמוכרים.
+							StoreBrix מאפשרת לכל עסק לפתוח חנות דיגיטלית מקצועית ללא עלות הקמה וללא תשלום חודשי. מקבלים חנות מוכנה, מנהלים הזמנות ומשלמים רק על מכירות.
 						</p>
 						<div className="flex flex-col sm:flex-row gap-4 justify-center">
 							<a
