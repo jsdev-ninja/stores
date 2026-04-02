@@ -4,7 +4,7 @@ import { emailService } from "../services/email";
 import ContactFormSubmitted from "../emails/ContactFormSubmitted";
 import React from "react";
 
-const NOTIFY_EMAIL = "philip@jsdev.com";
+const NOTIFY_EMAIL = "philip@jsdev.ninja";
 
 export const onLandingLeadCreated = functions.firestore.onDocumentCreated(
 	"landingLeads/{id}",
