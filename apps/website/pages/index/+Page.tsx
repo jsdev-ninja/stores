@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import logoUrl from "../../assets/logo.png";
 import { app } from "../../firebase/index";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -135,13 +135,6 @@ export default function Page() {
 	const [submitting, setSubmitting] = useState(false);
 	const [showSuccess, setShowSuccess] = useState(false);
 
-	useEffect(() => {
-		import("firebase/analytics").then(({ getAnalytics, isSupported }) => {
-			isSupported().then((supported) => {
-				if (supported) getAnalytics(app);
-			});
-		});
-	}, []);
 
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
