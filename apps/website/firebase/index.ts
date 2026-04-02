@@ -1,4 +1,7 @@
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
 	apiKey: "AIzaSyAXtA4pdBs7GLX45lK3jYZRiUwo7M06-_s",
@@ -10,11 +13,6 @@ const firebaseConfig = {
 	measurementId: "G-CJ44QNETK8",
 };
 
+// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-
-// Analytics must be initialized lazily — only in browser, after hydration
-if (typeof window !== "undefined") {
-	import("firebase/analytics").then(({ getAnalytics }) => {
-		getAnalytics(app);
-	});
-}
+export const analytics = getAnalytics(app);
