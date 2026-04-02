@@ -92,3 +92,30 @@ jobs:
               entryPoint: apps/store
            env:
               FIREBASE_CLI_EXPERIMENTS: webframeworks
+
+         - name: check if website folder changed
+           id: website-check
+           run: |
+              if git diff --quiet HEAD~1 HEAD -- apps/website/; then
+              echo "WEBSITE_CHANGE=false" >> $GITHUB_OUTPUT
+              else
+              echo "WEBSITE_CHANGE=true" >> $GITHUB_OUTPUT
+              fi
+
+         - name: build landing page
+           if: steps.website-check.outputs.WEBSITE_CHANGE == 'true'
+           run: |
+              echo -e "\033[1;34mBUILD LANDING PAGE"
+              yarn workspace webiste run build
+
+         - name: deploy landing page to firebase hosting
+           if: steps.website-check.outputs.WEBSITE_CHANGE == 'true'
+           uses: FirebaseExtended/action-hosting-deploy@v0
+           with:
+              repoToken: ${{ secrets.GITHUB_TOKEN }}
+              firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSDEV_STORES_PROD }}
+              channelId: live
+              projectId: jsdev-stores-prod
+              entryPoint: apps/website
+           env:
+              FIREBASE_CLI_EXPERIMENTS: webframeworks
