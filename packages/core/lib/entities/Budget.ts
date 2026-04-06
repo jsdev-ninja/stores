@@ -1,12 +1,13 @@
 import { z } from "zod";
 
 export const BudgetTransactionTypeSchema = z.enum([
-	"order_created",
+	"delivery_note",
 	"payment_received",
-	"order_cancelled",
-	"order_refunded",
 	"credit_note",
 	"debit_note",
+	"order_created",   // legacy — no longer used for new transactions
+	"order_cancelled", // legacy
+	"order_refunded",  // legacy
 ]);
 
 export const PaymentMethodSchema = z.enum(["check", "bank_transfer", "cash", "credit_card", "other"]);
@@ -15,13 +16,17 @@ export const BudgetTransactionSchema = z.object({
 	id: z.string(),
 	type: BudgetTransactionTypeSchema,
 
-	// positive = debt added (order/debit note), negative = debt reduced (payment/cancellation)
+	// positive = debt added (delivery note / debit note), negative = debt reduced (payment / credit)
 	debt: z.number(),
 	runningBalance: z.number(),
 
 	// order reference
 	orderId: z.string().nullable(),
 	orderTotal: z.number().nullable(),
+
+	// delivery note reference (for delivery_note type)
+	deliveryNoteId: z.string().nullable(),
+	deliveryNoteNumber: z.string().nullable(),
 
 	// billing account snapshot (if order had one)
 	billingAccountId: z.string().nullable(),
@@ -46,7 +51,7 @@ export const BudgetAccountSchema = z.object({
 	companyId: z.string(),
 	storeId: z.string(),
 
-	totalDebits: z.number(), // sum of order amounts
+	totalDebits: z.number(), // sum of delivery note amounts
 	totalCredits: z.number(), // sum of payments received
 	balance: z.number(), // totalDebits - totalCredits (positive = owes money)
 

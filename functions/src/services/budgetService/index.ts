@@ -85,8 +85,48 @@ export const budgetService = {
 	},
 
 	/**
-	 * Called when an order linked to an organization is created.
-	 * Creates a debit transaction (positive amount = client owes more).
+	 * Called when a delivery note is issued for an order.
+	 * This is the trigger that adds to the organization's debt balance.
+	 */
+	async onDeliveryNoteCreated(
+		order: TOrder,
+		companyId: string,
+		storeId: string,
+		deliveryNoteId: string,
+		deliveryNoteNumber: string,
+	): Promise<void> {
+		if (!order.organizationId) return;
+
+		const organizationName = order.client?.displayName ?? order.client?.companyName ?? order.organizationId;
+		const billingAccount = order.billingAccount as TBillingAccount | undefined;
+
+		await budgetService.addTransaction({
+			companyId,
+			storeId,
+			organizationId: order.organizationId,
+			organizationName,
+			transaction: {
+				type: "delivery_note",
+				debt: order.cart.cartTotal,
+				orderId: order.id,
+				orderTotal: order.cart.cartTotal,
+				deliveryNoteId,
+				deliveryNoteNumber,
+				billingAccountId: billingAccount?.id ?? null,
+				billingAccountName: billingAccount?.name ?? null,
+				billingAccountNumber: billingAccount?.number ?? null,
+				paymentReference: null,
+				paymentDate: null,
+				paymentMethod: null,
+				note: null,
+				createdAt: Date.now(),
+				createdBy: "system",
+			},
+		});
+	},
+
+	/**
+	 * @deprecated — debt is now added on delivery note creation, not order creation.
 	 */
 	async onOrderCreated(order: TOrder, companyId: string, storeId: string): Promise<void> {
 		if (!order.organizationId) return;
@@ -104,6 +144,8 @@ export const budgetService = {
 				debt: order.cart.cartTotal,
 				orderId: order.id,
 				orderTotal: order.cart.cartTotal,
+				deliveryNoteId: null,
+				deliveryNoteNumber: null,
 				billingAccountId: billingAccount?.id ?? null,
 				billingAccountName: billingAccount?.name ?? null,
 				billingAccountNumber: billingAccount?.number ?? null,
@@ -142,6 +184,8 @@ export const budgetService = {
 				debt: -order.cart.cartTotal, // negative = reverses debit
 				orderId: order.id,
 				orderTotal: order.cart.cartTotal,
+				deliveryNoteId: null,
+				deliveryNoteNumber: null,
 				billingAccountId: billingAccount?.id ?? null,
 				billingAccountName: billingAccount?.name ?? null,
 				billingAccountNumber: billingAccount?.number ?? null,
@@ -184,6 +228,8 @@ export const budgetService = {
 				debt: -params.debt, // negative = reduces debt
 				orderId: params.order.id,
 				orderTotal: params.order.cart.cartTotal,
+				deliveryNoteId: null,
+				deliveryNoteNumber: null,
 				billingAccountId: billingAccount?.id ?? null,
 				billingAccountName: billingAccount?.name ?? null,
 				billingAccountNumber: billingAccount?.number ?? null,
@@ -222,6 +268,8 @@ export const budgetService = {
 				debt: signedAmount,
 				orderId: null,
 				orderTotal: null,
+				deliveryNoteId: null,
+				deliveryNoteNumber: null,
 				billingAccountId: null,
 				billingAccountName: null,
 				billingAccountNumber: null,

@@ -259,6 +259,16 @@ export function createAppApi(context: TContext) {
 							.doc(order.id)
 							.update({ ezDeliveryNote, deliveryNote });
 						console.log("order updated with delivery note", order.id);
+
+						// Add debt to organization budget when delivery note is issued
+						await budgetService.onDeliveryNoteCreated(
+							order,
+							companyId,
+							storeId,
+							res.data.doc_number,
+							res.data.doc_number,
+						);
+
 						return { success: true, error: null };
 					} else {
 						logger.write({

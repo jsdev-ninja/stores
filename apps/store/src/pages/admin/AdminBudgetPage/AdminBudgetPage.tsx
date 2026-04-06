@@ -40,12 +40,13 @@ type TBudgetAccount = {
 };
 
 type TBudgetTransactionType =
-	| "order_created"
+	| "delivery_note"
 	| "payment_received"
-	| "order_cancelled"
-	| "order_refunded"
 	| "credit_note"
-	| "debit_note";
+	| "debit_note"
+	| "order_created"
+	| "order_cancelled"
+	| "order_refunded";
 
 type TPaymentMethod = "check" | "bank_transfer" | "cash" | "credit_card" | "other";
 
@@ -56,6 +57,8 @@ type TBudgetTransaction = {
 	runningBalance: number;
 	orderId: string | null;
 	orderTotal: number | null;
+	deliveryNoteId: string | null;
+	deliveryNoteNumber: string | null;
 	billingAccountId: string | null;
 	billingAccountName: string | null;
 	billingAccountNumber: string | null;
@@ -155,17 +158,21 @@ export function AdminBudgetPage() {
 // ─── Detail page (per organization) ──────────────────────────────────────────
 
 const TX_TYPE_LABELS: Record<TBudgetTransactionType, string> = {
+	delivery_note: "תעודת משלוח",
+	payment_received: "תשלום",
+	credit_note: "זיכוי",
+	debit_note: "חיוב ידני",
 	order_created: "הזמנה נוצרה",
-	payment_received: "תשלום התקבל",
 	order_cancelled: "הזמנה בוטלה",
 	order_refunded: "הזמנה זוכתה",
-	credit_note: "זיכוי ידני",
-	debit_note: "חיוב ידני",
 };
 
+// Only these 3 types are shown in the ledger
+const VISIBLE_TX_TYPES: TBudgetTransactionType[] = ["delivery_note", "payment_received", "credit_note"];
+
 function txColor(type: TBudgetTransactionType): "success" | "danger" | "default" {
-	if (["payment_received", "order_cancelled", "order_refunded", "credit_note"].includes(type)) return "success";
-	if (["order_created", "debit_note"].includes(type)) return "danger";
+	if (["payment_received", "credit_note", "order_cancelled", "order_refunded"].includes(type)) return "success";
+	if (["delivery_note", "debit_note", "order_created"].includes(type)) return "danger";
 	return "default";
 }
 
@@ -327,13 +334,13 @@ export function AdminBudgetOrganizationPage() {
 						<TableColumn>{t("admin:budget.txType", "סוג תנועה")}</TableColumn>
 						<TableColumn>{t("admin:budget.amount", "סכום")}</TableColumn>
 						<TableColumn>{t("admin:budget.runningBalance", "יתרה")}</TableColumn>
-						<TableColumn>{t("common:order", "הזמנה")}</TableColumn>
+						<TableColumn>{t("admin:budget.document", "מסמך")}</TableColumn>
 						<TableColumn>{t("admin:budget.billingAccount", "חשבון חיוב")}</TableColumn>
-						<TableColumn>{t("admin:budget.paymentRef", "אסמכתא")}</TableColumn>
+						<TableColumn>{t("admin:budget.paymentDetails", "פרטי תשלום")}</TableColumn>
 						<TableColumn>{t("common:note", "הערה")}</TableColumn>
 					</TableHeader>
 					<TableBody emptyContent={t("admin:budget.noTransactions", "אין תנועות")}>
-						{transactions.map((tx) => (
+						{transactions.filter((tx) => VISIBLE_TX_TYPES.includes(tx.type)).map((tx) => (
 							<TableRow key={tx.id}>
 								<TableCell>
 									<DateView date={tx.createdAt} />
@@ -353,7 +360,9 @@ export function AdminBudgetOrganizationPage() {
 									<Price price={tx.runningBalance} />
 								</TableCell>
 								<TableCell>
-									{tx.orderId ? (
+									{tx.type === "delivery_note" && tx.deliveryNoteNumber ? (
+										<span className="font-mono text-sm">{tx.deliveryNoteNumber}</span>
+									) : tx.orderId ? (
 										<Button
 											size="sm"
 											variant="light"
@@ -370,7 +379,16 @@ export function AdminBudgetOrganizationPage() {
 										? `${tx.billingAccountName} (${tx.billingAccountNumber})`
 										: "—"}
 								</TableCell>
-								<TableCell>{tx.paymentReference ?? "—"}</TableCell>
+								<TableCell>
+									{tx.type === "payment_received" && tx.paymentMethod ? (
+										<span className="text-sm">
+											{tx.paymentMethod}
+											{tx.paymentReference ? ` · ${tx.paymentReference}` : ""}
+										</span>
+									) : (
+										"—"
+									)}
+								</TableCell>
 								<TableCell>{tx.note ?? "—"}</TableCell>
 							</TableRow>
 						))}
