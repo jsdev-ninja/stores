@@ -90,9 +90,7 @@ export const onOrderCreated = functions.firestore
 			await budgetService.onOrderCreated(order, companyId, storeId).catch((err) => {
 				functionsV2.logger.write({ severity: "ERROR", message: "budget.onOrderCreated failed", err });
 			});
-			await organizationActionsService.onOrderCreated(order).catch((err) => {
-				functionsV2.logger.write({ severity: "ERROR", message: "organizationActions.onOrderCreated failed", err });
-			});
+			// organizationActions.onOrderCreated intentionally removed — order.created events no longer written for new orders
 		}
 	});
 export const onOrderUpdate = functions
