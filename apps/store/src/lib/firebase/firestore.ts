@@ -35,6 +35,10 @@ function removeUndefinedFields(obj: any): any {
 	}
 
 	if (typeof obj === "object") {
+		// Skip Firestore FieldValue sentinels (arrayUnion, arrayRemove, serverTimestamp, etc.)
+		if (obj.constructor !== Object) {
+			return obj;
+		}
 		const result: any = {};
 		for (const [key, value] of Object.entries(obj)) {
 			if (value !== undefined) {
