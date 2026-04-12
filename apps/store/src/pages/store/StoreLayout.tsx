@@ -33,11 +33,15 @@ export default function StoreLayout() {
 	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
 
 	useEffect(() => {
-		// load profile organization
+		// load profile organizations
 		if (user?.uid) {
 			appApi.user.getProfileOrganization().then((res) => {
-				if (res?.success && res.data) {
-					actions.dispatch(actions.userOrganization.setOrganization(res?.data || null));
+				if (res?.success && Array.isArray(res.data)) {
+					const orgs = res.data;
+					actions.dispatch(actions.userOrganization.setOrganizations(orgs));
+					if (orgs.length === 1) {
+						actions.dispatch(actions.userOrganization.setActiveOrganization(orgs[0]));
+					}
 				}
 			});
 		}

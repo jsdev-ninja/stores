@@ -13,6 +13,7 @@ import {
 	setDoc,
 	updateDoc,
 	arrayUnion,
+	arrayRemove,
 	WhereFilterOp,
 	where,
 	orderBy,
@@ -340,4 +341,5 @@ export const firestore = {
 	listV2,
 	update,
 	arrayUnion,
+	arrayRemove,
 };

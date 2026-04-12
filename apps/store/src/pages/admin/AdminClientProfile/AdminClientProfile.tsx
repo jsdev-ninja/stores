@@ -371,9 +371,10 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 
 			<OrganizationManagementCard
 				profile={formData}
-				onOrganizationChange={(organizationId: string | undefined) =>
-					handleChange("organizationId", organizationId)
-				}
+				onOrganizationIdsChange={(organizationIds: string[]) => {
+					handleChange("organizationIds", organizationIds);
+					handleChange("organizationId", organizationIds[0] ?? null);
+				}}
 			/>
 
 			<Card className="mb-6">
@@ -471,32 +472,28 @@ const ClientProfileForm: React.FC<ClientProfileFormProps> = ({ profile, onSubmit
 
 interface OrganizationManagementCardProps {
 	profile: TProfile;
-	onOrganizationChange: (organizationId: string | undefined) => void;
+	onOrganizationIdsChange: (organizationIds: string[]) => void;
 }
 
 const OrganizationManagementCard: React.FC<OrganizationManagementCardProps> = ({
 	profile,
-	onOrganizationChange,
+	onOrganizationIdsChange,
 }) => {
 	const { t } = useTranslation(["common", "admin"]);
 	const appApi = useAppApi();
 	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
-	const [selectedOrganization, setSelectedOrganization] = useState<TOrganization | null>(null);
 	const [loading, setLoading] = useState(false);
 
-	// Load organizations and current organization
+	const selectedIds: string[] = profile.organizationIds && profile.organizationIds.length > 0
+		? profile.organizationIds
+		: profile.organizationId
+		? [profile.organizationId]
+		: [];
+
+	// Load organizations
 	useEffect(() => {
 		loadOrganizations();
 	}, []);
-
-	useEffect(() => {
-		if (profile.organizationId && organizations.length > 0) {
-			const org = organizations.find((o) => o.id === profile.organizationId);
-			setSelectedOrganization(org || null);
-		} else {
-			setSelectedOrganization(null);
-		}
-	}, [profile.organizationId, organizations]);
 
 	const loadOrganizations = async () => {
 		setLoading(true);
@@ -512,16 +509,9 @@ const OrganizationManagementCard: React.FC<OrganizationManagementCardProps> = ({
 		}
 	};
 
-	const handleOrganizationSelect = (organizationId: string) => {
-		if (organizationId === "none" || organizationId === "") {
-			onOrganizationChange(undefined);
-		} else {
-			onOrganizationChange(organizationId);
-		}
-	};
-
-	const handleRemoveFromOrganization = () => {
-		onOrganizationChange(undefined);
+	const handleSelectionChange = (keys: "all" | Set<string | number>) => {
+		if (keys === "all") return;
+		onOrganizationIdsChange(Array.from(keys).map(String));
 	};
 
 	return (
@@ -535,69 +525,24 @@ const OrganizationManagementCard: React.FC<OrganizationManagementCardProps> = ({
 				</div>
 
 				<div className="space-y-4">
-					{selectedOrganization ? (
-						<div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-							<div className="flex items-center gap-3">
-								<Icon icon="lucide:building-2" className="text-primary text-xl" />
-								<div>
-									<h3 className="font-semibold">{selectedOrganization.name}</h3>
-									{selectedOrganization.discountPercentage && (
-										<p className="text-sm text-default-500">
-											{t("admin:clientProfile.discount")}:{" "}
-											{selectedOrganization.discountPercentage}%
-										</p>
-									)}
-									{selectedOrganization.nameOnInvoice && (
-										<p className="text-sm text-default-500">
-											{t("admin:clientProfile.invoiceName")}:{" "}
-											{selectedOrganization.nameOnInvoice}
-										</p>
-									)}
-								</div>
-							</div>
-							<Button
-								size="sm"
-								color="danger"
-								variant="light"
-								onPress={handleRemoveFromOrganization}
-								startContent={<Icon icon="lucide:x" />}
-							>
-								{t("admin:clientProfile.removeFromOrganization")}
-							</Button>
-						</div>
-					) : (
-						<div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-							<Icon icon="lucide:building-2" className="text-default-400 text-xl" />
-							<div>
-								<p className="text-default-600">
-									{t("admin:clientProfile.noOrganizationAssigned")}
-								</p>
-								<p className="text-sm text-default-400">
-									{t("admin:clientProfile.selectOrganizationBelow")}
-								</p>
-							</div>
-						</div>
-					)}
-
-					<div>
-													<Select
-								label={t("admin:clientProfile.assignToOrganization")}
-								placeholder={t("admin:clientProfile.selectOrganization")}
-								selectedKeys={selectedOrganization ? [selectedOrganization.id] : []}
-								onChange={(e) => handleOrganizationSelect(e.target.value)}
-								isDisabled={loading}
-								startContent={<Icon icon="lucide:building-2" className="text-default-400" />}
-								items={[{ id: "none", name: t("admin:clientProfile.noOrganization") }, ...organizations]}
-							>
-								{(org) => (
-									<SelectItem textValue={org.name} key={org.id}>
-										{org.name}
-										{org.discountPercentage &&
-											` (${org.discountPercentage}% ${t("admin:clientProfile.discount")})`}
-									</SelectItem>
-								)}
-							</Select>
-					</div>
+					<Select
+						label={t("admin:clientProfile.assignToOrganization")}
+						placeholder={t("admin:clientProfile.selectOrganization")}
+						selectionMode="multiple"
+						selectedKeys={new Set(selectedIds)}
+						onSelectionChange={handleSelectionChange}
+						isDisabled={loading}
+						startContent={<Icon icon="lucide:building-2" className="text-default-400" />}
+						items={organizations}
+					>
+						{(org) => (
+							<SelectItem textValue={org.name} key={org.id}>
+								{org.name}
+								{org.discountPercentage &&
+									` (${org.discountPercentage}% ${t("admin:clientProfile.discount")})`}
+							</SelectItem>
+						)}
+					</Select>
 
 					{organizations.length === 0 && !loading && (
 						<div className="text-center py-4">

@@ -44,6 +44,7 @@ export {
 	addBudgetManualTransaction,
 } from "./api/budgetApi";
 export { getOrganizationActions } from "./api/organizationActionsApi";
+export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))

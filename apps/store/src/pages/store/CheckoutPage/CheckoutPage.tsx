@@ -32,7 +32,8 @@ function CheckoutPage() {
 	const profile = useProfile();
 
 
-	const profileOrganization = useAppSelector((state) => state.userOrganization.organization);
+	const profileOrganization = useAppSelector((state) => state.userOrganization.activeOrganization);
+	const userOrganizations = useAppSelector((state) => state.userOrganization.organizations);
 
 	const appApi = useAppApi();
 
@@ -54,6 +55,16 @@ function CheckoutPage() {
 	if (!store || !user || (!cartData.isReady && !cart)) {
 		// todo
 		return;
+	}
+
+	if (userOrganizations.length > 0 && !profileOrganization) {
+		return (
+			<section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16 px-4">
+				<div className="mx-auto max-w-screen-xl px-4 2xl:px-0 text-center">
+					<p className="text-lg text-default-600">יש לבחור ארגון לפני ביצוע הזמנה.</p>
+				</div>
+			</section>
+		);
 	}
 
 	const emptyAddress: TProfile["address"] = {

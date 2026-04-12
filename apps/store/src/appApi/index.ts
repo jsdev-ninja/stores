@@ -655,26 +655,44 @@ export const useAppApi = () => {
 			listOrganizationClients: async (organizationId: string) => {
 				if (!isValidAdmin || !organizationId) return;
 
-				return FirebaseApi.firestore.listV2<TProfile>({
-					collection: FirebaseAPI.firestore.getPath({
-						collectionName: "profiles",
-						storeId,
-						companyId,
-					}),
+				const profilesPath = FirebaseAPI.firestore.getPath({
+					collectionName: "profiles",
+					storeId,
+					companyId,
+				});
+
+				// Primary query: new organizationIds array field
+				const result = await FirebaseApi.firestore.listV2<TProfile>({
+					collection: profilesPath,
 					where: [
-						{
-							name: "storeId",
-							operator: "==",
-							value: store.id,
-						},
-						{
-							name: "organizationId",
-							operator: "==",
-							value: organizationId,
-						},
+						{ name: "storeId", operator: "==", value: store.id },
+						{ name: "organizationIds", operator: "array-contains", value: organizationId },
 					],
 					sort: [{ name: "displayName", value: "asc" }],
 				});
+
+				// Fallback: also query legacy organizationId field for un-migrated profiles
+				const legacyResult = await FirebaseApi.firestore.listV2<TProfile>({
+					collection: profilesPath,
+					where: [
+						{ name: "storeId", operator: "==", value: store.id },
+						{ name: "organizationId", operator: "==", value: organizationId },
+					],
+					sort: [{ name: "displayName", value: "asc" }],
+				});
+
+				if (!result?.success && !legacyResult?.success) return result;
+
+				// Merge and deduplicate by id
+				const allProfiles = [...(result?.data ?? []), ...(legacyResult?.data ?? [])];
+				const seen = new Set<string>();
+				const deduplicated = allProfiles.filter((p) => {
+					if (seen.has(p.id)) return false;
+					seen.add(p.id);
+					return true;
+				});
+
+				return { success: true, data: deduplicated };
 			},
 			createOrganizationClient: async (payload: {
 				displayName: string;
@@ -713,6 +731,7 @@ export const useAppApi = () => {
 					companyName: payload.companyName,
 					address: undefined,
 					organizationId: payload.organizationId,
+					organizationIds: [payload.organizationId],
 				};
 
 				const result = await FirebaseApi.firestore.createV2<TProfile>({
@@ -743,6 +762,7 @@ export const useAppApi = () => {
 					clientId,
 					{
 						organizationId,
+						organizationIds: FirebaseApi.firestore.arrayUnion(organizationId) as unknown as string[],
 						lastActivityDate: Date.now(),
 					},
 					FirebaseAPI.firestore.getPath({
@@ -762,21 +782,42 @@ export const useAppApi = () => {
 
 				return result;
 			},
-			removeClientFromOrganization: async (clientId: string) => {
+			removeClientFromOrganization: async (clientId: string, organizationId?: string) => {
 				if (!isValidAdmin) return;
 
-				const result = await FirebaseApi.firestore.setV2<Partial<TProfile>>({
-					collection: FirebaseAPI.firestore.getPath({
-						collectionName: "profiles",
-						storeId,
-						companyId,
-					}),
-					doc: {
-						id: clientId,
-						organizationId: null as unknown as TProfile["organizationId"],
-						lastActivityDate: Date.now(),
-					},
+				const profilesPath = FirebaseAPI.firestore.getPath({
+					collectionName: "profiles",
+					storeId,
+					companyId,
 				});
+
+				// Read profile first to compute remaining orgs for backward compat
+				const profileResult = await FirebaseApi.firestore.getV2<TProfile>({
+					collection: profilesPath,
+					id: clientId,
+				});
+
+				const currentOrgIds = profileResult?.data?.organizationIds ?? [];
+				const remainingOrgIds = organizationId
+					? currentOrgIds.filter((id: string) => id !== organizationId)
+					: [];
+
+				const updatePayload: Record<string, unknown> = {
+					organizationId: remainingOrgIds[0] ?? null,
+					lastActivityDate: Date.now(),
+				};
+
+				if (organizationId) {
+					updatePayload.organizationIds = FirebaseApi.firestore.arrayRemove(
+						organizationId,
+					) as unknown as string[];
+				}
+
+				const result = await FirebaseApi.firestore.update<TProfile>(
+					clientId,
+					updatePayload as unknown as Partial<TProfile>,
+					profilesPath,
+				);
 
 				logger({
 					message: "remove client from organization",
@@ -1601,17 +1642,38 @@ export const useAppApi = () => {
 				},
 			},
 			getProfileOrganization: async () => {
-				if (!isValidUser || !profile?.organizationId) return;
+				if (!isValidUser) return;
 
-				const res = await FirebaseApi.firestore.getV2<TOrganization>({
-					collection: FirebaseAPI.firestore.getPath({
-						collectionName: "organizations",
-						storeId,
-						companyId,
-					}),
-					id: profile.organizationId,
+				const orgCollection = FirebaseAPI.firestore.getPath({
+					collectionName: "organizations",
+					storeId,
+					companyId,
 				});
-				return res;
+
+				// Build the list of org IDs to fetch — prefer organizationIds array, fall back to legacy organizationId
+				const orgIds: string[] = [];
+				if (profile?.organizationIds && profile.organizationIds.length > 0) {
+					orgIds.push(...profile.organizationIds);
+				} else if (profile?.organizationId) {
+					orgIds.push(profile.organizationId);
+				}
+
+				if (orgIds.length === 0) return { success: true, data: [] as TOrganization[] };
+
+				const results = await Promise.all(
+					orgIds.map((id) =>
+						FirebaseApi.firestore.getV2<TOrganization>({
+							collection: orgCollection,
+							id,
+						}),
+					),
+				);
+
+				const organizations = results
+					.filter((r) => r.success && r.data)
+					.map((r) => r.data as TOrganization);
+
+				return { success: true, data: organizations };
 			},
 			getOrder: async ({ id }: { id: string }) => {
 				if (!isValidUser)

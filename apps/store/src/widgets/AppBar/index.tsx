@@ -10,6 +10,7 @@ import { WebsiteLogo } from "../WebsiteLogo";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Snippet } from "@heroui/react";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { useStore } from "src/domains/Store";
+import { OrgPicker } from "../OrgPicker/OrgPicker";
 
 export function AppBar() {
 	const { t } = useTranslation(["common"]);
@@ -111,6 +112,9 @@ export function AppBar() {
 				})}
 			</NavbarContent>
 			<NavbarContent justify="end">
+				<NavbarItem>
+					<OrgPicker />
+				</NavbarItem>
 				<NavbarItem>
 					{!!user && !user.isAnonymous ? (
 						<Dropdown>

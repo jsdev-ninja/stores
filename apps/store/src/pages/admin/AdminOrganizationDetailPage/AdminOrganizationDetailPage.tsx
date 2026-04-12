@@ -323,20 +323,16 @@ export function AdminOrganizationDetailPage() {
 				const profile = result.data as TProfile;
 				setClientSearchResult(profile);
 
-				if (profile.organizationId) {
-					if (profile.organizationId === organization?.id) {
-						setClientSearchExistingOrg(organization);
-					} else {
-						const orgList = await appApi.admin.listOrganizations();
-						if (orgList?.success && orgList.data) {
-							const matchedOrg = orgList.data.find(
-								(org) => org.id === profile.organizationId
-							);
-							if (matchedOrg) {
-								setClientSearchExistingOrg(matchedOrg as TOrganization);
-							}
-						}
-					}
+				// Check if client is already a member of THIS organization
+				const profileOrgIds: string[] =
+					profile.organizationIds && profile.organizationIds.length > 0
+						? profile.organizationIds
+						: profile.organizationId
+						? [profile.organizationId]
+						: [];
+
+				if (organization && profileOrgIds.includes(organization.id)) {
+					setClientSearchExistingOrg(organization);
 				}
 			} else {
 				setClientSearchError(t("admin:organizationsPage.clientNotFound"));
@@ -393,6 +389,11 @@ export function AdminOrganizationDetailPage() {
 		try {
 			setIsSubmittingClient(true);
 
+			const existingOrgIds: string[] = editingClient.organizationIds ?? [];
+			const mergedOrgIds = existingOrgIds.includes(organization.id)
+				? existingOrgIds
+				: [...existingOrgIds, organization.id];
+
 			const updatedClient: TProfile = {
 				...editingClient,
 				displayName: clientFormData.displayName.trim(),
@@ -403,6 +404,7 @@ export function AdminOrganizationDetailPage() {
 				companyName: clientFormData.companyName ? clientFormData.companyName.trim() : undefined,
 				lastActivityDate: Date.now(),
 				organizationId: organization.id,
+				organizationIds: mergedOrgIds,
 			};
 
 			const result = await appApi.admin.updateClient(updatedClient);
@@ -433,7 +435,7 @@ export function AdminOrganizationDetailPage() {
 		}
 
 		try {
-			const result = await appApi.admin.removeClientFromOrganization(client.id);
+			const result = await appApi.admin.removeClientFromOrganization(client.id, organization.id);
 			if (result?.success) {
 				await loadOrganizationClients(organization.id);
 			}

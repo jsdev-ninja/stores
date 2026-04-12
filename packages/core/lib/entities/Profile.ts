@@ -20,7 +20,10 @@ export const ProfileSchema = z.object({
 	createdDate: z.number(),
 	lastActivityDate: z.number(), //todo
 	paymentType: PaymentTypeSchema.optional(),
+	/** @deprecated Use organizationIds instead */
 	organizationId: z.string().optional().nullable(),
+	/** Array of organization IDs this user belongs to */
+	organizationIds: z.array(z.string()).optional(),
 });
 
 export type TProfile = z.infer<typeof ProfileSchema>;
