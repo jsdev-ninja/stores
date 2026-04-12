@@ -107,6 +107,7 @@ export function AdminOrganizationsPage() {
 			<Table aria-label="Organizations table">
 				<TableHeader>
 					<TableColumn>{t("admin:organizationsPage.name")}</TableColumn>
+					<TableColumn>חשבונות חיוב</TableColumn>
 					<TableColumn>{t("admin:organizationsPage.discountPercentage")}</TableColumn>
 					<TableColumn>{t("admin:organizationsPage.nameOnInvoice")}</TableColumn>
 					<TableColumn>{t("admin:organizationsPage.actionsLabel")}</TableColumn>
@@ -115,6 +116,11 @@ export function AdminOrganizationsPage() {
 					{organizations.map((organization) => (
 						<TableRow key={organization.id}>
 							<TableCell>{organization.name}</TableCell>
+							<TableCell>
+								{organization.billingAccounts?.length > 0
+									? organization.billingAccounts.map((ba) => ba.number).join(", ")
+									: "-"}
+							</TableCell>
 							<TableCell>
 								{organization.discountPercentage
 									? `${organization.discountPercentage}%`
