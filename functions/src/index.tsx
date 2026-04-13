@@ -86,13 +86,8 @@ export const onOrderCreated = functions.firestore
 			email: storePrivateData?.storeEmail ?? "",
 		});
 
-		// budget: create debit if order is linked to an organization (non-blocking)
-		if (order.organizationId) {
-			await budgetService.onOrderCreated(order, companyId, storeId).catch((err) => {
-				functionsV2.logger.write({ severity: "ERROR", message: "budget.onOrderCreated failed", err });
-			});
-			// organizationActions.onOrderCreated intentionally removed — order.created events no longer written for new orders
-		}
+		// budget: debt is now added on delivery note creation, not order creation
+		// organizationActions: order.created events no longer written for new orders
 	});
 export const onOrderUpdate = functions
 	.runWith({

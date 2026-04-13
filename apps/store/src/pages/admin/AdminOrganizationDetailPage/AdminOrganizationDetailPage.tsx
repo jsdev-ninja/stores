@@ -533,10 +533,29 @@ export function AdminOrganizationDetailPage() {
 		</>
 	);
 
+	const isBillingNumberTaken = async (number: string, excludeAccountId?: string): Promise<boolean> => {
+		const orgsResult = await appApi.admin.listOrganizations();
+		if (!orgsResult?.success || !orgsResult.data) return false;
+
+		for (const org of orgsResult.data) {
+			for (const ba of org.billingAccounts ?? []) {
+				if (ba.number === number && ba.id !== excludeAccountId) {
+					return true;
+				}
+			}
+		}
+		return false;
+	};
+
 	const handleAddBillingAccount = async () => {
 		if (!organization) return;
 
 		try {
+			if (await isBillingNumberTaken(billingFormData.number)) {
+				alert("מספר חשבון חיוב כבר קיים בארגון אחר");
+				return;
+			}
+
 			const newAccount = {
 				...billingFormData,
 				id: crypto.randomUUID(),
@@ -561,6 +580,13 @@ export function AdminOrganizationDetailPage() {
 		if (!organization || !editingBillingAccount) return;
 
 		try {
+			if (billingFormData.number !== editingBillingAccount.number) {
+				if (await isBillingNumberTaken(billingFormData.number, editingBillingAccount.id)) {
+					alert("מספר חשבון חיוב כבר קיים בארגון אחר");
+					return;
+				}
+			}
+
 			const updatedOrg = {
 				...organization,
 				billingAccounts:
@@ -1240,7 +1266,7 @@ export function AdminOrganizationDetailPage() {
 									<div className="flex justify-center py-8">
 										<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
 									</div>
-								) : actions.length > 0 ? (
+								) : actions.filter((a) => a.type !== "order.created").length > 0 ? (
 									<Table aria-label="organization actions">
 										<TableHeader>
 											<TableColumn>תאריך</TableColumn>
@@ -1251,7 +1277,7 @@ export function AdminOrganizationDetailPage() {
 											<TableColumn>פרטים</TableColumn>
 										</TableHeader>
 										<TableBody>
-											{actions.map((action) => (
+											{actions.filter((a) => a.type !== "order.created").map((action) => (
 												<TableRow key={action.id}>
 													<TableCell>
 														<DateView date={action.date} />
