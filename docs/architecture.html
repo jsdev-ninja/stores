@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storebrix — Target Architecture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #1f2937;
+    background: #f9fafb;
+  }
+
+  /* Layout */
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  aside {
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  aside h1 {
+    color: #fff;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  aside .sub {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+  aside .nav-group {
+    margin-bottom: 16px;
+  }
+  aside .nav-group-title {
+    color: #64748b;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin: 16px 0 6px 8px;
+    font-weight: 600;
+  }
+  aside a {
+    display: block;
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  aside a:hover {
+    background: #1e293b;
+    color: #fff;
+  }
+
+  /* Main */
+  main {
+    padding: 40px 56px;
+    max-width: 1400px;
+  }
+  section {
+    margin-bottom: 72px;
+    scroll-margin-top: 20px;
+  }
+
+  /* Typography */
+  h2 {
+    font-size: 32px;
+    margin-bottom: 8px;
+    color: #0f172a;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+  }
+  h2 .tag {
+    font-size: 12px;
+    background: #6366f1;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    vertical-align: middle;
+    margin-left: 10px;
+    font-weight: 500;
+  }
+  h3 {
+    font-size: 22px;
+    margin: 32px 0 12px;
+    color: #1e293b;
+  }
+  h4 {
+    font-size: 16px;
+    margin: 20px 0 8px;
+    color: #334155;
+  }
+  p {
+    margin-bottom: 12px;
+    color: #475569;
+  }
+  .lead {
+    font-size: 17px;
+    color: #334155;
+    margin-bottom: 16px;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    padding: 48px;
+    border-radius: 16px;
+    margin-bottom: 48px;
+  }
+  .hero h1 {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    color: #e0e7ff;
+    font-size: 18px;
+  }
+
+  /* 5-Layer Stack */
+  .layer-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 24px 0;
+  }
+  .layer {
+    padding: 20px 24px;
+    border-radius: 8px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+  }
+  .layer-5 { background: #0ea5e9; }
+  .layer-4 { background: #06b6d4; }
+  .layer-3 { background: #d946ef; }
+  .layer-2 { background: #10b981; }
+  .layer-1 { background: #64748b; }
+  .layer .layer-num {
+    background: rgba(255,255,255,0.2);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 14px;
+  }
+  .layer .layer-left {
+    display: flex;
+    align-items: center;
+  }
+  .layer .layer-status {
+    font-size: 12px;
+    background: rgba(0,0,0,0.2);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  /* Cards */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+  }
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: 12px;
+  }
+  .card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .card-subtitle {
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  /* Side by side */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .split-pane {
+    background: #1e293b;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .split-pane-header {
+    background: #334155;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #cbd5e1;
+    border-bottom: 1px solid #475569;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-frontend { background: #0ea5e9; color: #fff; }
+  .badge-backend { background: #10b981; color: #fff; }
+  .badge-platform { background: #64748b; color: #fff; }
+  .badge-integration { background: #d946ef; color: #fff; }
+
+  /* Code */
+  pre {
+    padding: 16px;
+    overflow-x: auto;
+    font-family: "SF Mono", Monaco, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #e2e8f0;
+    margin: 0;
+    flex: 1;
+  }
+  code { font-family: inherit; }
+  /* Simple syntax highlighting */
+  .tok-k { color: #c084fc; }      /* keyword */
+  .tok-s { color: #86efac; }      /* string */
+  .tok-c { color: #64748b; font-style: italic; }  /* comment */
+  .tok-t { color: #7dd3fc; }      /* type */
+  .tok-f { color: #fbbf24; }      /* function */
+  .tok-v { color: #f9a8d4; }      /* variable */
+  .tok-n { color: #fb923c; }      /* number/literal */
+
+  /* File tree */
+  .tree {
+    font-family: "SF Mono", Monaco, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 20px;
+    border-radius: 8px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .tree .folder { color: #7dd3fc; font-weight: 600; }
+  .tree .file { color: #cbd5e1; }
+  .tree .public { color: #fbbf24; font-weight: 600; }
+  .tree .comment { color: #64748b; font-style: italic; }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin: 16px 0;
+  }
+  th {
+    background: #f1f5f9;
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #0f172a;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: top;
+    font-size: 14px;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  /* Callout */
+  .callout {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 16px 0;
+    border-left: 4px solid;
+  }
+  .callout-info { background: #eff6ff; border-color: #3b82f6; }
+  .callout-warn { background: #fffbeb; border-color: #f59e0b; }
+  .callout-good { background: #f0fdf4; border-color: #10b981; }
+  .callout-danger { background: #fef2f2; border-color: #ef4444; }
+  .callout-title { font-weight: 600; margin-bottom: 4px; color: #0f172a; }
+
+  /* Flow diagram */
+  .flow {
+    background: #0f172a;
+    padding: 24px;
+    border-radius: 8px;
+    font-family: "SF Mono", Monaco, monospace;
+    font-size: 12px;
+    color: #cbd5e1;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+
+  /* Rules table */
+  .rules-table th { background: #fef3c7; }
+  .rules-table td code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #6366f1;
+  }
+
+  /* Pills */
+  .pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-right: 6px;
+  }
+  .pill-green { background: #d1fae5; color: #065f46; }
+  .pill-red { background: #fee2e2; color: #991b1b; }
+  .pill-yellow { background: #fef3c7; color: #92400e; }
+  .pill-blue { background: #dbeafe; color: #1e40af; }
+  .pill-purple { background: #ede9fe; color: #5b21b6; }
+
+  /* Status bar */
+  .status-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .status-item {
+    background: #fff;
+    padding: 14px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .status-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #6366f1;
+  }
+  .status-label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .app { grid-template-columns: 1fr; }
+    aside { position: relative; height: auto; }
+    .split { grid-template-columns: 1fr; }
+    main { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside>
+    <h1>📦 Storebrix</h1>
+    <div class="sub">Target Architecture Guide</div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Overview</div>
+      <a href="#intro">Introduction</a>
+      <a href="#layers">The 5 Layers</a>
+      <a href="#rules">Architecture Rules</a>
+      <a href="#tree">Full Folder Tree</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Layer 1 — Platform</div>
+      <a href="#platform">Platform Services</a>
+      <a href="#event-bus">Event Bus</a>
+      <a href="#audit">Audit Log</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Layer 2 — Commerce Modules</div>
+      <a href="#module-catalog">🛍️ Catalog</a>
+      <a href="#module-cart">🛒 Cart</a>
+      <a href="#module-orders">📋 Orders</a>
+      <a href="#module-payments">💳 Payments</a>
+      <a href="#module-fulfillment">📦 Fulfillment</a>
+      <a href="#module-customers">👥 Customers</a>
+      <a href="#module-budget">💰 Budget</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Layer 3 — Integration</div>
+      <a href="#webhooks">Webhooks</a>
+      <a href="#plugins">Plugins</a>
+      <a href="#hooks">Hook Points</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Flows</div>
+      <a href="#flow-order">Place Order Flow</a>
+      <a href="#flow-fulfillment">Fulfillment Flow</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Roadmap</div>
+      <a href="#migration">Migration Plan</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main>
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Storebrix Architecture</h1>
+      <p>A production-ready, modular B2B e-commerce platform. Inspired by Shopify, Medusa, Vendure.</p>
+    </div>
+
+    <!-- INTRO -->
+    <section id="intro">
+      <h2>Introduction</h2>
+      <p class="lead">This document describes the target architecture for Storebrix — a modular monolith with clear boundaries between 5 layers, event-driven communication between modules, and an extensibility layer that lets merchants customize without forking the core.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Core Principle</div>
+        <p>Don't fork your codebase for clients. Build <strong>hooks, events, and webhooks</strong>. That's the one decision that separates a <em>product</em> from a <em>consulting project</em>.</p>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-item">
+          <div class="status-num">5</div>
+          <div class="status-label">Architecture Layers</div>
+        </div>
+        <div class="status-item">
+          <div class="status-num">7</div>
+          <div class="status-label">Commerce Modules</div>
+        </div>
+        <div class="status-item">
+          <div class="status-num">∞</div>
+          <div class="status-label">Pluggable Hooks</div>
+        </div>
+        <div class="status-item">
+          <div class="status-num">1</div>
+          <div class="status-label">Deployable</div>
+        </div>
+        <div class="status-item">
+          <div class="status-num">1</div>
+          <div class="status-label">Database</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAYERS -->
+    <section id="layers">
+      <h2>The 5 Layers</h2>
+      <p class="lead">Every request flows top-to-bottom. Every layer has strict rules about who it can talk to.</p>
+
+      <div class="layer-stack">
+        <div class="layer layer-5">
+          <div class="layer-left"><span class="layer-num">5</span><strong>Storefront</strong> — The thing customers see</div>
+          <span class="layer-status">Current: 40%</span>
+        </div>
+        <div class="layer layer-4">
+          <div class="layer-left"><span class="layer-num">4</span><strong>Admin & Operations</strong> — Tools for merchants</div>
+          <span class="layer-status">Current: 30%</span>
+        </div>
+        <div class="layer layer-3">
+          <div class="layer-left"><span class="layer-num">3</span><strong>Integration Layer</strong> — Webhooks, events, hooks, plugins</div>
+          <span class="layer-status">Current: 5% ⚠️</span>
+        </div>
+        <div class="layer layer-2">
+          <div class="layer-left"><span class="layer-num">2</span><strong>Commerce Core</strong> — Catalog, cart, orders, payments...</div>
+          <span class="layer-status">Current: 50%</span>
+        </div>
+        <div class="layer layer-1">
+          <div class="layer-left"><span class="layer-num">1</span><strong>Platform</strong> — Multi-tenant, workflows, audit, db</div>
+          <span class="layer-status">Current: 30% ⚠️</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULES -->
+    <section id="rules">
+      <h2>Architecture Rules</h2>
+      <p class="lead">The golden rules. Enforce these with ESLint <code>no-restricted-imports</code>.</p>
+
+      <table class="rules-table">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>CAN import from</th>
+            <th>CANNOT import from</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>5. Storefront</strong></td>
+            <td><code>client-sdk</code>, shared <code>ui-kit</code></td>
+            <td>Any backend code directly</td>
+          </tr>
+          <tr>
+            <td><strong>4. Admin</strong></td>
+            <td><code>client-sdk</code>, shared <code>ui-kit</code></td>
+            <td>Any backend code directly</td>
+          </tr>
+          <tr>
+            <td><strong>3. Integration</strong></td>
+            <td><code>platform/*</code>, <code>modules/*/index.ts</code> (public API)</td>
+            <td><code>modules/*/internal/*</code></td>
+          </tr>
+          <tr>
+            <td><strong>2. Modules</strong></td>
+            <td><code>platform/*</code>, other <code>modules/*/index.ts</code></td>
+            <td>Other modules' internals, <code>integration/*</code></td>
+          </tr>
+          <tr>
+            <td><strong>1. Platform</strong></td>
+            <td>Nothing (it's the base)</td>
+            <td>Anything above</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">If you break these rules...</div>
+        <p>You get the "flat monolith" mess — changes in one place break unrelated things, onboarding devs is painful, and every client feature forks the core. These rules exist because every production platform learned them the hard way.</p>
+      </div>
+    </section>
+
+    <!-- FOLDER TREE -->
+    <section id="tree">
+      <h2>Full Folder Structure</h2>
+      <p class="lead">The target monorepo layout.</p>
+
+      <pre class="tree"><span class="folder">@jsdev-store/</span>
+├── <span class="folder">apps/</span>                                    <span class="comment"># Layer 4 &amp; 5 — Frontends</span>
+│   ├── <span class="folder">storefront/</span>                          <span class="comment"># Customer-facing store</span>
+│   │   └── src/
+│   │       ├── pages/              <span class="comment"># Vike file-based routes</span>
+│   │       ├── widgets/            <span class="comment"># Header, Cart drawer, OrgPicker...</span>
+│   │       ├── theme/              <span class="comment"># Per-tenant theming</span>
+│   │       ├── i18n/               <span class="comment"># he.json, en.json...</span>
+│   │       └── state/              <span class="comment"># Redux slices</span>
+│   │
+│   └── <span class="folder">admin/</span>                               <span class="comment"># Merchant back-office</span>
+│       └── src/
+│           ├── pages/              <span class="comment"># Dashboard, Orders, Products...</span>
+│           ├── widgets/            <span class="comment"># DataTable, KpiCard...</span>
+│           └── api/                <span class="comment"># Typed client</span>
+│
+├── <span class="folder">backend/</span>                                 <span class="comment"># All backend code</span>
+│   │
+│   ├── <span class="folder">platform/</span>                            <span class="comment"># Layer 1 — the plumbing</span>
+│   │   ├── tenancy/                <span class="comment"># Who is the request for?</span>
+│   │   ├── auth/                   <span class="comment"># JWT verify, RBAC</span>
+│   │   ├── db/                     <span class="comment"># Firestore typed wrapper</span>
+│   │   ├── eventBus/               <span class="comment"># emit() + subscribe()</span>
+│   │   ├── workflow/               <span class="comment"># Durable sagas</span>
+│   │   ├── audit/                  <span class="comment"># Append-only log</span>
+│   │   ├── featureFlags/           <span class="comment"># Per-tenant toggles</span>
+│   │   ├── idempotency/            <span class="comment"># Dedupe keys</span>
+│   │   ├── rateLimit/              <span class="comment"># Protect public APIs</span>
+│   │   └── observability/          <span class="comment"># Logger, tracer, metrics</span>
+│   │
+│   ├── <span class="folder">modules/</span>                             <span class="comment"># Layer 2 — Commerce modules</span>
+│   │   │
+│   │   ├── <span class="folder">catalog/</span>
+│   │   │   ├── internal/           <span class="comment"># Private implementation</span>
+│   │   │   ├── entities/           <span class="comment"># Product.ts, Variant.ts</span>
+│   │   │   ├── events.ts           <span class="comment"># Typed event definitions</span>
+│   │   │   ├── subscribers.ts      <span class="comment"># Listens to other modules</span>
+│   │   │   └── <span class="public">index.ts</span>            <span class="comment"># ← PUBLIC API (only entry point!)</span>
+│   │   │
+│   │   ├── <span class="folder">pricing/</span>
+│   │   ├── <span class="folder">cart/</span>
+│   │   ├── <span class="folder">orders/</span>
+│   │   ├── <span class="folder">payments/</span>
+│   │   ├── <span class="folder">fulfillment/</span>
+│   │   ├── <span class="folder">customers/</span>
+│   │   ├── <span class="folder">budget/</span>
+│   │   └── <span class="folder">shipping/</span>
+│   │
+│   ├── <span class="folder">integration/</span>                         <span class="comment"># Layer 3 — Extensibility ⭐</span>
+│   │   ├── webhooks/               <span class="comment"># Subscribe + dispatch</span>
+│   │   ├── plugins/                <span class="comment"># Per-tenant custom code</span>
+│   │   ├── hooks/                  <span class="comment"># Hook points registry</span>
+│   │   └── publicApi/              <span class="comment"># REST/GraphQL for 3rd parties</span>
+│   │
+│   ├── <span class="folder">storefront-api/</span>                      <span class="comment"># Layer 5 entry points</span>
+│   │   ├── catalog/
+│   │   ├── cart/
+│   │   ├── checkout/
+│   │   └── account/
+│   │
+│   ├── <span class="folder">admin-api/</span>                           <span class="comment"># Layer 4 entry points</span>
+│   │   ├── orders/
+│   │   ├── products/
+│   │   └── settings/
+│   │
+│   └── <span class="folder">triggers/</span>                            <span class="comment"># Firebase Cloud Function entry points</span>
+│       ├── http.ts                 <span class="comment"># HTTP callables → thin dispatchers</span>
+│       ├── firestore.ts            <span class="comment"># Firestore triggers → event bus</span>
+│       └── scheduled.ts            <span class="comment"># Cron</span>
+│
+├── <span class="folder">packages/</span>
+│   ├── core-schemas/               <span class="comment"># Zod schemas (shared frontend+backend)</span>
+│   ├── ui-kit/                     <span class="comment"># Shared React components</span>
+│   └── client-sdk/                 <span class="comment"># Typed API client</span>
+│
+└── <span class="folder">plugins/</span>                                 <span class="comment"># Layer 3 — Tenant extensions</span>
+    └── {plugin-name}/
+</pre>
+    </section>
+
+    <!-- PLATFORM -->
+    <section id="platform">
+      <h2>Layer 1 — Platform <span class="tag">backend only</span></h2>
+      <p class="lead">The foundation. Nobody in business logic touches the database directly or implements their own auth. Everyone uses <code>platform/*</code>.</p>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">🏛️</div>
+          <div>
+            <div class="card-title">Platform Responsibilities</div>
+            <div class="card-subtitle">Pure infrastructure — no business logic lives here</div>
+          </div>
+        </div>
+
+        <table>
+          <tr><td><strong>tenancy/</strong></td><td>Who is this request for? Resolves tenant from domain/origin.</td></tr>
+          <tr><td><strong>auth/</strong></td><td>JWT verification, role checks, scope validation.</td></tr>
+          <tr><td><strong>db/</strong></td><td>Typed Firestore wrapper. Collection paths in one place.</td></tr>
+          <tr><td><strong>eventBus/</strong></td><td>Emit domain events transactionally, subscribe handlers.</td></tr>
+          <tr><td><strong>workflow/</strong></td><td>Durable multi-step processes (saga pattern).</td></tr>
+          <tr><td><strong>audit/</strong></td><td>Append-only log of every significant action.</td></tr>
+          <tr><td><strong>featureFlags/</strong></td><td>Turn features on/off per tenant.</td></tr>
+          <tr><td><strong>idempotency/</strong></td><td>Dedupe retried mutations via idempotency keys.</td></tr>
+          <tr><td><strong>rateLimit/</strong></td><td>Protect public APIs from abuse.</td></tr>
+          <tr><td><strong>observability/</strong></td><td>Structured logging, traces, metrics.</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- EVENT BUS -->
+    <section id="event-bus">
+      <h3>Event Bus (Firestore-backed, Outbox Pattern)</h3>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-platform">Platform</span>
+            <span>platform/eventBus/emit.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { FieldValue } <span class="tok-k">from</span> <span class="tok-s">"firebase-admin/firestore"</span>;
+<span class="tok-k">import</span> { db } <span class="tok-k">from</span> <span class="tok-s">"../db"</span>;
+
+<span class="tok-k">export interface</span> <span class="tok-t">DomainEvent</span>&lt;T = <span class="tok-k">any</span>&gt; {
+  <span class="tok-v">type</span>: <span class="tok-t">string</span>;
+  <span class="tok-v">payload</span>: T;
+  <span class="tok-v">tenantId</span>: <span class="tok-t">string</span>;
+  <span class="tok-v">correlationId</span>?: <span class="tok-t">string</span>;
+  <span class="tok-v">version</span>?: <span class="tok-t">number</span>;
+}
+
+<span class="tok-c">/** Emit an event in the SAME transaction as state writes (outbox pattern) */</span>
+<span class="tok-k">export function</span> <span class="tok-f">emitInTransaction</span>(
+  <span class="tok-v">tx</span>: <span class="tok-t">FirebaseFirestore.Transaction</span>,
+  <span class="tok-v">event</span>: <span class="tok-t">DomainEvent</span>
+): <span class="tok-t">void</span> {
+  <span class="tok-k">const</span> ref = db.collection(<span class="tok-s">"events"</span>).doc();
+  tx.set(ref, {
+    id: ref.id,
+    ...event,
+    createdAt: <span class="tok-t">Date</span>.now(),
+    traceId: event.correlationId ?? ref.id,
+    version: event.version ?? <span class="tok-n">1</span>,
+  });
+}
+
+<span class="tok-c">/** Standalone emit (NOT transactional — use sparingly) */</span>
+<span class="tok-k">export async function</span> <span class="tok-f">emit</span>(<span class="tok-v">event</span>: <span class="tok-t">DomainEvent</span>) {
+  <span class="tok-k">await</span> db.collection(<span class="tok-s">"events"</span>).add({
+    ...event,
+    createdAt: <span class="tok-t">Date</span>.now(),
+  });
+}</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-platform">Platform</span>
+            <span>platform/eventBus/subscribe.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { onDocumentCreated } <span class="tok-k">from</span>
+  <span class="tok-s">"firebase-functions/v2/firestore"</span>;
+
+<span class="tok-c">/**
+ * Creates a Firebase trigger that subscribes to events.
+ * Each module calls this to register its subscribers.
+ */</span>
+<span class="tok-k">export function</span> <span class="tok-f">createEventSubscriber</span>&lt;T&gt;(
+  <span class="tok-v">handler</span>: (<span class="tok-v">event</span>: <span class="tok-t">DomainEvent</span>&lt;T&gt;) =&gt; <span class="tok-t">Promise</span>&lt;<span class="tok-k">void</span>&gt;
+) {
+  <span class="tok-k">return</span> onDocumentCreated(
+    { document: <span class="tok-s">"events/{id}"</span>, retry: <span class="tok-k">true</span> },
+    <span class="tok-k">async</span> (event) =&gt; {
+      <span class="tok-k">const</span> data = event.data?.data() <span class="tok-k">as</span> <span class="tok-t">DomainEvent</span>&lt;T&gt;;
+      <span class="tok-k">if</span> (!data) <span class="tok-k">return</span>;
+
+      <span class="tok-k">try</span> {
+        <span class="tok-k">await</span> handler(data);
+      } <span class="tok-k">catch</span> (err) {
+        logger.error(<span class="tok-s">"event handler failed"</span>, {
+          eventId: event.params.id,
+          type: data.type,
+          err,
+        });
+        <span class="tok-k">throw</span> err; <span class="tok-c">// triggers retry</span>
+      }
+    }
+  );
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-good">
+        <div class="callout-title">Why this pattern?</div>
+        <p><strong>Outbox pattern</strong>: writing the event in the same transaction as the state change guarantees consistency. Either both succeed, or both fail. <strong>Firestore triggers</strong> then fan out to subscribers with automatic retries.</p>
+      </div>
+    </section>
+
+    <!-- AUDIT -->
+    <section id="audit">
+      <h3>Audit Log</h3>
+
+      <div class="split-pane">
+        <div class="split-pane-header">
+          <span class="badge badge-platform">Platform</span>
+          <span>platform/audit/auditLog.ts</span>
+        </div>
+<pre><code><span class="tok-k">export interface</span> <span class="tok-t">AuditEntry</span> {
+  <span class="tok-v">action</span>: <span class="tok-t">string</span>;          <span class="tok-c">// "order.status_changed"</span>
+  <span class="tok-v">actorId</span>: <span class="tok-t">string</span>;         <span class="tok-c">// user id or "system"</span>
+  <span class="tok-v">targetType</span>: <span class="tok-t">string</span>;      <span class="tok-c">// "order"</span>
+  <span class="tok-v">targetId</span>: <span class="tok-t">string</span>;        <span class="tok-c">// the order id</span>
+  <span class="tok-v">before</span>?: <span class="tok-k">any</span>;             <span class="tok-c">// state before change</span>
+  <span class="tok-v">after</span>?: <span class="tok-k">any</span>;              <span class="tok-c">// state after change</span>
+  <span class="tok-v">tenantId</span>: <span class="tok-t">string</span>;
+  <span class="tok-v">ip</span>?: <span class="tok-t">string</span>;
+  <span class="tok-v">userAgent</span>?: <span class="tok-t">string</span>;
+}
+
+<span class="tok-k">export const</span> <span class="tok-v">auditLog</span> = {
+  <span class="tok-k">async</span> <span class="tok-f">record</span>(<span class="tok-v">entry</span>: <span class="tok-t">AuditEntry</span>): <span class="tok-t">Promise</span>&lt;<span class="tok-k">void</span>&gt; {
+    <span class="tok-k">await</span> db.collection(<span class="tok-s">"audit_log"</span>).add({
+      ...entry,
+      at: <span class="tok-t">Date</span>.now(),
+    });
+  },
+
+  <span class="tok-k">async</span> <span class="tok-f">queryByTarget</span>(<span class="tok-v">type</span>: <span class="tok-t">string</span>, <span class="tok-v">id</span>: <span class="tok-t">string</span>) {
+    <span class="tok-k">return</span> db.collection(<span class="tok-s">"audit_log"</span>)
+      .where(<span class="tok-s">"targetType"</span>, <span class="tok-s">"=="</span>, type)
+      .where(<span class="tok-s">"targetId"</span>, <span class="tok-s">"=="</span>, id)
+      .orderBy(<span class="tok-s">"at"</span>, <span class="tok-s">"desc"</span>)
+      .get();
+  },
+};</code></pre>
+      </div>
+    </section>
+
+    <!-- MODULE: CATALOG -->
+    <section id="module-catalog">
+      <h2>🛍️ Module: Catalog <span class="tag">Layer 2</span></h2>
+      <p class="lead">Owns: Products, Variants, Categories, Inventory. Published events: <code>product.created</code>, <code>product.updated</code>, <code>inventory.changed</code>.</p>
+
+      <h3>Folder Structure</h3>
+      <pre class="tree"><span class="folder">backend/modules/catalog/</span>
+├── <span class="folder">internal/</span>
+│   ├── productService.ts           <span class="comment"># CRUD logic</span>
+│   ├── variantService.ts           <span class="comment"># Product variants</span>
+│   ├── categoryService.ts
+│   └── inventoryTracker.ts
+├── <span class="folder">entities/</span>
+│   ├── Product.ts                  <span class="comment"># Zod schema</span>
+│   ├── Variant.ts
+│   └── Category.ts
+├── events.ts                       <span class="comment"># ProductCreated, ProductUpdated...</span>
+├── subscribers.ts                  <span class="comment"># Reacts to other modules' events</span>
+└── <span class="public">index.ts</span>                        <span class="comment"># ← PUBLIC API</span></pre>
+
+      <h3>Side-by-side: Backend ↔ Frontend</h3>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/catalog/index.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { productService } <span class="tok-k">from</span> <span class="tok-s">"./internal/productService"</span>;
+<span class="tok-k">import</span> { categoryService } <span class="tok-k">from</span> <span class="tok-s">"./internal/categoryService"</span>;
+<span class="tok-k">import</span> { variantService } <span class="tok-k">from</span> <span class="tok-s">"./internal/variantService"</span>;
+
+<span class="tok-c">// THE ONLY THING OTHER MODULES IMPORT</span>
+<span class="tok-k">export const</span> <span class="tok-v">catalogModule</span> = {
+  <span class="tok-c">// Product queries</span>
+  findProduct: productService.findById,
+  listProducts: productService.list,
+  searchProducts: productService.search,
+
+  <span class="tok-c">// Product mutations</span>
+  createProduct: productService.create,
+  updateProduct: productService.update,
+
+  <span class="tok-c">// Variants</span>
+  getVariant: variantService.findById,
+
+  <span class="tok-c">// Categories</span>
+  getCategoryTree: categoryService.tree,
+
+  <span class="tok-c">// Inventory</span>
+  reserveStock: productService.reserveStock,
+  releaseStock: productService.releaseStock,
+};
+
+<span class="tok-k">export type</span> { <span class="tok-t">Product</span>, <span class="tok-t">Variant</span>, <span class="tok-t">Category</span> } <span class="tok-k">from</span> <span class="tok-s">"./entities"</span>;</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-frontend">Frontend</span>
+            <span>apps/storefront/src/pages/product/ProductPage.tsx</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { useQuery } <span class="tok-k">from</span> <span class="tok-s">"@tanstack/react-query"</span>;
+<span class="tok-k">import</span> { api } <span class="tok-k">from</span> <span class="tok-s">"src/api"</span>;
+
+<span class="tok-k">export function</span> <span class="tok-f">ProductPage</span>({ productId }) {
+  <span class="tok-k">const</span> { data: product, isLoading } = useQuery({
+    queryKey: [<span class="tok-s">"product"</span>, productId],
+    queryFn: () =&gt; api.catalog.get(productId),
+  });
+
+  <span class="tok-k">if</span> (isLoading) <span class="tok-k">return</span> &lt;<span class="tok-t">Skeleton</span> /&gt;;
+
+  <span class="tok-k">return</span> (
+    &lt;<span class="tok-t">div</span>&gt;
+      &lt;<span class="tok-t">ProductGallery</span> images={product.images} /&gt;
+      &lt;<span class="tok-t">ProductInfo</span> product={product} /&gt;
+      &lt;<span class="tok-t">VariantSelector</span> variants={product.variants} /&gt;
+      &lt;<span class="tok-t">AddToCartButton</span>
+        onClick={() =&gt; api.cart.addItem({
+          productId,
+          variantId: selected.id,
+          quantity: <span class="tok-n">1</span>,
+        })}
+      /&gt;
+    &lt;/<span class="tok-t">div</span>&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/catalog/entities/Product.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { z } <span class="tok-k">from</span> <span class="tok-s">"zod"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">ProductSchema</span> = z.object({
+  id: z.string(),
+  tenantId: z.string(),
+  sku: z.string(),
+  name: z.record(z.string(), z.string()), <span class="tok-c">// i18n</span>
+  description: z.record(z.string(), z.string()),
+  images: z.array(z.object({
+    id: z.string(),
+    url: z.string(),
+    alt: z.string().optional(),
+  })),
+  categoryIds: z.array(z.string()),
+  variantIds: z.array(z.string()),
+  <span class="tok-c">// NOTE: price/stock live in separate entities</span>
+  status: z.enum([<span class="tok-s">"active"</span>, <span class="tok-s">"archived"</span>, <span class="tok-s">"draft"</span>]),
+  createdAt: z.number(),
+  updatedAt: z.number(),
+});
+
+<span class="tok-k">export type</span> <span class="tok-t">Product</span> = z.infer&lt;<span class="tok-k">typeof</span> ProductSchema&gt;;</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/catalog/events.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { z } <span class="tok-k">from</span> <span class="tok-s">"zod"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">ProductCreatedEvent</span> = z.object({
+  type: z.literal(<span class="tok-s">"catalog.product.created"</span>),
+  payload: z.object({
+    productId: z.string(),
+    sku: z.string(),
+    tenantId: z.string(),
+  }),
+});
+
+<span class="tok-k">export const</span> <span class="tok-v">InventoryChangedEvent</span> = z.object({
+  type: z.literal(<span class="tok-s">"catalog.inventory.changed"</span>),
+  payload: z.object({
+    productId: z.string(),
+    variantId: z.string().nullable(),
+    previousQty: z.number(),
+    newQty: z.number(),
+    reason: z.enum([<span class="tok-s">"sale"</span>, <span class="tok-s">"adjustment"</span>, <span class="tok-s">"return"</span>]),
+  }),
+});
+
+<span class="tok-k">export type</span> <span class="tok-t">CatalogEvents</span> =
+  | z.infer&lt;<span class="tok-k">typeof</span> ProductCreatedEvent&gt;
+  | z.infer&lt;<span class="tok-k">typeof</span> InventoryChangedEvent&gt;;</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE: CART -->
+    <section id="module-cart">
+      <h2>🛒 Module: Cart <span class="tag">Layer 2</span></h2>
+      <p class="lead">Owns: Carts. Uses: <code>catalogModule</code>, <code>pricingModule</code>. Published events: <code>cart.item_added</code>, <code>cart.abandoned</code>.</p>
+
+      <h3>Side-by-side: Full Stack View</h3>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/cart/index.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { cartService } <span class="tok-k">from</span> <span class="tok-s">"./internal/cartService"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">cartModule</span> = {
+  getCart: cartService.getActiveCart,
+  addItem: cartService.addItem,
+  removeItem: cartService.removeItem,
+  updateQuantity: cartService.updateQuantity,
+  clear: cartService.clear,
+  applyCoupon: cartService.applyCoupon,
+};
+
+<span class="tok-k">export type</span> { <span class="tok-t">Cart</span>, <span class="tok-t">CartItem</span> } <span class="tok-k">from</span> <span class="tok-s">"./entities/Cart"</span>;</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/cart/internal/cartService.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { catalogModule } <span class="tok-k">from</span> <span class="tok-s">"modules/catalog"</span>;
+<span class="tok-k">import</span> { pricingModule } <span class="tok-k">from</span> <span class="tok-s">"modules/pricing"</span>;
+<span class="tok-k">import</span> { emitInTransaction } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">cartService</span> = {
+  <span class="tok-k">async</span> <span class="tok-f">addItem</span>({ cartId, productId, variantId, quantity }, ctx) {
+    <span class="tok-c">// Call other module's PUBLIC API</span>
+    <span class="tok-k">const</span> product = <span class="tok-k">await</span> catalogModule.findProduct(productId, ctx);
+    <span class="tok-k">if</span> (!product) <span class="tok-k">throw new</span> <span class="tok-f">Error</span>(<span class="tok-s">"Product not found"</span>);
+
+    <span class="tok-k">return</span> db.runTransaction(<span class="tok-k">async</span> (tx) =&gt; {
+      <span class="tok-k">const</span> cart = <span class="tok-k">await</span> getCart(tx, cartId);
+      cart.items.push({ productId, variantId, quantity });
+
+      <span class="tok-c">// Recalculate via pricing module</span>
+      cart.totals = <span class="tok-k">await</span> pricingModule.calculateCart(cart, ctx);
+
+      tx.update(db.doc(<span class="tok-s">`carts/</span>${cartId}<span class="tok-s">`</span>), cart);
+
+      <span class="tok-c">// Outbox: event in same transaction</span>
+      <span class="tok-f">emitInTransaction</span>(tx, {
+        type: <span class="tok-s">"cart.item_added"</span>,
+        payload: { cartId, productId, variantId, quantity },
+        tenantId: ctx.tenantId,
+      });
+
+      <span class="tok-k">return</span> cart;
+    });
+  },
+};</code></pre>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>storefront-api/cart/addItem.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { onCall } <span class="tok-k">from</span> <span class="tok-s">"firebase-functions/v2/https"</span>;
+<span class="tok-k">import</span> { cartModule } <span class="tok-k">from</span> <span class="tok-s">"modules/cart"</span>;
+<span class="tok-k">import</span> { resolveContext } <span class="tok-k">from</span> <span class="tok-s">"platform/tenancy"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">addItemToCart</span> = onCall(<span class="tok-k">async</span> (request) =&gt; {
+  <span class="tok-k">const</span> ctx = <span class="tok-k">await</span> <span class="tok-f">resolveContext</span>(request);
+
+  <span class="tok-k">const</span> { productId, variantId, quantity } = request.data;
+
+  <span class="tok-k">return</span> cartModule.addItem(
+    { cartId: ctx.activeCartId, productId, variantId, quantity },
+    ctx
+  );
+});</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-frontend">Frontend</span>
+            <span>apps/storefront/src/widgets/CartDrawer/CartDrawer.tsx</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { useQuery, useMutation } <span class="tok-k">from</span> <span class="tok-s">"@tanstack/react-query"</span>;
+<span class="tok-k">import</span> { api } <span class="tok-k">from</span> <span class="tok-s">"src/api"</span>;
+
+<span class="tok-k">export function</span> <span class="tok-f">CartDrawer</span>() {
+  <span class="tok-k">const</span> { data: cart } = useQuery({
+    queryKey: [<span class="tok-s">"cart"</span>],
+    queryFn: () =&gt; api.cart.get(),
+  });
+
+  <span class="tok-k">const</span> updateQty = useMutation({
+    mutationFn: ({ itemId, qty }) =&gt;
+      api.cart.updateItem({ itemId, quantity: qty }),
+    onSuccess: () =&gt; queryClient.invalidateQueries([<span class="tok-s">"cart"</span>]),
+  });
+
+  <span class="tok-k">return</span> (
+    &lt;<span class="tok-t">Drawer</span>&gt;
+      {cart?.items.map((item) =&gt; (
+        &lt;<span class="tok-t">CartItem</span>
+          key={item.id}
+          item={item}
+          onQtyChange={(qty) =&gt; updateQty.mutate({ itemId: item.id, qty })}
+        /&gt;
+      ))}
+      &lt;<span class="tok-t">CartTotals</span> totals={cart?.totals} /&gt;
+      &lt;<span class="tok-t">CheckoutButton</span> /&gt;
+    &lt;/<span class="tok-t">Drawer</span>&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE: ORDERS -->
+    <section id="module-orders">
+      <h2>📋 Module: Orders <span class="tag">Layer 2</span></h2>
+      <p class="lead">Owns: Orders, state machine. Uses: <code>cart</code>, <code>payments</code>, <code>catalog</code>. Published events: <code>order.placed</code>, <code>order.fulfilled</code>, <code>order.cancelled</code>.</p>
+
+      <h3>State Machine</h3>
+      <div class="flow">
+draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_delivery ──&gt; delivered ──&gt; completed
+              │           │          │                │                 │
+              ▼           ▼          ▼                ▼                 ▼
+          cancelled   cancelled   cancelled      cancelled           refunded
+      </div>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/orders/internal/stateMachine.ts</span>
+          </div>
+<pre><code><span class="tok-k">const</span> ALLOWED_TRANSITIONS = {
+  draft: [<span class="tok-s">"pending"</span>, <span class="tok-s">"cancelled"</span>],
+  pending: [<span class="tok-s">"paid"</span>, <span class="tok-s">"cancelled"</span>],
+  paid: [<span class="tok-s">"processing"</span>, <span class="tok-s">"cancelled"</span>, <span class="tok-s">"refunded"</span>],
+  processing: [<span class="tok-s">"in_delivery"</span>, <span class="tok-s">"cancelled"</span>],
+  in_delivery: [<span class="tok-s">"delivered"</span>],
+  delivered: [<span class="tok-s">"completed"</span>, <span class="tok-s">"refunded"</span>],
+  completed: [<span class="tok-s">"refunded"</span>],
+  cancelled: [],
+  refunded: [],
+};
+
+<span class="tok-k">export const</span> <span class="tok-v">orderStateMachine</span> = {
+  <span class="tok-k">async</span> <span class="tok-f">transition</span>(orderId, newStatus, ctx) {
+    <span class="tok-k">return</span> db.runTransaction(<span class="tok-k">async</span> (tx) =&gt; {
+      <span class="tok-k">const</span> order = <span class="tok-k">await</span> getOrder(tx, orderId);
+
+      <span class="tok-k">const</span> allowed = ALLOWED_TRANSITIONS[order.status];
+      <span class="tok-k">if</span> (!allowed.includes(newStatus)) {
+        <span class="tok-k">throw new</span> <span class="tok-f">Error</span>(
+          <span class="tok-s">`Invalid transition: </span>${order.status}<span class="tok-s"> → </span>${newStatus}<span class="tok-s">`</span>
+        );
+      }
+
+      tx.update(orderRef, {
+        status: newStatus,
+        statusHistory: FieldValue.arrayUnion({
+          from: order.status, to: newStatus, at: <span class="tok-t">Date</span>.now(),
+        }),
+      });
+
+      <span class="tok-f">emitInTransaction</span>(tx, {
+        type: <span class="tok-s">`order.</span>${newStatus}<span class="tok-s">`</span>,
+        payload: { orderId, previousStatus: order.status },
+        tenantId: ctx.tenantId,
+      });
+    });
+  },
+};</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-frontend">Frontend</span>
+            <span>apps/admin/src/pages/orders/OrderDetail.tsx</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { api } <span class="tok-k">from</span> <span class="tok-s">"src/api"</span>;
+
+<span class="tok-k">export function</span> <span class="tok-f">OrderDetail</span>({ orderId }) {
+  <span class="tok-k">const</span> { data: order } = useQuery({
+    queryKey: [<span class="tok-s">"order"</span>, orderId],
+    queryFn: () =&gt; api.admin.orders.get(orderId),
+  });
+
+  <span class="tok-k">const</span> transition = useMutation({
+    mutationFn: ({ status }) =&gt;
+      api.admin.orders.updateStatus(orderId, status),
+  });
+
+  <span class="tok-k">const</span> possibleStatuses = getAllowedTransitions(order?.status);
+
+  <span class="tok-k">return</span> (
+    &lt;<span class="tok-t">div</span>&gt;
+      &lt;<span class="tok-t">OrderHeader</span> order={order} /&gt;
+      &lt;<span class="tok-t">StatusBadge</span> status={order?.status} /&gt;
+      &lt;<span class="tok-t">OrderItems</span> items={order?.items} /&gt;
+      &lt;<span class="tok-t">OrderTotals</span> totals={order?.totals} /&gt;
+      &lt;<span class="tok-t">StatusHistory</span> history={order?.statusHistory} /&gt;
+
+      &lt;<span class="tok-t">div</span>&gt;
+        {possibleStatuses.map((status) =&gt; (
+          &lt;<span class="tok-t">Button</span>
+            key={status}
+            onClick={() =&gt; transition.mutate({ status })}
+          &gt;
+            Mark as {status}
+          &lt;/<span class="tok-t">Button</span>&gt;
+        ))}
+      &lt;/<span class="tok-t">div</span>&gt;
+    &lt;/<span class="tok-t">div</span>&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE: PAYMENTS -->
+    <section id="module-payments">
+      <h2>💳 Module: Payments <span class="tag">Layer 2</span></h2>
+      <p class="lead">Owns: Payments, refunds. Abstraction over providers. Published events: <code>payment.authorized</code>, <code>payment.captured</code>, <code>payment.failed</code>, <code>payment.refunded</code>.</p>
+
+      <h3>Provider Abstraction</h3>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/payments/internal/providers/PaymentProvider.ts</span>
+          </div>
+<pre><code><span class="tok-c">/** Interface every provider must implement */</span>
+<span class="tok-k">export interface</span> <span class="tok-t">PaymentProvider</span> {
+  <span class="tok-v">name</span>: <span class="tok-t">string</span>;
+
+  <span class="tok-f">authorize</span>(<span class="tok-v">input</span>: <span class="tok-t">AuthorizeInput</span>): <span class="tok-t">Promise</span>&lt;<span class="tok-t">AuthorizeResult</span>&gt;;
+  <span class="tok-f">capture</span>(<span class="tok-v">input</span>: <span class="tok-t">CaptureInput</span>): <span class="tok-t">Promise</span>&lt;<span class="tok-t">CaptureResult</span>&gt;;
+  <span class="tok-f">refund</span>(<span class="tok-v">input</span>: <span class="tok-t">RefundInput</span>): <span class="tok-t">Promise</span>&lt;<span class="tok-t">RefundResult</span>&gt;;
+  <span class="tok-f">verifyWebhook</span>(<span class="tok-v">req</span>: <span class="tok-t">Request</span>): <span class="tok-t">Promise</span>&lt;<span class="tok-t">WebhookEvent</span>&gt;;
+}</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/payments/internal/providers/hypProvider.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { PaymentProvider } <span class="tok-k">from</span> <span class="tok-s">"./PaymentProvider"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">hypProvider</span>: <span class="tok-t">PaymentProvider</span> = {
+  name: <span class="tok-s">"hyp"</span>,
+
+  <span class="tok-k">async</span> <span class="tok-f">authorize</span>({ amount, currency, token }) {
+    <span class="tok-k">const</span> res = <span class="tok-k">await</span> fetch(HYP_URL + <span class="tok-s">"/authorize"</span>, {
+      method: <span class="tok-s">"POST"</span>,
+      body: <span class="tok-t">JSON</span>.stringify({ amount, currency, token }),
+    });
+    <span class="tok-k">return</span> { id: res.transactionId, status: <span class="tok-s">"authorized"</span> };
+  },
+
+  <span class="tok-k">async</span> <span class="tok-f">capture</span>(input) { <span class="tok-c">/* ... */</span> },
+  <span class="tok-k">async</span> <span class="tok-f">refund</span>(input) { <span class="tok-c">/* ... */</span> },
+  <span class="tok-k">async</span> <span class="tok-f">verifyWebhook</span>(req) { <span class="tok-c">/* ... */</span> },
+};</code></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Why a provider interface?</div>
+        <p>Adding Stripe tomorrow = create <code>stripeProvider.ts</code> implementing the same interface. Zero changes to <code>orders</code>, <code>cart</code>, or anywhere else. <strong>This is the payoff of modular monolith.</strong></p>
+      </div>
+    </section>
+
+    <!-- MODULE: FULFILLMENT -->
+    <section id="module-fulfillment">
+      <h2>📦 Module: Fulfillment <span class="tag">Layer 2</span></h2>
+      <p class="lead">Owns: Delivery notes, invoices. Integrates with EzCount. Listens to order events, emits fulfillment events.</p>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/fulfillment/subscribers.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { createEventSubscriber } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<span class="tok-k">import</span> { deliveryNoteService } <span class="tok-k">from</span> <span class="tok-s">"./internal/deliveryNoteService"</span>;
+
+<span class="tok-c">// When order moves to "in_delivery", create a delivery note</span>
+<span class="tok-k">export const</span> <span class="tok-v">onOrderInDelivery</span> = <span class="tok-f">createEventSubscriber</span>(
+  <span class="tok-k">async</span> (event) =&gt; {
+    <span class="tok-k">if</span> (event.type !== <span class="tok-s">"order.in_delivery"</span>) <span class="tok-k">return</span>;
+
+    <span class="tok-k">await</span> deliveryNoteService.createForOrder(event.payload.orderId);
+  }
+);</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/fulfillment/internal/adapters/ezCountAdapter.ts</span>
+          </div>
+<pre><code><span class="tok-c">// Wraps ezCount API — only this file knows about it</span>
+<span class="tok-k">export const</span> <span class="tok-v">ezCountAdapter</span> = {
+  <span class="tok-k">async</span> <span class="tok-f">createDeliveryNote</span>({ order, tenant }) {
+    <span class="tok-k">const</span> creds = <span class="tok-k">await</span> <span class="tok-f">getTenantCredentials</span>(tenant.id);
+
+    <span class="tok-k">const</span> res = <span class="tok-k">await</span> fetch(creds.api + <span class="tok-s">"/createDoc"</span>, {
+      method: <span class="tok-s">"POST"</span>,
+      headers: { <span class="tok-s">"Content-Type"</span>: <span class="tok-s">"application/json"</span> },
+      body: <span class="tok-t">JSON</span>.stringify({
+        api_key: creds.key,
+        type: <span class="tok-n">200</span>, <span class="tok-c">// delivery note</span>
+        customer_name: order.client.displayName,
+        item: <span class="tok-f">mapItems</span>(order.cart.items),
+        price_total: order.cart.cartTotal,
+      }),
+    });
+
+    <span class="tok-k">return</span> res.json();
+  },
+};</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE: CUSTOMERS -->
+    <section id="module-customers">
+      <h2>👥 Module: Customers <span class="tag">Layer 2</span></h2>
+      <p class="lead">Owns: Profiles, Organizations, billing accounts. Published events: <code>customer.registered</code>, <code>organization.member_added</code>.</p>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/customers/entities/Profile.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { z } <span class="tok-k">from</span> <span class="tok-s">"zod"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">ProfileSchema</span> = z.object({
+  id: z.string(),
+  tenantId: z.string(),
+  email: z.string().email(),
+  displayName: z.string(),
+  phoneNumber: z.string().optional(),
+  address: AddressSchema.optional(),
+
+  <span class="tok-c">// Multi-org support</span>
+  organizationIds: z.array(z.string()).optional(),
+  organizationId: z.string().optional(), <span class="tok-c">// @deprecated</span>
+
+  createdAt: z.number(),
+  lastActivityAt: z.number(),
+});
+
+<span class="tok-k">export type</span> <span class="tok-t">Profile</span> = z.infer&lt;<span class="tok-k">typeof</span> ProfileSchema&gt;;</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-frontend">Frontend</span>
+            <span>apps/storefront/src/widgets/OrgPicker/OrgPicker.tsx</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { api } <span class="tok-k">from</span> <span class="tok-s">"src/api"</span>;
+
+<span class="tok-k">export function</span> <span class="tok-f">OrgPicker</span>() {
+  <span class="tok-k">const</span> orgs = useAppSelector(s =&gt; s.userOrganization.organizations);
+  <span class="tok-k">const</span> activeOrg = useAppSelector(s =&gt; s.userOrganization.activeOrganization);
+
+  <span class="tok-k">if</span> (orgs.length &lt; <span class="tok-n">2</span>) <span class="tok-k">return null</span>;
+
+  <span class="tok-k">const</span> switchOrg = <span class="tok-k">async</span> (orgId) =&gt; {
+    <span class="tok-k">const</span> confirmed = <span class="tok-k">await</span> <span class="tok-f">confirmDialog</span>(
+      <span class="tok-s">"Switching organizations will clear your cart"</span>
+    );
+    <span class="tok-k">if</span> (!confirmed) <span class="tok-k">return</span>;
+
+    <span class="tok-k">await</span> api.cart.clear();
+    dispatch(setActiveOrganization(orgId));
+  };
+
+  <span class="tok-k">return</span> &lt;<span class="tok-t">Dropdown</span> options={orgs} value={activeOrg} onChange={switchOrg} /&gt;;
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODULE: BUDGET -->
+    <section id="module-budget">
+      <h2>💰 Module: Budget <span class="tag">Layer 2</span> <span class="tag">B2B</span></h2>
+      <p class="lead">B2B-specific. Tracks debt/credit per organization. Pure event-driven — listens to fulfillment &amp; payment events.</p>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/budget/subscribers.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { createEventSubscriber } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<span class="tok-k">import</span> { budgetService } <span class="tok-k">from</span> <span class="tok-s">"./internal/budgetService"</span>;
+
+<span class="tok-c">// Debt is added when delivery note is issued</span>
+<span class="tok-k">export const</span> <span class="tok-v">onDeliveryNote</span> = <span class="tok-f">createEventSubscriber</span>(<span class="tok-k">async</span> (event) =&gt; {
+  <span class="tok-k">if</span> (event.type !== <span class="tok-s">"fulfillment.delivery_note.created"</span>) <span class="tok-k">return</span>;
+
+  <span class="tok-k">const</span> { organizationId, total, deliveryNoteId } = event.payload;
+  <span class="tok-k">if</span> (!organizationId) <span class="tok-k">return</span>;
+
+  <span class="tok-k">await</span> budgetService.addTransaction({
+    organizationId,
+    type: <span class="tok-s">"delivery_note"</span>,
+    amount: total,
+    deliveryNoteId,
+  });
+});
+
+<span class="tok-c">// Credit when payment completes</span>
+<span class="tok-k">export const</span> <span class="tok-v">onPaymentReceived</span> = <span class="tok-f">createEventSubscriber</span>(<span class="tok-k">async</span> (event) =&gt; {
+  <span class="tok-k">if</span> (event.type !== <span class="tok-s">"payment.captured"</span>) <span class="tok-k">return</span>;
+
+  <span class="tok-k">await</span> budgetService.addTransaction({
+    organizationId: event.payload.organizationId,
+    type: <span class="tok-s">"payment_received"</span>,
+    amount: -event.payload.amount, <span class="tok-c">// reduces debt</span>
+  });
+});</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-frontend">Frontend</span>
+            <span>apps/admin/src/pages/customers/BudgetTab.tsx</span>
+          </div>
+<pre><code><span class="tok-k">export function</span> <span class="tok-f">BudgetTab</span>({ organizationId }) {
+  <span class="tok-k">const</span> { data: transactions } = useQuery({
+    queryKey: [<span class="tok-s">"budget"</span>, organizationId],
+    queryFn: () =&gt; api.admin.budget.getTransactions(organizationId),
+  });
+
+  <span class="tok-k">const</span> balance = transactions?.reduce(
+    (sum, tx) =&gt; sum + tx.amount, <span class="tok-n">0</span>
+  );
+
+  <span class="tok-k">return</span> (
+    &lt;<span class="tok-t">div</span>&gt;
+      &lt;<span class="tok-t">BalanceCard</span> balance={balance} /&gt;
+
+      &lt;<span class="tok-t">Table</span>&gt;
+        {transactions?.map(tx =&gt; (
+          &lt;<span class="tok-t">TransactionRow</span> key={tx.id} tx={tx} /&gt;
+        ))}
+      &lt;/<span class="tok-t">Table</span>&gt;
+    &lt;/<span class="tok-t">div</span>&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout callout-good">
+        <div class="callout-title">Notice the decoupling</div>
+        <p>The budget module doesn't know about orders, fulfillment, or payments. It only listens for events and updates its own data. If you remove the budget module entirely, nothing else breaks. <strong>That's what "modular" means in practice.</strong></p>
+      </div>
+    </section>
+
+    <!-- WEBHOOKS -->
+    <section id="webhooks">
+      <h2>🪝 Webhooks <span class="tag">Layer 3</span> <span class="tag">Extensibility</span></h2>
+      <p class="lead">Let merchants subscribe to your events via HTTP. The killer feature that makes you a platform.</p>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-integration">Integration</span>
+            <span>integration/webhooks/dispatcher.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> crypto <span class="tok-k">from</span> <span class="tok-s">"crypto"</span>;
+<span class="tok-k">import</span> { createEventSubscriber } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<span class="tok-k">import</span> { getSubscriptions } <span class="tok-k">from</span> <span class="tok-s">"./subscriptionService"</span>;
+
+<span class="tok-c">// ONE subscriber that listens to ALL events</span>
+<span class="tok-k">export const</span> <span class="tok-v">webhookDispatcher</span> = <span class="tok-f">createEventSubscriber</span>(<span class="tok-k">async</span> (event) =&gt; {
+  <span class="tok-k">const</span> subs = <span class="tok-k">await</span> <span class="tok-f">getSubscriptions</span>(event.tenantId, event.type);
+
+  <span class="tok-k">for</span> (<span class="tok-k">const</span> sub <span class="tok-k">of</span> subs) {
+    <span class="tok-k">try</span> {
+      <span class="tok-k">await</span> <span class="tok-f">dispatch</span>(sub, event);
+    } <span class="tok-k">catch</span> (err) {
+      <span class="tok-k">await</span> <span class="tok-f">markFailedAttempt</span>(sub.id, event.id, err);
+    }
+  }
+});
+
+<span class="tok-k">async function</span> <span class="tok-f">dispatch</span>(sub, event) {
+  <span class="tok-k">const</span> body = <span class="tok-t">JSON</span>.stringify(event);
+  <span class="tok-k">const</span> signature = crypto
+    .createHmac(<span class="tok-s">"sha256"</span>, sub.secret)
+    .update(body)
+    .digest(<span class="tok-s">"hex"</span>);
+
+  <span class="tok-k">const</span> res = <span class="tok-k">await</span> fetch(sub.url, {
+    method: <span class="tok-s">"POST"</span>,
+    headers: {
+      <span class="tok-s">"Content-Type"</span>: <span class="tok-s">"application/json"</span>,
+      <span class="tok-s">"X-Storebrix-Signature"</span>: signature,
+      <span class="tok-s">"X-Storebrix-Event"</span>: event.type,
+      <span class="tok-s">"X-Storebrix-Event-Id"</span>: event.id,
+    },
+    body,
+    signal: <span class="tok-t">AbortSignal</span>.timeout(<span class="tok-n">10_000</span>),
+  });
+
+  <span class="tok-k">if</span> (!res.ok) <span class="tok-k">throw new</span> <span class="tok-f">Error</span>(<span class="tok-s">`status </span>${res.status}<span class="tok-s">`</span>);
+}</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-frontend">Frontend</span>
+            <span>apps/admin/src/pages/webhooks/WebhooksPage.tsx</span>
+          </div>
+<pre><code><span class="tok-k">export function</span> <span class="tok-f">WebhooksPage</span>() {
+  <span class="tok-k">const</span> { data: subs } = useQuery({
+    queryKey: [<span class="tok-s">"webhooks"</span>],
+    queryFn: () =&gt; api.admin.webhooks.list(),
+  });
+
+  <span class="tok-k">return</span> (
+    &lt;<span class="tok-t">div</span>&gt;
+      &lt;<span class="tok-t">h1</span>&gt;Webhook Subscriptions&lt;/<span class="tok-t">h1</span>&gt;
+
+      &lt;<span class="tok-t">Button</span> onClick={() =&gt; openCreateModal()}&gt;
+        + Subscribe to Event
+      &lt;/<span class="tok-t">Button</span>&gt;
+
+      &lt;<span class="tok-t">Table</span>&gt;
+        &lt;<span class="tok-t">thead</span>&gt;
+          &lt;<span class="tok-t">tr</span>&gt;
+            &lt;<span class="tok-t">th</span>&gt;URL&lt;/<span class="tok-t">th</span>&gt;
+            &lt;<span class="tok-t">th</span>&gt;Events&lt;/<span class="tok-t">th</span>&gt;
+            &lt;<span class="tok-t">th</span>&gt;Last delivery&lt;/<span class="tok-t">th</span>&gt;
+            &lt;<span class="tok-t">th</span>&gt;Actions&lt;/<span class="tok-t">th</span>&gt;
+          &lt;/<span class="tok-t">tr</span>&gt;
+        &lt;/<span class="tok-t">thead</span>&gt;
+        &lt;<span class="tok-t">tbody</span>&gt;
+          {subs?.map(sub =&gt; (
+            &lt;<span class="tok-t">tr</span> key={sub.id}&gt;
+              &lt;<span class="tok-t">td</span>&gt;{sub.url}&lt;/<span class="tok-t">td</span>&gt;
+              &lt;<span class="tok-t">td</span>&gt;{sub.eventTypes.join(<span class="tok-s">", "</span>)}&lt;/<span class="tok-t">td</span>&gt;
+              &lt;<span class="tok-t">td</span>&gt;{sub.lastDelivery?.status}&lt;/<span class="tok-t">td</span>&gt;
+              &lt;<span class="tok-t">td</span>&gt;
+                &lt;<span class="tok-t">Button</span> onClick={() =&gt; testWebhook(sub.id)}&gt;Test&lt;/<span class="tok-t">Button</span>&gt;
+                &lt;<span class="tok-t">Button</span> onClick={() =&gt; deleteWebhook(sub.id)}&gt;Delete&lt;/<span class="tok-t">Button</span>&gt;
+              &lt;/<span class="tok-t">td</span>&gt;
+            &lt;/<span class="tok-t">tr</span>&gt;
+          ))}
+        &lt;/<span class="tok-t">tbody</span>&gt;
+      &lt;/<span class="tok-t">Table</span>&gt;
+    &lt;/<span class="tok-t">div</span>&gt;
+  );
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLUGINS -->
+    <section id="plugins">
+      <h2>🔌 Plugins <span class="tag">Layer 3</span></h2>
+      <p class="lead">Per-tenant custom code. Activated via config. Runs inside your backend with scoped context.</p>
+
+      <div class="split-pane">
+        <div class="split-pane-header">
+          <span class="badge badge-integration">Integration</span>
+          <span>plugins/acme-loyalty/index.ts</span>
+        </div>
+<pre><code><span class="tok-k">import</span> { definePlugin } <span class="tok-k">from</span> <span class="tok-s">"@storebrix/plugin-sdk"</span>;
+
+<span class="tok-k">export default</span> <span class="tok-f">definePlugin</span>({
+  name: <span class="tok-s">"acme-loyalty"</span>,
+  version: <span class="tok-s">"1.0.0"</span>,
+
+  <span class="tok-c">// Subscribe to events</span>
+  events: {
+    <span class="tok-s">"order.placed"</span>: <span class="tok-k">async</span> (event, ctx) =&gt; {
+      <span class="tok-k">const</span> points = <span class="tok-t">Math</span>.floor(event.payload.total / <span class="tok-n">10</span>);
+      <span class="tok-k">await</span> ctx.db.collection(<span class="tok-s">"loyalty"</span>).add({
+        customerId: event.payload.customerId,
+        points,
+        source: <span class="tok-s">"order"</span>,
+      });
+    },
+  },
+
+  <span class="tok-c">// Register hook handlers</span>
+  hooks: {
+    <span class="tok-s">"order.before_create"</span>: <span class="tok-k">async</span> (input, ctx) =&gt; {
+      <span class="tok-c">// Apply loyalty discount</span>
+      <span class="tok-k">const</span> customer = <span class="tok-k">await</span> ctx.customers.find(input.customerId);
+      <span class="tok-k">if</span> (customer.loyaltyTier === <span class="tok-s">"gold"</span>) {
+        input.discount = (input.discount || <span class="tok-n">0</span>) + <span class="tok-n">0.05</span>;
+      }
+      <span class="tok-k">return</span> input;
+    },
+  },
+
+  <span class="tok-c">// Add admin UI</span>
+  adminRoutes: [
+    {
+      path: <span class="tok-s">"/loyalty"</span>,
+      component: <span class="tok-s">"./admin/LoyaltyPage.tsx"</span>,
+    },
+  ],
+});</code></pre>
+      </div>
+    </section>
+
+    <!-- HOOKS -->
+    <section id="hooks">
+      <h2>🎯 Hook Points <span class="tag">Layer 3</span></h2>
+      <p class="lead">Synchronous extension points in your core flows. Plugins register handlers that run at these moments.</p>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-integration">Integration</span>
+            <span>integration/hooks/registry.ts</span>
+          </div>
+<pre><code><span class="tok-k">type</span> <span class="tok-t">HookHandler</span>&lt;I, O&gt; = (<span class="tok-v">input</span>: I, <span class="tok-v">ctx</span>: <span class="tok-t">Ctx</span>) =&gt; <span class="tok-t">Promise</span>&lt;O&gt;;
+
+<span class="tok-k">const</span> registry = <span class="tok-k">new</span> <span class="tok-t">Map</span>&lt;<span class="tok-t">string</span>, <span class="tok-t">HookHandler</span>&lt;<span class="tok-k">any</span>, <span class="tok-k">any</span>&gt;[]&gt;();
+
+<span class="tok-k">export function</span> <span class="tok-f">registerHook</span>&lt;I, O&gt;(
+  <span class="tok-v">name</span>: <span class="tok-t">string</span>,
+  <span class="tok-v">handler</span>: <span class="tok-t">HookHandler</span>&lt;I, O&gt;
+) {
+  <span class="tok-k">const</span> existing = registry.get(name) ?? [];
+  registry.set(name, [...existing, handler]);
+}
+
+<span class="tok-k">export async function</span> <span class="tok-f">runHook</span>&lt;I&gt;(
+  <span class="tok-v">name</span>: <span class="tok-t">string</span>,
+  <span class="tok-v">input</span>: I,
+  <span class="tok-v">ctx</span>: <span class="tok-t">Ctx</span>
+): <span class="tok-t">Promise</span>&lt;I&gt; {
+  <span class="tok-k">const</span> handlers = registry.get(name) ?? [];
+  <span class="tok-k">let</span> result = input;
+
+  <span class="tok-k">for</span> (<span class="tok-k">const</span> h <span class="tok-k">of</span> handlers) {
+    result = <span class="tok-k">await</span> <span class="tok-f">h</span>(result, ctx);
+  }
+
+  <span class="tok-k">return</span> result;
+}</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/orders/internal/orderService.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { runHook } <span class="tok-k">from</span> <span class="tok-s">"integration/hooks"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">orderService</span> = {
+  <span class="tok-k">async</span> <span class="tok-f">create</span>(input, ctx) {
+    <span class="tok-c">// ← Plugins can validate/modify input here</span>
+    input = <span class="tok-k">await</span> <span class="tok-f">runHook</span>(<span class="tok-s">"order.before_create"</span>, input, ctx);
+
+    <span class="tok-c">// ← Plugins can inject custom shipping logic</span>
+    <span class="tok-k">const</span> shipping = <span class="tok-k">await</span> <span class="tok-f">runHook</span>(<span class="tok-s">"order.calculate_shipping"</span>, input, ctx);
+
+    <span class="tok-c">// Core logic runs between hooks</span>
+    <span class="tok-k">const</span> order = <span class="tok-k">await</span> orderRepo.create({ ...input, shipping });
+
+    <span class="tok-c">// ← Plugins can react after creation</span>
+    <span class="tok-k">await</span> <span class="tok-f">runHook</span>(<span class="tok-s">"order.after_create"</span>, order, ctx);
+
+    <span class="tok-c">// Fire async event for subscribers</span>
+    <span class="tok-k">await</span> <span class="tok-f">emit</span>({ type: <span class="tok-s">"order.placed"</span>, payload: order });
+
+    <span class="tok-k">return</span> order;
+  },
+};</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLOW: ORDER -->
+    <section id="flow-order">
+      <h2>Example Flow: Place Order</h2>
+      <p class="lead">Full request path from customer click → all 5 layers → response.</p>
+
+      <div class="flow">
+┌───────────────────────────────────────────────────────────────┐
+│ LAYER 5 — STOREFRONT (Customer)                               │
+│                                                               │
+│   1. Click "Place Order" in CheckoutPage.tsx                  │
+│   2. api.checkout.placeOrder({ cart, address, payment })      │
+└────────────────────────┬──────────────────────────────────────┘
+                         │ HTTPS POST
+                         ▼
+┌───────────────────────────────────────────────────────────────┐
+│ LAYER 4 — API ENTRY POINT                                     │
+│                                                               │
+│   storefront-api/checkout/placeOrder.ts                       │
+│     ├─ resolveContext() ................... Layer 1           │
+│     ├─ requireAuth() ...................... Layer 1           │
+│     ├─ withIdempotencyKey() ............... Layer 1           │
+│     └─ checkRateLimit() ................... Layer 1           │
+└────────────────────────┬──────────────────────────────────────┘
+                         │
+                         ▼
+┌───────────────────────────────────────────────────────────────┐
+│ LAYER 2 — BUSINESS LOGIC                                      │
+│                                                               │
+│   ordersModule.create(input, ctx)                             │
+│     ├─ runHook("order.before_create") ..... Layer 3 (plugins) │
+│     ├─ catalogModule.validateStock() ...... Layer 2 (module)  │
+│     ├─ pricingModule.calculate() .......... Layer 2 (module)  │
+│     ├─ paymentsModule.authorize() ......... Layer 2 (module)  │
+│     │                                                         │
+│     └─ db.runTransaction:                                     │
+│         ├─ write order                                        │
+│         ├─ reserve inventory                                  │
+│         ├─ capture payment                                    │
+│         └─ emitInTransaction("order.placed")                  │
+└────────────────────────┬──────────────────────────────────────┘
+                         │ event written to Firestore
+                         │ (transaction commits atomically)
+                         ▼
+┌───────────────────────────────────────────────────────────────┐
+│ LAYER 1 — EVENT BUS (Firestore onCreate fires N triggers)     │
+└──┬─────────────┬──────────────┬──────────────┬────────────────┘
+   │             │              │              │
+   ▼             ▼              ▼              ▼
+ budget      fulfillment    notifications    webhooks
+ subscriber  subscriber     subscriber       subscriber
+ (Layer 2)   (Layer 2)      (Layer 2)        (Layer 3)
+   │             │              │              │
+   │             │              │              └─► HTTP POST to
+   │             │              │                 merchant's URL
+   │             │              │
+   │             │              └─► sends order confirmation email
+   │             │
+   │             └─► creates delivery note via ezCount
+   │                 emits "fulfillment.delivery_note.created"
+   │                      │
+   │                      └─► budget adds debt (reacts to THIS event)
+   │
+   └─► adds debt transaction
+      </div>
+    </section>
+
+    <!-- MIGRATION -->
+    <section id="migration">
+      <h2>Migration Roadmap</h2>
+      <p class="lead">You don't need to rewrite. Do this incrementally.</p>
+
+      <div class="card">
+        <h3>Stage 1 — Stop the Bleeding (1-2 months)</h3>
+        <p>Production safety before adding features:</p>
+        <ul style="margin-left: 20px;">
+          <li>Idempotency keys on payment + order creation</li>
+          <li>Stock reservation during checkout</li>
+          <li>Append-only audit log for orders</li>
+          <li>Rate limiting on public APIs</li>
+          <li>Feature flags (simple Firestore config map)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Stage 2 — Unlock Modularity (2-3 months) ⭐ THE KEY STAGE</h3>
+        <p>This is what separates "custom build for every client" from "platform":</p>
+        <ul style="margin-left: 20px;">
+          <li><strong>Event bus</strong> (Firestore-based, outbox pattern)</li>
+          <li><strong>Webhooks</strong> — merchants subscribe to events via signed HTTP POST</li>
+          <li><strong>Hook points</strong> in the order flow</li>
+          <li><strong>Per-store config schema</strong></li>
+          <li><strong>Plugin loader</strong> — bundle custom code per store</li>
+        </ul>
+        <p><strong>Concrete first move:</strong></p>
+        <ol style="margin-left: 20px;">
+          <li>Create <code>domainEvents</code> collection + <code>emitEvent(type, payload)</code> helper</li>
+          <li>Pick 5 key events: <code>order.placed</code>, <code>order.fulfilled</code>, <code>payment.completed</code>, <code>delivery_note.created</code>, <code>invoice.created</code></li>
+          <li>Build <code>webhookSubscription</code> collection</li>
+          <li>Dispatcher sends signed POSTs on each event</li>
+          <li>→ Now every future feature plugs in via events instead of forking core</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Stage 3 — Fill Commerce Gaps (3-6 months)</h3>
+        <p>Driven by actual client needs:</p>
+        <ul style="margin-left: 20px;">
+          <li>Product variants (if apparel/multi-option needed)</li>
+          <li>Tiered/volume pricing (essential for B2B wholesale)</li>
+          <li>Payment provider abstraction (when 2nd client wants different gateway)</li>
+          <li>Shipping zones + rates</li>
+          <li>Returns/RMA flow</li>
+          <li>Promo codes</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Stage 4 — Scale (6-12 months)</h3>
+        <ul style="margin-left: 20px;">
+          <li>Multi-currency + multi-language</li>
+          <li>Migrate "stores" → "channels" as tenancy primitive</li>
+          <li>Theme system for storefronts</li>
+          <li>Admin dashboard with real KPIs</li>
+          <li>Comprehensive test suite</li>
+          <li>RBAC for admin users</li>
+        </ul>
+      </div>
+
+      <div class="callout callout-good" style="margin-top: 32px;">
+        <div class="callout-title">The one-line summary</div>
+        <p><strong>Modular monolith = you keep the simplicity of one codebase/one DB, but enforce Shopify-level boundaries between parts of the system — so your code ages well instead of turning into a mud ball.</strong></p>
+      </div>
+
+      <div style="text-align: center; padding: 40px 0; color: #64748b; font-size: 14px;">
+        Storebrix Architecture Guide • Generated for internal reference
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
