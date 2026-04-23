@@ -22,6 +22,7 @@ allow anonymous users buy - base on store config
 
 TODO
 
+0. HYP: send `EZ.customer_crn` when order total > 5,000 ILS (required by Israeli law per HYP docs). Pull from `order.client.companyNumber` or equivalent.
 1. add active discounts to order object
 2. add super admin for every store
 3. client handle order that created and not paid !!

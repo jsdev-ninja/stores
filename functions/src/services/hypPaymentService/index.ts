@@ -118,9 +118,9 @@ export const hypPaymentService = {
 				Token: "True",
 				FixTash: "True",
 				sendemail: "True",
+				SendHesh: "True",
 				heshDesc: params.heshDesc,
 				Pritim: params.Pritim,
-				blockItemValidation: "False",
 			});
 
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
@@ -154,7 +154,7 @@ export const hypPaymentService = {
 				message: "hypPaymentService.createPaymentLink",
 				params,
 			});
-			const queryString = objectToQueryParams({ ...params, blockItemValidation: "False" });
+			const queryString = objectToQueryParams(params);
 
 			const url = `${baseUrl}?${queryString}`;
 

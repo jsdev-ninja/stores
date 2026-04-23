@@ -69,11 +69,20 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			// todo
 		}
 
+		const VAT_RATE = 18;
+		const DELIVERY_NAME = "משלוח";
+		const isVatIncluded = order.storeOptions?.isVatIncludedInPrice ?? false;
+		const postVatPrice = (base: number, hasVat: boolean) =>
+			!isVatIncluded && hasVat ? base * (1 + VAT_RATE / 100) : base;
 		const _items = order.cart.items;
-		const items = _items.map(
-			(item) =>
-				`[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${item.finalPrice}]`
-		);
+		const items = _items.map((item) => {
+			const price = postVatPrice(item.finalPrice ?? 0, !!item.product.vat).toFixed(2);
+			return `[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${price}]`;
+		});
+		if (order.cart.deliveryPrice) {
+			items.push(`[0~${DELIVERY_NAME}~1~${order.cart.deliveryPrice.toFixed(2)}]`);
+		}
+
 		const [clientName, clientLastName] = (payment.payment.Fild1 ?? "").split(" ");
 		const res = await hypPaymentService.chargeJ5Transaction({
 			actualAmount: order.cart.cartTotal.toFixed(2) as any, // todo
