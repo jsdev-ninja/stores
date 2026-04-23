@@ -836,7 +836,7 @@
 <span class="tok-k">export function</span> <span class="tok-f">emit</span>&lt;T = <span class="tok-k">unknown</span>&gt;(
   <span class="tok-v">tx</span>: <span class="tok-t">FirebaseFirestore.Transaction</span>,
   <span class="tok-v">event</span>: <span class="tok-t">Omit</span>&lt;<span class="tok-t">StoredEvent</span>&lt;T&gt;, <span class="tok-s">"id"</span> | <span class="tok-s">"createdAt"</span>&gt;
-): <span class="tok-t">FirebaseFirestore.DocumentReference</span> {
+): <span class="tok-t">StoredEvent</span>&lt;T&gt; {
   <span class="tok-k">const</span> ref = db.collection(
     <span class="tok-s">`</span>${event.companyId}<span class="tok-s">/</span>${event.storeId}<span class="tok-s">/events`</span>
   ).doc();
@@ -847,7 +847,7 @@
   <span class="tok-c">// Validate the full envelope before writing. Throws ZodError on invalid input.</span>
   <span class="tok-v">StoredEventSchema</span>.parse(stored);
   tx.set(ref, stored);
-  <span class="tok-k">return</span> ref;
+  <span class="tok-k">return</span> stored;
 }</code></pre>
         </div>
 
@@ -937,13 +937,14 @@
         <div class="callout-title">🔗 correlationId — tracing a causal chain</div>
         <p>Every event carries a <code>correlationId</code>. The platform auto-fills it with the event's own <code>id</code> when the caller doesn't provide one. That first event becomes the root of the chain.</p>
         <p><strong>Downstream subscribers must propagate it.</strong> When a subscriber emits a new event in reaction, it copies <code>correlationId</code> from the incoming event:</p>
-        <pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code>emit(tx, {
+        <pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code>const downstream = emit(tx, {
   type: "fulfillment.delivery_note_created",
   payload: { ... },
   companyId, storeId,
   correlationId: event.correlationId,  <span class="tok-c">// propagate</span>
   source: "fulfillment",
-});</code></pre>
+});
+<span class="tok-c">// downstream is the full StoredEvent — downstream.id, downstream.correlationId, etc.</span></code></pre>
         <p>Query a full trace with <code>where("correlationId", "==", X)</code>. The root event within the results is the one where <code>id === correlationId</code>.</p>
       </div>
     </section>
@@ -957,49 +958,54 @@
       <div class="split-pane">
         <div class="split-pane-header">
           <span class="badge badge-platform">Platform</span>
-          <span>platform/audit/auditLog.ts</span>
+          <span>platform/audit/record.ts</span>
         </div>
-<pre><code><span class="tok-k">import</span> diff, { <span class="tok-t">Difference</span> } <span class="tok-k">from</span> <span class="tok-s">"microdiff"</span>;
+<pre><code><span class="tok-k">import</span> admin <span class="tok-k">from</span> <span class="tok-s">"firebase-admin"</span>;
+<span class="tok-k">import</span> diff <span class="tok-k">from</span> <span class="tok-s">"microdiff"</span>;
+<span class="tok-k">import</span> { <span class="tok-t">AuditEntry</span>, <span class="tok-t">AuditEntrySchema</span>, <span class="tok-t">TargetType</span> } <span class="tok-k">from</span> <span class="tok-s">"./types"</span>;
 
-<span class="tok-k">export interface</span> <span class="tok-t">AuditEntry</span> {
-  <span class="tok-v">action</span>: <span class="tok-t">string</span>;             <span class="tok-c">// "order.status_changed"</span>
-  <span class="tok-v">actorId</span>: <span class="tok-t">string</span>;            <span class="tok-c">// user id or "system"</span>
-  <span class="tok-v">targetType</span>: <span class="tok-t">string</span>;         <span class="tok-c">// "order"</span>
-  <span class="tok-v">targetId</span>: <span class="tok-t">string</span>;           <span class="tok-c">// the order id</span>
-  <span class="tok-v">diff</span>?: <span class="tok-t">Difference</span>[];         <span class="tok-c">// only what changed</span>
-  <span class="tok-v">summary</span>?: <span class="tok-t">string</span>;           <span class="tok-c">// human-readable "status: pending → paid"</span>
-  <span class="tok-v">companyId</span>: <span class="tok-t">string</span>;
-  <span class="tok-v">storeId</span>: <span class="tok-t">string</span>;
-  <span class="tok-v">ip</span>?: <span class="tok-t">string</span>;
-  <span class="tok-v">userAgent</span>?: <span class="tok-t">string</span>;
-}
-
-<span class="tok-k">export const</span> <span class="tok-v">auditLog</span> = {
-  <span class="tok-k">async</span> <span class="tok-f">recordChange</span>(params: {
-    action: <span class="tok-t">string</span>;
-    before: <span class="tok-k">unknown</span>;
-    after: <span class="tok-k">unknown</span>;
+<span class="tok-k">export function</span> <span class="tok-f">record</span>(
+  tx: <span class="tok-t">FirebaseFirestore.Transaction</span>,
+  params: {
+    eventType: <span class="tok-t">string</span>;
     actorId: <span class="tok-t">string</span>;
-    targetType: <span class="tok-t">string</span>;
+    targetType: <span class="tok-t">TargetType</span>;
     targetId: <span class="tok-t">string</span>;
+    before?: <span class="tok-k">unknown</span>;
+    after?: <span class="tok-k">unknown</span>;
+    summary?: <span class="tok-t">string</span>;
     companyId: <span class="tok-t">string</span>;
     storeId: <span class="tok-t">string</span>;
-  }): <span class="tok-t">Promise</span>&lt;<span class="tok-k">void</span>&gt; {
-    <span class="tok-k">await</span> db.collection(<span class="tok-s">"audit_log"</span>).add({
-      ...params,
-      diff: <span class="tok-f">diff</span>(params.before <span class="tok-k">as any</span>, params.after <span class="tok-k">as any</span>),
-      at: <span class="tok-t">Date</span>.now(),
-    });
+    metadata?: { ip?: <span class="tok-t">string</span>; userAgent?: <span class="tok-t">string</span> };
+    correlationId?: <span class="tok-t">string</span>;
   },
+): <span class="tok-t">FirebaseFirestore.DocumentReference</span> {
+  <span class="tok-k">const</span> db = admin.firestore();
+  <span class="tok-k">const</span> path = <span class="tok-s">`${params.companyId}/${params.storeId}/audit_log`</span>;
+  <span class="tok-k">const</span> ref = db.collection(path).doc();
 
-  <span class="tok-k">async</span> <span class="tok-f">queryByTarget</span>(<span class="tok-v">type</span>: <span class="tok-t">string</span>, <span class="tok-v">id</span>: <span class="tok-t">string</span>) {
-    <span class="tok-k">return</span> db.collection(<span class="tok-s">"audit_log"</span>)
-      .where(<span class="tok-s">"targetType"</span>, <span class="tok-s">"=="</span>, type)
-      .where(<span class="tok-s">"targetId"</span>, <span class="tok-s">"=="</span>, id)
-      .orderBy(<span class="tok-s">"at"</span>, <span class="tok-s">"desc"</span>)
-      .get();
-  },
-};</code></pre>
+  <span class="tok-k">const</span> entry: <span class="tok-t">AuditEntry</span> = {
+    id: ref.id,
+    eventType: params.eventType,
+    actorId: params.actorId,
+    targetType: params.targetType,
+    targetId: params.targetId,
+    diff: params.before !== <span class="tok-k">undefined</span> &amp;&amp; params.after !== <span class="tok-k">undefined</span>
+      ? diff(params.before <span class="tok-k">as</span> Record&lt;<span class="tok-t">string</span>, <span class="tok-k">unknown</span>&gt;, params.after <span class="tok-k">as</span> Record&lt;<span class="tok-t">string</span>, <span class="tok-k">unknown</span>&gt;)
+      : <span class="tok-k">undefined</span>,
+    summary: params.summary,
+    companyId: params.companyId,
+    storeId: params.storeId,
+    createdAt: <span class="tok-t">Date</span>.now(),
+    metadata: params.metadata,
+    correlationId: params.correlationId,
+  };
+
+  AuditEntrySchema.parse(entry);
+
+  tx.set(ref, entry);
+  <span class="tok-k">return</span> ref;
+}</code></pre>
       </div>
     </section>
 

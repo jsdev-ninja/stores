@@ -31,6 +31,8 @@ EVENT BUS FOLLOWUPS
 
 - Event Bus: add dead-letter pattern with max-attempt tracking. Current `retry: true` retries for 7 days on permanent errors.
 - Event Bus: establish central event-type registry (const or zod union) before second emitter lands — prevents `order.placed` vs `orderPlaced` drift.
+- Platform: add `SchemaValidationError` class used by `emit` and `audit.record` in place of raw `ZodError`. Thrown when envelope/payload fails zod validation. Non-retryable signal.
+- Platform: max 3 retries for subscribers across the board. Implementation: `subscribe.ts` wraps every handler in a try/catch that (a) skips retry entirely when caught error is `SchemaValidationError`, (b) bumps a per-(subscriber, event) attempt counter at `{companyId}/{storeId}/_subscriber_attempts/{subscriberName}__{eventId}`, (c) stops retrying once attempts > 3. Handlers never see this — platform logic only.
 
 FIRESTORE RULES REWRITE (dedicated project, do separately from refactor)
 

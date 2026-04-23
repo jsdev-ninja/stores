@@ -46,7 +46,7 @@ async function placeOrderExample(
 	await db.runTransaction(async (tx) => {
 		tx.update(orderRef, { status: "placed" });
 
-		emit<OrderPlacedPayload>(tx, {
+		const placedEvent = emit<OrderPlacedPayload>(tx, {
 			type: OrderEvents.placed,
 			payload: input.payload,
 			companyId: input.companyId,
@@ -54,6 +54,7 @@ async function placeOrderExample(
 			actorId: `user:${input.userId}`,
 			source: "orders",
 		});
+		// placedEvent.id, placedEvent.correlationId, etc. available for downstream use
 	});
 }
 
@@ -109,7 +110,7 @@ export const exampleFulfillmentPropagatesTrace = subscribe(
 		await db.runTransaction(async (tx) => {
 			// ... do work ...
 
-			emit(tx, {
+			const downstream = emit(tx, {
 				type: "fulfillment.delivery_note_created",
 				payload: { orderId: event.payload.orderId },
 				companyId: ctx.companyId,
@@ -117,6 +118,8 @@ export const exampleFulfillmentPropagatesTrace = subscribe(
 				correlationId: event.correlationId,
 				source: "fulfillment",
 			});
+			// `downstream` is the full StoredEvent — use its fields as needed
+			void downstream;
 		});
 	},
 );

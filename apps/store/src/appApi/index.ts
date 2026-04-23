@@ -762,7 +762,9 @@ export const useAppApi = () => {
 					clientId,
 					{
 						organizationId,
-						organizationIds: FirebaseApi.firestore.arrayUnion(organizationId) as unknown as string[],
+						organizationIds: FirebaseApi.firestore.arrayUnion(
+							organizationId,
+						) as unknown as string[],
 						lastActivityDate: Date.now(),
 					},
 					FirebaseAPI.firestore.getPath({
@@ -2148,7 +2150,10 @@ export const useAppApi = () => {
 			},
 		},
 		chatbot: {
-			sendMessage: async (prompt: string, history: { role: "user" | "bot"; text: string }[] = []) => {
+			sendMessage: async (
+				prompt: string,
+				history: { role: "user" | "bot"; text: string }[] = [],
+			) => {
 				return await FirebaseApi.api.chatbotChat(prompt, history, {
 					cartId: cart?.id ?? "",
 					companyId,

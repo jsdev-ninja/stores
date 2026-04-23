@@ -20,6 +20,8 @@ admin.initializeApp({
 	storageBucket: "jsdev-stores-prod.appspot.com",
 });
 
+admin.firestore().settings({ ignoreUndefinedProperties: true });
+
 export const uiLogs = functionsV2.https.onCall((opts) => {
 	const { data } = opts;
 	functionsV2.logger.write(data);

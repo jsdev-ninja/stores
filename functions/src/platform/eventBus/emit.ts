@@ -4,7 +4,7 @@ import { StoredEvent, StoredEventSchema } from "./types";
 export function emit<T = unknown>(
 	tx: FirebaseFirestore.Transaction,
 	event: Omit<StoredEvent<T>, "id" | "createdAt">,
-): FirebaseFirestore.DocumentReference {
+): StoredEvent<T> {
 	const db = admin.firestore();
 	const path = `${event.companyId}/${event.storeId}/events`;
 	const ref = db.collection(path).doc();
@@ -20,5 +20,5 @@ export function emit<T = unknown>(
 	StoredEventSchema.parse({ ...stored, payload: stored.payload });
 
 	tx.set(ref, stored);
-	return ref;
+	return stored;
 }
