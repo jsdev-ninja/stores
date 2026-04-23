@@ -1,6 +1,6 @@
 import admin from "firebase-admin";
 import { emit } from "../eventBus";
-import { record, TargetType } from "./index";
+import { record } from "./index";
 
 // ──────────────────────────────────────────────────────────────
 // 1. Record a change inside the same transaction as the state write.
@@ -26,10 +26,6 @@ async function exampleChangeOrderStatus(
 		tx.update(orderRef, { status: input.newStatus });
 
 		const after = { ...before, status: input.newStatus };
-
-		// TargetType is a Zod enum derived from storeCollections keys.
-		// TypeScript will catch invalid values at compile time.
-		const targetType: TargetType = "orders";
 
 		record(tx, {
 			eventType: "order.status_changed",

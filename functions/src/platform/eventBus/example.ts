@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import { z } from "zod";
+import { logger } from "firebase-functions/v2";
 import { emit, subscribe, StoredEvent } from "./index";
 
 // ──────────────────────────────────────────────────────────────
@@ -118,8 +119,10 @@ export const exampleFulfillmentPropagatesTrace = subscribe(
 				correlationId: event.correlationId,
 				source: "fulfillment",
 			});
-			// `downstream` is the full StoredEvent — use its fields as needed
-			void downstream;
+			logger.info("fulfillment.downstream_emitted", {
+				downstreamEventId: downstream.id,
+				correlationId: downstream.correlationId,
+			});
 		});
 	},
 );

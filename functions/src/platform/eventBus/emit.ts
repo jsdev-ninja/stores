@@ -17,7 +17,7 @@ export function emit<T = unknown>(
 	};
 
 	// Validate the full envelope before writing. Throws ZodError on invalid input.
-	StoredEventSchema.parse({ ...stored, payload: stored.payload });
+	StoredEventSchema.parse(stored);
 
 	tx.set(ref, stored);
 	return stored;

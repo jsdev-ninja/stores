@@ -1,7 +1,6 @@
 import admin from "firebase-admin";
 import diff from "microdiff";
-import { AuditEntry, AuditEntrySchema } from "./types";
-import { TargetType } from "./types";
+import { AuditEntry, AuditEntrySchema, TargetType } from "./types";
 
 export function record(
 	tx: FirebaseFirestore.Transaction,
