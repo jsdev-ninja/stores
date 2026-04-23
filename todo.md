@@ -31,6 +31,10 @@ EVENT BUS FOLLOWUPS
 
 - Event Bus: add dead-letter pattern with max-attempt tracking. Current `retry: true` retries for 7 days on permanent errors.
 - Event Bus: establish central event-type registry (const or zod union) before second emitter lands — prevents `order.placed` vs `orderPlaced` drift.
+
+FUTURE (OUT OF SCOPE, GOOD IDEAS)
+
+- **Hook registry** (`integration/hooks`) — synchronous extension points, handlers registered at named hook points like `order.before_create`, `order.after_create`, `order.calculate_shipping`. Unlike events (async), hooks run inline in the caller's flow. Useful when 2+ places want to inject behavior at the same moment, or for per-tenant customization (post-sandbox). Skip until there's a concrete "I need N handlers at this point" need — otherwise premature abstraction. Requires: in-memory `registerHook`/`runHook` + cold-start bootstrap that re-registers first-party hooks on every Cloud Function instance.
 - Platform: add `SchemaValidationError` class used by `emit` and `audit.record` in place of raw `ZodError`. Thrown when envelope/payload fails zod validation. Non-retryable signal.
 - Platform: max 3 retries for subscribers across the board. Implementation: `subscribe.ts` wraps every handler in a try/catch that (a) skips retry entirely when caught error is `SchemaValidationError`, (b) bumps a per-(subscriber, event) attempt counter at `{companyId}/{storeId}/_subscriber_attempts/{subscriberName}__{eventId}`, (c) stops retrying once attempts > 3. Handlers never see this — platform logic only.
 

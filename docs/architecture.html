@@ -2146,17 +2146,17 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <h3 style="margin-top: 0;">🧱 Folder scaffolding + ESLint boundaries</h3>
         <p class="tracker-meta">Empty <code>modules/*</code> and <code>integration/</code> stubs + <code>eslint-plugin-boundaries</code> config.</p>
 
-        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 0%;"></div></div>
-        <p class="tracker-meta">0 / 3 complete</p>
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 66%;"></div></div>
+        <p class="tracker-meta">2 / 3 complete</p>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-status tracker-done">✅</span>
           <span class="tracker-text">Create <code>modules/{catalog,cart,orders,payments,fulfillment,customers,budget}/index.ts</code> stubs (empty public barrels).</span>
         </div>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Create <code>integration/{webhooks,hooks,publicApi}/index.ts</code> stubs.</span>
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Create <code>integration/webhooks/index.ts</code> stub.</span>
         </div>
 
         <div class="tracker-item">
@@ -2185,24 +2185,6 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <div class="tracker-item">
           <span class="tracker-status tracker-todo">⬜</span>
           <span class="tracker-text">Dispatcher function wired but gated — fires only after Phase 2 events start appearing.</span>
-        </div>
-      </div>
-
-      <div class="tracker">
-        <h3 style="margin-top: 0;">🎯 Hook registry</h3>
-        <p class="tracker-meta">In-memory <code>registerHook</code> / <code>runHook</code>. Empty registry is a no-op.</p>
-
-        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 0%;"></div></div>
-        <p class="tracker-meta">0 / 2 complete</p>
-
-        <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Create <code>integration/hooks/</code> with <code>registerHook(name, handler)</code> and <code>runHook(name, input, ctx)</code>.</span>
-        </div>
-
-        <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Cold-start bootstrap file — re-registers first-party hooks on every Cloud Function cold start (deterministic across instances).</span>
         </div>
       </div>
 
