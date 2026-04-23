@@ -779,7 +779,7 @@
         <table>
           <tr><td><strong>tenancy/</strong></td><td>Who is this request for? Resolves tenant from domain/origin.</td></tr>
           <tr><td><strong>auth/</strong></td><td>JWT verification, role checks, scope validation.</td></tr>
-          <tr><td><strong>db/</strong></td><td>Typed Firestore wrapper that requires a tenant context. Every query is <code>tenantDb(ctx).orders()</code> — there is no way to query without <code>companyId + storeId</code>. Raw <code>firebase-admin/firestore</code> imports banned by ESLint outside this folder. Paths match current structure: <code>{companyId}/{storeId}/{collection}</code>.</td></tr>
+          <tr><td><strong>db/</strong></td><td>Typed Firestore wrapper that requires a tenant context. Every query goes through <code>tenantDb(ctx).collection("orders")</code>, <code>.doc("orders", id)</code>, <code>.subcollection(...)</code>, or <code>.subdoc(...)</code> — there is no way to query without <code>companyId + storeId</code>. Collection names are constrained to <code>keyof typeof storeCollections</code> at compile time. Raw <code>firebase-admin/firestore</code> imports banned by ESLint outside this folder. Paths match current structure: <code>{companyId}/{storeId}/{collection}</code>. <em>platform/db — done.</em></td></tr>
           <tr><td><strong>eventBus/</strong></td><td>Emit domain events transactionally, subscribe handlers.</td></tr>
           <tr><td><strong>workflow/</strong></td><td>Durable multi-step processes (saga pattern).</td></tr>
           <tr><td><strong>audit/</strong></td><td>Append-only log of every significant action.</td></tr>
@@ -2035,10 +2035,10 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 
         <div class="tracker-item">
           <span class="tracker-status tracker-done">✅</span>
-          <span class="tracker-text">Add <code>eventId + handlerName</code> helpers for idempotency guard (natural-key writes and event-id guard patterns).</span>
+          <span class="tracker-text">~~Idempotency helpers~~ — <strong>decided not to ship</strong>. Handlers are responsible for their own idempotency via natural-key writes (e.g. delivery note keyed by orderId). See example.ts section 3.</span>
         </div>
 
-        <h4>Phase 2 — First emitter</h4>
+        <h4>Phase 2 — First emitter <span class="tracker-meta" style="display:inline;">(deferred — still adding safe layers first)</span></h4>
 
         <div class="tracker-item">
           <span class="tracker-status tracker-todo">⬜</span>
@@ -2070,6 +2070,139 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <div class="tracker-item">
           <span class="tracker-status tracker-todo">⬜</span>
           <span class="tracker-text">Remove direct call; subscriber is the only path. Ship.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">📝 Audit Log</h3>
+        <p class="tracker-meta">Backend-only. Diff-based (<code>microdiff</code>), per-store path. Nothing imports it yet.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 100%;"></div></div>
+        <p class="tracker-meta">4 / 4 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Create <code>platform/audit/</code> folder with <code>types.ts</code>, <code>record.ts</code>, <code>index.ts</code>, <code>example.ts</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>AuditEntrySchema</code> (zod) — fields: <code>id, eventType, actorId, targetType, targetId, diff?, summary?, companyId, storeId, createdAt, metadata? { ip?, userAgent? }, correlationId?</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>TargetType</code> zod enum derived from <code>storeCollections</code> (typo-safe).</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>record(tx, params)</code> — transaction-required, computes diff via <code>microdiff</code>, validates with <code>AuditEntrySchema.parse</code>, returns full <code>AuditEntry</code> for chaining <code>correlationId</code>.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">⚙️ Firestore global settings</h3>
+        <p class="tracker-meta">Project-wide config tweak.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 100%;"></div></div>
+        <p class="tracker-meta">1 / 1 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>admin.firestore().settings({ ignoreUndefinedProperties: true })</code> in <code>functions/src/index.tsx</code> — optional fields (e.g. <code>correlationId?</code>, <code>metadata?</code>) no longer throw on write.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">🛡️ Tenant-scoped DB wrapper (<code>platform/db</code>)</h3>
+        <p class="tracker-meta">Typed Firestore wrapper. Makes tenantless queries impossible by construction. New helper — existing code keeps using raw <code>admin.firestore()</code>.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 100%;"></div></div>
+        <p class="tracker-meta">4 / 4 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Create <code>platform/db/</code> folder with <code>types.ts</code>, <code>tenantDb.ts</code>, <code>index.ts</code>, <code>example.ts</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>TenantCtxSchema</code> (zod) + <code>CollectionName = keyof typeof storeCollections</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>tenantDb(ctx)</code> factory — returns <code>{ collection, doc, subcollection, subdoc }</code>. Collection names constrained to <code>storeCollections</code> keys.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>example.ts</code> showing 4 patterns: fetch, query, subcollection, combined-with-transaction.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">🧱 Folder scaffolding + ESLint boundaries</h3>
+        <p class="tracker-meta">Empty <code>modules/*</code> and <code>integration/</code> stubs + <code>eslint-plugin-boundaries</code> config.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 0%;"></div></div>
+        <p class="tracker-meta">0 / 3 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Create <code>modules/{catalog,cart,orders,payments,fulfillment,customers,budget}/index.ts</code> stubs (empty public barrels).</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Create <code>integration/{webhooks,hooks,publicApi}/index.ts</code> stubs.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Add <code>eslint-plugin-boundaries</code> + config — warn on existing code, error on new <code>platform/*</code> / <code>modules/*</code> / <code>integration/*</code> imports crossing boundaries.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">🪝 Webhooks — storage only</h3>
+        <p class="tracker-meta">New <code>webhookSubscription</code> collection + admin CRUD. Dispatcher stays disabled until events start firing in Phase 2.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 0%;"></div></div>
+        <p class="tracker-meta">0 / 3 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Create <code>integration/webhooks/</code> with subscription schema + CRUD endpoints.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Admin UI page for subscribers (list / create / delete / test).</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Dispatcher function wired but gated — fires only after Phase 2 events start appearing.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">🎯 Hook registry</h3>
+        <p class="tracker-meta">In-memory <code>registerHook</code> / <code>runHook</code>. Empty registry is a no-op.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 0%;"></div></div>
+        <p class="tracker-meta">0 / 2 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Create <code>integration/hooks/</code> with <code>registerHook(name, handler)</code> and <code>runHook(name, input, ctx)</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Cold-start bootstrap file — re-registers first-party hooks on every Cloud Function cold start (deterministic across instances).</span>
         </div>
       </div>
 
