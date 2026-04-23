@@ -31,6 +31,7 @@ EVENT BUS FOLLOWUPS
 
 - Event Bus: add dead-letter pattern with max-attempt tracking. Current `retry: true` retries for 7 days on permanent errors.
 - Event Bus: establish central event-type registry (const or zod union) before second emitter lands — prevents `order.placed` vs `orderPlaced` drift.
+- Once order email + cart-close move to subscribers (Phase 3+), change `onOrderCreated` and `onOrderUpdate` to rethrow on emit failure so Firebase retries. Currently swallowed to avoid double-email / double-cart-close.
 
 FUTURE (OUT OF SCOPE, GOOD IDEAS)
 

@@ -2003,8 +2003,8 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <h3 style="margin-top: 0;">🚌 Event Bus (Outbox Pattern)</h3>
         <p class="tracker-meta">Backend-only. Ships as dead code — zero production impact until an emitter/subscriber opts in.</p>
 
-        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 42%;"></div></div>
-        <p class="tracker-meta">5 / 12 complete</p>
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 50%;"></div></div>
+        <p class="tracker-meta">6 / 12 complete</p>
 
         <h4>Phase 1 — Foundation (dead code)</h4>
 
@@ -2041,7 +2041,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <h4>Phase 2 — First emitter <span class="tracker-meta" style="display:inline;">(deferred — still adding safe layers first)</span></h4>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-status tracker-done">✅</span>
           <span class="tracker-text">Identify existing order creation path. Add single <code>emit(tx, { type: "order.placed", ... })</code> line inside its existing transaction. No subscribers yet — verify events start appearing in Firestore.</span>
         </div>
 
