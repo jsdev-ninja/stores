@@ -13,6 +13,7 @@ module.exports = {
 		"plugin:@typescript-eslint/recommended",
 		"prettier",
 	],
+	plugins: ["boundaries"],
 	parser: "@typescript-eslint/parser",
 	parserOptions: {
 		project: ["tsconfig.json", "tsconfig.dev.json"],
@@ -26,6 +27,27 @@ module.exports = {
 		"**/dev-preview/**",
 		"**/dist/dev-preview*",
 	],
+	settings: {
+		"boundaries/elements": [
+			{ type: "platform",    pattern: "src/platform/*",    mode: "folder" },
+			{ type: "module",      pattern: "src/modules/*",     mode: "folder" },
+			{ type: "integration", pattern: "src/integration/*", mode: "folder" },
+			{ type: "legacy", pattern: [
+				"src/api/**",
+				"src/appApi/**",
+				"src/services/**",
+				"src/events/**",
+				"src/emails/**",
+				"src/emails-preview/**",
+				"src/schema/**",
+				"src/core/**",
+				"src/index.tsx",
+			]},
+		],
+		"boundaries/ignore": [
+			"src/**/example.ts",  // dead-code reference files — exempt from boundary rules
+		],
+	},
 	rules: {
 		quotes: "off",
 		"import/no-unresolved": 0,
@@ -39,5 +61,49 @@ module.exports = {
 		"operator-linebreak": "off",
 		"@typescript-eslint/no-explicit-any": "off",
 		camelcase: "off",
+		"boundaries/element-types": ["error", {
+			default: "disallow",
+			rules: [
+				// Platform is the base — can import other platform only (e.g. audit uses eventBus)
+				{ from: ["platform"], allow: ["platform"] },
+
+				// Modules can import platform + other modules (via their public index)
+				{ from: ["module"], allow: ["platform", "module"] },
+
+				// Integration can import platform + modules
+				{ from: ["integration"], allow: ["platform", "module"] },
+
+				// Legacy can import anything — warn-only via overrides
+				{ from: ["legacy"], allow: ["platform", "module", "integration", "legacy"] },
+			],
+		}],
+		"boundaries/entry-point": ["error", {
+			default: "disallow",
+			rules: [
+				{ target: ["module"],      allow: "index.ts" },
+				{ target: ["platform"],    allow: "index.ts" },
+				{ target: ["integration"], allow: "index.ts" },
+				{ target: ["legacy"],      allow: "*" },
+			],
+		}],
 	},
+	overrides: [
+		{
+			files: [
+				"src/api/**",
+				"src/appApi/**",
+				"src/services/**",
+				"src/events/**",
+				"src/emails/**",
+				"src/emails-preview/**",
+				"src/schema/**",
+				"src/core/**",
+				"src/index.tsx",
+			],
+			rules: {
+				"boundaries/element-types": "warn",
+				"boundaries/entry-point": "warn",
+			},
+		},
+	],
 };
