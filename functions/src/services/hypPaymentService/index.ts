@@ -120,7 +120,7 @@ export const hypPaymentService = {
 				sendemail: "True",
 				heshDesc: params.heshDesc,
 				Pritim: params.Pritim,
-				blockItemValidation: "True",
+				blockItemValidation: "False",
 			});
 
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
@@ -154,7 +154,7 @@ export const hypPaymentService = {
 				message: "hypPaymentService.createPaymentLink",
 				params,
 			});
-			const queryString = objectToQueryParams({ ...params, blockItemValidation: "True" });
+			const queryString = objectToQueryParams({ ...params, blockItemValidation: "False" });
 
 			const url = `${baseUrl}?${queryString}`;
 
