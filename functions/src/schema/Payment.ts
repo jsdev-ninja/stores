@@ -43,6 +43,7 @@ export const HypSoftTransactionRequestSchema = PayProtocolGeneralSchema.extend({
 	sendemail: z.string().optional(),
 	email: z.string().optional(),
 	Pritim: z.string(),
+	blockItemValidation: z.string().optional(),
 	heshDesc: z.string().optional(),
 	// CC2
 	// Coin
@@ -117,6 +118,7 @@ export const HypPaymentLinkRequestSchema = PayProtocolGeneralSchema.extend({
 	SendHesh: hypBooleanSchema.optional(), // send invoice in email
 	heshDesc: textSchema.optional(), // [0~Item 1~1~8][0~Item 2~2~1]
 	Pritim: hypBooleanSchema.optional(), // The invoice description contains items
+	blockItemValidation: hypBooleanSchema.optional(),
 
 	// client data
 	UserId: numericTextSchema,
