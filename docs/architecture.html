@@ -364,6 +364,22 @@
   .pill-blue { background: #dbeafe; color: #1e40af; }
   .pill-purple { background: #ede9fe; color: #5b21b6; }
 
+  /* Change markers */
+  .mark {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+  .mark-safe { background: #d1fae5; color: #065f46; }
+  .mark-breaking { background: #fee2e2; color: #991b1b; }
+  .mark-deferred { background: #fef3c7; color: #92400e; }
+
   /* Status bar */
   .status-bar {
     display: grid;
@@ -470,6 +486,28 @@
         <p>Don't fork your codebase for clients. Build <strong>hooks, events, and webhooks</strong>. That's the one decision that separates a <em>product</em> from a <em>consulting project</em>.</p>
       </div>
 
+      <div class="callout callout-danger">
+        <div class="callout-title">🚫 Zero Breaking Changes Constraint</div>
+        <p>Production store is live. This refactor <strong>must not break anything</strong>. Every section below is tagged:</p>
+        <p style="margin-top: 10px;">
+          <span class="mark mark-safe">SAFE</span> additive only — do now. No data changes, no API contract changes.<br>
+          <span class="mark mark-deferred">DEFERRED</span> valuable but needs design — do later, in a dedicated phase.<br>
+          <span class="mark mark-breaking">BREAKING</span> requires data migration or contract change — do NOT do now.
+        </p>
+        <p style="margin-top: 10px;"><strong>Start with SAFE only.</strong> BREAKING items stay in the plan so we know where we're going.</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Current Firestore Structure (preserved as-is)</div>
+        <p>The refactor does <strong>not</strong> rename, move, or restructure any Firestore paths. Current layout stays:</p>
+        <ul style="margin-left: 20px; margin-top: 8px;">
+          <li><code>COMPANIES</code>, <code>STORES</code> — admin/system config (uppercase, admin-only writes)</li>
+          <li><code>{companyId}/{storeId}/{collection}</code> — all client-writable data (products, orders, cart, clients, profiles, organizations, invoices, suppliers, budgetAccounts, etc.)</li>
+          <li><code>STORES/{storeId}/private/data</code> — HYP + ezCount credentials</li>
+        </ul>
+        <p><strong>Tenancy:</strong> 1 Firebase project, 1 Firebase Auth tenant per store. Store is resolved from incoming domain on the client, passed to backend as <code>storeId</code>. Backend validates the domain→store mapping (hardening this is a SAFE improvement).</p>
+      </div>
+
       <div class="status-bar">
         <div class="status-item">
           <div class="status-num">5</div>
@@ -496,7 +534,7 @@
 
     <!-- LAYERS -->
     <section id="layers">
-      <h2>The 5 Layers</h2>
+      <h2>The 5 Layers <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">Every request flows top-to-bottom. Every layer has strict rules about who it can talk to.</p>
 
       <div class="layer-stack">
@@ -525,7 +563,7 @@
 
     <!-- RULES -->
     <section id="rules">
-      <h2>Architecture Rules</h2>
+      <h2>Architecture Rules <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">The golden rules. Enforce these with ESLint <code>no-restricted-imports</code>.</p>
 
       <table class="rules-table">
@@ -573,8 +611,8 @@
 
     <!-- FOLDER TREE -->
     <section id="tree">
-      <h2>Full Folder Structure</h2>
-      <p class="lead">The target monorepo layout.</p>
+      <h2>Full Folder Structure <span class="mark mark-safe">SAFE</span></h2>
+      <p class="lead">The target monorepo layout. Moving files does not change runtime behavior — the Firestore paths stay identical.</p>
 
       <pre class="tree"><span class="folder">@jsdev-store/</span>
 ├── <span class="folder">apps/</span>                                    <span class="comment"># Layer 4 &amp; 5 — Frontends</span>
@@ -658,8 +696,9 @@
 
     <!-- PLATFORM -->
     <section id="platform">
-      <h2>Layer 1 — Platform <span class="tag">backend only</span></h2>
+      <h2>Layer 1 — Platform <span class="tag">backend only</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">The foundation. Nobody in business logic touches the database directly or implements their own auth. Everyone uses <code>platform/*</code>.</p>
+      <p class="lead">All <code>platform/*</code> helpers are <strong>new, additive</strong>. Existing code can migrate to them gradually — no forced cutover.</p>
 
       <div class="card">
         <div class="card-header">
@@ -673,7 +712,7 @@
         <table>
           <tr><td><strong>tenancy/</strong></td><td>Who is this request for? Resolves tenant from domain/origin.</td></tr>
           <tr><td><strong>auth/</strong></td><td>JWT verification, role checks, scope validation.</td></tr>
-          <tr><td><strong>db/</strong></td><td>Typed Firestore wrapper. Collection paths in one place.</td></tr>
+          <tr><td><strong>db/</strong></td><td>Typed Firestore wrapper that requires a tenant context. Every query is <code>tenantDb(ctx).orders()</code> — there is no way to query without <code>companyId + storeId</code>. Raw <code>firebase-admin/firestore</code> imports banned by ESLint outside this folder. Paths match current structure: <code>{companyId}/{storeId}/{collection}</code>.</td></tr>
           <tr><td><strong>eventBus/</strong></td><td>Emit domain events transactionally, subscribe handlers.</td></tr>
           <tr><td><strong>workflow/</strong></td><td>Durable multi-step processes (saga pattern).</td></tr>
           <tr><td><strong>audit/</strong></td><td>Append-only log of every significant action.</td></tr>
@@ -687,7 +726,8 @@
 
     <!-- EVENT BUS -->
     <section id="event-bus">
-      <h3>Event Bus (Firestore-backed, Outbox Pattern)</h3>
+      <h3>Event Bus (Firestore-backed, Outbox Pattern) <span class="mark mark-safe">SAFE</span></h3>
+      <p>New <code>events/</code> collection + new triggers. Does not touch existing data. Existing code keeps working; modules opt in one by one.</p>
 
       <div class="split">
         <div class="split-pane">
@@ -721,13 +761,11 @@
   });
 }
 
-<span class="tok-c">/** Standalone emit (NOT transactional — use sparingly) */</span>
-<span class="tok-k">export async function</span> <span class="tok-f">emit</span>(<span class="tok-v">event</span>: <span class="tok-t">DomainEvent</span>) {
-  <span class="tok-k">await</span> db.collection(<span class="tok-s">"events"</span>).add({
-    ...event,
-    createdAt: <span class="tok-t">Date</span>.now(),
-  });
-}</code></pre>
+<span class="tok-c">/** No standalone emit() — it breaks the outbox guarantee.
+ *  If you don't have a transaction, make one:
+ *     await db.runTransaction(tx =&gt; emitInTransaction(tx, event));
+ *  One API, no footguns.
+ */</span></code></pre>
         </div>
 
         <div class="split-pane">
@@ -771,33 +809,67 @@
         <div class="callout-title">Why this pattern?</div>
         <p><strong>Outbox pattern</strong>: writing the event in the same transaction as the state change guarantees consistency. Either both succeed, or both fail. <strong>Firestore triggers</strong> then fan out to subscribers with automatic retries.</p>
       </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ Subscribers must be idempotent (at-least-once delivery)</div>
+        <p>Firestore triggers retry on failure. Your subscriber may run 2+ times for the same event. <strong>Rule:</strong> every side effect must be safe to repeat. Two patterns:</p>
+        <p style="margin-top: 10px;"><strong>Pattern A — natural-key writes</strong> (for creates):</p>
+<pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code><span class="tok-k">async function</span> <span class="tok-f">createDeliveryNote</span>(orderId) {
+  <span class="tok-k">const</span> ref = db.doc(<span class="tok-s">`delivery_notes/</span>${orderId}<span class="tok-s">`</span>);  <span class="tok-c">// keyed by orderId</span>
+  <span class="tok-k">const</span> existing = <span class="tok-k">await</span> ref.get();
+  <span class="tok-k">if</span> (existing.exists) <span class="tok-k">return</span> existing.data();    <span class="tok-c">// already done, no-op</span>
+  <span class="tok-k">await</span> ref.create({ orderId, ... });
+}</code></pre>
+        <p style="margin-top: 10px;"><strong>Pattern B — event-id guard in transaction</strong> (for counters / shared aggregates):</p>
+<pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code><span class="tok-k">await</span> db.runTransaction(<span class="tok-k">async</span> (tx) =&gt; {
+  <span class="tok-k">const</span> applied = <span class="tok-k">await</span> tx.get(db.doc(<span class="tok-s">`stats_applied/</span>${event.id}<span class="tok-s">`</span>));
+  <span class="tok-k">if</span> (applied.exists) <span class="tok-k">return</span>;                    <span class="tok-c">// already counted</span>
+  <span class="tok-c">// ... update shared counter ...</span>
+  tx.set(db.doc(<span class="tok-s">`stats_applied/</span>${event.id}<span class="tok-s">`</span>), { at: <span class="tok-t">Date</span>.now() });
+});</code></pre>
+      </div>
     </section>
 
     <!-- AUDIT -->
     <section id="audit">
-      <h3>Audit Log</h3>
+      <h3>Audit Log <span class="mark mark-safe">SAFE</span></h3>
+      <p>New collection. Business record of every meaningful action, shown to merchants in the admin UI (Order History tab, etc.). <strong>Not</strong> GCP Cloud Logging — that's for engineering debugging, this is the product-level audit trail with long retention.</p>
+      <p>Stores a <strong>diff only</strong> (via <code>microdiff</code>) — not full before/after — to keep docs small and reduce PII exposure.</p>
 
       <div class="split-pane">
         <div class="split-pane-header">
           <span class="badge badge-platform">Platform</span>
           <span>platform/audit/auditLog.ts</span>
         </div>
-<pre><code><span class="tok-k">export interface</span> <span class="tok-t">AuditEntry</span> {
-  <span class="tok-v">action</span>: <span class="tok-t">string</span>;          <span class="tok-c">// "order.status_changed"</span>
-  <span class="tok-v">actorId</span>: <span class="tok-t">string</span>;         <span class="tok-c">// user id or "system"</span>
-  <span class="tok-v">targetType</span>: <span class="tok-t">string</span>;      <span class="tok-c">// "order"</span>
-  <span class="tok-v">targetId</span>: <span class="tok-t">string</span>;        <span class="tok-c">// the order id</span>
-  <span class="tok-v">before</span>?: <span class="tok-k">any</span>;             <span class="tok-c">// state before change</span>
-  <span class="tok-v">after</span>?: <span class="tok-k">any</span>;              <span class="tok-c">// state after change</span>
-  <span class="tok-v">tenantId</span>: <span class="tok-t">string</span>;
+<pre><code><span class="tok-k">import</span> diff, { <span class="tok-t">Difference</span> } <span class="tok-k">from</span> <span class="tok-s">"microdiff"</span>;
+
+<span class="tok-k">export interface</span> <span class="tok-t">AuditEntry</span> {
+  <span class="tok-v">action</span>: <span class="tok-t">string</span>;             <span class="tok-c">// "order.status_changed"</span>
+  <span class="tok-v">actorId</span>: <span class="tok-t">string</span>;            <span class="tok-c">// user id or "system"</span>
+  <span class="tok-v">targetType</span>: <span class="tok-t">string</span>;         <span class="tok-c">// "order"</span>
+  <span class="tok-v">targetId</span>: <span class="tok-t">string</span>;           <span class="tok-c">// the order id</span>
+  <span class="tok-v">diff</span>?: <span class="tok-t">Difference</span>[];         <span class="tok-c">// only what changed</span>
+  <span class="tok-v">summary</span>?: <span class="tok-t">string</span>;           <span class="tok-c">// human-readable "status: pending → paid"</span>
+  <span class="tok-v">companyId</span>: <span class="tok-t">string</span>;
+  <span class="tok-v">storeId</span>: <span class="tok-t">string</span>;
   <span class="tok-v">ip</span>?: <span class="tok-t">string</span>;
   <span class="tok-v">userAgent</span>?: <span class="tok-t">string</span>;
 }
 
 <span class="tok-k">export const</span> <span class="tok-v">auditLog</span> = {
-  <span class="tok-k">async</span> <span class="tok-f">record</span>(<span class="tok-v">entry</span>: <span class="tok-t">AuditEntry</span>): <span class="tok-t">Promise</span>&lt;<span class="tok-k">void</span>&gt; {
+  <span class="tok-k">async</span> <span class="tok-f">recordChange</span>(params: {
+    action: <span class="tok-t">string</span>;
+    before: <span class="tok-k">unknown</span>;
+    after: <span class="tok-k">unknown</span>;
+    actorId: <span class="tok-t">string</span>;
+    targetType: <span class="tok-t">string</span>;
+    targetId: <span class="tok-t">string</span>;
+    companyId: <span class="tok-t">string</span>;
+    storeId: <span class="tok-t">string</span>;
+  }): <span class="tok-t">Promise</span>&lt;<span class="tok-k">void</span>&gt; {
     <span class="tok-k">await</span> db.collection(<span class="tok-s">"audit_log"</span>).add({
-      ...entry,
+      ...params,
+      diff: <span class="tok-f">diff</span>(params.before <span class="tok-k">as any</span>, params.after <span class="tok-k">as any</span>),
       at: <span class="tok-t">Date</span>.now(),
     });
   },
@@ -815,7 +887,8 @@
 
     <!-- MODULE: CATALOG -->
     <section id="module-catalog">
-      <h2>🛍️ Module: Catalog <span class="tag">Layer 2</span></h2>
+      <h2>🛍️ Module: Catalog <span class="tag">Layer 2</span> <span class="mark mark-safe">SAFE</span></h2>
+      <p>Reorganization only. Same Firestore paths, same doc shapes. Services move into <code>modules/catalog/internal/</code>, public API exposed via <code>index.ts</code>.</p>
       <p class="lead">Owns: Products, Variants, Categories, Inventory. Published events: <code>product.created</code>, <code>product.updated</code>, <code>inventory.changed</code>.</p>
 
       <h3>Folder Structure</h3>
@@ -970,7 +1043,7 @@
 
     <!-- MODULE: CART -->
     <section id="module-cart">
-      <h2>🛒 Module: Cart <span class="tag">Layer 2</span></h2>
+      <h2>🛒 Module: Cart <span class="tag">Layer 2</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">Owns: Carts. Uses: <code>catalogModule</code>, <code>pricingModule</code>. Published events: <code>cart.item_added</code>, <code>cart.abandoned</code>.</p>
 
       <h3>Side-by-side: Full Stack View</h3>
@@ -1095,10 +1168,16 @@
 
     <!-- MODULE: ORDERS -->
     <section id="module-orders">
-      <h2>📋 Module: Orders <span class="tag">Layer 2</span></h2>
+      <h2>📋 Module: Orders <span class="tag">Layer 2</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">Owns: Orders, state machine. Uses: <code>cart</code>, <code>payments</code>, <code>catalog</code>. Published events: <code>order.placed</code>, <code>order.fulfilled</code>, <code>order.cancelled</code>.</p>
 
-      <h3>State Machine</h3>
+      <div class="callout callout-warn">
+        <div class="callout-title">Keep single <code>status</code> field for now</div>
+        <p>Two-level state (order status + per-line-item status) is the right model for B2B (partial shipments, partial refunds), but migrating existing orders is a <span class="mark mark-breaking">BREAKING</span> data change. Stay with the current linear state for now. Revisit when a real use case forces it.</p>
+      </div>
+
+      <h3>State Machine <span class="mark mark-deferred">DEFERRED</span></h3>
+      <p>The strict transition table below is <strong>the target</strong>. Enforcing it on existing orders would reject any order in a state not listed — which could break production data. Land the transitions table as a <strong>read-only helper</strong> first (reject invalid new transitions, don't retroactively validate existing orders), then enforce fully once data is audited.</p>
       <div class="flow">
 draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_delivery ──&gt; delivered ──&gt; completed
               │           │          │                │                 │
@@ -1200,7 +1279,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 
     <!-- MODULE: PAYMENTS -->
     <section id="module-payments">
-      <h2>💳 Module: Payments <span class="tag">Layer 2</span></h2>
+      <h2>💳 Module: Payments <span class="tag">Layer 2</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">Owns: Payments, refunds. Abstraction over providers. Published events: <code>payment.authorized</code>, <code>payment.captured</code>, <code>payment.failed</code>, <code>payment.refunded</code>.</p>
 
       <h3>Provider Abstraction</h3>
@@ -1255,7 +1334,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 
     <!-- MODULE: FULFILLMENT -->
     <section id="module-fulfillment">
-      <h2>📦 Module: Fulfillment <span class="tag">Layer 2</span></h2>
+      <h2>📦 Module: Fulfillment <span class="tag">Layer 2</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">Owns: Delivery notes, invoices. Integrates with EzCount. Listens to order events, emits fulfillment events.</p>
 
       <div class="split">
@@ -1308,8 +1387,16 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 
     <!-- MODULE: CUSTOMERS -->
     <section id="module-customers">
-      <h2>👥 Module: Customers <span class="tag">Layer 2</span></h2>
+      <h2>👥 Module: Customers <span class="tag">Layer 2</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">Owns: Profiles, Organizations, billing accounts. Published events: <code>customer.registered</code>, <code>organization.member_added</code>.</p>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">Two known structure bugs (already in todo.md)</div>
+        <ul style="margin-left: 20px;">
+          <li><code>createCompany.ts:28</code> writes to <code>"profile"</code> (singular) — everywhere else uses <code>"profiles"</code>. Unify. <span class="mark mark-breaking">BREAKING</span> if docs exist under <code>profile/</code> — audit first.</li>
+          <li><code>organizations/{orgId}/actions</code> (audit log for orgs) lives at the top level with no store prefix. Should be <code>{companyId}/{storeId}/organizations/{orgId}/actions</code> so security rules can enforce store isolation. <span class="mark mark-breaking">BREAKING</span> — requires data migration.</li>
+        </ul>
+      </div>
 
       <div class="split">
         <div class="split-pane">
@@ -1369,7 +1456,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 
     <!-- MODULE: BUDGET -->
     <section id="module-budget">
-      <h2>💰 Module: Budget <span class="tag">Layer 2</span> <span class="tag">B2B</span></h2>
+      <h2>💰 Module: Budget <span class="tag">Layer 2</span> <span class="tag">B2B</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">B2B-specific. Tracks debt/credit per organization. Pure event-driven — listens to fulfillment &amp; payment events.</p>
 
       <div class="split">
@@ -1446,7 +1533,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 
     <!-- WEBHOOKS -->
     <section id="webhooks">
-      <h2>🪝 Webhooks <span class="tag">Layer 3</span> <span class="tag">Extensibility</span></h2>
+      <h2>🪝 Webhooks <span class="tag">Layer 3</span> <span class="tag">Extensibility</span> <span class="mark mark-safe">SAFE</span></h2>
       <p class="lead">Let merchants subscribe to your events via HTTP. The killer feature that makes you a platform.</p>
 
       <div class="split">
@@ -1546,59 +1633,31 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 
     <!-- PLUGINS -->
     <section id="plugins">
-      <h2>🔌 Plugins <span class="tag">Layer 3</span></h2>
-      <p class="lead">Per-tenant custom code. Activated via config. Runs inside your backend with scoped context.</p>
+      <h2>🔌 Plugins <span class="tag">Layer 3</span> <span class="mark mark-deferred">OUT OF SCOPE</span></h2>
+      <p class="lead">Third-party / merchant-authored plugins are <strong>not in scope</strong> for this refactor.</p>
 
-      <div class="split-pane">
-        <div class="split-pane-header">
-          <span class="badge badge-integration">Integration</span>
-          <span>plugins/acme-loyalty/index.ts</span>
-        </div>
-<pre><code><span class="tok-k">import</span> { definePlugin } <span class="tok-k">from</span> <span class="tok-s">"@storebrix/plugin-sdk"</span>;
-
-<span class="tok-k">export default</span> <span class="tok-f">definePlugin</span>({
-  name: <span class="tok-s">"acme-loyalty"</span>,
-  version: <span class="tok-s">"1.0.0"</span>,
-
-  <span class="tok-c">// Subscribe to events</span>
-  events: {
-    <span class="tok-s">"order.placed"</span>: <span class="tok-k">async</span> (event, ctx) =&gt; {
-      <span class="tok-k">const</span> points = <span class="tok-t">Math</span>.floor(event.payload.total / <span class="tok-n">10</span>);
-      <span class="tok-k">await</span> ctx.db.collection(<span class="tok-s">"loyalty"</span>).add({
-        customerId: event.payload.customerId,
-        points,
-        source: <span class="tok-s">"order"</span>,
-      });
-    },
-  },
-
-  <span class="tok-c">// Register hook handlers</span>
-  hooks: {
-    <span class="tok-s">"order.before_create"</span>: <span class="tok-k">async</span> (input, ctx) =&gt; {
-      <span class="tok-c">// Apply loyalty discount</span>
-      <span class="tok-k">const</span> customer = <span class="tok-k">await</span> ctx.customers.find(input.customerId);
-      <span class="tok-k">if</span> (customer.loyaltyTier === <span class="tok-s">"gold"</span>) {
-        input.discount = (input.discount || <span class="tok-n">0</span>) + <span class="tok-n">0.05</span>;
-      }
-      <span class="tok-k">return</span> input;
-    },
-  },
-
-  <span class="tok-c">// Add admin UI</span>
-  adminRoutes: [
-    {
-      path: <span class="tok-s">"/loyalty"</span>,
-      component: <span class="tok-s">"./admin/LoyaltyPage.tsx"</span>,
-    },
-  ],
-});</code></pre>
+      <div class="callout callout-warn">
+        <div class="callout-title">Why out of scope</div>
+        <p>Running untrusted code inside our Cloud Functions is a serious security problem — secrets exposure, crashes, network exfiltration, resource exhaustion. Doing it safely requires either a separate runtime (Cloud Run per plugin, V8 isolates, Workers) or a review/signing process. That's a dedicated project, not part of this refactor.</p>
+        <p style="margin-top: 10px;"><strong>For now:</strong> any custom behavior is first-party code that lives inside the modules. Extensibility is provided via <strong>webhooks</strong> (external systems subscribe via HTTP) and <strong>hook points</strong> (used only by first-party code).</p>
       </div>
     </section>
 
     <!-- HOOKS -->
     <section id="hooks">
-      <h2>🎯 Hook Points <span class="tag">Layer 3</span></h2>
-      <p class="lead">Synchronous extension points in your core flows. Plugins register handlers that run at these moments.</p>
+      <h2>🎯 Hook Points <span class="tag">Layer 3</span> <span class="mark mark-safe">SAFE</span></h2>
+      <p class="lead">Synchronous extension points in core flows. Used by first-party modules to compose behavior cleanly (plugin authoring is out of scope — see above).</p>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">Cold-start reload (Firebase Cloud Functions)</div>
+        <p>Cloud Functions run multiple instances. An in-memory <code>registry</code> map is per-process, not shared. Every cold start <strong>must</strong> re-register the same handlers deterministically — otherwise behavior varies by which instance serves the request.</p>
+<pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code><span class="tok-c">// platform/bootstrap.ts — runs at module load on every cold start</span>
+<span class="tok-k">import</span> { registerOrderHooks } <span class="tok-k">from</span> <span class="tok-s">"modules/orders/hooks"</span>;
+<span class="tok-k">import</span> { registerPricingHooks } <span class="tok-k">from</span> <span class="tok-s">"modules/pricing/hooks"</span>;
+<span class="tok-f">registerOrderHooks</span>();
+<span class="tok-f">registerPricingHooks</span>();
+<span class="tok-c">// same imports, same calls, every instance → deterministic</span></code></pre>
+      </div>
 
       <div class="split">
         <div class="split-pane">
@@ -1734,62 +1793,71 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
     <!-- MIGRATION -->
     <section id="migration">
       <h2>Migration Roadmap</h2>
-      <p class="lead">You don't need to rewrite. Do this incrementally.</p>
+      <p class="lead">Start safe. Land everything additive first. Anything marked BREAKING is deferred until we have a dedicated migration plan and backup.</p>
 
       <div class="card">
-        <h3>Stage 1 — Stop the Bleeding (1-2 months)</h3>
-        <p>Production safety before adding features:</p>
+        <h3>Stage 0 — Non-Breaking Foundation <span class="mark mark-safe">SAFE</span></h3>
+        <p>Entirely additive. Can ship incrementally to production without risk.</p>
         <ul style="margin-left: 20px;">
-          <li>Idempotency keys on payment + order creation</li>
-          <li>Stock reservation during checkout</li>
-          <li>Append-only audit log for orders</li>
-          <li>Rate limiting on public APIs</li>
-          <li>Feature flags (simple Firestore config map)</li>
+          <li><strong>Code reorganization</strong> — move files into <code>platform/</code>, <code>modules/</code>, <code>integration/</code> layout. Paths in Firestore stay identical. No runtime change.</li>
+          <li><strong>Public <code>index.ts</code> per module</strong> — wrap existing services, expose only the public API.</li>
+          <li><strong>ESLint boundaries</strong> — enforce layer import rules; raw <code>firebase-admin/firestore</code> banned outside <code>platform/db</code>.</li>
+          <li><strong><code>tenantDb(ctx)</code> typed wrapper</strong> — new helper that makes tenantless queries impossible. Existing call sites migrate gradually.</li>
+          <li><strong>Event bus</strong> — new <code>events/</code> collection + <code>emitInTransaction</code> helper + <code>createEventSubscriber</code>. Outbox pattern. Delete non-transactional <code>emit</code>.</li>
+          <li><strong>Subscriber idempotency conventions</strong> — natural-key writes + event-id guards for shared counters (see Event Bus callout).</li>
+          <li><strong>Audit log</strong> — new <code>audit_log</code> collection, diff-based via <code>microdiff</code>.</li>
+          <li><strong>Webhooks</strong> — new collection <code>webhookSubscription</code> + signed HTTP dispatcher.</li>
+          <li><strong>Hook registry</strong> — in-memory, with cold-start re-register on every instance.</li>
+          <li><strong>Idempotency keys</strong> on payment + order creation (already landed for delivery notes).</li>
+          <li><strong>Harden domain → store resolution</strong> — backend re-verifies the incoming domain against the store's allowed <code>urls</code>; client-provided <code>storeId</code> is only trusted if it matches. Current client-side flow keeps working.</li>
+          <li><strong>Fix two known structure bugs in todo.md</strong> (profile vs profiles, org actions path) — both <span class="mark mark-breaking">BREAKING</span>, handle in Stage 2.</li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Stage 2 — Unlock Modularity (2-3 months) ⭐ THE KEY STAGE</h3>
-        <p>This is what separates "custom build for every client" from "platform":</p>
+        <h3>Stage 1 — Wire Up Cross-Module Flows <span class="mark mark-safe">SAFE</span></h3>
+        <p>Use the foundation to decouple what's currently tangled.</p>
         <ul style="margin-left: 20px;">
-          <li><strong>Event bus</strong> (Firestore-based, outbox pattern)</li>
-          <li><strong>Webhooks</strong> — merchants subscribe to events via signed HTTP POST</li>
-          <li><strong>Hook points</strong> in the order flow</li>
-          <li><strong>Per-store config schema</strong></li>
-          <li><strong>Plugin loader</strong> — bundle custom code per store</li>
-        </ul>
-        <p><strong>Concrete first move:</strong></p>
-        <ol style="margin-left: 20px;">
-          <li>Create <code>domainEvents</code> collection + <code>emitEvent(type, payload)</code> helper</li>
-          <li>Pick 5 key events: <code>order.placed</code>, <code>order.fulfilled</code>, <code>payment.completed</code>, <code>delivery_note.created</code>, <code>invoice.created</code></li>
-          <li>Build <code>webhookSubscription</code> collection</li>
-          <li>Dispatcher sends signed POSTs on each event</li>
-          <li>→ Now every future feature plugs in via events instead of forking core</li>
-        </ol>
-      </div>
-
-      <div class="card">
-        <h3>Stage 3 — Fill Commerce Gaps (3-6 months)</h3>
-        <p>Driven by actual client needs:</p>
-        <ul style="margin-left: 20px;">
-          <li>Product variants (if apparel/multi-option needed)</li>
-          <li>Tiered/volume pricing (essential for B2B wholesale)</li>
-          <li>Payment provider abstraction (when 2nd client wants different gateway)</li>
-          <li>Shipping zones + rates</li>
-          <li>Returns/RMA flow</li>
-          <li>Promo codes</li>
+          <li>First 5 events: <code>order.placed</code>, <code>order.paid</code>, <code>payment.completed</code>, <code>delivery_note.created</code>, <code>invoice.created</code>.</li>
+          <li>Move budget/fulfillment cross-talk onto the event bus (currently direct function calls).</li>
+          <li>State machine helper as <strong>read-only guard</strong> for new transitions only — existing orders unaffected.</li>
+          <li>Feature flags (simple Firestore config map per store).</li>
+          <li>Rate limiting on public callables.</li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Stage 4 — Scale (6-12 months)</h3>
+        <h3>Stage 2 — Data Migrations <span class="mark mark-breaking">BREAKING</span></h3>
+        <p>Each item requires a backup + migration script + rollback plan. Do one at a time, verify, then next.</p>
         <ul style="margin-left: 20px;">
-          <li>Multi-currency + multi-language</li>
-          <li>Migrate "stores" → "channels" as tenancy primitive</li>
-          <li>Theme system for storefronts</li>
-          <li>Admin dashboard with real KPIs</li>
-          <li>Comprehensive test suite</li>
-          <li>RBAC for admin users</li>
+          <li>Unify <code>profile</code> → <code>profiles</code> (rewrite <code>createCompany.ts</code>; migrate any existing docs).</li>
+          <li>Move <code>organizations/{orgId}/actions</code> under <code>{companyId}/{storeId}/organizations/{orgId}/actions</code>; update security rules.</li>
+          <li>Full state machine enforcement (after auditing existing order states).</li>
+          <li>Remove deprecated <code>organizationId</code> (singular) from Profile in favor of <code>organizationIds</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Stage 3 — Fill Commerce Gaps (driven by client needs) <span class="mark mark-safe">SAFE</span></h3>
+        <ul style="margin-left: 20px;">
+          <li>Product variants (new sub-entities, additive).</li>
+          <li>Tiered/volume pricing (new pricing rules).</li>
+          <li>Payment provider abstraction (when 2nd gateway needed).</li>
+          <li>Shipping zones + rates.</li>
+          <li>Returns / RMA flow.</li>
+          <li>Promo codes.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Stage 4 — Scale (later) <span class="mark mark-deferred">DEFERRED</span></h3>
+        <ul style="margin-left: 20px;">
+          <li>Multi-currency + multi-language.</li>
+          <li>Two-level order state (order + per-line-item) — requires data migration.</li>
+          <li>Theme system for storefronts.</li>
+          <li>Admin dashboard with real KPIs.</li>
+          <li>RBAC for admin users.</li>
+          <li>Comprehensive test suite (out of scope for current refactor per decision).</li>
         </ul>
       </div>
 

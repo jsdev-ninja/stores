@@ -22,6 +22,11 @@ allow anonymous users buy - base on store config
 
 TODO
 
+BUGS (from structure audit)
+
+- `createCompany.ts:28` writes to collection `"profile"` (singular). Everywhere else is `"profiles"`. Unify to `"profiles"`. Check for existing docs under `profile/` before renaming.
+- `organizations/{orgId}/actions` is top-level (no company/store prefix). Should be `{companyId}/{storeId}/organizations/{orgId}/actions` so rules can enforce store isolation. Currently any store could read another store's org actions if it guessed the orgId.
+
 0. HYP: send `EZ.customer_crn` when order total > 5,000 ILS (required by Israeli law per HYP docs). Pull from `order.client.companyNumber` or equivalent.
 1. add active discounts to order object
 2. add super admin for every store
