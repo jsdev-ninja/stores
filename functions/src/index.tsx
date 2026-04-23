@@ -112,17 +112,19 @@ export const onOrderUpdate = functions
 
 		const { displayName, email } = after.client ?? {};
 
-		const orderIsReady = before.status === "processing" && after.status === "in_delivery";
+		const orderCompleted = before.status !== "completed" && after.status === "completed";
 
 		console.log("order status", {
-			orderIsReady,
+			orderCompleted,
 		});
 
-		if (orderIsReady) {
-			// create delivery note (when ready to delivery only)
-			console.log("createDeliveryNote", email, displayName);
-
-			await appApi.documents.createDeliveryNote(after);
+		if (orderCompleted) {
+			if (after.paymentType === "external") {
+				console.log("createDeliveryNote", email, displayName);
+				await appApi.documents.createDeliveryNote(after);
+			} else {
+				console.log("skip createDeliveryNote - paymentType is not external, HYP handles it", after.paymentType);
+			}
 		}
 
 		const paymentCompleted = before.paymentStatus !== "completed" && after.paymentStatus === "completed";

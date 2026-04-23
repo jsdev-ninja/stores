@@ -135,6 +135,15 @@ export function createAppApi(context: TContext) {
 				options?: { date?: number; sendEmailToClient?: boolean; nameOnInvoice?: string },
 			) => {
 				try {
+					if ((order as any).deliveryNote || (order as any).ezDeliveryNote) {
+						logger.write({
+							severity: "INFO",
+							message: "createDeliveryNote skipped - already exists",
+							orderId: order.id,
+						});
+						return { success: true, error: null };
+					}
+
 					const date = options?.date ? new Date(options.date) : new Date();
 					const sendEmailToClient = options?.sendEmailToClient ?? true;
 					const store = await getStoreData(storeId);
