@@ -27,6 +27,18 @@ BUGS (from structure audit)
 - `createCompany.ts:28` writes to collection `"profile"` (singular). Everywhere else is `"profiles"`. Unify to `"profiles"`. Check for existing docs under `profile/` before renaming.
 - `organizations/{orgId}/actions` is top-level (no company/store prefix). Should be `{companyId}/{storeId}/organizations/{orgId}/actions` so rules can enforce store isolation. Currently any store could read another store's org actions if it guessed the orgId.
 
+EVENT BUS FOLLOWUPS
+
+- Event Bus: add dead-letter pattern with max-attempt tracking. Current `retry: true` retries for 7 days on permanent errors.
+- Event Bus: establish central event-type registry (const or zod union) before second emitter lands — prevents `order.placed` vs `orderPlaced` drift.
+
+FIRESTORE RULES REWRITE (dedicated project, do separately from refactor)
+
+- Current `firestore.rules` starts with `match /{document=**} { allow read, write: if true; }` — effectively wide open. All isolation today is via Cloud Functions only (admin SDK bypasses rules).
+- Fix in its own dedicated phase after event bus lands. Per-collection rules scoped by `{companyId}/{storeId}`, `request.auth.token.companyId`/`storeId`, plus admin/superAdmin custom claims.
+- When event bus ships: add deny rule for `{companyId}/{storeId}/events/{id}` so clients can't read events (backend admin SDK still writes unaffected).
+- Audit every collection that today relies on the `if true` catchall — each needs a specific rule.
+
 0. HYP: send `EZ.customer_crn` when order total > 5,000 ILS (required by Israeli law per HYP docs). Pull from `order.client.companyNumber` or equivalent.
 1. add active discounts to order object
 2. add super admin for every store

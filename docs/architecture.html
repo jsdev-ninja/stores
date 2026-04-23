@@ -380,6 +380,72 @@
   .mark-breaking { background: #fee2e2; color: #991b1b; }
   .mark-deferred { background: #fef3c7; color: #92400e; }
 
+  /* Tracker */
+  .tracker {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .tracker h4 {
+    margin: 16px 0 8px;
+    font-size: 15px;
+    color: #0f172a;
+  }
+  .tracker-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .tracker-item:hover { background: #f8fafc; }
+  .tracker-status {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    margin-right: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .tracker-todo { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+  .tracker-wip  { background: #fef3c7; color: #92400e; }
+  .tracker-done { background: #10b981; color: #fff; }
+  .tracker-done + .tracker-text { color: #64748b; text-decoration: line-through; }
+  .tracker-text { color: #1e293b; }
+  .tracker-text code {
+    background: #f1f5f9;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #6366f1;
+  }
+  .tracker-progress {
+    background: #f1f5f9;
+    border-radius: 999px;
+    height: 8px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+  .tracker-progress-bar {
+    background: linear-gradient(90deg, #6366f1, #10b981);
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .tracker-meta {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+  }
+
   /* Status bar */
   .status-bar {
     display: grid;
@@ -465,6 +531,7 @@
     <div class="nav-group">
       <div class="nav-group-title">Roadmap</div>
       <a href="#migration">Migration Plan</a>
+      <a href="#tracker">📊 Implementation Tracker</a>
     </div>
   </aside>
 
@@ -735,37 +802,53 @@
             <span class="badge badge-platform">Platform</span>
             <span>platform/eventBus/emit.ts</span>
           </div>
-<pre><code><span class="tok-k">import</span> { FieldValue } <span class="tok-k">from</span> <span class="tok-s">"firebase-admin/firestore"</span>;
-<span class="tok-k">import</span> { db } <span class="tok-k">from</span> <span class="tok-s">"../db"</span>;
+<pre><code><span class="tok-k">import</span> { z } <span class="tok-k">from</span> <span class="tok-s">"zod"</span>;
 
-<span class="tok-k">export interface</span> <span class="tok-t">DomainEvent</span>&lt;T = <span class="tok-k">any</span>&gt; {
-  <span class="tok-v">type</span>: <span class="tok-t">string</span>;
-  <span class="tok-v">payload</span>: T;
-  <span class="tok-v">tenantId</span>: <span class="tok-t">string</span>;
-  <span class="tok-v">correlationId</span>?: <span class="tok-t">string</span>;
-  <span class="tok-v">version</span>?: <span class="tok-t">number</span>;
-}
+<span class="tok-c">// types.ts — single source of truth for schema + type</span>
+<span class="tok-k">export const</span> <span class="tok-v">EventSource</span> = z.enum([
+  <span class="tok-s">"orders"</span>, <span class="tok-s">"payments"</span>, <span class="tok-s">"fulfillment"</span>, <span class="tok-s">"catalog"</span>,
+  <span class="tok-s">"cart"</span>, <span class="tok-s">"budget"</span>, <span class="tok-s">"customers"</span>, <span class="tok-s">"webhooks"</span>,
+]);
+<span class="tok-k">export type</span> <span class="tok-t">EventSource</span> = z.infer&lt;<span class="tok-k">typeof</span> <span class="tok-v">EventSource</span>&gt;;
 
-<span class="tok-c">/** Emit an event in the SAME transaction as state writes (outbox pattern) */</span>
-<span class="tok-k">export function</span> <span class="tok-f">emitInTransaction</span>(
+<span class="tok-k">export const</span> <span class="tok-v">StoredEventSchema</span> = z.object({
+  <span class="tok-v">id</span>: z.string().min(<span class="tok-n">1</span>),
+  <span class="tok-v">type</span>: z.string().regex(<span class="tok-s">/^[a-z_]+\.[a-z_]+$/</span>, {
+    message: <span class="tok-s">"type must be 'module.action' (lowercase, dot-separated)"</span>,
+  }),
+  <span class="tok-v">payload</span>: z.unknown(),
+  <span class="tok-v">companyId</span>: z.string().min(<span class="tok-n">1</span>).refine(<span class="tok-v">s</span> =&gt; !s.includes(<span class="tok-s">"/"</span>), {
+    message: <span class="tok-s">"companyId must not contain '/'"</span>,
+  }),
+  <span class="tok-v">storeId</span>: z.string().min(<span class="tok-n">1</span>).refine(<span class="tok-v">s</span> =&gt; !s.includes(<span class="tok-s">"/"</span>), {
+    message: <span class="tok-s">"storeId must not contain '/'"</span>,
+  }),
+  <span class="tok-v">createdAt</span>: z.number().int().positive(),
+  <span class="tok-v">correlationId</span>: z.string().optional(),
+  <span class="tok-v">actorId</span>: z.string().optional(),
+  <span class="tok-v">source</span>: <span class="tok-v">EventSource</span>.optional(),
+});
+
+<span class="tok-k">export type</span> <span class="tok-t">StoredEvent</span>&lt;T = <span class="tok-k">unknown</span>&gt; =
+  <span class="tok-t">Omit</span>&lt;z.infer&lt;<span class="tok-k">typeof</span> <span class="tok-v">StoredEventSchema</span>&gt;, <span class="tok-s">"payload"</span>&gt; &amp; { <span class="tok-v">payload</span>: T };
+
+<span class="tok-c">// emit.ts — validate via zod, no manual guards</span>
+<span class="tok-k">export function</span> <span class="tok-f">emit</span>&lt;T = <span class="tok-k">unknown</span>&gt;(
   <span class="tok-v">tx</span>: <span class="tok-t">FirebaseFirestore.Transaction</span>,
-  <span class="tok-v">event</span>: <span class="tok-t">DomainEvent</span>
-): <span class="tok-t">void</span> {
-  <span class="tok-k">const</span> ref = db.collection(<span class="tok-s">"events"</span>).doc();
-  tx.set(ref, {
-    id: ref.id,
-    ...event,
-    createdAt: <span class="tok-t">Date</span>.now(),
-    traceId: event.correlationId ?? ref.id,
-    version: event.version ?? <span class="tok-n">1</span>,
-  });
-}
-
-<span class="tok-c">/** No standalone emit() — it breaks the outbox guarantee.
- *  If you don't have a transaction, make one:
- *     await db.runTransaction(tx =&gt; emitInTransaction(tx, event));
- *  One API, no footguns.
- */</span></code></pre>
+  <span class="tok-v">event</span>: <span class="tok-t">Omit</span>&lt;<span class="tok-t">StoredEvent</span>&lt;T&gt;, <span class="tok-s">"id"</span> | <span class="tok-s">"createdAt"</span>&gt;
+): <span class="tok-t">FirebaseFirestore.DocumentReference</span> {
+  <span class="tok-k">const</span> ref = db.collection(
+    <span class="tok-s">`</span>${event.companyId}<span class="tok-s">/</span>${event.storeId}<span class="tok-s">/events`</span>
+  ).doc();
+  <span class="tok-k">const</span> stored = {
+    ...event, id: ref.id, createdAt: <span class="tok-t">Date</span>.now(),
+    correlationId: event.correlationId ?? ref.id,
+  };
+  <span class="tok-c">// Validate the full envelope before writing. Throws ZodError on invalid input.</span>
+  <span class="tok-v">StoredEventSchema</span>.parse(stored);
+  tx.set(ref, stored);
+  <span class="tok-k">return</span> ref;
+}</code></pre>
         </div>
 
         <div class="split-pane">
@@ -775,30 +858,43 @@
           </div>
 <pre><code><span class="tok-k">import</span> { onDocumentCreated } <span class="tok-k">from</span>
   <span class="tok-s">"firebase-functions/v2/firestore"</span>;
+<span class="tok-k">import</span> { StoredEventSchema } <span class="tok-k">from</span> <span class="tok-s">"./types"</span>;
 
-<span class="tok-c">/**
- * Creates a Firebase trigger that subscribes to events.
- * Each module calls this to register its subscribers.
- */</span>
-<span class="tok-k">export function</span> <span class="tok-f">createEventSubscriber</span>&lt;T&gt;(
-  <span class="tok-v">handler</span>: (<span class="tok-v">event</span>: <span class="tok-t">DomainEvent</span>&lt;T&gt;) =&gt; <span class="tok-t">Promise</span>&lt;<span class="tok-k">void</span>&gt;
-) {
+<span class="tok-k">export function</span> <span class="tok-f">subscribe</span>&lt;T&gt;(options, handler) {
   <span class="tok-k">return</span> onDocumentCreated(
-    { document: <span class="tok-s">"events/{id}"</span>, retry: <span class="tok-k">true</span> },
-    <span class="tok-k">async</span> (event) =&gt; {
-      <span class="tok-k">const</span> data = event.data?.data() <span class="tok-k">as</span> <span class="tok-t">DomainEvent</span>&lt;T&gt;;
-      <span class="tok-k">if</span> (!data) <span class="tok-k">return</span>;
+    { document: <span class="tok-s">"{companyId}/{storeId}/events/{id}"</span>, retry: <span class="tok-k">true</span> },
+    <span class="tok-k">async</span> (firestoreEvent) =&gt; {
+      <span class="tok-k">const</span> { companyId, storeId, id: eventId } = firestoreEvent.params;
+      <span class="tok-k">const</span> raw = firestoreEvent.data?.data();
+      <span class="tok-k">if</span> (!raw) <span class="tok-k">return</span>;
 
-      <span class="tok-k">try</span> {
-        <span class="tok-k">await</span> handler(data);
-      } <span class="tok-k">catch</span> (err) {
-        logger.error(<span class="tok-s">"event handler failed"</span>, {
-          eventId: event.params.id,
-          type: data.type,
-          err,
+      <span class="tok-c">// Validate full envelope first</span>
+      <span class="tok-k">const</span> envelopeResult = <span class="tok-v">StoredEventSchema</span>.safeParse(raw);
+      <span class="tok-k">if</span> (!envelopeResult.success) {
+        logger.error(<span class="tok-s">"eventBus.subscriber.envelopeInvalid"</span>, {
+          subscriber: options.name, eventId, companyId, storeId,
+          issues: envelopeResult.error.issues,
         });
-        <span class="tok-k">throw</span> err; <span class="tok-c">// triggers retry</span>
+        <span class="tok-k">return</span>;
       }
+
+      <span class="tok-k">const</span> envelope = envelopeResult.data;
+      <span class="tok-k">if</span> (envelope.type !== options.type) <span class="tok-k">return</span>;
+
+      <span class="tok-c">// Then validate the payload against the subscriber's schema</span>
+      <span class="tok-k">const</span> payloadResult = options.payloadSchema.safeParse(envelope.payload);
+      <span class="tok-k">if</span> (!payloadResult.success) {
+        logger.error(<span class="tok-s">"eventBus.subscriber.payloadInvalid"</span>, {
+          subscriber: options.name, eventId, companyId, storeId,
+          issues: payloadResult.error.issues,
+        });
+        <span class="tok-k">return</span>;
+      }
+
+      <span class="tok-k">await</span> handler(
+        { ...envelope, payload: payloadResult.data },
+        { companyId, storeId, eventId },
+      );
     }
   );
 }</code></pre>
@@ -812,21 +908,43 @@
 
       <div class="callout callout-warn">
         <div class="callout-title">⚠️ Subscribers must be idempotent (at-least-once delivery)</div>
-        <p>Firestore triggers retry on failure. Your subscriber may run 2+ times for the same event. <strong>Rule:</strong> every side effect must be safe to repeat. Two patterns:</p>
-        <p style="margin-top: 10px;"><strong>Pattern A — natural-key writes</strong> (for creates):</p>
-<pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code><span class="tok-k">async function</span> <span class="tok-f">createDeliveryNote</span>(orderId) {
-  <span class="tok-k">const</span> ref = db.doc(<span class="tok-s">`delivery_notes/</span>${orderId}<span class="tok-s">`</span>);  <span class="tok-c">// keyed by orderId</span>
-  <span class="tok-k">const</span> existing = <span class="tok-k">await</span> ref.get();
-  <span class="tok-k">if</span> (existing.exists) <span class="tok-k">return</span> existing.data();    <span class="tok-c">// already done, no-op</span>
-  <span class="tok-k">await</span> ref.create({ orderId, ... });
+        <p>Firestore triggers retry on failure. Your subscriber may run 2+ times for the same event. <strong>Rule:</strong> every subscriber handler must be safe to re-run. The platform does NOT ship idempotency helpers — handlers design their own natural keys (e.g. delivery note keyed by orderId) or their own per-domain markers. Pick the pattern that fits what you're writing.</p>
+        <p style="margin-top: 10px;"><strong>Pattern A — natural-key create</strong> (for creates):</p>
+<pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code><span class="tok-k">async function</span> <span class="tok-f">createDeliveryNote</span>(orderId, companyId, storeId) {
+  <span class="tok-k">const</span> ref = db.doc(<span class="tok-s">`</span>${companyId}<span class="tok-s">/</span>${storeId}<span class="tok-s">/delivery_notes/</span>${orderId}<span class="tok-s">`</span>);
+  <span class="tok-k">try</span> {
+    <span class="tok-k">await</span> ref.create({ orderId, createdAt: <span class="tok-t">Date</span>.now() });
+  } <span class="tok-k">catch</span> (err) {
+    <span class="tok-k">if</span> (err.code === <span class="tok-n">6</span>) <span class="tok-k">return</span>;   <span class="tok-c">// ALREADY_EXISTS — already processed</span>
+    <span class="tok-k">throw</span> err;
+  }
 }</code></pre>
-        <p style="margin-top: 10px;"><strong>Pattern B — event-id guard in transaction</strong> (for counters / shared aggregates):</p>
+        <p style="margin-top: 10px;"><strong>Pattern B — event-id guard</strong> (handler's own responsibility — for counters / shared aggregates):</p>
 <pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code><span class="tok-k">await</span> db.runTransaction(<span class="tok-k">async</span> (tx) =&gt; {
-  <span class="tok-k">const</span> applied = <span class="tok-k">await</span> tx.get(db.doc(<span class="tok-s">`stats_applied/</span>${event.id}<span class="tok-s">`</span>));
-  <span class="tok-k">if</span> (applied.exists) <span class="tok-k">return</span>;                    <span class="tok-c">// already counted</span>
+  <span class="tok-k">const</span> markerRef = db.doc(
+    <span class="tok-s">`</span>${companyId}<span class="tok-s">/</span>${storeId}<span class="tok-s">/idempotency_stats/</span>${eventId}<span class="tok-s">`</span>
+  );
+  <span class="tok-k">const</span> applied = <span class="tok-k">await</span> tx.get(markerRef);
+  <span class="tok-k">if</span> (applied.exists) <span class="tok-k">return</span>;
+
   <span class="tok-c">// ... update shared counter ...</span>
-  tx.set(db.doc(<span class="tok-s">`stats_applied/</span>${event.id}<span class="tok-s">`</span>), { at: <span class="tok-t">Date</span>.now() });
+  tx.set(markerRef, { at: <span class="tok-t">Date</span>.now() });
 });</code></pre>
+        <p style="margin-top: 4px; font-size: 13px; color: #94a3b8;">In Pattern B the handler creates its own marker collection under its store path — the platform does not dictate where.</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">🔗 correlationId — tracing a causal chain</div>
+        <p>Every event carries a <code>correlationId</code>. The platform auto-fills it with the event's own <code>id</code> when the caller doesn't provide one. That first event becomes the root of the chain.</p>
+        <p><strong>Downstream subscribers must propagate it.</strong> When a subscriber emits a new event in reaction, it copies <code>correlationId</code> from the incoming event:</p>
+        <pre style="background:#0f172a;border-radius:6px;margin:8px 0;"><code>emit(tx, {
+  type: "fulfillment.delivery_note_created",
+  payload: { ... },
+  companyId, storeId,
+  correlationId: event.correlationId,  <span class="tok-c">// propagate</span>
+  source: "fulfillment",
+});</code></pre>
+        <p>Query a full trace with <code>where("correlationId", "==", X)</code>. The root event within the results is the one where <code>id === correlationId</code>.</p>
       </div>
     </section>
 
@@ -1075,7 +1193,7 @@
           </div>
 <pre><code><span class="tok-k">import</span> { catalogModule } <span class="tok-k">from</span> <span class="tok-s">"modules/catalog"</span>;
 <span class="tok-k">import</span> { pricingModule } <span class="tok-k">from</span> <span class="tok-s">"modules/pricing"</span>;
-<span class="tok-k">import</span> { emitInTransaction } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<span class="tok-k">import</span> { emit } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
 
 <span class="tok-k">export const</span> <span class="tok-v">cartService</span> = {
   <span class="tok-k">async</span> <span class="tok-f">addItem</span>({ cartId, productId, variantId, quantity }, ctx) {
@@ -1093,7 +1211,7 @@
       tx.update(db.doc(<span class="tok-s">`carts/</span>${cartId}<span class="tok-s">`</span>), cart);
 
       <span class="tok-c">// Outbox: event in same transaction</span>
-      <span class="tok-f">emitInTransaction</span>(tx, {
+      <span class="tok-f">emit</span>(tx, {
         type: <span class="tok-s">"cart.item_added"</span>,
         payload: { cartId, productId, variantId, quantity },
         tenantId: ctx.tenantId,
@@ -1222,7 +1340,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         }),
       });
 
-      <span class="tok-f">emitInTransaction</span>(tx, {
+      <span class="tok-f">emit</span>(tx, {
         type: <span class="tok-s">`order.</span>${newStatus}<span class="tok-s">`</span>,
         payload: { orderId, previousStatus: order.status },
         tenantId: ctx.tenantId,
@@ -1343,13 +1461,16 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
             <span class="badge badge-backend">Backend</span>
             <span>modules/fulfillment/subscribers.ts</span>
           </div>
-<pre><code><span class="tok-k">import</span> { createEventSubscriber } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<pre><code><span class="tok-k">import</span> { subscribe } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
 <span class="tok-k">import</span> { deliveryNoteService } <span class="tok-k">from</span> <span class="tok-s">"./internal/deliveryNoteService"</span>;
+<span class="tok-k">import</span> { OrderEvents } <span class="tok-k">from</span> <span class="tok-s">"modules/orders/events"</span>;
 
+<span class="tok-c">// Each module owns its event-type constants — no central registry.</span>
+<span class="tok-c">// Format "module.action" enforced by the platform schema.</span>
 <span class="tok-c">// When order moves to "in_delivery", create a delivery note</span>
-<span class="tok-k">export const</span> <span class="tok-v">onOrderInDelivery</span> = <span class="tok-f">createEventSubscriber</span>(
+<span class="tok-k">export const</span> <span class="tok-v">onOrderInDelivery</span> = <span class="tok-f">subscribe</span>(
   <span class="tok-k">async</span> (event) =&gt; {
-    <span class="tok-k">if</span> (event.type !== <span class="tok-s">"order.in_delivery"</span>) <span class="tok-k">return</span>;
+    <span class="tok-k">if</span> (event.type !== OrderEvents.in_delivery) <span class="tok-k">return</span>;
 
     <span class="tok-k">await</span> deliveryNoteService.createForOrder(event.payload.orderId);
   }
@@ -1465,11 +1586,11 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
             <span class="badge badge-backend">Backend</span>
             <span>modules/budget/subscribers.ts</span>
           </div>
-<pre><code><span class="tok-k">import</span> { createEventSubscriber } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<pre><code><span class="tok-k">import</span> { subscribe } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
 <span class="tok-k">import</span> { budgetService } <span class="tok-k">from</span> <span class="tok-s">"./internal/budgetService"</span>;
 
 <span class="tok-c">// Debt is added when delivery note is issued</span>
-<span class="tok-k">export const</span> <span class="tok-v">onDeliveryNote</span> = <span class="tok-f">createEventSubscriber</span>(<span class="tok-k">async</span> (event) =&gt; {
+<span class="tok-k">export const</span> <span class="tok-v">onDeliveryNote</span> = <span class="tok-f">subscribe</span>(<span class="tok-k">async</span> (event) =&gt; {
   <span class="tok-k">if</span> (event.type !== <span class="tok-s">"fulfillment.delivery_note.created"</span>) <span class="tok-k">return</span>;
 
   <span class="tok-k">const</span> { organizationId, total, deliveryNoteId } = event.payload;
@@ -1484,7 +1605,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 });
 
 <span class="tok-c">// Credit when payment completes</span>
-<span class="tok-k">export const</span> <span class="tok-v">onPaymentReceived</span> = <span class="tok-f">createEventSubscriber</span>(<span class="tok-k">async</span> (event) =&gt; {
+<span class="tok-k">export const</span> <span class="tok-v">onPaymentReceived</span> = <span class="tok-f">subscribe</span>(<span class="tok-k">async</span> (event) =&gt; {
   <span class="tok-k">if</span> (event.type !== <span class="tok-s">"payment.captured"</span>) <span class="tok-k">return</span>;
 
   <span class="tok-k">await</span> budgetService.addTransaction({
@@ -1543,11 +1664,11 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
             <span>integration/webhooks/dispatcher.ts</span>
           </div>
 <pre><code><span class="tok-k">import</span> crypto <span class="tok-k">from</span> <span class="tok-s">"crypto"</span>;
-<span class="tok-k">import</span> { createEventSubscriber } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<span class="tok-k">import</span> { subscribe } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
 <span class="tok-k">import</span> { getSubscriptions } <span class="tok-k">from</span> <span class="tok-s">"./subscriptionService"</span>;
 
 <span class="tok-c">// ONE subscriber that listens to ALL events</span>
-<span class="tok-k">export const</span> <span class="tok-v">webhookDispatcher</span> = <span class="tok-f">createEventSubscriber</span>(<span class="tok-k">async</span> (event) =&gt; {
+<span class="tok-k">export const</span> <span class="tok-v">webhookDispatcher</span> = <span class="tok-f">subscribe</span>(<span class="tok-k">async</span> (event) =&gt; {
   <span class="tok-k">const</span> subs = <span class="tok-k">await</span> <span class="tok-f">getSubscriptions</span>(event.tenantId, event.type);
 
   <span class="tok-k">for</span> (<span class="tok-k">const</span> sub <span class="tok-k">of</span> subs) {
@@ -1762,7 +1883,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
 │         ├─ write order                                        │
 │         ├─ reserve inventory                                  │
 │         ├─ capture payment                                    │
-│         └─ emitInTransaction("order.placed")                  │
+│         └─ emit("order.placed")                               │
 └────────────────────────┬──────────────────────────────────────┘
                          │ event written to Firestore
                          │ (transaction commits atomically)
@@ -1803,7 +1924,7 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
           <li><strong>Public <code>index.ts</code> per module</strong> — wrap existing services, expose only the public API.</li>
           <li><strong>ESLint boundaries</strong> — enforce layer import rules; raw <code>firebase-admin/firestore</code> banned outside <code>platform/db</code>.</li>
           <li><strong><code>tenantDb(ctx)</code> typed wrapper</strong> — new helper that makes tenantless queries impossible. Existing call sites migrate gradually.</li>
-          <li><strong>Event bus</strong> — new <code>events/</code> collection + <code>emitInTransaction</code> helper + <code>createEventSubscriber</code>. Outbox pattern. Delete non-transactional <code>emit</code>.</li>
+          <li><strong>Event bus</strong> — new <code>events/</code> collection + <code>emit</code> helper + <code>subscribe</code>. Outbox pattern.</li>
           <li><strong>Subscriber idempotency conventions</strong> — natural-key writes + event-id guards for shared counters (see Event Bus callout).</li>
           <li><strong>Audit log</strong> — new <code>audit_log</code> collection, diff-based via <code>microdiff</code>.</li>
           <li><strong>Webhooks</strong> — new collection <code>webhookSubscription</code> + signed HTTP dispatcher.</li>
@@ -1865,9 +1986,94 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <div class="callout-title">The one-line summary</div>
         <p><strong>Modular monolith = you keep the simplicity of one codebase/one DB, but enforce Shopify-level boundaries between parts of the system — so your code ages well instead of turning into a mud ball.</strong></p>
       </div>
+    </section>
+
+    <!-- TRACKER -->
+    <section id="tracker">
+      <h2>📊 Implementation Tracker</h2>
+      <p class="lead">Live status of the refactor. ⬜ not started · 🟨 in progress · ✅ done.</p>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">🚌 Event Bus (Outbox Pattern)</h3>
+        <p class="tracker-meta">Backend-only. Ships as dead code — zero production impact until an emitter/subscriber opts in.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 42%;"></div></div>
+        <p class="tracker-meta">5 / 12 complete</p>
+
+        <h4>Phase 1 — Foundation (dead code)</h4>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Create <code>backend/platform/eventBus/</code> folder with <code>index.ts</code> as the public entry point.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Define <code>StoredEvent&lt;T&gt;</code> interface in <code>types.ts</code> — fields: <code>id, type, payload, companyId, storeId, createdAt, correlationId?, actorId?, source?</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Implement <code>emit(tx, event)</code> in <code>emit.ts</code> — writes to <code>{companyId}/{storeId}/events/{id}</code> inside caller's transaction.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Implement <code>subscribe(options, handler)</code> in <code>subscribe.ts</code> — wraps <code>onDocumentCreated("{companyId}/{storeId}/events/{id}", retry: true)</code>, logs + rethrows on error.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">~~Firestore rules for <code>events/</code>~~ — <strong>deferred to dedicated rules rewrite project</strong> (see todo.md). Current rules file starts with <code>allow read, write: if true</code> catchall that makes per-collection rules moot. Admin SDK bypasses rules, so backend writes work fine today.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Add <code>eventId + handlerName</code> helpers for idempotency guard (natural-key writes and event-id guard patterns).</span>
+        </div>
+
+        <h4>Phase 2 — First emitter</h4>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Identify existing order creation path. Add single <code>emit(tx, { type: "order.placed", ... })</code> line inside its existing transaction. No subscribers yet — verify events start appearing in Firestore.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Verify ordering in production: every placed order produces exactly one <code>order.placed</code> event. Monitor for 48 hours before next step.</span>
+        </div>
+
+        <h4>Phase 3 — First subscriber</h4>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Pick one existing cross-module direct call to migrate (candidate: delivery-note creation on order completion — already gated by payment+status in recent commit).</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Write subscriber using <code>subscribe</code>. Apply natural-key idempotency (existing delivery-note idempotency guard already fits).</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Deploy subscriber alongside existing direct call (dual-write). Verify parity in logs for 48 hours.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Remove direct call; subscriber is the only path. Ship.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top: 24px;">
+        <div class="callout-title">How we update this tracker</div>
+        <p>Each item moves ⬜ → 🟨 when work starts, → ✅ when merged. Update the progress bar (<code>width: X%</code>) and counter when status changes. Keep it honest.</p>
+      </div>
 
       <div style="text-align: center; padding: 40px 0; color: #64748b; font-size: 14px;">
-        Storebrix Architecture Guide • Generated for internal reference
+        Storebrix Architecture Guide • Live tracker
       </div>
     </section>
 
