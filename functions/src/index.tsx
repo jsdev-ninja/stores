@@ -1,7 +1,6 @@
 import admin from "firebase-admin";
 import * as functions from "firebase-functions/v1";
 import * as functionsV2 from "firebase-functions/v2";
-import algoliasearch from "algoliasearch";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { ezCountService } from "./services/ezCountService";
 import { createAppApi } from "./appApi";
@@ -44,10 +43,6 @@ async function emitOrderPlaced(params: {
 	}
 }
 
-const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
-
-const index = algolia.initIndex("products");
-
 admin.initializeApp({
 	storageBucket: "jsdev-stores-prod.appspot.com",
 });
@@ -80,6 +75,7 @@ export {
 export { getOrganizationActions } from "./api/organizationActionsApi";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
+export { onProductCreate, onProductDelete, onProductUpdate } from "./triggers/product";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
@@ -198,39 +194,6 @@ export const onOrderUpdate = functions
 		}
 
 		return;
-	});
-
-export const onProductCreate = functions.firestore
-	.document(FirebaseAPI.firestore.getDocPath("products"))
-	.onCreate(async (snap, context) => {
-		console.log(snap.data(), snap.id, snap.createTime);
-		console.log("AUTH", context.authType, context.auth?.uid);
-
-		return await index.saveObject({
-			...snap.data(),
-			id: snap.id,
-			objectID: snap.id,
-		});
-	});
-
-export const onProductDelete = functions.firestore
-	.document(FirebaseAPI.firestore.getDocPath("products"))
-	.onDelete(async (snap) => {
-		return await index.deleteObject(snap.id);
-	});
-
-export const onProductUpdate = functions.firestore
-	.document(FirebaseAPI.firestore.getDocPath("products"))
-	.onUpdate(async (snap, context) => {
-		const after = snap.after.data();
-
-		const { id: productId } = context.params;
-
-		return await index.saveObject({
-			objectID: productId,
-			id: productId,
-			...after,
-		});
 	});
 
 export const onUserDelete = functions.auth.user().onDelete((user) => {
