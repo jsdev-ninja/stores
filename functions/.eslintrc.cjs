@@ -115,5 +115,14 @@ module.exports = {
 				"boundaries/entry-point": "warn",
 			},
 		},
+		// Module internals that still reach into legacy during migration are
+		// exempt from boundary errors. Remove once legacy services are migrated.
+		{
+			files: ["src/modules/**/internal/**"],
+			rules: {
+				"boundaries/element-types": "warn",
+				"boundaries/entry-point": "warn",
+			},
+		},
 	],
 };

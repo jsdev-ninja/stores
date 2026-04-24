@@ -1,4 +1,8 @@
-// Placeholder — orders module is built incrementally. See docs/architecture.html.
-export const ordersModule = {} as const;
+import { handleOrderCreated, handleOrderUpdated } from "./internal/lifecycle";
+
+export const ordersModule = {
+	onCreated: handleOrderCreated,
+	onUpdated: handleOrderUpdated,
+} as const;
 
 export { OrderEventTypes, OrderPlacedPayload } from "./events";
