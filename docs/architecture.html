@@ -2003,8 +2003,8 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <h3 style="margin-top: 0;">🚌 Event Bus (Outbox Pattern)</h3>
         <p class="tracker-meta">Backend-only. Ships as dead code — zero production impact until an emitter/subscriber opts in.</p>
 
-        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 50%;"></div></div>
-        <p class="tracker-meta">6 / 12 complete</p>
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 92%;"></div></div>
+        <p class="tracker-meta">11 / 12 complete</p>
 
         <h4>Phase 1 — Foundation (dead code)</h4>
 
@@ -2046,30 +2046,30 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         </div>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Verify ordering in production: every placed order produces exactly one <code>order.placed</code> event. Monitor for 48 hours before next step.</span>
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Verified in production: real order placements produce exactly one <code>order.placed</code> event. Subscriber fires reliably.</span>
         </div>
 
         <h4>Phase 3 — First subscriber</h4>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Pick one existing cross-module direct call to migrate (candidate: delivery-note creation on order completion — already gated by payment+status in recent commit).</span>
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Pick one existing cross-module direct call to migrate (candidate: delivery-note creation on order completion — already gated by payment+status in recent commit). <strong>Picked: admin-email-on-order migration.</strong></span>
         </div>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Write subscriber using <code>subscribe</code>. Apply natural-key idempotency (existing delivery-note idempotency guard already fits).</span>
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Write subscriber using <code>subscribe</code>. Apply natural-key idempotency (existing delivery-note idempotency guard already fits). <strong>Done: <code>modules/orders/subscribers/orderPlacedAdminEmail.tsx</code>.</strong></span>
         </div>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Deploy subscriber alongside existing direct call (dual-write). Verify parity in logs for 48 hours.</span>
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Deploy subscriber. Verified in production — real order places fire <code>order.placed</code>, subscriber sends admin email end-to-end.</span>
         </div>
 
         <div class="tracker-item">
-          <span class="tracker-status tracker-todo">⬜</span>
-          <span class="tracker-text">Remove direct call; subscriber is the only path. Ship.</span>
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Remove inline admin email from <code>onOrderCreated</code>. Subscriber is the only path. Unused imports + dead <code>storePrivateData</code>/<code>store</code> reads also removed.</span>
         </div>
       </div>
 

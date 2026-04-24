@@ -105,5 +105,15 @@ module.exports = {
 				"boundaries/entry-point": "warn",
 			},
 		},
+		// Subscribers that bridge module → legacy email/service during migration
+		// are exempt from boundary errors. They are transient wrappers that will
+		// be removed once the legacy inline call is deleted.
+		{
+			files: ["src/modules/**/subscribers/**"],
+			rules: {
+				"boundaries/element-types": "warn",
+				"boundaries/entry-point": "warn",
+			},
+		},
 	],
 };

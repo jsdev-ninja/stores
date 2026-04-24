@@ -1,12 +1,8 @@
 import admin from "firebase-admin";
 import * as functions from "firebase-functions/v1";
 import * as functionsV2 from "firebase-functions/v2";
-import React from "react";
 import algoliasearch from "algoliasearch";
-import { emailService } from "./services/email";
-import { render } from "@react-email/render";
-import OrderCreated from "./emails/OrderCreated";
-import { FirebaseAPI, TOrder, TStore } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { ezCountService } from "./services/ezCountService";
 import { createAppApi } from "./appApi";
 import { budgetService } from "./services/budgetService";
@@ -83,6 +79,7 @@ export {
 } from "./api/budgetApi";
 export { getOrganizationActions } from "./api/organizationActionsApi";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
+export { onOrderPlacedAdminEmail } from "./modules/notifications";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
@@ -102,18 +99,6 @@ export const onOrderCreated = functions.firestore
 			order,
 		});
 
-		const storePrivateData: any = (
-			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
-		).data();
-
-		const store: TStore = (
-			await admin.firestore().collection(`STORES`).doc(storeId).get()
-		).data() as TStore;
-
-		if (!storePrivateData) {
-			console.log("storePrivateData not exits");
-		}
-
 		// Emit order.placed event for real orders (not drafts awaiting j5 payment).
 		if (order.status !== "draft") {
 			await emitOrderPlaced({ order, orderId: id, companyId, storeId });
@@ -122,14 +107,7 @@ export const onOrderCreated = functions.firestore
 		// close cart
 		await appApi.cart.close(order.cart.id);
 
-		// send email
-		const html = await render(<OrderCreated order={order} />);
-
-		await emailService.sendEmail({
-			html,
-			email: storePrivateData?.storeEmail ?? "",
-		});
-
+		// admin email moved to modules/notifications/subscribers/orderPlacedAdminEmail
 		// budget: debt is now added on delivery note creation, not order creation
 		// organizationActions: order.created events no longer written for new orders
 	});
