@@ -76,6 +76,7 @@ export { getOrganizationActions } from "./api/organizationActionsApi";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
 export { onProductCreate, onProductDelete, onProductUpdate } from "./triggers/product";
+export { onUserDelete } from "./triggers/user";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
@@ -195,20 +196,3 @@ export const onOrderUpdate = functions
 
 		return;
 	});
-
-export const onUserDelete = functions.auth.user().onDelete((user) => {
-	console.info("user deleted", user.uid, user.displayName, user.email);
-	const uid = user.uid; // The UID of the user.
-
-	const db = admin.firestore();
-	return db
-		.collection("profiles")
-		.doc(uid)
-		.delete()
-		.then(() => {
-			console.log("User document deleted in Firestore");
-		})
-		.catch((error) => {
-			console.error("Error deleting user document in Firestore", error);
-		});
-});

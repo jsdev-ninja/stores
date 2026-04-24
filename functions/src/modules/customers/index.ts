@@ -1,2 +1,7 @@
-// Placeholder — customers module is built incrementally. See docs/architecture.html.
-export const customersModule = {} as const;
+import { profileService } from "./internal/profileService";
+
+export const customersModule = {
+	async onAuthUserDeleted(input: { uid: string }): Promise<void> {
+		await profileService.deleteProfile(input.uid);
+	},
+};
