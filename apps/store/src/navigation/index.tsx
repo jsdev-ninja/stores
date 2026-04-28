@@ -37,6 +37,9 @@ export const routes = {
 			orderSuccess: {
 				path: "/orderSuccess",
 			},
+			orderError: {
+				path: "/orderError",
+			},
 			profile: {
 				path: "/profile",
 			},

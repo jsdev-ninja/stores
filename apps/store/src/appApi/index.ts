@@ -1597,6 +1597,27 @@ export const useAppApi = () => {
 					},
 				});
 			},
+			async onPaymentFailed(payment: Record<string, string>) {
+				if (!isValidUser) {
+					return;
+				}
+
+				if (!payment.Order) {
+					return;
+				}
+
+				await FirebaseApi.firestore.setV2<Partial<TOrder>>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					doc: {
+						id: payment.Order,
+						paymentStatus: "failed",
+					},
+				});
+			},
 		},
 		user: {
 			permissions: {
