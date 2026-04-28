@@ -64,7 +64,6 @@ function parseQueryString<T extends Record<string, string>>(query: string): T {
 export const hypPaymentService = {
 	async chargeJ5Transaction(params: chargeJ5TransactionParams) {
 		try {
-
 			logger.write({
 				severity: "INFO",
 				message: "hypPaymentService.chargeJ5Transaction",
@@ -78,7 +77,6 @@ export const hypPaymentService = {
 				PassP: params.masofPassword,
 				TransId: params.transactionId,
 			});
-
 
 			const tokenResponse = await fetch(`${baseUrl}?${tokenParams}`);
 			const body = await tokenResponse.text();
@@ -123,6 +121,11 @@ export const hypPaymentService = {
 				Pritim: params.Pritim,
 			});
 
+			logger.write({
+				severity: "INFO",
+				message: "hypPaymentService.chargeJ5Transaction url",
+				url: `${baseUrl}?${transParams}`,
+			});
 			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
 			const transactionData = await transactionCommit.text();
 			const transactionResult: any = parseQueryString(transactionData);
@@ -136,7 +139,11 @@ export const hypPaymentService = {
 				originalAmount,
 			});
 
-			return { success: Number(transactionResult.CCode) === 0, data: transactionResult, errMessage: null };
+			return {
+				success: Number(transactionResult.CCode) === 0,
+				data: transactionResult,
+				errMessage: null,
+			};
 		} catch (error: any) {
 			logger.write({
 				severity: "ALERT",
