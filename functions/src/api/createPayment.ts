@@ -4,6 +4,23 @@ import { hypPaymentService } from "../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
 
+// Absorb tiny rounding drift between cart total and heshDesc items sum.
+// HYP rejects (CCode=400) when items sum != Amount. We only auto-fix small drifts
+// (≤ 0.20 ILS) to avoid masking real bugs.
+function fitAmountToItemsSum(amount: number, items: string[]): number {
+	// Raw sum — no per-line rounding, no final rounding.
+	const itemsSum = items.reduce((sum, line) => {
+		const m = line.match(/~([\d.]+)~([\d.]+)\]$/);
+		if (!m) return sum;
+		return sum + parseFloat(m[1]) * parseFloat(m[2]);
+	}, 0);
+	const diff = Math.abs(amount - itemsSum);
+	if (diff > 0 && diff <= 0.2) {
+		return itemsSum;
+	}
+	return amount;
+}
+
 export const createPayment = functions.https.onCall(async (data: { order: TOrder, isJ5?: boolean }, context) => {
 	try {
 		console.log("createPayment", context);
@@ -27,7 +44,9 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		const _items = order.cart.items;
 		const items = _items.map((item) => {
 			const price = postVatPrice(item.finalPrice ?? 0, !!item.product.vat).toFixed(2);
-			return `[${item.product.sku}~${item.product.name[0].value}~${item.amount}~${price}]`;
+			const sku = (item.product.sku ?? "").trim();
+			const name = (item.product.name[0]?.value ?? "").trim();
+			return `[${sku}~${name}~${item.amount}~${price}]`;
 		});
 		if (order.cart.deliveryPrice) {
 			items.push(`[0~${DELIVERY_NAME}~1~${order.cart.deliveryPrice.toFixed(2)}]`);
@@ -40,6 +59,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		console.log("storePrivateData", JSON.stringify(storePrivateData));
 
 		const nameOnInvoice = order.nameOnInvoice;
+		const adjustedAmount = fitAmountToItemsSum(order.cart.cartTotal, items);
 
 		const res = await hypPaymentService.createPaymentLink({
 			action: "APISign",
@@ -48,7 +68,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			PassP: storePrivateData.hypData.password,
 			Masof: storePrivateData.hypData.masof,
 			Sign: "True",
-			Amount: order.cart.cartTotal.toString(),
+			Amount: adjustedAmount.toString(),
 			J5: isJ5 ? "True" : "False",
 			MoreData: "True",
 			Order: order.id,
