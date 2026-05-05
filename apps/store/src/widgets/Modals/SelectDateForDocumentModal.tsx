@@ -28,8 +28,8 @@ export function SelectDateForDocumentModal({
 	const handleConfirm = async () => {
 		setIsSubmitting(true);
 		try {
-			const [year, month, day] = documentDate.split("-").map(Number);
-		const dateTimestamp = new Date(year, month - 1, day).getTime();
+			// Use ISO date string → parsed as UTC midnight (avoids local-tz off-by-one)
+			const dateTimestamp = new Date(documentDate).getTime();
 			await onConfirm(dateTimestamp);
 			modalApi.closeModal("selectDateForDocument");
 		} finally {
