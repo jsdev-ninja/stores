@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
-import { FirebaseApi } from "src/lib/firebase";
 import { AddressSchema, getCartCost, TOrder, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
@@ -26,6 +26,8 @@ type TCheckout = z.infer<typeof checkoutSchema>;
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout"]);
+
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const user = useAppSelector((state) => state.user.user);
 
@@ -127,66 +129,79 @@ function CheckoutPage() {
 				}}
 				onSubmit={async (values) => {
 					if (!user || !cart) return;
+					if (isSubmitting) return;
+					setIsSubmitting(true);
 
-					const newOrder: TOrder = {
-						type: "Order",
-						id: FirebaseApi.firestore.generateDocId("orders"),
-						createdBy: "user",
-						userId: user.uid,
-						companyId: store.companyId,
-						storeId: store.id,
-						status: "draft",
-						paymentStatus: store.paymentType === "external" ? "external" : "pending",
-						client: _profile,
-						organizationId: profileOrganization?.id,
-						cart: {
-							id: cart?.id,
-							items: cartCost.items,
-							cartDiscount: cartCost.discount,
-							cartTotal: cartCost.finalCost,
-							cartVat: cartCost.vat,
-							deliveryPrice: cartCost.deliveryPrice,
-						},
-						date: Date.now(), //todo: set on submit event
-						storeOptions: {
-							deliveryPrice: store.deliveryPrice,
-							freeDeliveryPrice: store.freeDeliveryPrice,
-							isVatIncludedInPrice: store.isVatIncludedInPrice,
-						},
-						// form data
-						deliveryDate: values.deliveryDate.getTime(),
-						address: values.address,
-						nameOnInvoice: values.nameOnInvoice,
-						clientComment: values.clientComment,
-						emailOnInvoice: values.email,
-						phoneNumberOnInvoice: values.phone,
-					}
+					try {
+						const newOrder: TOrder = {
+							type: "Order",
+							// Deterministic ID = cart.id → idempotent across rage-clicks, page refresh, multi-tab.
+							// createV2 transactionally bails on duplicate, so 2nd attempt won't create another doc.
+							id: cart.id,
+							createdBy: "user",
+							userId: user.uid,
+							companyId: store.companyId,
+							storeId: store.id,
+							status: "draft",
+							paymentStatus: store.paymentType === "external" ? "external" : "pending",
+							client: _profile,
+							organizationId: profileOrganization?.id,
+							cart: {
+								id: cart.id,
+								items: cartCost.items,
+								cartDiscount: cartCost.discount,
+								cartTotal: cartCost.finalCost,
+								cartVat: cartCost.vat,
+								deliveryPrice: cartCost.deliveryPrice,
+							},
+							date: Date.now(), //todo: set on submit event
+							storeOptions: {
+								deliveryPrice: store.deliveryPrice,
+								freeDeliveryPrice: store.freeDeliveryPrice,
+								isVatIncludedInPrice: store.isVatIncludedInPrice,
+							},
+							// form data
+							deliveryDate: values.deliveryDate.getTime(),
+							address: values.address,
+							nameOnInvoice: values.nameOnInvoice,
+							clientComment: values.clientComment,
+							emailOnInvoice: values.email,
+							phoneNumberOnInvoice: values.phone,
+						}
 
-					if (
-						store.paymentType === "external" ||
-						profileOrganization?.paymentType === "external" ||
-						profile?.paymentType === "external"
-					) {
-						newOrder.status = "pending";
-						newOrder.paymentType = "external";
+						if (
+							store.paymentType === "external" ||
+							profileOrganization?.paymentType === "external" ||
+							profile?.paymentType === "external"
+						) {
+							newOrder.status = "pending";
+							newOrder.paymentType = "external";
+							// createV2 returns success:false when the doc already exists (re-submit/refresh).
+							// Either way, navigate to orders — order is in DB.
+							await appApi.orders.order({
+								order: newOrder,
+							});
+
+							navigate({ to: "store.orders" });
+
+							return;
+						}
+
+						newOrder.paymentType = "j5";
+
+						// Don't bail on success:false — that fires when the order already exists
+						// (rage-click / refresh). Continue to payment link generation either way.
 						await appApi.orders.order({
 							order: newOrder,
 						});
 
-						navigate({ to: "store.orders" });
-
-						return;
+						const payment = await appApi.user.createPaymentLink({ order: newOrder, isJ5: true });
+						if (payment?.data?.paymentLink) {
+							window.location.href = payment.data.paymentLink;
+						}
+					} finally {
+						setIsSubmitting(false);
 					}
-
-					newOrder.paymentType = "j5";
-
-					const order = await appApi.orders.order({
-						order: newOrder,
-					});
-					if (!order?.success) return null; //todo
-
-					const payment = await appApi.user.createPaymentLink({ order: newOrder,isJ5: true });
-					window.location.href = payment.data.paymentLink;
 				}}
 			>
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
@@ -269,7 +284,7 @@ function CheckoutPage() {
 					</div>
 					<PaymentSummary>
 						<div className="space-y-3">
-							<Button fullWidth type="submit">
+							<Button fullWidth type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
 								{t("checkout:order")}
 							</Button>
 						</div>

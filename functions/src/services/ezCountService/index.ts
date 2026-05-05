@@ -144,7 +144,7 @@ export const ezCountService = {
 			date: string;
 			isVatIncludedInPrice: boolean;
 			sendEmailToClient?: boolean;
-		}
+		},
 	) {
 		try {
 			logger.write({
