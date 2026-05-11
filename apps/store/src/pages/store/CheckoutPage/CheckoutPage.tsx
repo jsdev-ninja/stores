@@ -198,7 +198,9 @@ function CheckoutPage() {
 						const payment = await appApi.user.createPaymentLink({ order: newOrder, isJ5: true });
 						if (payment?.data?.paymentLink) {
 							window.location.href = payment.data.paymentLink;
+							return;
 						}
+						navigate({ to: "store.paymentPending" });
 					} finally {
 						setIsSubmitting(false);
 					}

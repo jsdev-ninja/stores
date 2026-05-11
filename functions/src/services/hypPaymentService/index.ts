@@ -161,13 +161,39 @@ export const hypPaymentService = {
 				message: "hypPaymentService.createPaymentLink",
 				params,
 			});
-			const queryString = objectToQueryParams(params);
+			const formBody = objectToQueryParams(params);
 
-			const url = `${baseUrl}?${queryString}`;
+			// POST instead of GET — HYP returns 414 on long URIs for large carts
+			const signResponse = await fetch(baseUrl, {
+				method: "POST",
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: formBody,
+			});
 
-			const signResponse = await fetch(url);
+			if (!signResponse.ok) {
+				const errorBody = await signResponse.text();
+				logger.write({
+					severity: "ALERT",
+					message: "hypPaymentService.createPaymentLink HTTP error",
+					status: signResponse.status,
+					statusText: signResponse.statusText,
+					body: errorBody,
+					params,
+				});
+				return { success: false, errMessage: `HYP returned ${signResponse.status}`, paymentLink: null };
+			}
 
-			const linkData = await signResponse.text();
+			const linkData = (await signResponse.text()).trim();
+
+			if (linkData.startsWith("<") || linkData.toLowerCase().includes("<html") || !linkData.includes("=")) {
+				logger.write({
+					severity: "ALERT",
+					message: "hypPaymentService.createPaymentLink non-signed response",
+					body: linkData,
+					params,
+				});
+				return { success: false, errMessage: "HYP returned non-signed response", paymentLink: null };
+			}
 
 			const paymentLink = `${baseUrl}?${linkData}`;
 
@@ -176,7 +202,6 @@ export const hypPaymentService = {
 				message: "hypPaymentService.createPaymentLink success",
 				params,
 				paymentLink,
-				url,
 				linkData,
 			});
 
