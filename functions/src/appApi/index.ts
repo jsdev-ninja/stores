@@ -183,6 +183,10 @@ export function createAppApi(context: TContext) {
 						isVatIncludedInPrice:
 							order.storeOptions?.isVatIncludedInPrice ?? store.isVatIncludedInPrice,
 						sendEmailToClient,
+						customer_crn:
+							order.cart.cartTotal > 5000 && organization?.companyNumber
+								? organization.companyNumber
+								: undefined,
 					});
 
 					logger.write({
