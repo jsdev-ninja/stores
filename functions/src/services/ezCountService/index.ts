@@ -140,6 +140,7 @@ export const ezCountService = {
 			isVatIncludedInPrice = false,
 			sendEmailToClient = true,
 			customer_crn,
+			transaction_id,
 		}: {
 			ezcount_key: string;
 			clientName: string;
@@ -149,6 +150,7 @@ export const ezCountService = {
 			isVatIncludedInPrice: boolean;
 			sendEmailToClient?: boolean;
 			customer_crn?: string;
+			transaction_id?: string;
 		},
 	) {
 		try {
@@ -201,6 +203,7 @@ export const ezCountService = {
 			const data = JSON.stringify({
 				developer_email: "philip@jsdev.ninja",
 				api_key: ezcount_key,
+				transaction_id: transaction_id,
 				type: DOC_TYPE.DELIVERY,
 				auto_balance: true,
 				customer_crn: customer_crn,

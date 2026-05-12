@@ -177,6 +177,7 @@ export function createAppApi(context: TContext) {
 					const res = await ezCountService.createDeliveryNote(order, {
 						ezcount_key: storePrivateData.ezcount_key,
 						ezcount_api: storePrivateData.ezcount_api,
+						transaction_id: `delivery:${order.id}`,
 						clientName: options?.nameOnInvoice ?? order.nameOnInvoice ?? "",
 						clientEmail: order.client?.email ?? "",
 						date: formatDateDDMMYYYY(date.toLocaleDateString()),

@@ -1,4 +1,5 @@
 import * as functionsV2 from "firebase-functions/v2";
+import { createHash } from "crypto";
 import { ezCountService } from "../services/ezCountService";
 // import { documentsService } from "../services/documents";
 import { TStorePrivate } from "src/schema";
@@ -55,10 +56,14 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 			organization = organizationSnapshot.data() as TOrganization;
 		}
 
+		const orderIds = orders.map((o) => o.id).sort().join("|");
+		// Deterministic id keyed on order ids — makes EZcount idempotent across retries.
+		const transactionId = "invoice:" + createHash("sha256").update(orderIds).digest("hex");
+
 		const res = await ezCountService.createInvoice({
 			api_key: storePrivateData.ezcount_key,
 			url: storePrivateData.ezcount_api,
-			transaction_id: params.transaction_id,
+			transaction_id: transactionId,
 			customer_name: params.customer_name,
 			customer_email: params.customer_email,
 			customer_address: params.customer_address,
