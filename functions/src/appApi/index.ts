@@ -177,12 +177,17 @@ export function createAppApi(context: TContext) {
 					const res = await ezCountService.createDeliveryNote(order, {
 						ezcount_key: storePrivateData.ezcount_key,
 						ezcount_api: storePrivateData.ezcount_api,
+						transaction_id: `delivery:${order.id}`,
 						clientName: options?.nameOnInvoice ?? order.nameOnInvoice ?? "",
 						clientEmail: order.client?.email ?? "",
 						date: formatDateDDMMYYYY(date.toLocaleDateString()),
 						isVatIncludedInPrice:
 							order.storeOptions?.isVatIncludedInPrice ?? store.isVatIncludedInPrice,
 						sendEmailToClient,
+						customer_crn:
+							order.cart.cartTotal > 5000 && organization?.companyNumber
+								? organization.companyNumber
+								: undefined,
 					});
 
 					logger.write({

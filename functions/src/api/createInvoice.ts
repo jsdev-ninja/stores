@@ -1,9 +1,10 @@
 import * as functionsV2 from "firebase-functions/v2";
+import { createHash } from "crypto";
 import { ezCountService } from "../services/ezCountService";
 // import { documentsService } from "../services/documents";
 import { TStorePrivate } from "src/schema";
 import admin from "firebase-admin";
-import { FirebaseAPI, TOrder, TStore } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
 
 type TData = {
 	params: Parameters<typeof ezCountService.createInvoice>[0];
@@ -38,14 +39,36 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 			await admin.firestore().collection("STORES").doc(storeId).get()
 		).data() as TStore;
 
+		const price_total = params.price_total ?? 0;
+		let organization: TOrganization | undefined;
+		if (price_total > 5000 && orders[0]?.organizationId) {
+			const organizationSnapshot = await admin
+				.firestore()
+				.collection(
+					FirebaseAPI.firestore.getPath({
+						collectionName: "organizations",
+						companyId: auth?.token.companyId,
+						storeId: auth?.token.storeId ?? "",
+					})
+				)
+				.doc(orders[0].organizationId)
+				.get();
+			organization = organizationSnapshot.data() as TOrganization;
+		}
+
+		const orderIds = orders.map((o) => o.id).sort().join("|");
+		// Deterministic id keyed on order ids — makes EZcount idempotent across retries.
+		const transactionId = "invoice:" + createHash("sha256").update(orderIds).digest("hex");
+
 		const res = await ezCountService.createInvoice({
 			api_key: storePrivateData.ezcount_key,
 			url: storePrivateData.ezcount_api,
-			transaction_id: params.transaction_id,
+			transaction_id: transactionId,
 			customer_name: params.customer_name,
 			customer_email: params.customer_email,
 			customer_address: params.customer_address,
 			customer_phone: params.customer_phone,
+			customer_crn: organization?.companyNumber,
 			description: params.description,
 			item: params.item,
 			price_total: params.price_total,

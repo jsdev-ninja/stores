@@ -61,6 +61,7 @@ type Params = {
 	customer_phone?: string;
 	description?: string;
 	parent?: string; // parens docs (1,2,3,4)
+	customer_crn?: string;
 	cc_emails?: string[];
 	item?: {
 		details: string;
@@ -94,7 +95,9 @@ export async function createDocument(params: Params) {
 				developer_email: "philip@jsdev.ninja",
 				api_key: params.api_key,
 				type: params.doc_type,
+				transaction_id: params.transaction_id,
 				auto_balance: true,
+				customer_crn: params.customer_crn,
 				item: params.item,
 				customer_name: params.customer_name,
 				customer_email: params.customer_email,
@@ -136,6 +139,8 @@ export const ezCountService = {
 			date,
 			isVatIncludedInPrice = false,
 			sendEmailToClient = true,
+			customer_crn,
+			transaction_id,
 		}: {
 			ezcount_key: string;
 			clientName: string;
@@ -144,6 +149,8 @@ export const ezCountService = {
 			date: string;
 			isVatIncludedInPrice: boolean;
 			sendEmailToClient?: boolean;
+			customer_crn?: string;
+			transaction_id?: string;
 		},
 	) {
 		try {
@@ -196,7 +203,10 @@ export const ezCountService = {
 			const data = JSON.stringify({
 				developer_email: "philip@jsdev.ninja",
 				api_key: ezcount_key,
+				transaction_id: transaction_id,
 				type: DOC_TYPE.DELIVERY,
+				auto_balance: true,
+				customer_crn: customer_crn,
 				customer_name: clientName,
 				customer_email: clientEmail,
 				item: items,
