@@ -180,7 +180,7 @@ export const hypPaymentService = {
 					body: errorBody,
 					params,
 				});
-				return { success: false, errMessage: `HYP returned ${signResponse.status}`, paymentLink: null };
+				return { success: false, errMessage: `HYP returned ${signResponse.status}`, paymentLink: null, formAction: null, formFields: null };
 			}
 
 			const linkData = (await signResponse.text()).trim();
@@ -192,20 +192,22 @@ export const hypPaymentService = {
 					body: linkData,
 					params,
 				});
-				return { success: false, errMessage: "HYP returned non-signed response", paymentLink: null };
+				return { success: false, errMessage: "HYP returned non-signed response", paymentLink: null, formAction: null, formFields: null };
 			}
 
 			const paymentLink = `${baseUrl}?${linkData}`;
+			// parse into discrete fields so the client can form-POST and avoid 414
+			const formFields = parseQueryString<Record<string, string>>(linkData);
 
 			logger.write({
 				severity: "INFO",
 				message: "hypPaymentService.createPaymentLink success",
 				params,
 				paymentLink,
-				linkData,
+				formFieldsCount: Object.keys(formFields).length,
 			});
 
-			return { success: true, paymentLink, errMessage: null };
+			return { success: true, paymentLink, formAction: baseUrl, formFields, errMessage: null };
 		} catch (error: any) {
 			logger.write({
 				severity: "ALERT",
@@ -213,7 +215,7 @@ export const hypPaymentService = {
 				error: error,
 				params,
 			});
-			return { success: false, errMessage: error.message, paymentLink: null };
+			return { success: false, errMessage: error.message, paymentLink: null, formAction: null, formFields: null };
 		}
 	},
 } as const;

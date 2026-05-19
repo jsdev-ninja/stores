@@ -8,6 +8,7 @@ import { useAppSelector } from "src/infra";
 import { AddressSchema, getCartCost, TOrder, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
+import { submitHypForm } from "src/lib/payment/submitHypForm";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
 import { z } from "zod";
@@ -196,6 +197,10 @@ function CheckoutPage() {
 						});
 
 						const payment = await appApi.user.createPaymentLink({ order: newOrder, isJ5: true });
+						if (payment?.data?.formAction && payment?.data?.formFields) {
+							submitHypForm(payment.data.formAction, payment.data.formFields);
+							return;
+						}
 						if (payment?.data?.paymentLink) {
 							window.location.href = payment.data.paymentLink;
 							return;

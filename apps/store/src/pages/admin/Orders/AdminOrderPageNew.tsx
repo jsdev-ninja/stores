@@ -38,6 +38,7 @@ import { modalApi } from "src/infra/modals";
 import { formatter } from "src/utils/formatter";
 import { useStore } from "src/domains/Store";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { submitHypForm } from "src/lib/payment/submitHypForm";
 
 export default function AdminOrderPageNew() {
 	const { t, i18n } = useTranslation(["common", "ordersPage"]);
@@ -299,7 +300,11 @@ export default function AdminOrderPageNew() {
 											order,
 											isJ5: false,
 										});
-										window.location.href = payment.data.paymentLink;
+										if (payment?.data?.formAction && payment?.data?.formFields) {
+											submitHypForm(payment.data.formAction, payment.data.formFields);
+										} else if (payment?.data?.paymentLink) {
+											window.location.href = payment.data.paymentLink;
+										}
 									}
 									if (key === "endOrder") {
 										const res = await appApi.admin.endOrder({ order });
