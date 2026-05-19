@@ -132,6 +132,9 @@ export const routes = {
 	superAdmin: {
 		path: "/superAdmin",
 	},
+	pay: {
+		path: "/pay/:token",
+	},
 } as const;
 
 export type TLinkTo = LinkTo<typeof routes>;

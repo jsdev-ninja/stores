@@ -38,7 +38,6 @@ import { modalApi } from "src/infra/modals";
 import { formatter } from "src/utils/formatter";
 import { useStore } from "src/domains/Store";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
-import { submitHypForm } from "src/lib/payment/submitHypForm";
 
 export default function AdminOrderPageNew() {
 	const { t, i18n } = useTranslation(["common", "ordersPage"]);
@@ -56,6 +55,13 @@ export default function AdminOrderPageNew() {
 	const [paidMethod, setPaidMethod] = useState<TPaymentMethod>("bank_transfer");
 	const [paidReference, setPaidReference] = useState("");
 	const [paidNote, setPaidNote] = useState("");
+
+	// Payment link modal state
+	const [paymentLinkOpen, setPaymentLinkOpen] = useState(false);
+	const [paymentLinkUrl, setPaymentLinkUrl] = useState("");
+	const [paymentLinkLoading, setPaymentLinkLoading] = useState(false);
+	const [paymentLinkCopied, setPaymentLinkCopied] = useState(false);
+	const [paymentLinkError, setPaymentLinkError] = useState("");
 	const appApi = useAppApi();
 	const store = useStore();
 	const discounts = useDiscounts();
@@ -220,8 +226,12 @@ export default function AdminOrderPageNew() {
 		return actionByStatus[order.status] ?? null;
 	};
 
-	const disabledKeys = [];
-	if (order?.paymentStatus === "completed" || order?.paymentType === "external") {
+	const disabledKeys: string[] = [];
+	if (
+		order?.paymentStatus === "completed" ||
+		order?.paymentType === "external" ||
+		paymentLinkLoading
+	) {
 		disabledKeys.push("createPaymentLink");
 	}
 
@@ -296,14 +306,21 @@ export default function AdminOrderPageNew() {
 										updateOrder(order.id, "cancelled");
 									}
 									if (key === "createPaymentLink") {
-										const payment = await appApi.user.createPaymentLink({
+										setPaymentLinkError("");
+										setPaymentLinkLoading(true);
+										const res = await FirebaseApi.api.createPaymentRedirect({
 											order,
 											isJ5: false,
+											origin: window.location.origin,
 										});
-										if (payment?.data?.formAction && payment?.data?.formFields) {
-											submitHypForm(payment.data.formAction, payment.data.formFields);
-										} else if (payment?.data?.paymentLink) {
-											window.location.href = payment.data.paymentLink;
+										setPaymentLinkLoading(false);
+										if (res.data?.success && res.data?.url) {
+											setPaymentLinkUrl(res.data.url);
+											setPaymentLinkOpen(true);
+										} else {
+											setPaymentLinkError(
+												t("ordersPage:paymentLink.error", "שגיאה ביצירת לינק לתשלום"),
+											);
 										}
 									}
 									if (key === "endOrder") {
@@ -975,6 +992,63 @@ export default function AdminOrderPageNew() {
 				</Card>
 			</div>
 		</div>
+
+		{/* Payment link error alert */}
+		{paymentLinkError && (
+			<Alert color="danger" className="mt-4 mx-4">
+				{paymentLinkError}
+			</Alert>
+		)}
+
+		{/* Payment link loading indicator */}
+		{paymentLinkLoading && (
+			<Alert color="default" className="mt-4 mx-4">
+				{t("ordersPage:paymentLink.generating", "יוצר לינק לתשלום…")}
+			</Alert>
+		)}
+
+		{/* Payment link modal */}
+		<Modal isOpen={paymentLinkOpen} onClose={() => setPaymentLinkOpen(false)}>
+			<ModalContent>
+				<ModalHeader dir="rtl">
+					{t("ordersPage:paymentLink.title", "לינק לתשלום")}
+				</ModalHeader>
+				<ModalBody className="space-y-4" dir="rtl">
+					<p className="text-sm text-gray-600">
+						{t(
+							"ordersPage:paymentLink.description",
+							"שלח את הלינק ללקוח. הלינק תקף ל-48 שעות.",
+						)}
+					</p>
+					<div className="flex gap-2 items-center">
+						<Input
+							isReadOnly
+							value={paymentLinkUrl}
+							className="flex-1"
+							aria-label={t("ordersPage:paymentLink.title", "לינק לתשלום")}
+						/>
+						<Button
+							color="primary"
+							variant="flat"
+							onPress={() => {
+								navigator.clipboard.writeText(paymentLinkUrl);
+								setPaymentLinkCopied(true);
+								setTimeout(() => setPaymentLinkCopied(false), 2000);
+							}}
+						>
+							{paymentLinkCopied
+								? t("ordersPage:paymentLink.copied", "הועתק!")
+								: t("ordersPage:paymentLink.copy", "העתק")}
+						</Button>
+					</div>
+				</ModalBody>
+				<ModalFooter>
+					<Button variant="light" onPress={() => setPaymentLinkOpen(false)}>
+						{t("common:close", "סגור")}
+					</Button>
+				</ModalFooter>
+			</ModalContent>
+		</Modal>
 
 		{/* Mark as Paid modal */}
 		<Modal isOpen={markPaidOpen} onClose={() => setMarkPaidOpen(false)}>

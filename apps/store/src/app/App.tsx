@@ -18,6 +18,11 @@ import { SentryApi } from "src/lib/sentry";
 const SuperAdminLayout = lazy(() => import("src/pages/superAdmin"));
 const StoreLayout = lazy(() => import("src/pages/store/StoreLayout"));
 const AdminLayout = lazy(() => import("src/pages/admin/AdminLayout/AdminLayout"));
+const PayRedirectPage = lazy(() =>
+	import("src/pages/store/PayRedirectPage/PayRedirectPage").then((m) => ({
+		default: m.PayRedirectPage,
+	})),
+);
 
 function App() {
 	const { i18n } = useTranslation();
@@ -196,6 +201,9 @@ function App() {
 					<ProtectedRoute access={{ superAdmin: true }}>
 						<SuperAdminLayout />
 					</ProtectedRoute>
+				</Route>
+				<Route name="pay">
+					<PayRedirectPage />
 				</Route>
 			</Suspense>
 		</HeroUIProvider>

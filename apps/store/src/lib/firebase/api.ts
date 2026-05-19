@@ -153,6 +153,54 @@ async function createPayment({ order, isJ5 }: { order: TOrder; isJ5?: boolean })
 		return { success: false, data: null };
 	}
 }
+async function createPaymentRedirect({
+	order,
+	isJ5,
+	origin,
+}: {
+	order: TOrder;
+	isJ5?: boolean;
+	origin: string;
+}) {
+	try {
+		const func = httpsCallable(functions, "createPaymentRedirect");
+		const response = await func({ order, isJ5, origin });
+		return {
+			success: true,
+			data: response.data as {
+				success: boolean;
+				url?: string;
+				token?: string;
+				error?: string;
+			},
+		};
+	} catch (error: unknown) {
+		const e = error as { code?: string; message?: string; details?: unknown };
+		console.error(e.code, e.message, e.details);
+		return { success: false, data: null };
+	}
+}
+
+async function getPaymentRedirect({ token }: { token: string }) {
+	try {
+		const func = httpsCallable(functions, "getPaymentRedirect");
+		const response = await func({ token });
+		return {
+			success: true,
+			data: response.data as {
+				success: boolean;
+				formAction?: string;
+				formFields?: Record<string, string>;
+				error?: string;
+			},
+		};
+	} catch (error: unknown) {
+		const e = error as { code?: string; message?: string; details?: unknown };
+		console.error(e.code, e.message, e.details);
+		return { success: false, data: null };
+	}
+}
+
 async function chargeOrder({ order }: { order: TOrder }) {
 	try {
 		const func = httpsCallable(functions, "chargeOrder");
@@ -301,6 +349,8 @@ export const api = {
 	createCompanyClient,
 	createPayment,
 	chargeOrder,
+	createPaymentRedirect,
+	getPaymentRedirect,
 	uiLogs,
 	createInvoice,
 	createDeliveryNote,

@@ -53,8 +53,10 @@ type chargeJ5TransactionParams = {
 // parse hyp text response
 function parseQueryString<T extends Record<string, string>>(query: string): T {
 	return query.split("&").reduce((acc, param) => {
-		const [key, value] = param.split("=");
-		if (key && value) {
+		const idx = param.indexOf("=");
+		if (idx > 0) {
+			const key = param.slice(0, idx);
+			const value = param.slice(idx + 1);
 			acc[key as keyof T] = decodeURIComponent(value) as T[keyof T];
 		}
 		return acc;
