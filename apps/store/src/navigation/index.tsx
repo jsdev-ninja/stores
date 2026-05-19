@@ -43,6 +43,9 @@ export const routes = {
 			paymentPending: {
 				path: "/payment-pending",
 			},
+			payRedirect: {
+				path: "/pay/:token",
+			},
 			profile: {
 				path: "/profile",
 			},

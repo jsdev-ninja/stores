@@ -1806,6 +1806,24 @@ export const useAppApi = () => {
 				});
 				return payment;
 			},
+			async createPaymentRedirect({ order, isJ5 = false }: { order: TOrder; isJ5?: boolean }) {
+				if (!user || !store || !order) return;
+				const res: any = await FirebaseApi.api.createPaymentRedirect({
+					order: { ...order, client: undefined },
+					isJ5,
+					baseUrl: window.location.origin,
+				});
+				logger({
+					message: "admin create payment redirect",
+					severity: "INFO",
+					res,
+					userId: user.uid,
+				});
+				return res;
+			},
+			async getPaymentRedirect({ token }: { token: string }) {
+				return FirebaseApi.api.getPaymentRedirect({ token });
+			},
 			async cancelOrder({ order }: { order: TOrder }) {
 				if (!isValidUser) return;
 				// mixPanelApi.track("ADMIN_ORDER_ACCEPT", {
