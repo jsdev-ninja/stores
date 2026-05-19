@@ -9,6 +9,7 @@ import { useUser } from "src/domains/user";
 import { TOrder } from "@jsdev_ninja/core";
 import { useAppSelector } from "src/infra";
 import { useState } from "react";
+import { submitHypForm } from "src/lib/payment/submitHypForm";
 
 function UserOrdersPage() {
 	const { t } = useTranslation(["common", "ordersPage"]);
@@ -111,7 +112,11 @@ function OrderItem({ order }: { order: TOrder }) {
 										isJ5: true,
 									});
 									setLoading(false);
-									window.location.href = payment.data.paymentLink;
+									if (payment?.data?.formAction && payment?.data?.formFields) {
+										submitHypForm(payment.data.formAction, payment.data.formFields);
+									} else if (payment?.data?.paymentLink) {
+										window.location.href = payment.data.paymentLink;
+									}
 								} catch (error) {
 									setLoading(false);
 								}

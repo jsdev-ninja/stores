@@ -161,26 +161,53 @@ export const hypPaymentService = {
 				message: "hypPaymentService.createPaymentLink",
 				params,
 			});
-			const queryString = objectToQueryParams(params);
+			const formBody = objectToQueryParams(params);
 
-			const url = `${baseUrl}?${queryString}`;
+			// POST instead of GET — HYP returns 414 on long URIs for large carts
+			const signResponse = await fetch(baseUrl, {
+				method: "POST",
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: formBody,
+			});
 
-			const signResponse = await fetch(url);
+			if (!signResponse.ok) {
+				const errorBody = await signResponse.text();
+				logger.write({
+					severity: "ALERT",
+					message: "hypPaymentService.createPaymentLink HTTP error",
+					status: signResponse.status,
+					statusText: signResponse.statusText,
+					body: errorBody,
+					params,
+				});
+				return { success: false, errMessage: `HYP returned ${signResponse.status}`, paymentLink: null, formAction: null, formFields: null };
+			}
 
-			const linkData = await signResponse.text();
+			const linkData = (await signResponse.text()).trim();
+
+			if (linkData.startsWith("<") || linkData.toLowerCase().includes("<html") || !linkData.includes("=")) {
+				logger.write({
+					severity: "ALERT",
+					message: "hypPaymentService.createPaymentLink non-signed response",
+					body: linkData,
+					params,
+				});
+				return { success: false, errMessage: "HYP returned non-signed response", paymentLink: null, formAction: null, formFields: null };
+			}
 
 			const paymentLink = `${baseUrl}?${linkData}`;
+			// parse into discrete fields so the client can form-POST and avoid 414
+			const formFields = parseQueryString<Record<string, string>>(linkData);
 
 			logger.write({
 				severity: "INFO",
 				message: "hypPaymentService.createPaymentLink success",
 				params,
 				paymentLink,
-				url,
-				linkData,
+				formFieldsCount: Object.keys(formFields).length,
 			});
 
-			return { success: true, paymentLink, errMessage: null };
+			return { success: true, paymentLink, formAction: baseUrl, formFields, errMessage: null };
 		} catch (error: any) {
 			logger.write({
 				severity: "ALERT",
@@ -188,7 +215,7 @@ export const hypPaymentService = {
 				error: error,
 				params,
 			});
-			return { success: false, errMessage: error.message, paymentLink: null };
+			return { success: false, errMessage: error.message, paymentLink: null, formAction: null, formFields: null };
 		}
 	},
 } as const;

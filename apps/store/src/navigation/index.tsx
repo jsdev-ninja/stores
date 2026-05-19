@@ -40,6 +40,9 @@ export const routes = {
 			orderError: {
 				path: "/orderError",
 			},
+			paymentPending: {
+				path: "/payment-pending",
+			},
 			profile: {
 				path: "/profile",
 			},

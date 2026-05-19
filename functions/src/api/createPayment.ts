@@ -95,6 +95,8 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 
 		return {
 			paymentLink: res.paymentLink,
+			formAction: res.formAction,
+			formFields: res.formFields,
 		};
 	} catch (error: any) {
 		console.error(error.message);

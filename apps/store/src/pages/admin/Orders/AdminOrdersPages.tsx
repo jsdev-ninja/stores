@@ -6,6 +6,7 @@ import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
 import { navigate } from "src/navigation";
+import { submitHypForm } from "src/lib/payment/submitHypForm";
 import {
 	ChipProps,
 	Chip,
@@ -177,7 +178,11 @@ function OrderRow({
 						type="button"
 						onPress={async () => {
 							const payment = await appApi.user.createPaymentLink({ order });
-							window.location.href = payment.data.paymentLink;
+							if (payment?.data?.formAction && payment?.data?.formFields) {
+								submitHypForm(payment.data.formAction, payment.data.formFields);
+							} else if (payment?.data?.paymentLink) {
+								window.location.href = payment.data.paymentLink;
+							}
 						}}
 					>
 						צור לינק חיוב
