@@ -17,6 +17,8 @@ export { appInit } from "./api/init";
 export { getMixpanelData } from "./api/mixpanel-ts";
 export { createCompanyClient } from "./api/createCompany";
 export { createPayment } from "./api/createPayment";
+export { createPaymentRedirect } from "./api/createPaymentRedirect";
+export { getPaymentRedirect } from "./api/getPaymentRedirect";
 export { chargeOrder } from "./api/chargeOrder";
 export { createInvoice } from "./api/createInvoice";
 export { createDeliveryNote } from "./api/createDeliveryNote";

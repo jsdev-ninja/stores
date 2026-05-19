@@ -8,6 +8,7 @@ import ProfilePage from "./ProfilePage/ProfilePage";
 import { OrderSuccessPage } from "./OrderSuccessPage/OrderSuccessPage";
 import { OrderErrorPage } from "./OrderErrorPage/OrderErrorPage";
 import { PaymentPendingPage } from "./PaymentPendingPage/PaymentPendingPage";
+import { PayRedirectPage } from "./PayRedirectPage/PayRedirectPage";
 import UserOrdersPage from "./UserOrdersPage";
 import CartPage from "./CartPage/CartPage";
 import { useEffect } from "react";
@@ -115,6 +116,10 @@ export default function StoreLayout() {
 
 					<Route name="store.paymentPending">
 						<PaymentPendingPage />
+					</Route>
+
+					<Route name="store.payRedirect">
+						<PayRedirectPage />
 					</Route>
 
 					<Route name="store.profile">

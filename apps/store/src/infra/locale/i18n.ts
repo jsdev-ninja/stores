@@ -545,6 +545,13 @@ export const resources = {
 			description: "לצערנו, נתקלנו בבעיה טכנית בעיבוד התשלום.\nאל דאגה — ההזמנה שלך נשמרה במערכת ונמצאת בטיפול.\nנציג שלנו ייצור איתך קשר בהקדם להשלמת התשלום.\n\nתודה על הסבלנות ועל האמון!",
 			actionButton: "חזרה לחנות",
 		},
+		payRedirectPage: {
+			loadingTitle: "מעביר לדף התשלום…",
+			loadingDescription: "אנא המתן.",
+			errorTitle: "הקישור אינו תקף",
+			errorDescription: "ייתכן שהקישור פג תוקף או שנעשה בו שימוש. פנה לחנות לקבלת קישור חדש.",
+			actionButton: "חזרה לחנות",
+		},
 		checkout: {
 			title: "פרטי ההזמנה",
 			order: "הזמן",

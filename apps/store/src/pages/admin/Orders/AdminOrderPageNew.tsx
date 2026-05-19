@@ -38,7 +38,6 @@ import { modalApi } from "src/infra/modals";
 import { formatter } from "src/utils/formatter";
 import { useStore } from "src/domains/Store";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
-import { submitHypForm } from "src/lib/payment/submitHypForm";
 
 export default function AdminOrderPageNew() {
 	const { t, i18n } = useTranslation(["common", "ordersPage"]);
@@ -296,14 +295,20 @@ export default function AdminOrderPageNew() {
 										updateOrder(order.id, "cancelled");
 									}
 									if (key === "createPaymentLink") {
-										const payment = await appApi.user.createPaymentLink({
+										const res = await appApi.user.createPaymentRedirect({
 											order,
 											isJ5: false,
 										});
-										if (payment?.data?.formAction && payment?.data?.formFields) {
-											submitHypForm(payment.data.formAction, payment.data.formFields);
-										} else if (payment?.data?.paymentLink) {
-											window.location.href = payment.data.paymentLink;
+										if (res?.data?.success && res.data.url) {
+											// clipboard with alert fallback for browsers that block clipboard in non-secure contexts
+											try {
+												await navigator.clipboard.writeText(res.data.url);
+												alert(`לינק תשלום הועתק:\n${res.data.url}`);
+											} catch {
+												alert(`לינק תשלום:\n${res.data.url}`);
+											}
+										} else {
+											alert("שגיאה ביצירת לינק תשלום");
 										}
 									}
 									if (key === "endOrder") {

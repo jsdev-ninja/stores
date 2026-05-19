@@ -6,7 +6,6 @@ import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
 import { navigate } from "src/navigation";
-import { submitHypForm } from "src/lib/payment/submitHypForm";
 import {
 	ChipProps,
 	Chip,
@@ -177,11 +176,17 @@ function OrderRow({
 					<Button
 						type="button"
 						onPress={async () => {
-							const payment = await appApi.user.createPaymentLink({ order });
-							if (payment?.data?.formAction && payment?.data?.formFields) {
-								submitHypForm(payment.data.formAction, payment.data.formFields);
-							} else if (payment?.data?.paymentLink) {
-								window.location.href = payment.data.paymentLink;
+							const res = await appApi.user.createPaymentRedirect({ order });
+							if (res?.data?.success && res.data.url) {
+								// clipboard with alert fallback for browsers that block clipboard in non-secure contexts
+								try {
+									await navigator.clipboard.writeText(res.data.url);
+									alert(`לינק תשלום הועתק:\n${res.data.url}`);
+								} catch {
+									alert(`לינק תשלום:\n${res.data.url}`);
+								}
+							} else {
+								alert("שגיאה ביצירת לינק תשלום");
 							}
 						}}
 					>
