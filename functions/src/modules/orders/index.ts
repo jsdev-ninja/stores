@@ -5,4 +5,10 @@ export const ordersModule = {
 	onUpdated: handleOrderUpdated,
 } as const;
 
-export { OrderEventTypes, OrderPlacedPayload } from "./events";
+export {
+	OrderEventTypes,
+	OrderPlacedPayload,
+	OrderCompletedPayload,
+	OrderCancelledPayload,
+	OrderRefundedPayload,
+} from "./events";

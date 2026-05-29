@@ -12,6 +12,12 @@
       "runtimeExecutable": "yarn",
       "runtimeArgs": ["workspace", "store", "dev:test"],
       "port": 5175
+    },
+    {
+      "name": "balasi-legacy",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "/Users/philbro/workspace/@jsdev-store/migration-new-ui/balasi-all"],
+      "port": 8765
     }
   ]
 }
