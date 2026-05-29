@@ -1,2 +1,2 @@
-// Placeholder — webhooks integration is built incrementally.
-export const webhooks = {} as const;
+export * from "./types";
+export * from "./internal/paths";

@@ -1584,77 +1584,182 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
     <!-- MODULE: BUDGET -->
     <section id="module-budget">
       <h2>💰 Module: Budget <span class="tag">Layer 2</span> <span class="tag">B2B</span> <span class="mark mark-safe">SAFE</span></h2>
-      <p class="lead">B2B-specific. Tracks debt/credit per organization. Pure event-driven — listens to fulfillment &amp; payment events.</p>
+      <p class="lead">The source of truth for what each B2B organization owes. Append-only ledger entries + a per-org account doc for the current balance + pre-aggregated rollups for fast filtered queries. B2C orders flow through the ledger too, but no account doc is created — B2C customers pay at checkout and carry no debt.</p>
+
+      <h3>Storage Shape</h3>
+      <p>Three collections, all under <code>{companyId}/{storeId}/</code>:</p>
 
       <div class="split">
         <div class="split-pane">
           <div class="split-pane-header">
             <span class="badge badge-backend">Backend</span>
-            <span>modules/budget/subscribers.ts</span>
+            <span>modules/budget/internal/paths.ts</span>
           </div>
-<pre><code><span class="tok-k">import</span> { subscribe } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
-<span class="tok-k">import</span> { budgetService } <span class="tok-k">from</span> <span class="tok-s">"./internal/budgetService"</span>;
+<pre><code><span class="tok-c">// Per-store path helpers</span>
+<span class="tok-k">const</span> root = (<span class="tok-v">c</span>: <span class="tok-t">string</span>, <span class="tok-v">s</span>: <span class="tok-t">string</span>) =&gt;
+  <span class="tok-s">`</span>${<span class="tok-v">c</span>}<span class="tok-s">/</span>${<span class="tok-v">s</span>}<span class="tok-s">`</span>;
 
-<span class="tok-c">// Debt is added when delivery note is issued</span>
-<span class="tok-k">export const</span> <span class="tok-v">onDeliveryNote</span> = <span class="tok-f">subscribe</span>(<span class="tok-k">async</span> (event) =&gt; {
-  <span class="tok-k">if</span> (event.type !== <span class="tok-s">"fulfillment.delivery_note.created"</span>) <span class="tok-k">return</span>;
+<span class="tok-k">export const</span> <span class="tok-v">budgetPaths</span> = {
+  <span class="tok-c">// Immutable ledger rows — never updated, never deleted</span>
+  <span class="tok-c">// Query by orderId to find the full chain</span>
+  transactions: (c, s, accountId) =&gt;
+    <span class="tok-s">`</span>${<span class="tok-f">root</span>(c,s)}<span class="tok-s">/budgetAccounts/</span>${<span class="tok-v">accountId</span>}<span class="tok-s">/budgetTransactions`</span>,
 
-  <span class="tok-k">const</span> { organizationId, total, deliveryNoteId } = event.payload;
-  <span class="tok-k">if</span> (!organizationId) <span class="tok-k">return</span>;
+  <span class="tok-c">// One doc per org — fast current-balance fetch</span>
+  account: (c, s, orgId) =&gt;
+    <span class="tok-s">`</span>${<span class="tok-f">root</span>(c,s)}<span class="tok-s">/budgetAccounts/</span>${<span class="tok-v">orgId</span>}<span class="tok-s">`</span>,
 
-  <span class="tok-k">await</span> budgetService.addTransaction({
-    organizationId,
-    type: <span class="tok-s">"delivery_note"</span>,
-    amount: total,
-    deliveryNoteId,
-  });
-});
+  <span class="tok-c">// Pre-aggregated by granularity × period × org × billingAccount</span>
+  <span class="tok-c">// ID: {gran}_{period}[_org-{X}][_ba-{Y}]</span>
+  rollup: (c, s, rollupId) =&gt;
+    <span class="tok-s">`</span>${<span class="tok-f">root</span>(c,s)}<span class="tok-s">/budgetRollups/</span>${<span class="tok-v">rollupId</span>}<span class="tok-s">`</span>,
 
-<span class="tok-c">// Credit when payment completes</span>
-<span class="tok-k">export const</span> <span class="tok-v">onPaymentReceived</span> = <span class="tok-f">subscribe</span>(<span class="tok-k">async</span> (event) =&gt; {
-  <span class="tok-k">if</span> (event.type !== <span class="tok-s">"payment.captured"</span>) <span class="tok-k">return</span>;
-
-  <span class="tok-k">await</span> budgetService.addTransaction({
-    organizationId: event.payload.organizationId,
-    type: <span class="tok-s">"payment_received"</span>,
-    amount: -event.payload.amount, <span class="tok-c">// reduces debt</span>
-  });
-});</code></pre>
+  <span class="tok-c">// Per-module idempotency markers with TTL</span>
+  idempotency: (c, s, eventId) =&gt;
+    <span class="tok-s">`</span>${<span class="tok-f">root</span>(c,s)}<span class="tok-s">/budgetIdempotency/</span>${<span class="tok-v">eventId</span>}<span class="tok-s">`</span>,
+};</code></pre>
         </div>
 
         <div class="split-pane">
           <div class="split-pane-header">
-            <span class="badge badge-frontend">Frontend</span>
-            <span>apps/admin/src/pages/customers/BudgetTab.tsx</span>
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/budget/types.ts</span>
           </div>
-<pre><code><span class="tok-k">export function</span> <span class="tok-f">BudgetTab</span>({ organizationId }) {
-  <span class="tok-k">const</span> { data: transactions } = useQuery({
-    queryKey: [<span class="tok-s">"budget"</span>, organizationId],
-    queryFn: () =&gt; api.admin.budget.getTransactions(organizationId),
-  });
+<pre><code><span class="tok-k">import</span> { z } <span class="tok-k">from</span> <span class="tok-s">"zod"</span>;
+<span class="tok-k">import</span> {
+  <span class="tok-t">BudgetTransactionSchema</span>,
+  <span class="tok-t">BudgetAccountSchema</span>,
+} <span class="tok-k">from</span> <span class="tok-s">"packages/core-schemas"</span>;
 
-  <span class="tok-k">const</span> balance = transactions?.reduce(
-    (sum, tx) =&gt; sum + tx.amount, <span class="tok-n">0</span>
-  );
+<span class="tok-c">// Re-export schemas from core for module consumers</span>
+<span class="tok-k">export</span> { <span class="tok-t">BudgetTransactionSchema</span>, <span class="tok-t">BudgetAccountSchema</span> };
 
-  <span class="tok-k">return</span> (
-    &lt;<span class="tok-t">div</span>&gt;
-      &lt;<span class="tok-t">BalanceCard</span> balance={balance} /&gt;
+<span class="tok-c">// Pre-aggregated totals, keyed by granularity × period × dimensions</span>
+<span class="tok-k">export const</span> <span class="tok-v">BudgetRollupSchema</span> = z.object({
+  id: z.string(),              <span class="tok-c">// "{gran}_{period}[_org-X][_ba-Y]"</span>
+  granularity: z.enum([<span class="tok-s">"day"</span>, <span class="tok-s">"week"</span>, <span class="tok-s">"month"</span>]),
+  period: z.string(),          <span class="tok-c">// e.g. "2025-05"</span>
+  orgId: z.string().optional(),
+  billingAccountId: z.string().optional(),
+  totalDebits: z.number(),
+  totalCredits: z.number(),
+  updatedAt: z.number(),
+});
 
-      &lt;<span class="tok-t">Table</span>&gt;
-        {transactions?.map(tx =&gt; (
-          &lt;<span class="tok-t">TransactionRow</span> key={tx.id} tx={tx} /&gt;
-        ))}
-      &lt;/<span class="tok-t">Table</span>&gt;
-    &lt;/<span class="tok-t">div</span>&gt;
-  );
-}</code></pre>
+<span class="tok-c">// Idempotency marker — TTL via expiresAt field</span>
+<span class="tok-k">export const</span> <span class="tok-v">BudgetIdempotencyMarkerSchema</span> = z.object({
+  eventId: z.string(),
+  processedAt: z.number(),
+  expiresAt: z.number(),
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>Phase 3 — Write Subscriber Pattern</h3>
+      <p>The upcoming write subscriber subscribes to order + payment events and performs all writes atomically inside a single Firestore transaction. The marker check is part of the same transaction, so duplicate deliveries and partial-failure retries are both safe.</p>
+
+      <div class="split">
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/budget/subscribers/onOrderPlaced.ts (Phase 3)</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { subscribe } <span class="tok-k">from</span> <span class="tok-s">"platform/eventBus"</span>;
+<span class="tok-k">import</span> { budgetPaths } <span class="tok-k">from</span> <span class="tok-s">"../internal/paths"</span>;
+<span class="tok-k">import</span> { db } <span class="tok-k">from</span> <span class="tok-s">"platform/db"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">onOrderPlacedBudget</span> = <span class="tok-f">subscribe</span>(
+  { type: <span class="tok-s">"order.placed"</span>, name: <span class="tok-s">"budget.onOrderPlaced"</span>,
+    payloadSchema: <span class="tok-v">OrderPlacedPayload</span> },
+  <span class="tok-k">async</span> (event, { companyId, storeId, eventId }) =&gt; {
+    <span class="tok-k">const</span> { orderId, organizationId, amount } = event.payload;
+    <span class="tok-k">if</span> (!organizationId) <span class="tok-k">return</span>; <span class="tok-c">// B2C — skip</span>
+
+    <span class="tok-k">await</span> db.<span class="tok-f">runTransaction</span>(<span class="tok-k">async</span> (tx) =&gt; {
+      <span class="tok-c">// 1. Idempotency check</span>
+      <span class="tok-k">const</span> markerRef = db.<span class="tok-f">doc</span>(
+        <span class="tok-v">budgetPaths</span>.<span class="tok-f">idempotency</span>(companyId, storeId, eventId)
+      );
+      <span class="tok-k">if</span> ((await tx.<span class="tok-f">get</span>(markerRef)).exists) <span class="tok-k">return</span>;
+
+      <span class="tok-c">// 2. Ledger write (immutable row)</span>
+      <span class="tok-k">const</span> txRef = db.<span class="tok-f">collection</span>(
+        <span class="tok-v">budgetPaths</span>.<span class="tok-f">transactions</span>(companyId, storeId, organizationId)
+      ).<span class="tok-f">doc</span>();
+      tx.<span class="tok-f">set</span>(txRef, { orderId, amount, type: <span class="tok-s">"order"</span>,
+        createdAt: <span class="tok-t">Date</span>.<span class="tok-f">now</span>() });
+
+      <span class="tok-c">// 3. Account balance increment</span>
+      <span class="tok-k">const</span> acctRef = db.<span class="tok-f">doc</span>(
+        <span class="tok-v">budgetPaths</span>.<span class="tok-f">account</span>(companyId, storeId, organizationId)
+      );
+      tx.<span class="tok-f">set</span>(acctRef, { balance: <span class="tok-v">FieldValue</span>.<span class="tok-f">increment</span>(amount),
+        updatedAt: <span class="tok-t">Date</span>.<span class="tok-f">now</span>() }, { merge: <span class="tok-k">true</span> });
+
+      <span class="tok-c">// 4. Rollup increments (month + week)</span>
+      <span class="tok-k">for</span> (<span class="tok-k">const</span> rollupId <span class="tok-k">of</span> <span class="tok-f">getRollupIds</span>(organizationId)) {
+        tx.<span class="tok-f">set</span>(db.<span class="tok-f">doc</span>(<span class="tok-v">budgetPaths</span>.<span class="tok-f">rollup</span>(companyId, storeId, rollupId)),
+          { totalDebits: <span class="tok-v">FieldValue</span>.<span class="tok-f">increment</span>(amount),
+            updatedAt: <span class="tok-t">Date</span>.<span class="tok-f">now</span>() }, { merge: <span class="tok-k">true</span> });
+      }
+
+      <span class="tok-c">// 5. Marker write (seals idempotency)</span>
+      tx.<span class="tok-f">set</span>(markerRef, { eventId, processedAt: <span class="tok-t">Date</span>.<span class="tok-f">now</span>(),
+        expiresAt: <span class="tok-t">Date</span>.<span class="tok-f">now</span>() + <span class="tok-n">7</span> * <span class="tok-n">86_400_000</span> });
+    });
+  }
+);</code></pre>
+        </div>
+
+        <div class="split-pane">
+          <div class="split-pane-header">
+            <span class="badge badge-backend">Backend</span>
+            <span>modules/budget/internal/repository.ts</span>
+          </div>
+<pre><code><span class="tok-k">import</span> { budgetPaths } <span class="tok-k">from</span> <span class="tok-s">"./paths"</span>;
+<span class="tok-k">import</span> { db } <span class="tok-k">from</span> <span class="tok-s">"platform/db"</span>;
+<span class="tok-k">import</span> {
+  <span class="tok-t">BudgetAccountSchema</span>,
+  <span class="tok-t">BudgetTransactionSchema</span>,
+  <span class="tok-t">BudgetRollupSchema</span>,
+} <span class="tok-k">from</span> <span class="tok-s">"../types"</span>;
+
+<span class="tok-k">export const</span> <span class="tok-v">budgetRepository</span> = {
+  <span class="tok-c">/** Current balance for one org (direct doc fetch — fast) */</span>
+  <span class="tok-f">getAccount</span>: <span class="tok-k">async</span> (c, s, orgId) =&gt; {
+    <span class="tok-k">const</span> snap = <span class="tok-k">await</span> db.<span class="tok-f">doc</span>(
+      <span class="tok-v">budgetPaths</span>.<span class="tok-f">account</span>(c, s, orgId)
+    ).<span class="tok-f">get</span>();
+    <span class="tok-k">return</span> snap.exists
+      ? <span class="tok-v">BudgetAccountSchema</span>.<span class="tok-f">parse</span>(snap.<span class="tok-f">data</span>())
+      : <span class="tok-k">null</span>;
+  },
+
+  <span class="tok-c">/** Full ledger for one account — immutable rows */</span>
+  <span class="tok-f">listTransactions</span>: <span class="tok-k">async</span> (c, s, orgId) =&gt; {
+    <span class="tok-k">const</span> snaps = <span class="tok-k">await</span> db.<span class="tok-f">collection</span>(
+      <span class="tok-v">budgetPaths</span>.<span class="tok-f">transactions</span>(c, s, orgId)
+    ).<span class="tok-f">orderBy</span>(<span class="tok-s">"createdAt"</span>, <span class="tok-s">"desc"</span>).<span class="tok-f">get</span>();
+    <span class="tok-k">return</span> snaps.docs.<span class="tok-f">map</span>(<span class="tok-v">d</span> =&gt;
+      <span class="tok-v">BudgetTransactionSchema</span>.<span class="tok-f">parse</span>(d.<span class="tok-f">data</span>()));
+  },
+
+  <span class="tok-c">/** Rollup by ID — for pre-aggregated filtered queries */</span>
+  <span class="tok-f">getRollup</span>: <span class="tok-k">async</span> (c, s, rollupId) =&gt; {
+    <span class="tok-k">const</span> snap = <span class="tok-k">await</span> db.<span class="tok-f">doc</span>(
+      <span class="tok-v">budgetPaths</span>.<span class="tok-f">rollup</span>(c, s, rollupId)
+    ).<span class="tok-f">get</span>();
+    <span class="tok-k">return</span> snap.exists
+      ? <span class="tok-v">BudgetRollupSchema</span>.<span class="tok-f">parse</span>(snap.<span class="tok-f">data</span>())
+      : <span class="tok-k">null</span>;
+  },
+};</code></pre>
         </div>
       </div>
 
       <div class="callout callout-good">
         <div class="callout-title">Notice the decoupling</div>
-        <p>The budget module doesn't know about orders, fulfillment, or payments. It only listens for events and updates its own data. If you remove the budget module entirely, nothing else breaks. <strong>That's what "modular" means in practice.</strong></p>
+        <p>The budget module subscribes to events from orders and payments — it never imports from those modules and those modules never import from it. Removing the budget module means deleting its folder; orders, payments, and fulfillment keep working unchanged. <strong>That's the promise of event-driven modularity.</strong></p>
       </div>
     </section>
 
@@ -1945,7 +2050,15 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <h3>Stage 1 — Wire Up Cross-Module Flows <span class="mark mark-safe">SAFE</span></h3>
         <p>Use the foundation to decouple what's currently tangled.</p>
         <ul style="margin-left: 20px;">
-          <li>First 5 events: <code>order.placed</code>, <code>order.paid</code>, <code>payment.completed</code>, <code>delivery_note.created</code>, <code>invoice.created</code>.</li>
+          <li>
+            Event contracts shipped so far:
+            <ul style="margin-left: 20px; margin-top: 6px;">
+              <li>🟢 <code>order.placed</code> — emitting in production</li>
+              <li>🟨 <code>order.completed</code>, <code>order.cancelled</code>, <code>order.refunded</code> — payload schemas defined; emit calls pending</li>
+              <li>🟨 <code>payment.received</code>, <code>payment.refunded</code>, <code>payment.failed</code> — payload schemas defined; emit calls pending</li>
+              <li>⬜ <code>delivery_note.created</code>, <code>invoice.created</code> — not yet defined</li>
+            </ul>
+          </li>
           <li>Move budget/fulfillment cross-talk onto the event bus (currently direct function calls).</li>
           <li>State machine helper as <strong>read-only guard</strong> for new transitions only — existing orders unaffected.</li>
           <li>Feature flags (simple Firestore config map per store).</li>
@@ -2185,6 +2298,136 @@ draft ──&gt; pending ──&gt; paid ──&gt; processing ──&gt; in_del
         <div class="tracker-item">
           <span class="tracker-status tracker-todo">⬜</span>
           <span class="tracker-text">Dispatcher function wired but gated — fires only after Phase 2 events start appearing.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">💰 Budget Module — Storage Scaffolding</h3>
+        <p class="tracker-meta">Schemas, paths, and read-only repository. Pure additive — nothing imports yet. Production legacy <code>services/budgetService</code> untouched.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 100%;"></div></div>
+        <p class="tracker-meta">4 / 4 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>modules/budget/types.ts</code> — re-export <code>BudgetTransactionSchema</code> / <code>BudgetAccountSchema</code> from core, add <code>BudgetRollupSchema</code> and <code>BudgetIdempotencyMarkerSchema</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>modules/budget/internal/paths.ts</code> — per-store path helpers for accounts, transactions, rollups, idempotency markers.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>modules/budget/internal/repository.ts</code> — read helpers: <code>getAccount</code>, <code>listAccounts</code>, <code>listTransactions</code>, <code>getRollup</code>, <code>listRollups</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text">Open-question #11 resolved — idempotency pattern locked as per-module marker collection.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">💰 Budget Module — Write Subscriber (Phase 3)</h3>
+        <p class="tracker-meta">Subscribes to order + payment events, writes ledger + account + rollups + idempotency marker atomically. Needs dual-write design with legacy <code>budgetService</code>.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 0%;"></div></div>
+        <p class="tracker-meta">0 / 4 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Single subscriber listening to <code>order.placed</code>, <code>order.cancelled</code>, <code>order.refunded</code>, <code>payment.received</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Atomic Firestore transaction: marker check → ledger write → account increment → rollup increments → marker write.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Dual-write strategy with <code>services/budgetService</code> (decide: shadow / cutover).</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Backfill plan for existing org balances.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">📨 Order Lifecycle Events</h3>
+        <p class="tracker-meta">Event-type constants + Zod payload schemas in <code>modules/orders/events.ts</code>. Subscribers can subscribe against these contracts.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 25%;"></div></div>
+        <p class="tracker-meta">1 / 4 complete — schemas for 4 event types defined; only <code>order.placed</code> emitting in production.</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>order.placed</code> — emitting in production.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>order.completed</code> — payload schema defined, no emit yet.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>order.cancelled</code> — payload schema defined, no emit yet.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>order.refunded</code> — payload schema defined, no emit yet.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-todo">⬜</span>
+          <span class="tracker-text">Emit calls wired into order lifecycle handlers.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">💳 Payment Events</h3>
+        <p class="tracker-meta">Event-type constants + payload schemas in <code>modules/payments/events.ts</code>. Pure contract definitions — no emit, no storage schema yet.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 100%;"></div></div>
+        <p class="tracker-meta">3 / 3 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>PaymentEventTypes.received</code> + <code>PaymentReceivedPayload</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>PaymentEventTypes.refunded</code> + <code>PaymentRefundedPayload</code>.</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>PaymentEventTypes.failed</code> + <code>PaymentFailedPayload</code>.</span>
+        </div>
+      </div>
+
+      <div class="tracker">
+        <h3 style="margin-top: 0;">🛒 Subscribers Shipped</h3>
+        <p class="tracker-meta">Event-driven side effects that have replaced inline calls.</p>
+
+        <div class="tracker-progress"><div class="tracker-progress-bar" style="width: 100%;"></div></div>
+        <p class="tracker-meta">2 / 2 complete</p>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>onOrderPlacedCloseCart</code> — closes cart on <code>order.placed</code> (dual-write with inline call, awaiting deploy to drop inline).</span>
+        </div>
+
+        <div class="tracker-item">
+          <span class="tracker-status tracker-done">✅</span>
+          <span class="tracker-text"><code>orderPlacedAdminEmail</code> — admin notification email on <code>order.placed</code> (live).</span>
         </div>
       </div>
 
