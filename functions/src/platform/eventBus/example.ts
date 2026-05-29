@@ -117,7 +117,7 @@ export const exampleFulfillmentPropagatesTrace = subscribe(
 				companyId: ctx.companyId,
 				storeId: ctx.storeId,
 				correlationId: event.correlationId,
-				source: "fulfillment",
+				source: "documents",
 			});
 			logger.info("fulfillment.downstream_emitted", {
 				downstreamEventId: downstream.id,

@@ -17,6 +17,8 @@ import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
 import { renderDeliveryNoteToHTML } from "../services/documents/renderToHTML";
+import { emitDeliveryNoteCreated } from "../modules/documents/internal/emitDeliveryNoteCreated";
+import { emitPaymentReceived } from "../modules/payments/internal/emitPaymentReceived";
 
 type TContext = {
 	storeId: string;
@@ -273,6 +275,13 @@ export function createAppApi(context: TContext) {
 							.doc(order.id)
 							.update({ ezDeliveryNote, deliveryNote });
 						console.log("order updated with delivery note", order.id);
+
+						await emitDeliveryNoteCreated({
+							order,
+							companyId,
+							storeId,
+							deliveryNoteNumber: res.data.doc_number,
+						});
 
 						// Add debt to organization budget when delivery note is issued
 						await budgetService.onDeliveryNoteCreated(
@@ -613,6 +622,18 @@ export function createAppApi(context: TContext) {
 					paymentDate: params.paymentDate,
 					note: params.note,
 					createdBy: params.paidByUserId,
+				});
+
+				await emitPaymentReceived({
+					order: params.order,
+					organizationId: params.organizationId,
+					debt: params.debt,
+					paymentMethod: params.paymentMethod,
+					paymentReference: params.paymentReference,
+					paymentDate: params.paymentDate,
+					paidByUserId: params.paidByUserId,
+					companyId,
+					storeId,
 				});
 
 				// Mark order as paid

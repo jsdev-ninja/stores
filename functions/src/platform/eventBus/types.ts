@@ -3,7 +3,7 @@ import { z } from "zod";
 export const EventSource = z.enum([
 	"orders",
 	"payments",
-	"fulfillment",
+	"documents",
 	"catalog",
 	"cart",
 	"budget",
