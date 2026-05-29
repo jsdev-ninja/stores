@@ -4,6 +4,7 @@ import { createAppApi } from "../../../appApi";
 import { budgetService } from "../../../services/budgetService";
 import { organizationActionsService } from "../../../services/organizationActionsService";
 import { emitOrderPlaced } from "./emitPlaced";
+import { emitOrderCancelled } from "./emitOrderCancelled";
 
 export async function handleOrderCreated(params: {
 	order: TOrder;
@@ -105,6 +106,11 @@ export async function handleOrderUpdated(params: {
 			budgetService.onOrderCancelled(after, companyId, storeId, type).catch((err) => {
 				logger.write({ severity: "ERROR", message: "budget.onOrderCancelled failed", err });
 			});
+			if (wasCancelled) {
+				emitOrderCancelled({ order: after, companyId, storeId }).catch((err) => {
+					logger.write({ severity: "ERROR", message: "emit.order_cancelled failed", err });
+				});
+			}
 		}
 	}
 }

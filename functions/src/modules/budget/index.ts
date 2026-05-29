@@ -3,3 +3,4 @@ export * from "./internal/paths";
 export * from "./internal/repository";
 export { onDeliveryNoteCreatedShadow } from "./subscribers/onDeliveryNoteCreatedShadow";
 export { onPaymentReceivedShadow } from "./subscribers/onPaymentReceivedShadow";
+export { onOrderCancelledShadow } from "./subscribers/onOrderCancelledShadow";

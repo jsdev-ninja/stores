@@ -28,7 +28,7 @@ export async function applyShadowTransaction(params: {
 	organizationId: string;
 	organizationName: string;
 	billingAccountId: string | null;
-	type: "delivery_note" | "payment_received";
+	type: "delivery_note" | "payment_received" | "order_cancelled";
 	debt: number;
 	orderId: string | null;
 	orderTotal: number | null;

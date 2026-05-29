@@ -36,7 +36,7 @@ export { getOrganizationActions } from "./api/organizationActionsApi";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
 export { onOrderPlacedCloseCart } from "./modules/cart";
-export { onDeliveryNoteCreatedShadow, onPaymentReceivedShadow } from "./modules/budget";
+export { onDeliveryNoteCreatedShadow, onPaymentReceivedShadow, onOrderCancelledShadow } from "./modules/budget";
 export {
   onProductCreate,
   onProductDelete,
