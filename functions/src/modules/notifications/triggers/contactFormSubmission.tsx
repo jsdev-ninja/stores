@@ -1,8 +1,8 @@
 import * as functions from "firebase-functions/v2";
 import admin from "firebase-admin";
 import { render } from "@react-email/render";
-import { emailService } from "../services/email";
-import ContactFormSubmitted, { TContactSubmission } from "../emails/ContactFormSubmitted";
+import { emailService } from "../../../services/email";
+import ContactFormSubmitted, { TContactSubmission } from "../../../emails/ContactFormSubmitted";
 import React from "react";
 
 

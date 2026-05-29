@@ -1,7 +1,7 @@
 import { FirebaseAPI, TSupplierInvoice } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v2";
 import admin from "firebase-admin";
-import { logger } from "../core";
+import { logger } from "../../../core";
 
 export const onSupplierInvoiceCreate = functions.firestore.onDocumentCreated(
 	"{companyId}/{storeId}/supplierInvoices/{id}",

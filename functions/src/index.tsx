@@ -22,9 +22,8 @@ export { getPaymentRedirect } from "./api/getPaymentRedirect";
 export { chargeOrder } from "./api/chargeOrder";
 export { createInvoice } from "./api/createInvoice";
 export { createDeliveryNote } from "./api/createDeliveryNote";
-export { onSupplierInvoiceCreate } from "./events/supplier-invoice-events";
-export { onContactFormSubmit } from "./events/contact-form-events";
-export { onLandingLeadCreated } from "./events/landing-lead-events";
+export { onSupplierInvoiceCreate } from "./modules/suppliers";
+export { onContactFormSubmit, onLandingLeadCreated } from "./modules/notifications";
 export {
   getBudgetAccount,
   listBudgetAccounts,

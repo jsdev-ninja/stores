@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions/v2";
 import { render } from "@react-email/render";
-import { emailService } from "../services/email";
-import ContactFormSubmitted from "../emails/ContactFormSubmitted";
+import { emailService } from "../../../services/email";
+import ContactFormSubmitted from "../../../emails/ContactFormSubmitted";
 import React from "react";
 
 const NOTIFY_EMAIL = "philip@jsdev.ninja";
