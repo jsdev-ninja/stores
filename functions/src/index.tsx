@@ -12,8 +12,8 @@ export const uiLogs = functionsV2.https.onCall((opts) => {
   functionsV2.logger.write(data);
 });
 
-export { chatbotApi } from "./api/chatbotApi";
-export { appInit } from "./api/init";
+export { chatbotApi } from "./modules/chatbot";
+export { appInit } from "./modules/application";
 export { getMixpanelData } from "./api/mixpanel-ts";
 export { createCompanyClient } from "./api/createCompany";
 export { createPayment } from "./api/createPayment";
@@ -31,7 +31,7 @@ export {
   getBudgetTransactions,
   markOrderPaid,
   addBudgetManualTransaction,
-} from "./api/budgetApi";
+} from "./modules/budget";
 export { getOrganizationActions } from "./api/organizationActionsApi";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";

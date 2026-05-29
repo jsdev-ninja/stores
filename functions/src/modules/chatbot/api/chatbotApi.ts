@@ -1,5 +1,5 @@
-import { logger } from "../core";
-import { GenkitChatService, ChatHistoryItem } from "../services/genkit-service";
+import { logger } from "../../../core";
+import { GenkitChatService, ChatHistoryItem } from "../../../services/genkit-service";
 import * as functionsV2 from "firebase-functions/v2";
 
 export const chatbotApi = functionsV2.https.onCall(

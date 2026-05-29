@@ -1,6 +1,6 @@
 import * as functionsV2 from "firebase-functions/v2";
 import { TPaymentMethod } from "@jsdev_ninja/core";
-import { createAppApi } from "../appApi";
+import { createAppApi } from "../../../appApi";
 
 export const getBudgetAccount = functionsV2.https.onCall(
 	{ memory: "256MiB", invoker: "public" },
