@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import { FirebaseAPI } from "@jsdev_ninja/core";
-import { catalogModule } from "../modules/catalog";
+import { catalogModule } from "../../catalog";
 
 export const onProductCreate = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("products"))

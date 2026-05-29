@@ -12,3 +12,5 @@ export {
 	OrderCancelledPayload,
 	OrderRefundedPayload,
 } from "./events";
+
+export { onOrderCreated, onOrderUpdate } from "./triggers/order";

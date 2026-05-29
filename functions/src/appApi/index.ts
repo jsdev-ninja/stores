@@ -12,7 +12,7 @@ import {
 	TProduct,
 	TStore,
 } from "@jsdev_ninja/core";
-import { budgetService } from "../services/budgetService";
+import { budgetWriter } from "../modules/budget/internal/writer";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
@@ -284,7 +284,7 @@ export function createAppApi(context: TContext) {
 						});
 
 						// Add debt to organization budget when delivery note is issued
-						await budgetService.onDeliveryNoteCreated(
+						await budgetWriter.onDeliveryNoteCreated(
 							order,
 							companyId,
 							storeId,
@@ -610,7 +610,7 @@ export function createAppApi(context: TContext) {
 				});
 
 				// Record payment in budget ledger
-				await budgetService.recordPayment({
+				await budgetWriter.recordPayment({
 					companyId,
 					storeId,
 					organizationId: params.organizationId,
@@ -657,7 +657,7 @@ export function createAppApi(context: TContext) {
 				note: string;
 				createdBy: string;
 			}): Promise<void> {
-				await budgetService.addManualTransaction({
+				await budgetWriter.addManualTransaction({
 					companyId,
 					storeId,
 					...params,

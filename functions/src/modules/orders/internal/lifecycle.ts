@@ -1,7 +1,7 @@
 import { logger } from "firebase-functions/v2";
 import { TOrder } from "@jsdev_ninja/core";
 import { createAppApi } from "../../../appApi";
-import { budgetService } from "../../../services/budgetService";
+import { budgetWriter } from "../../budget/internal/writer";
 import { organizationActionsService } from "../../../services/organizationActionsService";
 import { emitOrderPlaced } from "./emitPlaced";
 import { emitOrderCancelled } from "./emitOrderCancelled";
@@ -103,7 +103,7 @@ export async function handleOrderUpdated(params: {
 		const wasRefunded = before.status !== "refunded" && after.status === "refunded";
 		if (wasCancelled || wasRefunded) {
 			const type = wasCancelled ? "order_cancelled" : "order_refunded";
-			budgetService.onOrderCancelled(after, companyId, storeId, type).catch((err) => {
+			budgetWriter.onOrderCancelled(after, companyId, storeId, type).catch((err) => {
 				logger.write({ severity: "ERROR", message: "budget.onOrderCancelled failed", err });
 			});
 			if (wasCancelled) {

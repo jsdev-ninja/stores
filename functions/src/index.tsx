@@ -36,11 +36,10 @@ export { getOrganizationActions } from "./api/organizationActionsApi";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
 export { onOrderPlacedCloseCart } from "./modules/cart";
-export { onDeliveryNoteCreatedShadow, onPaymentReceivedShadow, onOrderCancelledShadow } from "./modules/budget";
 export {
   onProductCreate,
   onProductDelete,
   onProductUpdate,
-} from "./triggers/product";
-export { onUserDelete } from "./triggers/user";
-export { onOrderCreated, onOrderUpdate } from "./triggers/order";
+} from "./modules/products";
+export { onUserDelete } from "./modules/auth";
+export { onOrderCreated, onOrderUpdate } from "./modules/orders";

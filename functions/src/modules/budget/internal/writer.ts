@@ -1,19 +1,7 @@
 import admin from "firebase-admin";
-import { FirebaseAPI, TBillingAccount, TBudgetAccount, TBudgetTransaction, TOrder, TPaymentMethod } from "@jsdev_ninja/core";
+import { TBillingAccount, TBudgetAccount, TBudgetTransaction, TOrder, TPaymentMethod } from "@jsdev_ninja/core";
 import { logger } from "firebase-functions/v2";
-
-function budgetAccountPath(companyId: string, storeId: string, organizationId: string) {
-	return FirebaseAPI.firestore.getPath({
-		companyId,
-		storeId,
-		collectionName: "budgetAccounts",
-		id: organizationId,
-	});
-}
-
-function budgetTransactionsPath(companyId: string, storeId: string, organizationId: string) {
-	return `${budgetAccountPath(companyId, storeId, organizationId)}/budgetTransactions`;
-}
+import { budgetAccountPath, budgetTransactionsCollectionPath } from "./paths";
 
 type AddTransactionParams = {
 	companyId: string;
@@ -23,7 +11,7 @@ type AddTransactionParams = {
 	transaction: Omit<TBudgetTransaction, "id" | "runningBalance">;
 };
 
-export const budgetService = {
+export const budgetWriter = {
 	/**
 	 * Add a transaction to an organization's budget account.
 	 * Uses a Firestore transaction to atomically update balance + append ledger entry.
@@ -33,7 +21,7 @@ export const budgetService = {
 		const db = admin.firestore();
 
 		const accountRef = db.doc(budgetAccountPath(companyId, storeId, organizationId));
-		const txRef = db.collection(budgetTransactionsPath(companyId, storeId, organizationId)).doc();
+		const txRef = db.collection(budgetTransactionsCollectionPath(companyId, storeId, organizationId)).doc();
 
 		await db.runTransaction(async (t) => {
 			const accountSnap = await t.get(accountRef);
@@ -77,7 +65,7 @@ export const budgetService = {
 			t.set(txRef, budgetTx);
 		});
 
-		logger.info("budgetService.addTransaction", {
+		logger.info("budgetWriter.addTransaction", {
 			organizationId,
 			type: transaction.type,
 			debt: transaction.debt,
@@ -100,7 +88,7 @@ export const budgetService = {
 		const organizationName = order.client?.displayName ?? order.client?.companyName ?? order.organizationId;
 		const billingAccount = order.billingAccount as TBillingAccount | undefined;
 
-		await budgetService.addTransaction({
+		await budgetWriter.addTransaction({
 			companyId,
 			storeId,
 			organizationId: order.organizationId,
@@ -112,40 +100,6 @@ export const budgetService = {
 				orderTotal: order.cart.cartTotal,
 				deliveryNoteId,
 				deliveryNoteNumber,
-				billingAccountId: billingAccount?.id ?? null,
-				billingAccountName: billingAccount?.name ?? null,
-				billingAccountNumber: billingAccount?.number ?? null,
-				paymentReference: null,
-				paymentDate: null,
-				paymentMethod: null,
-				note: null,
-				createdAt: Date.now(),
-				createdBy: "system",
-			},
-		});
-	},
-
-	/**
-	 * @deprecated — debt is now added on delivery note creation, not order creation.
-	 */
-	async onOrderCreated(order: TOrder, companyId: string, storeId: string): Promise<void> {
-		if (!order.organizationId) return;
-
-		const organizationName = order.client?.displayName ?? order.client?.companyName ?? order.organizationId;
-		const billingAccount = order.billingAccount as TBillingAccount | undefined;
-
-		await budgetService.addTransaction({
-			companyId,
-			storeId,
-			organizationId: order.organizationId,
-			organizationName,
-			transaction: {
-				type: "order_created",
-				debt: order.cart.cartTotal,
-				orderId: order.id,
-				orderTotal: order.cart.cartTotal,
-				deliveryNoteId: null,
-				deliveryNoteNumber: null,
 				billingAccountId: billingAccount?.id ?? null,
 				billingAccountName: billingAccount?.name ?? null,
 				billingAccountNumber: billingAccount?.number ?? null,
@@ -174,7 +128,7 @@ export const budgetService = {
 		const organizationName = order.client?.displayName ?? order.client?.companyName ?? order.organizationId;
 		const billingAccount = order.billingAccount as TBillingAccount | undefined;
 
-		await budgetService.addTransaction({
+		await budgetWriter.addTransaction({
 			companyId,
 			storeId,
 			organizationId: order.organizationId,
@@ -218,7 +172,7 @@ export const budgetService = {
 	}): Promise<void> {
 		const billingAccount = params.order.billingAccount as TBillingAccount | undefined;
 
-		await budgetService.addTransaction({
+		await budgetWriter.addTransaction({
 			companyId: params.companyId,
 			storeId: params.storeId,
 			organizationId: params.organizationId,
@@ -258,7 +212,7 @@ export const budgetService = {
 	}): Promise<void> {
 		const signedAmount = params.type === "credit_note" ? -Math.abs(params.debt) : Math.abs(params.debt);
 
-		await budgetService.addTransaction({
+		await budgetWriter.addTransaction({
 			companyId: params.companyId,
 			storeId: params.storeId,
 			organizationId: params.organizationId,

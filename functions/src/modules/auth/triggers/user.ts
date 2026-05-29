@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions/v1";
-import { customersModule } from "../modules/customers";
+import { customersModule } from "../../customers";
 
 export const onUserDelete = functions.auth.user().onDelete(async (user) => {
 	console.info("user deleted", user.uid, user.displayName, user.email);
