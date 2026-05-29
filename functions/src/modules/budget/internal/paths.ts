@@ -47,11 +47,11 @@ export function budgetRollupPath(companyId: string, storeId: string, rollupId: s
 	return `${budgetRollupsCollectionPath(companyId, storeId)}/${rollupId}`;
 }
 
-// TODO open-question #11: idempotency path not finalised
+// Marker doc per processed event. ID = eventId. TTL via expiresAt field (~90d).
 export function budgetIdempotencyPath(
 	companyId: string,
 	storeId: string,
-	markerId: string,
+	eventId: string,
 ): string {
-	return `${companyId}/${storeId}/budgetIdempotency/${markerId}`;
+	return `${companyId}/${storeId}/budgetIdempotency/${eventId}`;
 }

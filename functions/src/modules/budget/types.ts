@@ -49,3 +49,14 @@ export const BudgetRollupSchema = z.object({
 });
 
 export type TBudgetRollup = z.infer<typeof BudgetRollupSchema>;
+
+export const BudgetIdempotencyMarkerSchema = z.object({
+	/** The event id this marker corresponds to. Also the doc id. */
+	eventId: z.string().min(1),
+	/** epoch millis when the subscriber processed this event */
+	processedAt: z.number(),
+	/** epoch millis when this marker should auto-delete via Firestore TTL */
+	expiresAt: z.number(),
+});
+
+export type TBudgetIdempotencyMarker = z.infer<typeof BudgetIdempotencyMarkerSchema>;
