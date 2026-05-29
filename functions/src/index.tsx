@@ -40,6 +40,6 @@ export {
   onProductCreate,
   onProductDelete,
   onProductUpdate,
-} from "./modules/products";
+} from "./modules/catalog";
 export { onUserDelete } from "./modules/auth";
 export { onOrderCreated, onOrderUpdate } from "./modules/orders";

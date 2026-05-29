@@ -10,3 +10,5 @@ export const catalogModule = {
 		return searchSync.upsert(input.product);
 	},
 };
+
+export { onProductCreate, onProductDelete, onProductUpdate } from "./triggers/product";
