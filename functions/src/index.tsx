@@ -1,3 +1,10 @@
+// Polyfill needed for the local Firebase deploy analyzer (your local Node version may lack global File).
+// On Node 22 (cloud runtime), this is a no-op because File is already global.
+import { File as NodeFile } from "node:buffer";
+if (typeof (globalThis as any).File === "undefined") {
+	(globalThis as any).File = NodeFile;
+}
+
 import admin from "firebase-admin";
 import * as functionsV2 from "firebase-functions/v2";
 

@@ -138,7 +138,7 @@ export const ezCountService = {
 			clientName,
 			date,
 			isVatIncludedInPrice = false,
-			sendEmailToClient = true,
+			sendEmailToClient = false,
 			customer_crn,
 			transaction_id,
 		}: {

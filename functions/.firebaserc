@@ -1,7 +1,12 @@
 {
-	"projects": {
-		"default": "jsdev-stores-prod"
-	},
-	"etags": {},
-	"dataconnectEmulatorConfig": {}
+  "projects": {
+    "default": "jsdev-stores-prod"
+  },
+  "targets": {},
+  "etags": {
+    "jsdev-stores-prod": {
+      "extensionInstances": {}
+    }
+  },
+  "dataconnectEmulatorConfig": {}
 }

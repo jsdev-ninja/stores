@@ -100,7 +100,7 @@ export const hypPaymentService = {
 				"inputObj.originalUid": params.transactionUID,
 				"inputObj.originalAmount": originalAmount.toString(),
 				"inputObj.authorizationCodeManpik": "7",
-				Amount: params.actualAmount.toString(),
+				Amount: Number(params.actualAmount).toFixed(2),
 				AuthNum: params.creditCardConfirmNumber,
 				Info: "balasi store",
 				Masof: params.masof,
@@ -126,9 +126,15 @@ export const hypPaymentService = {
 			logger.write({
 				severity: "INFO",
 				message: "hypPaymentService.chargeJ5Transaction url",
-				url: `${baseUrl}?${transParams}`,
+				url: `${baseUrl} (POST, body length ${transParams.length})`,
 			});
-			const transactionCommit = await fetch(`${baseUrl}?${transParams}`);
+
+			// POST instead of GET — HYP returns 414 on long URIs for large carts
+			const transactionCommit = await fetch(baseUrl, {
+				method: "POST",
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: transParams,
+			});
 			const transactionData = await transactionCommit.text();
 			const transactionResult: any = parseQueryString(transactionData);
 			logger.write({

@@ -145,7 +145,7 @@ export function createAppApi(context: TContext) {
 					}
 
 					const date = options?.date ? new Date(options.date) : new Date();
-					const sendEmailToClient = options?.sendEmailToClient ?? true;
+					const sendEmailToClient = options?.sendEmailToClient ?? false;
 					const store = await getStoreData(storeId);
 					const storePrivateData = await getStorePrivateData(storeId);
 

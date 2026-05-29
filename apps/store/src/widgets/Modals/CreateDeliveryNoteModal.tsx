@@ -24,7 +24,7 @@ export function CreateDeliveryNoteModal({
 	const [deliveryNoteDate, setDeliveryNoteDate] = useState<string>(
 		new Date().toISOString().split("T")[0]
 	);
-	const [sendEmailToClient, setSendEmailToClient] = useState<boolean>(true);
+	const [sendEmailToClient, setSendEmailToClient] = useState<boolean>(false);
 	const [isCreating, setIsCreating] = useState(false);
 	const [nameOnInvoice, setNameOnInvoice] = useState<string>("");
 
