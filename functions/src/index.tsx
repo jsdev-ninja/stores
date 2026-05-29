@@ -1,22 +1,15 @@
-// Polyfill needed for the local Firebase deploy analyzer (your local Node version may lack global File).
-// On Node 22 (cloud runtime), this is a no-op because File is already global.
-import { File as NodeFile } from "node:buffer";
-if (typeof (globalThis as any).File === "undefined") {
-	(globalThis as any).File = NodeFile;
-}
-
 import admin from "firebase-admin";
 import * as functionsV2 from "firebase-functions/v2";
 
 admin.initializeApp({
-	storageBucket: "jsdev-stores-prod.appspot.com",
+  storageBucket: "jsdev-stores-prod.appspot.com",
 });
 
 admin.firestore().settings({ ignoreUndefinedProperties: true });
 
 export const uiLogs = functionsV2.https.onCall((opts) => {
-	const { data } = opts;
-	functionsV2.logger.write(data);
+  const { data } = opts;
+  functionsV2.logger.write(data);
 });
 
 export { chatbotApi } from "./api/chatbotApi";
@@ -33,15 +26,20 @@ export { onSupplierInvoiceCreate } from "./events/supplier-invoice-events";
 export { onContactFormSubmit } from "./events/contact-form-events";
 export { onLandingLeadCreated } from "./events/landing-lead-events";
 export {
-	getBudgetAccount,
-	listBudgetAccounts,
-	getBudgetTransactions,
-	markOrderPaid,
-	addBudgetManualTransaction,
+  getBudgetAccount,
+  listBudgetAccounts,
+  getBudgetTransactions,
+  markOrderPaid,
+  addBudgetManualTransaction,
 } from "./api/budgetApi";
 export { getOrganizationActions } from "./api/organizationActionsApi";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
-export { onProductCreate, onProductDelete, onProductUpdate } from "./triggers/product";
+export { onOrderPlacedCloseCart } from "./modules/cart";
+export {
+  onProductCreate,
+  onProductDelete,
+  onProductUpdate,
+} from "./triggers/product";
 export { onUserDelete } from "./triggers/user";
 export { onOrderCreated, onOrderUpdate } from "./triggers/order";

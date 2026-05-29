@@ -6,6 +6,7 @@ export const OrderEventTypes = {
 
 export const OrderPlacedPayload = z.object({
 	orderId: z.string().min(1),
+	cartId: z.string().optional(),
 	total: z.number().optional(),
 	status: z.string().optional(),
 	paymentType: z.string().optional(),

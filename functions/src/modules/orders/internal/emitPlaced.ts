@@ -19,6 +19,7 @@ export async function emitOrderPlaced(params: {
 				actorId: params.order.userId ? `user:${params.order.userId}` : "system",
 				payload: {
 					orderId: params.orderId,
+					cartId: params.order.cart?.id,
 					total: params.order.cart?.cartTotal ?? 0,
 					status: params.order.status,
 					paymentType: params.order.paymentType,
