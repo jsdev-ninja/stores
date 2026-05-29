@@ -9,6 +9,7 @@ lerna-debug.log*
 
 # packages
 packages/core/dist
+migration-new-ui
 
 
 # parcel cache
