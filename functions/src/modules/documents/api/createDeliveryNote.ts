@@ -1,5 +1,5 @@
 import * as functionsV2 from "firebase-functions/v2";
-import { createAppApi } from "../appApi";
+import { createAppApi } from "../../../appApi";
 import { TOrder } from "@jsdev_ninja/core";
 
 type TData = {

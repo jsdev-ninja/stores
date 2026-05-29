@@ -14,14 +14,15 @@ export const uiLogs = functionsV2.https.onCall((opts) => {
 
 export { chatbotApi } from "./modules/chatbot";
 export { appInit } from "./modules/application";
-export { getMixpanelData } from "./api/mixpanel-ts";
-export { createCompanyClient } from "./api/createCompany";
-export { createPayment } from "./api/createPayment";
-export { createPaymentRedirect } from "./api/createPaymentRedirect";
-export { getPaymentRedirect } from "./api/getPaymentRedirect";
-export { chargeOrder } from "./api/chargeOrder";
-export { createInvoice } from "./api/createInvoice";
-export { createDeliveryNote } from "./api/createDeliveryNote";
+export { getMixpanelData } from "./modules/analytics";
+export { createCompanyClient, migrateProfilesToMultiOrg } from "./modules/customers";
+export {
+  chargeOrder,
+  createPayment,
+  createPaymentRedirect,
+  getPaymentRedirect,
+} from "./modules/payments";
+export { createDeliveryNote, createInvoice } from "./modules/documents";
 export { onSupplierInvoiceCreate } from "./modules/suppliers";
 export { onContactFormSubmit, onLandingLeadCreated } from "./modules/notifications";
 export {
@@ -32,7 +33,6 @@ export {
   addBudgetManualTransaction,
 } from "./modules/budget";
 export { getOrganizationActions } from "./api/organizationActionsApi";
-export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
 export { onOrderPlacedCloseCart } from "./modules/cart";
 export {

@@ -2,7 +2,7 @@ import { TOrder, FirebaseAPI } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import admin from "firebase-admin";
 import { TPayProtocolResponse, TStorePrivate } from "src/schema";
-import { hypPaymentService } from "../services/hypPaymentService";
+import { hypPaymentService } from "../../../services/hypPaymentService";
 
 // Absorb tiny rounding drift between cart total and heshDesc items sum.
 // HYP rejects (CCode=400) when items sum != Amount. We only auto-fix small drifts

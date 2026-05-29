@@ -1,7 +1,7 @@
 import * as functionsV2 from "firebase-functions/v2";
 import { createHash } from "crypto";
-import { ezCountService } from "../services/ezCountService";
-// import { documentsService } from "../services/documents";
+import { ezCountService } from "../../../services/ezCountService";
+// import { documentsService } from "../../../services/documents";
 import { TStorePrivate } from "src/schema";
 import admin from "firebase-admin";
 import { FirebaseAPI, TOrder, TOrganization, TStore } from "@jsdev_ninja/core";

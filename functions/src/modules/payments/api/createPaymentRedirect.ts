@@ -1,6 +1,6 @@
 import { TOrder, TStore } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
-import { hypPaymentService } from "../services/hypPaymentService";
+import { hypPaymentService } from "../../../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
 import * as crypto from "crypto";
