@@ -146,7 +146,13 @@ export function subscribe<T>(
             },
             { merge: true },
           );
-          await attemptsRef.delete().catch(() => {});
+          await attemptsRef.delete().catch((cleanupErr) => {
+            logger.warn("eventBus.subscriber.attemptCleanupFailed", {
+              subscriber: options.name,
+              eventId,
+              err: describeError(cleanupErr),
+            });
+          });
           logger.error("eventBus.subscriber.deadLettered", {
             subscriber: options.name,
             eventId,

@@ -1,4 +1,5 @@
 import { logger } from "firebase-functions/v2";
+import diff from "microdiff";
 import { TOrder } from "@jsdev_ninja/core";
 import { createAppApi } from "../../../appApi";
 import { budgetWriter } from "../../budget/internal/writer";
@@ -39,12 +40,15 @@ export async function handleOrderUpdated(params: {
   const { before, after, orderId, companyId, storeId } = params;
   const appApi = createAppApi({ storeId, companyId });
 
-  console.log("order update", {
-    before,
-    after,
-    id: orderId,
+  logger.info("order update", {
+    orderId,
     storeId,
     companyId,
+    statusBefore: before.status,
+    statusAfter: after.status,
+    paymentStatusBefore: before.paymentStatus,
+    paymentStatusAfter: after.paymentStatus,
+    diff: diff(before as unknown as Record<string, unknown>, after as unknown as Record<string, unknown>),
   });
 
   const { displayName, email } = after.client ?? {};
@@ -58,16 +62,27 @@ export async function handleOrderUpdated(params: {
   const orderCompleted =
     before.status !== "completed" && after.status === "completed";
 
-  console.log("order status", { orderCompleted });
+  logger.info("order status", { orderId, storeId, companyId, orderCompleted });
 
   if (orderCompleted) {
     if (after.paymentType === "external") {
-      console.log("createDeliveryNote", email, displayName);
+      logger.info("createDeliveryNote", {
+        orderId,
+        storeId,
+        companyId,
+        email,
+        displayName,
+      });
       await appApi.documents.createDeliveryNote(after);
     } else {
-      console.log(
+      logger.info(
         "skip createDeliveryNote - paymentType is not external, HYP handles it",
-        after.paymentType,
+        {
+          orderId,
+          storeId,
+          companyId,
+          paymentType: after.paymentType,
+        },
       );
     }
   }
