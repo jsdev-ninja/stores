@@ -30,7 +30,7 @@ const PayRedirectPage = lazy(() =>
 function App() {
   // Flip to true to put the storefront + admin into maintenance mode.
   // Then deploy. Flip back to false and redeploy to restore.
-  const MAINTENANCE_MODE = false;
+  const MAINTENANCE_MODE = true;
   if (MAINTENANCE_MODE) return <MaintenancePage />;
 
   const { i18n } = useTranslation();
