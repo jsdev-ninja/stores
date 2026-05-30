@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardBody, CardHeader, Link } from "@heroui/react";
+import { Card, Link } from "@heroui/react";
 // import { Icon } from "@iconify/react";
 import gsap from "gsap";
 
@@ -63,11 +63,11 @@ export const LoginForm = ({ changeForm }: { changeForm: () => void }) => {
 							}}
 						/>
 					</div>
-					<CardHeader className="flex flex-col gap-1 items-center">
-						<h1 className="text-2xl font-bold">{t("login")}</h1>
+					<Card.Header className="flex flex-col gap-1 items-center">
+						<Card.Title className="text-2xl font-bold">{t("login")}</Card.Title>
 						<p className="text-foreground-500">התחבר לחשבון שלך</p>
-					</CardHeader>
-					<CardBody>
+					</Card.Header>
+					<Card.Content>
 						<Form<z.infer<typeof loginSchema>>
 							schema={loginSchema}
 							onSubmit={async (data, form) => {
@@ -118,7 +118,7 @@ export const LoginForm = ({ changeForm }: { changeForm: () => void }) => {
 								הירשם
 							</Link>
 						</p>
-					</CardBody>
+					</Card.Content>
 				</Card>
 			</div>
 		</div>
