@@ -49,26 +49,27 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<Input
 						{...form.register("displayName")}
-						label={t("common:fullName")}
-						isInvalid={!!form.formState.errors["displayName"]}
-						errorMessage={form.formState.errors["displayName"]?.message?.toString() ?? ""}
+						placeholder={t("common:fullName")}
 					/>
 
-					<Input
-						{...form.register("email")}
-						label={t("common:email")}
-						type="email"
-						isDisabled
-						isInvalid={!!form.formState.errors["email"]}
-						errorMessage={form.formState.errors["email"]?.message?.toString() ?? ""}
-						startContent={<Icon icon="lucide:mail" className="text-default-400" />}
-					/>
+					<div className="relative">
+						<Icon icon="lucide:mail" className="text-default-400 absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+						<Input
+							{...form.register("email")}
+							type="email"
+							disabled
+							className="ps-9"
+						/>
+					</div>
 
-					<Input
-						label={t("common:phone")}
-						{...form.register("phoneNumber")}
-						startContent={<Icon icon="lucide:phone" className="text-default-400" />}
-					/>
+					<div className="relative">
+						<Icon icon="lucide:phone" className="text-default-400 absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+						<Input
+							{...form.register("phoneNumber")}
+							placeholder={t("common:phone")}
+							className="ps-9"
+						/>
+					</div>
 				</div>
 			</motion.section>
 
@@ -83,39 +84,39 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 					{t("profilePage:addressInfo")}
 				</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<Input label={t("common:country")} {...form.register("address.country")} />
+					<Input placeholder={t("common:country")} {...form.register("address.country")} />
 
-					<Input label={t("common:city")} {...form.register("address.city")} />
+					<Input placeholder={t("common:city")} {...form.register("address.city")} />
 
-					<Input label={t("common:street")} {...form.register("address.street")} />
+					<Input placeholder={t("common:street")} {...form.register("address.street")} />
 
-					<Input label={t("common:streetNumber")} {...form.register("address.streetNumber")} />
+					<Input placeholder={t("common:streetNumber")} {...form.register("address.streetNumber")} />
 
-					<Input label={t("common:floor")} {...form.register("address.floor")} />
+					<Input placeholder={t("common:floor")} {...form.register("address.floor")} />
 
 					<Input
-						label={t("common:apartmentEnterNumber")}
+						placeholder={t("common:apartmentEnterNumber")}
 						{...form.register("address.apartmentEnterNumber")}
 					/>
 
 					<Input
-						label={t("common:apartmentNumber")}
+						placeholder={t("common:apartmentNumber")}
 						{...form.register("address.apartmentNumber")}
 					/>
 				</div>
 			</motion.section>
 
 			<div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-				<Button variant="flat" onPress={onCancel} disabled={isSaving} className="min-w-24">
+				<Button variant="ghost" onPress={onCancel} isDisabled={isSaving} className="min-w-24">
 					{t("common:actions.cancel")}
 				</Button>
 				<Button
-					color="primary"
+					variant="primary"
 					type="submit"
-					isLoading={isSaving}
+					isPending={isSaving}
 					className="min-w-32 shadow-md hover:shadow-lg transition-shadow"
-					startContent={!isSaving && <Icon icon="lucide:save" width={18} />}
 				>
+					{!isSaving && <Icon icon="lucide:save" width={18} />}
 					{t("profilePage:saveChanges")}
 				</Button>
 			</div>

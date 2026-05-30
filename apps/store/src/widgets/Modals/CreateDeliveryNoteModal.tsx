@@ -1,12 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import { Modal, Checkbox } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
 import { Icon } from "@iconify/react";
 import { TOrganization, TOrder } from "@jsdev_ninja/core";
-import { Checkbox } from "@heroui/react";
 
 export function CreateDeliveryNoteModal({
 	onDeliveryNoteCreated,
@@ -41,6 +40,7 @@ export function CreateDeliveryNoteModal({
 			}
 		};
 		loadOrganizations();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Calculate month range
@@ -95,6 +95,7 @@ export function CreateDeliveryNoteModal({
 		} finally {
 			setIsLoadingOrders(false);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedMonth]);
 
 	// Auto-load orders when month changes
@@ -153,259 +154,266 @@ export function CreateDeliveryNoteModal({
 		handleMonthChange(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 1));
 	};
 
+	const handleCloseDeliveryNote = () => modalApi.closeModal("createDeliveryNote");
+
 	// Show order details form when order is selected
 	if (selectedOrder) {
 		return (
 			<Modal
-				scrollBehavior="inside"
-				placement="top-center"
 				isOpen
-				onClose={() => modalApi.closeModal("createDeliveryNote")}
-				size="md"
+				onOpenChange={(open) => {
+					if (!open) handleCloseDeliveryNote();
+				}}
 			>
-				<ModalContent>
-					<ModalHeader className="flex flex-col gap-1">
-						<h3 className="text-lg font-semibold">יצירת תעודת משלוח</h3>
-						<p className="text-sm text-default-500">הזמנה #{selectedOrder.id}</p>
-					</ModalHeader>
-					<ModalBody className="p-4 md:p-5 grid grid-cols-1 gap-4">
-						{/* Order Details */}
-						<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-							<div className="text-sm text-blue-800">
-								<div className="font-medium mb-2">פרטי הזמנה:</div>
-								<div>ארגון: {getOrganizationName(selectedOrder.organizationId)}</div>
-								<div>לקוח: {selectedOrder.client?.displayName}</div>
-								<div>
-									תאריך הזמנה: {new Date(selectedOrder.date).toLocaleDateString("he-IL")}
+				<Modal.Backdrop />
+				<Modal.Container size="md" scroll="inside">
+					<Modal.Dialog>
+						<Modal.Header>
+							<Modal.Heading>יצירת תעודת משלוח</Modal.Heading>
+							<p className="text-sm text-default-500">הזמנה #{selectedOrder.id}</p>
+						</Modal.Header>
+						<Modal.Body className="p-4 md:p-5 grid grid-cols-1 gap-4">
+							{/* Order Details */}
+							<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+								<div className="text-sm text-blue-800">
+									<div className="font-medium mb-2">פרטי הזמנה:</div>
+									<div>ארגון: {getOrganizationName(selectedOrder.organizationId)}</div>
+									<div>לקוח: {selectedOrder.client?.displayName}</div>
+									<div>
+										תאריך הזמנה:{" "}
+										{new Date(selectedOrder.date).toLocaleDateString("he-IL")}
+									</div>
+									<div>סכום: ₪{selectedOrder.cart.cartTotal.toFixed(2)}</div>
 								</div>
-								<div>סכום: ₪{selectedOrder.cart.cartTotal.toFixed(2)}</div>
 							</div>
-						</div>
 
-						{/* Name on Invoice */}
-						<div className="flex flex-col gap-2">
-							<label className="block text-sm font-medium text-gray-900 dark:text-white">
-								שם בחשבונית
-							</label>
-							<input
-								type="text"
-								value={nameOnInvoice}
-								onChange={(e) => setNameOnInvoice(e.target.value)}
-								placeholder={selectedOrder.client?.displayName || ""}
-								className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-							/>
-							<p className="text-xs text-gray-500">ניתן לערוך את השם שיופיע בחשבונית</p>
-						</div>
+							{/* Name on Invoice */}
+							<div className="flex flex-col gap-2">
+								<label className="block text-sm font-medium text-gray-900 dark:text-white">
+									שם בחשבונית
+								</label>
+								<input
+									type="text"
+									value={nameOnInvoice}
+									onChange={(e) => setNameOnInvoice(e.target.value)}
+									placeholder={selectedOrder.client?.displayName || ""}
+									className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+								/>
+								<p className="text-xs text-gray-500">ניתן לערוך את השם שיופיע בחשבונית</p>
+							</div>
 
-						{/* Delivery Note Date */}
-						<div className="flex flex-col gap-2">
-							<label className="block text-sm font-medium text-gray-900 dark:text-white">
-								תאריך תעודת משלוח
-							</label>
-							<input
-								type="date"
-								value={deliveryNoteDate}
-								onChange={(e) => setDeliveryNoteDate(e.target.value)}
-								className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-							/>
-						</div>
+							{/* Delivery Note Date */}
+							<div className="flex flex-col gap-2">
+								<label className="block text-sm font-medium text-gray-900 dark:text-white">
+									תאריך תעודת משלוח
+								</label>
+								<input
+									type="date"
+									value={deliveryNoteDate}
+									onChange={(e) => setDeliveryNoteDate(e.target.value)}
+									className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+								/>
+							</div>
 
-						{/* Send Email Checkbox */}
-						<div className="flex items-center gap-2">
-							<Checkbox
-								isSelected={sendEmailToClient}
-								onValueChange={setSendEmailToClient}
-								aria-label="שלח אימייל ללקוח"
+							{/* Send Email Checkbox */}
+							<div className="flex items-center gap-2">
+								<Checkbox
+									isSelected={sendEmailToClient}
+									onChange={(checked) => setSendEmailToClient(checked)}
+									aria-label="שלח אימייל ללקוח"
+								>
+									<Checkbox.Control>
+										<Checkbox.Indicator />
+									</Checkbox.Control>
+									<Checkbox.Content>
+										<span>שלח אימייל ללקוח</span>
+									</Checkbox.Content>
+								</Checkbox>
+							</div>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button
+								onPress={() => setSelectedOrder(null)}
+								variant="danger-soft"
+								isDisabled={isCreating}
 							>
-								שלח אימייל ללקוח
-							</Checkbox>
-						</div>
-					</ModalBody>
-					<ModalFooter>
-						<Button
-							onPress={() => setSelectedOrder(null)}
-							color="danger"
-							variant="light"
-							isDisabled={isCreating}
-						>
-							{t("cancel")}
-						</Button>
-						<Button color="primary" onPress={handleCreateDeliveryNote} isLoading={isCreating}>
-							יצירת תעודת משלוח
-						</Button>
-					</ModalFooter>
-				</ModalContent>
+								{t("cancel")}
+							</Button>
+							<Button variant="primary" onPress={handleCreateDeliveryNote} isPending={isCreating}>
+								יצירת תעודת משלוח
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
 			</Modal>
 		);
 	}
 
 	return (
 		<Modal
-			scrollBehavior="inside"
-			placement="top-center"
 			isOpen
-			onClose={() => modalApi.closeModal("createDeliveryNote")}
-			size="2xl"
+			onOpenChange={(open) => {
+				if (!open) handleCloseDeliveryNote();
+			}}
 		>
-			<ModalContent className="max-w-[90vw]">
-				<ModalHeader className="flex flex-col gap-1">
-					<h3 className="text-lg font-semibold">{t("createDeliveryNote")}</h3>
-					<p className="text-sm text-default-500">בחר חודש להצגת הזמנות</p>
-				</ModalHeader>
-				<ModalBody className="p-4 md:p-5 grid grid-cols-1 gap-4">
-					{/* Month Navigation */}
-					<div className="bg-gray-50 rounded-lg p-4">
-						<div className="flex items-center justify-between">
-							<Button
-								variant="light"
-								size="sm"
-								onPress={handlePreviousMonth}
-								startContent={<Icon icon="lucide:chevron-right" />}
-							>
-								חודש קודם
-							</Button>
-							<div className="text-lg font-semibold text-gray-900">{monthDisplay}</div>
-							<Button
-								variant="light"
-								size="sm"
-								onPress={handleNextMonth}
-								endContent={<Icon icon="lucide:chevron-left" />}
-							>
-								חודש הבא
-							</Button>
-						</div>
-					</div>
-
-					{/* Orders List */}
-					{isLoadingOrders && (
-						<div className="flex justify-center py-4">
-							<div className="text-sm text-gray-500">טוען הזמנות...</div>
-						</div>
-					)}
-
-					{!isLoadingOrders && orders.length > 0 && (
-						<div className="mt-4">
-							<h4 className="text-lg font-medium mb-3">הזמנות ({orders.length})</h4>
-							<div className="w-full overflow-x-auto border rounded-lg">
-								<table className="w-full min-w-[1200px]">
-									<thead className="bg-gray-50 sticky top-0">
-										<tr>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												הזמנה
-											</th>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												ארגון
-											</th>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												תאריך
-											</th>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												לקוח
-											</th>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												שם בחשבונית
-											</th>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												סכום
-											</th>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												תעודת משלוח
-											</th>
-											<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-												סטטוס
-											</th>
-										</tr>
-									</thead>
-									<tbody className="bg-white divide-y divide-gray-200">
-										{orders.map((order) => (
-											<tr
-												key={order.id}
-												className="hover:bg-gray-50 cursor-pointer"
-												onClick={() => handleOrderSelect(order)}
-											>
-												<td className="px-3 py-2 text-sm font-medium text-gray-900 whitespace-nowrap">
-													#{order.id}
-												</td>
-												<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
-													{getOrganizationName(order.organizationId)}
-												</td>
-												<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
-													{new Date(order.date).toLocaleDateString("he-IL")}
-												</td>
-												<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
-													{order.client?.displayName}
-												</td>
-												<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
-													{order.nameOnInvoice || order.client?.displayName || "-"}
-												</td>
-												<td className="px-3 py-2 text-sm font-medium text-gray-900 whitespace-nowrap">
-													₪{order.cart.cartTotal.toFixed(2)}
-												</td>
-												<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
-													{order.deliveryNote?.number ||
-													order.ezDeliveryNote?.doc_number ? (
-														<div className="flex flex-col gap-1">
-															{order.deliveryNote?.number && (
-																<div className="text-xs">
-																	תעודה: {order.deliveryNote.number}
-																</div>
-															)}
-															{order.ezDeliveryNote?.doc_number && (
-																<div className="text-xs">
-																	EzCount: {order.ezDeliveryNote.doc_number}
-																</div>
-															)}
-														</div>
-													) : (
-														<span className="text-gray-400">-</span>
-													)}
-												</td>
-												<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
-													<span
-														className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-															order.status === "completed"
-																? "bg-green-100 text-green-800"
-																: order.status === "pending"
-																? "bg-yellow-100 text-yellow-800"
-																: order.status === "processing"
-																? "bg-blue-100 text-blue-800"
-																: order.status === "cancelled"
-																? "bg-red-100 text-red-800"
-																: "bg-gray-100 text-gray-800"
-														}`}
-													>
-														{order.status}
-													</span>
-												</td>
-											</tr>
-										))}
-									</tbody>
-								</table>
+			<Modal.Backdrop />
+			<Modal.Container size="lg" scroll="inside">
+				<Modal.Dialog>
+					<Modal.Header>
+						<Modal.Heading>{t("createDeliveryNote")}</Modal.Heading>
+						<p className="text-sm text-default-500">בחר חודש להצגת הזמנות</p>
+					</Modal.Header>
+					<Modal.Body className="p-4 md:p-5 grid grid-cols-1 gap-4 max-w-[90vw]">
+						{/* Month Navigation */}
+						<div className="bg-gray-50 rounded-lg p-4">
+							<div className="flex items-center justify-between">
+								<Button
+									variant="ghost"
+									size="sm"
+									onPress={handlePreviousMonth}
+								>
+									<Icon icon="lucide:chevron-right" />
+									חודש קודם
+								</Button>
+								<div className="text-lg font-semibold text-gray-900">{monthDisplay}</div>
+								<Button
+									variant="ghost"
+									size="sm"
+									onPress={handleNextMonth}
+								>
+									חודש הבא
+									<Icon icon="lucide:chevron-left" />
+								</Button>
 							</div>
 						</div>
-					)}
 
-					{!isLoadingOrders && orders.length === 0 && (
-						<div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-							<div className="flex items-center">
-								<Icon icon="lucide:alert-circle" className="h-5 w-5 text-yellow-400 mr-2" />
-								<div className="text-sm text-yellow-800">
-									לא נמצאו הזמנות עבור החודש שנבחר
+						{/* Orders List */}
+						{isLoadingOrders && (
+							<div className="flex justify-center py-4">
+								<div className="text-sm text-gray-500">טוען הזמנות...</div>
+							</div>
+						)}
+
+						{!isLoadingOrders && orders.length > 0 && (
+							<div className="mt-4">
+								<h4 className="text-lg font-medium mb-3">הזמנות ({orders.length})</h4>
+								<div className="w-full overflow-x-auto border rounded-lg">
+									<table className="w-full min-w-[1200px]">
+										<thead className="bg-gray-50 sticky top-0">
+											<tr>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													הזמנה
+												</th>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													ארגון
+												</th>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													תאריך
+												</th>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													לקוח
+												</th>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													שם בחשבונית
+												</th>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													סכום
+												</th>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													תעודת משלוח
+												</th>
+												<th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+													סטטוס
+												</th>
+											</tr>
+										</thead>
+										<tbody className="bg-white divide-y divide-gray-200">
+											{orders.map((order) => (
+												<tr
+													key={order.id}
+													className="hover:bg-gray-50 cursor-pointer"
+													onClick={() => handleOrderSelect(order)}
+												>
+													<td className="px-3 py-2 text-sm font-medium text-gray-900 whitespace-nowrap">
+														#{order.id}
+													</td>
+													<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
+														{getOrganizationName(order.organizationId)}
+													</td>
+													<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
+														{new Date(order.date).toLocaleDateString("he-IL")}
+													</td>
+													<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
+														{order.client?.displayName}
+													</td>
+													<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
+														{order.nameOnInvoice || order.client?.displayName || "-"}
+													</td>
+													<td className="px-3 py-2 text-sm font-medium text-gray-900 whitespace-nowrap">
+														₪{order.cart.cartTotal.toFixed(2)}
+													</td>
+													<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
+														{order.deliveryNote?.number ||
+														order.ezDeliveryNote?.doc_number ? (
+															<div className="flex flex-col gap-1">
+																{order.deliveryNote?.number && (
+																	<div className="text-xs">
+																		תעודה: {order.deliveryNote.number}
+																	</div>
+																)}
+																{order.ezDeliveryNote?.doc_number && (
+																	<div className="text-xs">
+																		EzCount: {order.ezDeliveryNote.doc_number}
+																	</div>
+																)}
+															</div>
+														) : (
+															<span className="text-gray-400">-</span>
+														)}
+													</td>
+													<td className="px-3 py-2 text-sm text-gray-500 whitespace-nowrap">
+														<span
+															className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+																order.status === "completed"
+																	? "bg-green-100 text-green-800"
+																	: order.status === "pending"
+																	? "bg-yellow-100 text-yellow-800"
+																	: order.status === "processing"
+																	? "bg-blue-100 text-blue-800"
+																	: order.status === "cancelled"
+																	? "bg-red-100 text-red-800"
+																	: "bg-gray-100 text-gray-800"
+															}`}
+														>
+															{order.status}
+														</span>
+													</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
 								</div>
 							</div>
-						</div>
-					)}
-				</ModalBody>
-				<ModalFooter>
-					<Button
-						onPress={() => modalApi.closeModal("createDeliveryNote")}
-						color="danger"
-						variant="light"
-					>
-						{t("cancel")}
-					</Button>
-				</ModalFooter>
-			</ModalContent>
+						)}
+
+						{!isLoadingOrders && orders.length === 0 && (
+							<div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+								<div className="flex items-center">
+									<Icon icon="lucide:alert-circle" className="h-5 w-5 text-yellow-400 mr-2" />
+									<div className="text-sm text-yellow-800">
+										לא נמצאו הזמנות עבור החודש שנבחר
+									</div>
+								</div>
+							</div>
+						)}
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="danger-soft" onPress={handleCloseDeliveryNote}>
+							{t("cancel")}
+						</Button>
+					</Modal.Footer>
+				</Modal.Dialog>
+			</Modal.Container>
 		</Modal>
 	);
 }

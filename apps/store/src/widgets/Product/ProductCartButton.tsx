@@ -25,7 +25,7 @@ export function ProductCartButton(props: Props) {
 	if (!cartProduct?.amount) {
 		return (
 			<Button
-				color="primary"
+				variant="primary"
 				fullWidth
 				onPress={() => {
 					appApi.user.addItemToCart({ product });
@@ -77,7 +77,7 @@ export function InputButton(props: InputButtonProps) {
 
 	if (isKgProduct) {
 		return (
-			<ButtonGroup size={size} color="primary" className={groupClass}>
+			<ButtonGroup size={size} className={groupClass}>
 				<Button
 					className={btnClass}
 					onPress={() => {
@@ -117,7 +117,7 @@ export function InputButton(props: InputButtonProps) {
 	}
 
 	return (
-		<ButtonGroup size={size} color="primary" className={groupClass}>
+		<ButtonGroup size={size} className={groupClass}>
 			<Button
 				className={btnClass}
 				onPress={() => onChange(value - 1, "decrease")}
@@ -128,9 +128,7 @@ export function InputButton(props: InputButtonProps) {
 			</Button>
 			<Button
 				fullWidth
-				disableRipple
-				disableAnimation
-				disabled
+				isDisabled
 				className={`min-w-8 flex-1 tabular-nums max-md:text-sm ${heightClass}`}
 			>
 				{value}

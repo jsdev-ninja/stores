@@ -2,23 +2,13 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	Table,
-	TableHeader,
-	TableColumn,
-	TableBody,
-	TableRow,
-	TableCell,
 	Input,
-	NumberInput,
+	NumberField,
 	Button,
 	Select,
-	SelectItem,
+	ListBox,
 	Modal,
-	ModalContent,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
 	Tabs,
-	Tab,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppApi } from "src/appApi";
@@ -26,6 +16,7 @@ import { NewSupplierInvoiceSchema, TProduct, TSupplier, TSupplierInvoice } from 
 import { FirebaseApi } from "src/lib/firebase";
 import { navigate } from "src/navigation";
 import { useStore } from "src/domains/Store";
+import type { Key } from "react-aria-components";
 
 // Helper function to round numbers
 function round(value: number, digits = 2): number {
@@ -460,10 +451,10 @@ export function AdminInventoryCertificatePage() {
 		: "";
 
 	// Helper to set date from date string
-	const setDocumentDate = (dateString: string) => {
+	const setDocumentDate = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSupplierInvoice((prev: Partial<TSupplierInvoice>) => ({
 			...prev,
-			date: new Date(dateString).getTime(),
+			date: new Date(e.target.value).getTime(),
 		}));
 	};
 
@@ -471,10 +462,10 @@ export function AdminInventoryCertificatePage() {
 	const invoiceNumber = supplierInvoice.invoiceNumber || "";
 
 	// Helper to set invoice number
-	const setInvoiceNumber = (value: string) => {
+	const setInvoiceNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSupplierInvoice((prev: Partial<TSupplierInvoice>) => ({
 			...prev,
-			invoiceNumber: value,
+			invoiceNumber: e.target.value,
 		}));
 	};
 
@@ -501,49 +492,60 @@ export function AdminInventoryCertificatePage() {
 		[t]
 	);
 
-	return (
-		<div className="p-6">
-			<div className="mb-6">
-				<h1 className="text-2xl font-bold text-gray-900">{t("common:inventoryCertificate")}</h1>
-			</div>
-
-			<Tabs
-				selectedKey={activeTab}
-				onSelectionChange={(key) => setActiveTab(key as string)}
-				aria-label="Inventory certificate tabs"
-			>
-				<Tab key="create" title={t("common:inventoryCertificatePage.createTab")}>
-					<div className="mt-6">
-						<div className="bg-white rounded-lg shadow p-6 mb-6">
+	// Build create tab content (defined outside JSX to allow Tabs.Panel children)
+	const createTabContent = (
+		<div className="mt-6">
+			<div className="bg-white rounded-lg shadow p-6 mb-6">
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-					<Input
-						label={t("common:inventoryCertificatePage.documentDate")}
-						type="date"
-						value={documentDate}
-						onValueChange={setDocumentDate}
-					/>
-					<Select
-						label={t("common:inventoryCertificatePage.supplier")}
-						selectedKeys={selectedSupplier ? [selectedSupplier.id] : []}
-						onChange={(e) => {
-							const supplier = suppliers.find((s) => s.id === e.target.value);
-							setSelectedSupplier(supplier || null);
-						}}
-					>
-						{suppliers.map((supplier) => (
-							<SelectItem
-								textValue={`${supplier.name}${supplier.code ? ` (${supplier.code})` : ""}`}
-								key={supplier.id}
-							>
-								{supplier.name} {supplier.code ? `(${supplier.code})` : ""}
-							</SelectItem>
-						))}
-					</Select>
-					<Input
-						label={t("common:inventoryCertificatePage.invoiceNumber")}
-						value={invoiceNumber}
-						onValueChange={setInvoiceNumber}
-					/>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.documentDate")}
+						</label>
+						<Input
+							type="date"
+							value={documentDate}
+							onChange={setDocumentDate}
+						/>
+					</div>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.supplier")}
+						</label>
+						<Select
+							selectedKey={selectedSupplier?.id || null}
+							onSelectionChange={(key: Key | null) => {
+								const supplier = suppliers.find((s) => s.id === String(key));
+								setSelectedSupplier(supplier || null);
+							}}
+						>
+							<Select.Trigger>
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox>
+									{suppliers.map((supplier) => (
+										<ListBox.Item
+											id={supplier.id}
+											key={supplier.id}
+											textValue={`${supplier.name}${supplier.code ? ` (${supplier.code})` : ""}`}
+										>
+											{supplier.name} {supplier.code ? `(${supplier.code})` : ""}
+										</ListBox.Item>
+									))}
+								</ListBox>
+							</Select.Popover>
+						</Select>
+					</div>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.invoiceNumber")}
+						</label>
+						<Input
+							value={invoiceNumber}
+							onChange={setInvoiceNumber}
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -555,439 +557,425 @@ export function AdminInventoryCertificatePage() {
 					</h2>
 					<div className="flex gap-2">
 						<Button
-							color="primary"
+							variant="primary"
 							onPress={addRow}
-							startContent={<Icon icon="lucide:plus" />}
 						>
+							<Icon icon="lucide:plus" />
 							{t("common:inventoryCertificatePage.addRow")}
 						</Button>
 						<Button
-							color="success"
+							variant="primary"
 							onPress={handleSave}
-							startContent={<Icon icon="lucide:save" />}
 							isDisabled={!selectedSupplier || supplierInvoice.rows?.length === 0}
 						>
+							<Icon icon="lucide:save" />
 							{t("common:inventoryCertificatePage.save")}
 						</Button>
 					</div>
 				</div>
 
 				<div className="overflow-x-auto">
-					<Table
-						aria-label="Inventory certificate items table"
-						classNames={{
-							wrapper: "shadow-none border border-gray-300",
-							thead: "[&>tr]:border-b [&>tr]:border-gray-300",
-							tbody: "[&>tr]:border-b [&>tr]:border-gray-300 [&>tr:last-child]:border-b",
-							th: "text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-0 border-r border-gray-300 [&:last-child]:border-r-0",
-							td: "text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 [&:last-child]:border-r-0",
-						}}
-						removeWrapper
-					>
-						<TableHeader columns={columns}>
-							{(column) => (
-								<TableColumn
-									key={column.uid}
-									align={column.uid === "actions" ? "end" : "start"}
-									width={column.uid === "rowNumber" ? 50 : undefined}
-								>
-									{column.name}
-								</TableColumn>
-							)}
-						</TableHeader>
-						<TableBody
-							items={supplierInvoice.rows || []}
-							emptyContent={t("common:inventoryCertificatePage.addRow")}
-						>
-							{(row) => (
-								<TableRow key={row.id}>
-									<TableCell>
-										<div className="text-[14px] px-2 min-w-[50px]">{row.rowNumber}</div>
-									</TableCell>
-									<TableCell>
-										<Input
-											value={row.sku}
-											onValueChange={(value) => updateRow(row.id, "sku", value)}
-											onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
-											aria-label={`${t("common:sku")} ${t(
-												"common:inventoryCertificatePage.rowNumber"
-											)} ${row.rowNumber}`}
-											size="sm"
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
-									</TableCell>
-									<TableCell>
-										<Input
-											value={row.itemName}
-											onValueChange={(value) => updateRow(row.id, "itemName", value)}
-											onKeyDown={(e) => handleKeyDown(e, row.id, "itemName")}
-											aria-label={`${t("common:inventoryCertificatePage.itemName")} ${t(
-												"common:inventoryCertificatePage.rowNumber"
-											)} ${row.rowNumber}`}
-											size="sm"
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
-									</TableCell>
-									<TableCell>
-										<NumberInput
-											value={row.quantity}
-											onValueChange={(value) => {
-												updateRow(row.id, "quantity", value ?? 0);
-											}}
-											onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
-											aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t(
-												"common:inventoryCertificatePage.rowNumber"
-											)} ${row.rowNumber}`}
-											size="sm"
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
-									</TableCell>
-									<TableCell>
-										<NumberInput
-											type="number"
-											value={row.purchasePrice}
-											onValueChange={(value) =>
-												updateRow(row.id, "purchasePrice", value ?? 0)
-											}
-											onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
-											aria-label={`${t(
-												"common:inventoryCertificatePage.purchasePriceIn"
-											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
-												row.rowNumber
-											}`}
-											size="sm"
-											startContent={<span className="text-gray-500">₪</span>}
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
-									</TableCell>
-									<TableCell>
-										<NumberInput
-											value={row.lineDiscount}
-											onValueChange={(value) =>
-												updateRow(row.id, "lineDiscount", value ?? 0)
-											}
-											onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
-											aria-label={`${t(
-												"common:inventoryCertificatePage.lineDiscount"
-											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
-												row.rowNumber
-											}`}
-											size="sm"
-											endContent={<span className="text-gray-500">%</span>}
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
-									</TableCell>
-									<TableCell>
-										<NumberInput
-											value={row.profitPercentage}
-											onValueChange={(value) =>
-												updateRow(row.id, "profitPercentage", value ?? 0)
-											}
-											onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
-											aria-label={`${t(
-												"common:inventoryCertificatePage.profitPercent"
-											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
-												row.rowNumber
-											}`}
-											size="sm"
-											endContent={<span className="text-gray-500">%</span>}
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
-									</TableCell>
-									<TableCell>
-										<NumberInput
-											type="number"
-											value={row.price}
-											onValueChange={(value) => updateRow(row.id, "price", value ?? 0)}
-											onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
-											aria-label={`${t(
-												"common:inventoryCertificatePage.salesPriceFrom"
-											)} ${t("common:inventoryCertificatePage.rowNumber")} ${
-												row.rowNumber
-											}`}
-											size="sm"
-											startContent={<span className="text-gray-500">₪</span>}
-											classNames={{
-												input: "text-[14px]",
-												inputWrapper: "h-8 border-0 rounded-none m-0 bg-white",
-												base: "w-full",
-											}}
-										/>
-									</TableCell>
-									<TableCell>
-										<div className="min-w-[100px] text-right px-2">
-											₪ {row.totalPurchasePrice.toFixed(2)}
-										</div>
-									</TableCell>
-									<TableCell>
-										<Button
-											isIconOnly
-											color="danger"
-											variant="light"
-											size="sm"
-											onPress={() => removeRow(row.id)}
-											aria-label={`${t("common:actionsLabel")} ${t(
-												"common:inventoryCertificatePage.rowNumber"
-											)} ${row.rowNumber}`}
+					<Table aria-label="Inventory certificate items table" className="shadow-none border border-gray-300">
+						<Table.ScrollContainer>
+							<Table.Content>
+								<Table.Header>
+									{columns.map((column) => (
+										<Table.Column
+											key={column.uid}
+											isRowHeader={column.uid === "rowNumber"}
+											className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-0 border-r border-gray-300 last:border-r-0"
 										>
-											<Icon icon="lucide:trash" />
-										</Button>
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
+											{column.name}
+										</Table.Column>
+									))}
+								</Table.Header>
+								<Table.Body
+									items={supplierInvoice.rows || []}
+									renderEmptyState={() => (
+										<div className="text-center p-4">
+											{t("common:inventoryCertificatePage.addRow")}
+										</div>
+									)}
+								>
+									{(row) => (
+										<Table.Row id={row.id}>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px] px-2 min-w-[50px]">{row.rowNumber}</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<Input
+													value={row.sku}
+													onChange={(e) => updateRow(row.id, "sku", e.target.value)}
+													onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
+													aria-label={`${t("common:sku")} ${t(
+														"common:inventoryCertificatePage.rowNumber"
+													)} ${row.rowNumber}`}
+													className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full"
+												/>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<Input
+													value={row.itemName}
+													onChange={(e) => updateRow(row.id, "itemName", e.target.value)}
+													onKeyDown={(e) => handleKeyDown(e, row.id, "itemName")}
+													aria-label={`${t("common:inventoryCertificatePage.itemName")} ${t(
+														"common:inventoryCertificatePage.rowNumber"
+													)} ${row.rowNumber}`}
+													className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full"
+												/>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<NumberField
+													value={row.quantity}
+													onChange={(value) => {
+														updateRow(row.id, "quantity", value ?? 0);
+													}}
+													onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
+													aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t(
+														"common:inventoryCertificatePage.rowNumber"
+													)} ${row.rowNumber}`}
+													className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full"
+												/>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<div className="relative">
+													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
+													<NumberField
+														value={row.purchasePrice}
+														onChange={(value) =>
+															updateRow(row.id, "purchasePrice", value ?? 0)
+														}
+														onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
+														aria-label={`${t(
+															"common:inventoryCertificatePage.purchasePriceIn"
+														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+															row.rowNumber
+														}`}
+														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pl-6"
+													/>
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<div className="relative">
+													<NumberField
+														value={row.lineDiscount}
+														onChange={(value) =>
+															updateRow(row.id, "lineDiscount", value ?? 0)
+														}
+														onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
+														aria-label={`${t(
+															"common:inventoryCertificatePage.lineDiscount"
+														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+															row.rowNumber
+														}`}
+														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pr-6"
+													/>
+													<span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">%</span>
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<div className="relative">
+													<NumberField
+														value={row.profitPercentage}
+														onChange={(value) =>
+															updateRow(row.id, "profitPercentage", value ?? 0)
+														}
+														onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
+														aria-label={`${t(
+															"common:inventoryCertificatePage.profitPercent"
+														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+															row.rowNumber
+														}`}
+														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pr-6"
+													/>
+													<span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">%</span>
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<div className="relative">
+													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
+													<NumberField
+														value={row.price}
+														onChange={(value) => updateRow(row.id, "price", value ?? 0)}
+														onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
+														aria-label={`${t(
+															"common:inventoryCertificatePage.salesPriceFrom"
+														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
+															row.rowNumber
+														}`}
+														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pl-6"
+													/>
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<div className="min-w-[100px] text-right px-2">
+													₪ {row.totalPurchasePrice.toFixed(2)}
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<Button
+													variant="danger"
+													onPress={() => removeRow(row.id)}
+													aria-label={`${t("common:actionsLabel")} ${t(
+														"common:inventoryCertificatePage.rowNumber"
+													)} ${row.rowNumber}`}
+												>
+													<Icon icon="lucide:trash" />
+												</Button>
+											</Table.Cell>
+										</Table.Row>
+									)}
+								</Table.Body>
+							</Table.Content>
+						</Table.ScrollContainer>
 					</Table>
 				</div>
 			</div>
 
 			{/* Save Confirmation Modal */}
-			<Modal
-				isOpen={isSaveModalOpen}
-				onClose={() => setIsSaveModalOpen(false)}
-				size="5xl"
-				scrollBehavior="inside"
-			>
-				<ModalContent>
-					{(onClose) => (
-						<>
-							<ModalHeader className="flex flex-col gap-1">
+			<Modal isOpen={isSaveModalOpen} onOpenChange={setIsSaveModalOpen}>
+				<Modal.Backdrop />
+				<Modal.Container>
+					<Modal.Dialog>
+						<Modal.Header>
+							<Modal.Heading>
 								{t("common:inventoryCertificatePage.saveModalTitle")}
-							</ModalHeader>
-							<ModalBody>
-								<p className="text-gray-700 mb-4">
-									{t("common:inventoryCertificatePage.saveModalDescription")}
-								</p>
+							</Modal.Heading>
+						</Modal.Header>
+						<Modal.Body>
+							<p className="text-gray-700 mb-4">
+								{t("common:inventoryCertificatePage.saveModalDescription")}
+							</p>
 
-								{productsToUpdate.length > 0 ? (
-									<div className="overflow-x-auto">
-										<Table
-											aria-label="Products comparison table"
-											classNames={{
-												wrapper: "shadow-none border border-gray-300",
-												thead: "[&>tr]:border-b [&>tr]:border-gray-300",
-												tbody: "[&>tr]:border-b [&>tr]:border-gray-300",
-												th: "text-[14px] leading-[22px] font-medium text-[#949CA9] bg-gray-50 p-2 border-r border-gray-300 [&:last-child]:border-r-0",
-												td: "text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 [&:last-child]:border-r-0",
-											}}
-											removeWrapper
-										>
-											<TableHeader>
-												<TableColumn>{t("common:sku")}</TableColumn>
-												<TableColumn>
-													{t("common:inventoryCertificatePage.itemName")}
-												</TableColumn>
-												<TableColumn>
-													{t("common:inventoryCertificatePage.purchasePriceIn")}
-												</TableColumn>
-												<TableColumn>
-													{t("common:inventoryCertificatePage.salesPriceFrom")}
-												</TableColumn>
-												<TableColumn>
-													{t("common:inventoryCertificatePage.profitPercent")}
-												</TableColumn>
-											</TableHeader>
-											<TableBody items={productsToUpdate}>
-												{(item) => (
-													<TableRow key={item.sku}>
-														<TableCell>
-															<div className="font-medium">{item.sku}</div>
-														</TableCell>
-														<TableCell>{item.itemName || "-"}</TableCell>
-														<TableCell>
-															<div className="flex flex-col gap-1">
-																<div className="text-red-600 line-through">
-																	₪ {item.oldPurchasePrice.toFixed(2)}
-																</div>
-																<div className="text-green-600 font-medium">
-																	₪ {item.newPurchasePrice.toFixed(2)}
-																</div>
-															</div>
-														</TableCell>
-														<TableCell>
-															<div className="flex flex-col gap-1">
-																<div className="text-red-600 line-through">
-																	₪ {item.oldPrice.toFixed(2)}
-																</div>
-																<div className="text-green-600 font-medium">
-																	₪ {item.newPrice.toFixed(2)}
-																</div>
-															</div>
-														</TableCell>
-														<TableCell>
-															<div className="flex flex-col gap-1">
-																{item.oldProfitPercentage !== undefined && (
+							{productsToUpdate.length > 0 ? (
+								<div className="overflow-x-auto">
+									<Table aria-label="Products comparison table" className="shadow-none border border-gray-300">
+										<Table.ScrollContainer>
+											<Table.Content>
+												<Table.Header>
+													<Table.Column isRowHeader className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-gray-50 p-2 border-r border-gray-300 last:border-r-0">
+														{t("common:sku")}
+													</Table.Column>
+													<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-gray-50 p-2 border-r border-gray-300 last:border-r-0">
+														{t("common:inventoryCertificatePage.itemName")}
+													</Table.Column>
+													<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-gray-50 p-2 border-r border-gray-300 last:border-r-0">
+														{t("common:inventoryCertificatePage.purchasePriceIn")}
+													</Table.Column>
+													<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-gray-50 p-2 border-r border-gray-300 last:border-r-0">
+														{t("common:inventoryCertificatePage.salesPriceFrom")}
+													</Table.Column>
+													<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-gray-50 p-2 border-r border-gray-300 last:border-r-0">
+														{t("common:inventoryCertificatePage.profitPercent")}
+													</Table.Column>
+												</Table.Header>
+												<Table.Body items={productsToUpdate}>
+													{(item) => (
+														<Table.Row id={item.sku}>
+															<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+																<div className="font-medium">{item.sku}</div>
+															</Table.Cell>
+															<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+																{item.itemName || "-"}
+															</Table.Cell>
+															<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+																<div className="flex flex-col gap-1">
 																	<div className="text-red-600 line-through">
-																		{item.oldProfitPercentage.toFixed(2)}%
+																		₪ {item.oldPurchasePrice.toFixed(2)}
 																	</div>
-																)}
-																<div className="text-green-600 font-medium">
-																	{item.newProfitPercentage.toFixed(2)}%
+																	<div className="text-green-600 font-medium">
+																		₪ {item.newPurchasePrice.toFixed(2)}
+																	</div>
 																</div>
-															</div>
-														</TableCell>
-													</TableRow>
-												)}
-											</TableBody>
-										</Table>
+															</Table.Cell>
+															<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+																<div className="flex flex-col gap-1">
+																	<div className="text-red-600 line-through">
+																		₪ {item.oldPrice.toFixed(2)}
+																	</div>
+																	<div className="text-green-600 font-medium">
+																		₪ {item.newPrice.toFixed(2)}
+																	</div>
+																</div>
+															</Table.Cell>
+															<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+																<div className="flex flex-col gap-1">
+																	{item.oldProfitPercentage !== undefined && (
+																		<div className="text-red-600 line-through">
+																			{item.oldProfitPercentage.toFixed(2)}%
+																		</div>
+																	)}
+																	<div className="text-green-600 font-medium">
+																		{item.newProfitPercentage.toFixed(2)}%
+																	</div>
+																</div>
+															</Table.Cell>
+														</Table.Row>
+													)}
+												</Table.Body>
+											</Table.Content>
+										</Table.ScrollContainer>
+									</Table>
+								</div>
+							) : (
+								<p className="text-gray-500 text-center py-4">
+									{t("common:inventoryCertificatePage.noProductsToUpdate")}
+								</p>
+							)}
+							{/* Summary Section */}
+							<div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
+								<h3 className="text-lg font-semibold text-gray-900 mb-3">
+									{t("common:inventoryCertificatePage.summary" as any)}
+								</h3>
+								<div className="space-y-2">
+									<div className="flex justify-between items-center">
+										<span className="text-gray-700">
+											{t("common:inventoryCertificatePage.totalBeforeVat" as any)}:
+										</span>
+										<span className="font-medium text-gray-900">
+											₪ {invoiceSummary.totalBeforeVat.toFixed(2)}
+										</span>
 									</div>
-								) : (
-									<p className="text-gray-500 text-center py-4">
-										{t("common:inventoryCertificatePage.noProductsToUpdate")}
-									</p>
-								)}
-								{/* Summary Section */}
-								<div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
-									<h3 className="text-lg font-semibold text-gray-900 mb-3">
-										{t("common:inventoryCertificatePage.summary" as any)}
-									</h3>
-									<div className="space-y-2">
-										<div className="flex justify-between items-center">
-											<span className="text-gray-700">
-												{t("common:inventoryCertificatePage.totalBeforeVat" as any)}:
-											</span>
-											<span className="font-medium text-gray-900">
-												₪ {invoiceSummary.totalBeforeVat.toFixed(2)}
-											</span>
-										</div>
-										<div className="flex justify-between items-center">
-											<span className="text-gray-700">
-												{t("common:inventoryCertificatePage.vatAmount" as any)}:
-											</span>
-											<span className="font-medium text-gray-900">
-												₪ {invoiceSummary.totalVat.toFixed(2)}
-											</span>
-										</div>
-										<div className="flex justify-between items-center pt-2 border-t border-gray-300">
-											<span className="text-lg font-semibold text-gray-900">
-												{t("common:inventoryCertificatePage.totalWithVat" as any)}:
-											</span>
-											<span className="text-lg font-bold text-gray-900">
-												₪ {invoiceSummary.totalWithVat.toFixed(2)}
-											</span>
-										</div>
+									<div className="flex justify-between items-center">
+										<span className="text-gray-700">
+											{t("common:inventoryCertificatePage.vatAmount" as any)}:
+										</span>
+										<span className="font-medium text-gray-900">
+											₪ {invoiceSummary.totalVat.toFixed(2)}
+										</span>
+									</div>
+									<div className="flex justify-between items-center pt-2 border-t border-gray-300">
+										<span className="text-lg font-semibold text-gray-900">
+											{t("common:inventoryCertificatePage.totalWithVat" as any)}:
+										</span>
+										<span className="text-lg font-bold text-gray-900">
+											₪ {invoiceSummary.totalWithVat.toFixed(2)}
+										</span>
 									</div>
 								</div>
-							</ModalBody>
-							<ModalFooter>
-								<Button color="danger" variant="light" onPress={onClose}>
-									{t("common:actions.cancel")}
-								</Button>
-								<Button
-									color="primary"
-									onPress={async () => {
-										// TODO: Implement actual save logic
-										// is valid schema
-										const isValid = NewSupplierInvoiceSchema.safeParse(supplierInvoice);
-										if (!isValid.success) {
-											console.error("Invalid supplier invoice", isValid.error);
-											return;
+							</div>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="ghost" onPress={() => setIsSaveModalOpen(false)}>
+								{t("common:actions.cancel")}
+							</Button>
+							<Button
+								variant="primary"
+								onPress={async () => {
+									// TODO: Implement actual save logic
+									// is valid schema
+									const isValid = NewSupplierInvoiceSchema.safeParse(supplierInvoice);
+									if (!isValid.success) {
+										console.error("Invalid supplier invoice", isValid.error);
+										return;
+									}
+									await appApi.admin.uploadSupplierInvoice({
+										...isValid.data,
+										productsToUpdate: productsToUpdate,
+										id: FirebaseApi.firestore.generateDocId("supplierInvoices"),
+										vat: invoiceSummary.totalVat,
+										total: invoiceSummary.totalWithVat,
+										totalBeforeVat: invoiceSummary.totalBeforeVat,
+									});
+									setIsSaveModalOpen(false);
+									// Refresh supplier invoices list if view tab is active
+									if (activeTab === "view") {
+										const result = await appApi.admin.listSupplierInvoices();
+										if (result?.success) {
+											setSupplierInvoices((result.data || []) as TSupplierInvoice[]);
 										}
-										await appApi.admin.uploadSupplierInvoice({
-											...isValid.data,
-											productsToUpdate: productsToUpdate,
-											id: FirebaseApi.firestore.generateDocId("supplierInvoices"),
-											vat: invoiceSummary.totalVat,
-											total: invoiceSummary.totalWithVat,
-											totalBeforeVat: invoiceSummary.totalBeforeVat,
-										});
-										onClose();
-										// Refresh supplier invoices list if view tab is active
-										if (activeTab === "view") {
-											const result = await appApi.admin.listSupplierInvoices();
-											if (result?.success) {
-												setSupplierInvoices((result.data || []) as TSupplierInvoice[]);
-											}
-										}
-									}}
-								>
-									{t("common:inventoryCertificatePage.confirmSave")}
-								</Button>
-							</ModalFooter>
-						</>
-					)}
-				</ModalContent>
-			</Modal>
-					</div>
-				</Tab>
-				<Tab key="view" title={t("common:inventoryCertificatePage.viewTab")}>
-					<div className="mt-6">
-						<div className="bg-white rounded-lg shadow p-6">
-							<Table
-								aria-label="Supplier invoices table"
-								classNames={{
-									wrapper: "shadow-none border border-gray-300",
-									thead: "[&>tr]:border-b [&>tr]:border-gray-300",
-									tbody: "[&>tr]:border-b [&>tr]:border-gray-300",
-									th: "text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-2 border-r border-gray-300 [&:last-child]:border-r-0",
-									td: "text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 [&:last-child]:border-r-0",
+									}
 								}}
-								removeWrapper
 							>
-								<TableHeader columns={viewColumns}>
-									{(column: { name: string; uid: string }) => (
-										<TableColumn key={column.uid} align={column.uid === "total" ? "end" : "start"}>
-											{column.name}
-										</TableColumn>
-									)}
-								</TableHeader>
-								<TableBody
-									items={supplierInvoices}
-									emptyContent={t("common:inventoryCertificatePage.noInvoices")}
-								>
-									{(invoice) => (
-										<TableRow
-											key={invoice.id}
-											className="cursor-pointer hover:bg-gray-50"
-											onClick={() => {
-												navigate({
-													to: "admin.inventoryCertificateDetail",
-													params: { id: invoice.id },
-												});
-											}}
-										>
-											<TableCell>
-												{new Date(invoice.date).toLocaleDateString()}
-											</TableCell>
-											<TableCell>
-												{invoice.supplier?.name || "-"}
-												{invoice.supplier?.code && ` (${invoice.supplier.code})`}
-											</TableCell>
-											<TableCell>{invoice.invoiceNumber || "-"}</TableCell>
-											<TableCell className="text-right">
-												₪ {invoice.total?.toFixed(2) || "0.00"}
-											</TableCell>
-											<TableCell>{invoice.rows?.length || 0}</TableCell>
-										</TableRow>
-									)}
-								</TableBody>
-							</Table>
-						</div>
-					</div>
-				</Tab>
+								{t("common:inventoryCertificatePage.confirmSave")}
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal>
+		</div>
+	);
+
+	const viewTabContent = (
+		<div className="mt-6">
+			<div className="bg-white rounded-lg shadow p-6">
+				<Table aria-label="Supplier invoices table" className="shadow-none border border-gray-300">
+					<Table.ScrollContainer>
+						<Table.Content>
+							<Table.Header>
+								{viewColumns.map((column) => (
+									<Table.Column
+										key={column.uid}
+										isRowHeader={column.uid === "date"}
+										className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-2 border-r border-gray-300 last:border-r-0"
+									>
+										{column.name}
+									</Table.Column>
+								))}
+							</Table.Header>
+							<Table.Body
+								items={supplierInvoices}
+								renderEmptyState={() => (
+									<div className="text-center p-4">
+										{t("common:inventoryCertificatePage.noInvoices")}
+									</div>
+								)}
+							>
+								{(invoice) => (
+									<Table.Row
+										id={invoice.id}
+										className="cursor-pointer hover:bg-gray-50"
+										onClick={() => {
+											navigate({
+												to: "admin.inventoryCertificateDetail",
+												params: { id: invoice.id },
+											});
+										}}
+									>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{new Date(invoice.date).toLocaleDateString()}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{invoice.supplier?.name || "-"}
+											{invoice.supplier?.code && ` (${invoice.supplier.code})`}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{invoice.invoiceNumber || "-"}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0 text-right">
+											₪ {invoice.total?.toFixed(2) || "0.00"}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{invoice.rows?.length || 0}
+										</Table.Cell>
+									</Table.Row>
+								)}
+							</Table.Body>
+						</Table.Content>
+					</Table.ScrollContainer>
+				</Table>
+			</div>
+		</div>
+	);
+
+	return (
+		<div className="p-6">
+			<div className="mb-6">
+				<h1 className="text-2xl font-bold text-gray-900">{t("common:inventoryCertificate")}</h1>
+			</div>
+
+			<Tabs
+				selectedKey={activeTab}
+				onSelectionChange={(key) => setActiveTab(key as string)}
+				aria-label="Inventory certificate tabs"
+			>
+				<Tabs.List>
+					<Tabs.Tab id="create">{t("common:inventoryCertificatePage.createTab")}</Tabs.Tab>
+					<Tabs.Tab id="view">{t("common:inventoryCertificatePage.viewTab")}</Tabs.Tab>
+				</Tabs.List>
+
+				<Tabs.Panel id="create">{createTabContent}</Tabs.Panel>
+				<Tabs.Panel id="view">{viewTabContent}</Tabs.Panel>
 			</Tabs>
 		</div>
 	);

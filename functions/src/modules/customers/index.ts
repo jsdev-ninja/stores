@@ -5,3 +5,6 @@ export const customersModule = {
 		await profileService.deleteProfile(input.uid);
 	},
 };
+
+export { createCompanyClient } from "./api/createCompany";
+export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";

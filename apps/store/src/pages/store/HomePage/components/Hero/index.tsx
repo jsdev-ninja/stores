@@ -25,7 +25,7 @@ const Hero = ({ onContact }: HeroProps) => {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Button
-                                color="primary"
+                                variant="primary"
                                 size="lg"
                                 onPress={onContact}
                                 className="text-base px-8 py-6 font-semibold shadow-md hover:shadow-lg transition-shadow"
@@ -34,7 +34,7 @@ const Hero = ({ onContact }: HeroProps) => {
                                 צור קשר לספק קבוע
                             </Button>
                             <Button
-                                variant="bordered"
+                                variant="outline"
                                 size="lg"
                                 onPress={() => navigate({ to: "store.catalog" })}
                                 className="text-base px-8 py-6 border-2 border-default-300 hover:bg-default-100"

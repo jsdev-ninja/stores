@@ -1,10 +1,3 @@
-import { handleOrderCreated, handleOrderUpdated } from "./internal/lifecycle";
-
-export const ordersModule = {
-	onCreated: handleOrderCreated,
-	onUpdated: handleOrderUpdated,
-} as const;
-
 export {
 	OrderEventTypes,
 	OrderPlacedPayload,
@@ -12,3 +5,6 @@ export {
 	OrderCancelledPayload,
 	OrderRefundedPayload,
 } from "./events";
+
+export { onOrderCreated } from "./triggers/onOrderCreated";
+export { onOrderUpdate } from "./triggers/onOrderUpdate";

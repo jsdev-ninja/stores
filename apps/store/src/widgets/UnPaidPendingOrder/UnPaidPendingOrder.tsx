@@ -7,9 +7,9 @@ export function UnPaidPendingOrder() {
 				<div className="">UnPaidPendingOrder</div>
 				<div className="">UnPaidPendingOrder</div>
 				<div className="flex flex-col gap-4 mt-6">
-					<Button color="primary">Continue order</Button>
-					<Button color="secondary">View order</Button>
-					<Button color="danger" variant="bordered">
+					<Button variant="primary">Continue order</Button>
+					<Button variant="secondary">View order</Button>
+					<Button variant="danger">
 						Cancel Order
 					</Button>
 				</div>

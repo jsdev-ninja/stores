@@ -11,7 +11,7 @@ import { useStore } from "src/domains/Store";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
-import { HeroUIProvider, ToastProvider } from "@heroui/react";
+import { ToastProvider } from "@heroui/react";
 import { useAppApi } from "src/appApi";
 import { SentryApi } from "src/lib/sentry";
 import MaintenancePage from "src/pages/MaintenancePage/MaintenancePage";
@@ -30,7 +30,7 @@ const PayRedirectPage = lazy(() =>
 function App() {
   // Flip to true to put the storefront + admin into maintenance mode.
   // Then deploy. Flip back to false and redeploy to restore.
-  const MAINTENANCE_MODE = true;
+  const MAINTENANCE_MODE = false;
   if (MAINTENANCE_MODE) return <MaintenancePage />;
 
   const { i18n } = useTranslation();
@@ -194,8 +194,8 @@ function App() {
   }
 
   return (
-    <HeroUIProvider className="min-h-screen min-w-screen">
-      <ToastProvider placement="top-center" />
+    <div className="min-h-screen min-w-screen">
+      <ToastProvider />
       {/* todo fix fallback */}
       <Suspense fallback="loading">
         <ModalProvider />
@@ -220,7 +220,7 @@ function App() {
           <PayRedirectPage />
         </Route>
       </Suspense>
-    </HeroUIProvider>
+    </div>
   );
 }
 

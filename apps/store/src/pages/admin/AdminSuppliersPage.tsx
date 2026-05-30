@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "src/components/button";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
-import { Input } from "@heroui/react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
+import { Modal, Input, Table } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
@@ -123,131 +121,150 @@ export function AdminSuppliersPage() {
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">{t("admin:suppliersPage.title")}</h1>
 				<Button
-					color="primary"
+					variant="primary"
 					onPress={() => setIsCreateModalOpen(true)}
-					startContent={<Icon icon="lucide:plus" />}
 				>
+					<Icon icon="lucide:plus" />
 					{t("admin:suppliersPage.createSupplier")}
 				</Button>
 			</div>
 
 			<Table aria-label="Suppliers table">
-				<TableHeader>
-					<TableColumn>{t("admin:suppliersPage.name")}</TableColumn>
-					<TableColumn>{t("admin:suppliersPage.code")}</TableColumn>
-					<TableColumn>{t("admin:suppliersPage.actionsLabel")}</TableColumn>
-				</TableHeader>
-				<TableBody>
-					{suppliers.map((supplier) => (
-						<TableRow key={supplier.id}>
-							<TableCell>{supplier.name}</TableCell>
-							<TableCell>{supplier.code}</TableCell>
-							<TableCell>
-								<div className="flex gap-2">
-									<Button
-										size="sm"
-										variant="light"
-										onPress={() => handleEdit(supplier)}
-										startContent={<Icon icon="lucide:edit" />}
-									>
-										{t("common:edit")}
-									</Button>
-									<Button
-										size="sm"
-										color="danger"
-										variant="light"
-										onPress={() => handleDelete(supplier.id)}
-										startContent={<Icon icon="lucide:trash" />}
-									>
-										{t("common:delete")}
-									</Button>
-								</div>
-							</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
+				<Table.ScrollContainer>
+					<Table.Content>
+						<Table.Header>
+							<Table.Column isRowHeader>{t("admin:suppliersPage.name")}</Table.Column>
+							<Table.Column>{t("admin:suppliersPage.code")}</Table.Column>
+							<Table.Column>{t("admin:suppliersPage.actionsLabel")}</Table.Column>
+						</Table.Header>
+						<Table.Body items={suppliers}>
+							{(supplier) => (
+								<Table.Row id={supplier.id}>
+									<Table.Cell>{supplier.name}</Table.Cell>
+									<Table.Cell>{supplier.code}</Table.Cell>
+									<Table.Cell>
+										<div className="flex gap-2">
+											<Button
+												variant="ghost"
+												onPress={() => handleEdit(supplier)}
+											>
+												<Icon icon="lucide:edit" />
+												{t("common:edit")}
+											</Button>
+											<Button
+												variant="danger"
+												onPress={() => handleDelete(supplier.id)}
+											>
+												<Icon icon="lucide:trash" />
+												{t("common:delete")}
+											</Button>
+										</div>
+									</Table.Cell>
+								</Table.Row>
+							)}
+						</Table.Body>
+					</Table.Content>
+				</Table.ScrollContainer>
 			</Table>
 
 			{/* Create Modal */}
-			<Modal isOpen={isCreateModalOpen} onOpenChange={handleCloseCreateModal} size="md">
-				<ModalContent>
-					{(onClose) => (
-						<>
-							<ModalHeader className="flex flex-col gap-1">
-								{t("admin:suppliersPage.createSupplier")}
-							</ModalHeader>
-							<ModalBody>
-								<Input
-									label={t("admin:suppliersPage.name")}
-									placeholder={t("admin:suppliersPage.namePlaceholder")}
-									value={formData.name}
-									onValueChange={(value) => handleFormChange("name", value)}
-									isRequired
-								/>
-								<Input
-									label={t("admin:suppliersPage.code")}
-									placeholder={t("admin:suppliersPage.codePlaceholder")}
-									value={formData.code}
-									onValueChange={(value) => handleFormChange("code", value)}
-									isRequired
-								/>
-							</ModalBody>
-							<ModalFooter>
-								<Button color="danger" variant="light" onPress={onClose}>
-									{t("common:cancel")}
-								</Button>
-								<Button
-									color="primary"
-									onPress={handleCreate}
-									isLoading={appApi.loading["admin.createSupplier"]}
-								>
-									{t("common:create")}
-								</Button>
-							</ModalFooter>
-						</>
-					)}
-				</ModalContent>
+			<Modal isOpen={isCreateModalOpen} onOpenChange={handleCloseCreateModal}>
+				<Modal.Backdrop />
+				<Modal.Container>
+					<Modal.Dialog>
+						<Modal.Header>
+							<Modal.Heading>{t("admin:suppliersPage.createSupplier")}</Modal.Heading>
+						</Modal.Header>
+						<Modal.Body>
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium text-gray-700">
+										{t("admin:suppliersPage.name")}
+									</label>
+									<Input
+										placeholder={t("admin:suppliersPage.namePlaceholder")}
+										value={formData.name}
+										onChange={(e) => handleFormChange("name", e.target.value)}
+										required
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium text-gray-700">
+										{t("admin:suppliersPage.code")}
+									</label>
+									<Input
+										placeholder={t("admin:suppliersPage.codePlaceholder")}
+										value={formData.code}
+										onChange={(e) => handleFormChange("code", e.target.value)}
+										required
+									/>
+								</div>
+							</div>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="ghost" onPress={handleCloseCreateModal}>
+								{t("common:cancel")}
+							</Button>
+							<Button
+								variant="primary"
+								onPress={handleCreate}
+								isPending={appApi.loading["admin.createSupplier"]}
+							>
+								{t("common:create")}
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
 			</Modal>
 
 			{/* Edit Modal */}
-			<Modal isOpen={isEditModalOpen} onOpenChange={handleCloseEditModal} size="md">
-				<ModalContent>
-					{(onClose) => (
-						<>
-							<ModalHeader className="flex flex-col gap-1">
-								{t("admin:suppliersPage.editSupplier")}
-							</ModalHeader>
-							<ModalBody>
-								<Input
-									label={t("admin:suppliersPage.name")}
-									placeholder={t("admin:suppliersPage.namePlaceholder")}
-									value={formData.name}
-									onValueChange={(value) => handleFormChange("name", value)}
-									isRequired
-								/>
-								<Input
-									label={t("admin:suppliersPage.code")}
-									placeholder={t("admin:suppliersPage.codePlaceholder")}
-									value={formData.code}
-									onValueChange={(value) => handleFormChange("code", value)}
-									isRequired
-								/>
-							</ModalBody>
-							<ModalFooter>
-								<Button color="danger" variant="light" onPress={onClose}>
-									{t("common:cancel")}
-								</Button>
-								<Button
-									color="primary"
-									onPress={handleUpdate}
-									isLoading={appApi.loading["admin.updateSupplier"]}
-								>
-									{t("common:save")}
-								</Button>
-							</ModalFooter>
-						</>
-					)}
-				</ModalContent>
+			<Modal isOpen={isEditModalOpen} onOpenChange={handleCloseEditModal}>
+				<Modal.Backdrop />
+				<Modal.Container>
+					<Modal.Dialog>
+						<Modal.Header>
+							<Modal.Heading>{t("admin:suppliersPage.editSupplier")}</Modal.Heading>
+						</Modal.Header>
+						<Modal.Body>
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium text-gray-700">
+										{t("admin:suppliersPage.name")}
+									</label>
+									<Input
+										placeholder={t("admin:suppliersPage.namePlaceholder")}
+										value={formData.name}
+										onChange={(e) => handleFormChange("name", e.target.value)}
+										required
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium text-gray-700">
+										{t("admin:suppliersPage.code")}
+									</label>
+									<Input
+										placeholder={t("admin:suppliersPage.codePlaceholder")}
+										value={formData.code}
+										onChange={(e) => handleFormChange("code", e.target.value)}
+										required
+									/>
+								</div>
+							</div>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="ghost" onPress={handleCloseEditModal}>
+								{t("common:cancel")}
+							</Button>
+							<Button
+								variant="primary"
+								onPress={handleUpdate}
+								isPending={appApi.loading["admin.updateSupplier"]}
+							>
+								{t("common:save")}
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
 			</Modal>
 		</div>
 	);

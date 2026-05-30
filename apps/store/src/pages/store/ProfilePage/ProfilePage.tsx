@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardBody, CardHeader, Divider, Button, addToast } from "@heroui/react";
+import { Card, Separator, Button, toast } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { ProfileForm } from "./ProfileForm";
@@ -25,16 +25,12 @@ const ProfilePage = () => {
 			await appApi.user.profileUpdate({ newProfile: updatedProfile });
 
 			setIsEditing(false);
-			addToast({
-				title: t("profilePage:updateSuccessTitle" as any),
+			toast.success(t("profilePage:updateSuccessTitle" as any), {
 				description: t("profilePage:updateSuccessDescription" as any),
-				color: "success",
 			});
 		} catch (error) {
-			addToast({
-				title: t("profilePage:updateFailedTitle" as any),
+			toast.danger(t("profilePage:updateFailedTitle" as any), {
 				description: t("profilePage:updateFailedDescription" as any),
-				color: "danger",
 			});
 		} finally {
 			setIsSaving(false);
@@ -59,11 +55,11 @@ const ProfilePage = () => {
 					transition={{ duration: 0.4 }}
 				>
 					<Card className="bg-white dark:bg-gray-800 rounded-2xl shadow-[0_1px_3px_0_rgba(0,0,0,0.1),0_1px_2px_-1px_rgba(0,0,0,0.1),inset_0_1px_0_0_rgba(255,255,255,0.5)] dark:shadow-[0_1px_3px_0_rgba(0,0,0,0.3),0_1px_2px_-1px_rgba(0,0,0,0.2),inset_0_1px_0_0_rgba(255,255,255,0.1)] border-0">
-						<CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between px-6 pt-6 pb-4">
+						<Card.Header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between px-6 pt-6 pb-4">
 							<div>
-								<h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+								<Card.Title className="text-2xl font-bold text-gray-900 dark:text-white">
 									{t("profilePage:title")}
-								</h1>
+								</Card.Title>
 								<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
 									{isEditing
 										? t("profilePage:subTitleEdit")
@@ -72,18 +68,17 @@ const ProfilePage = () => {
 							</div>
 							{!isEditing && (
 								<Button
-									color="primary"
-									variant="flat"
+									variant="ghost"
 									className="bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30"
-									startContent={<Icon icon="lucide:edit" width={18} />}
 									onPress={() => setIsEditing(true)}
 								>
+									<Icon icon="lucide:edit" width={18} />
 									{t("profilePage:editProfile")}
 								</Button>
 							)}
-						</CardHeader>
-						<Divider className="bg-gray-200 dark:bg-gray-700" />
-						<CardBody className="px-6 py-6">
+						</Card.Header>
+						<Separator className="bg-gray-200 dark:bg-gray-700" />
+						<Card.Content className="px-6 py-6">
 							{isEditing ? (
 								<ProfileForm
 									profile={profile}
@@ -94,7 +89,7 @@ const ProfilePage = () => {
 							) : (
 								<ProfileView profile={profile} />
 							)}
-						</CardBody>
+						</Card.Content>
 					</Card>
 				</motion.div>
 			</div>

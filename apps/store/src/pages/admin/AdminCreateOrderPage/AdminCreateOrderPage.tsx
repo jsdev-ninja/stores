@@ -11,9 +11,10 @@ import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useEffect, useState } from "react";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
-import { Select, SelectItem } from "@heroui/react";
+import { Select, ListBox } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useFormContext } from "react-hook-form";
+import type { Key } from "react-aria-components";
 
 function AdminCreateOrderPage() {
 	const { t } = useTranslation(["common", "checkout"]);
@@ -254,6 +255,14 @@ function FormContent({
 		}
 	}, [selectedOrganization, setValue]);
 
+	const orgItems: Array<{ id: string; name: string; discountPercentage?: number }> = [
+		{
+			id: "none",
+			name: t("admin:createOrder.noOrganization", "No Organization"),
+		},
+		...organizations,
+	];
+
 	return (
 		<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
 			<div className="min-w-0 flex-1 space-y-8">
@@ -273,35 +282,33 @@ function FormContent({
 									"admin:createOrder.selectOrganizationPlaceholder",
 									"Choose an organization"
 								)}
-								selectedKeys={organizationId ? [organizationId] : []}
-								onChange={(e) => {
-									const value = e.target.value;
+								selectedKey={organizationId || null}
+								onSelectionChange={(key: Key | null) => {
+									const value = key ? String(key) : "";
 									setValue("organizationId", value);
 									onOrganizationSelect(value);
 								}}
 								isDisabled={loading}
-								startContent={
-									<Icon icon="lucide:building-2" className="text-default-400" />
-								}
-								items={[
-									{
-										id: "none",
-										name: t("admin:createOrder.noOrganization", "No Organization"),
-									},
-									...organizations,
-								]}
 							>
-								{(org) => (
-									<SelectItem textValue={org.name} key={org.id}>
-										{org.name}
-										{"discountPercentage" in org &&
-											org.discountPercentage &&
-											` (${org.discountPercentage}% ${t(
-												"admin:createOrder.discount",
-												"discount"
-											)})`}
-									</SelectItem>
-								)}
+								<Select.Trigger>
+									<Icon icon="lucide:building-2" className="text-default-400 mr-2" />
+									<Select.Value />
+									<Select.Indicator />
+								</Select.Trigger>
+								<Select.Popover>
+									<ListBox>
+										{orgItems.map((org) => (
+											<ListBox.Item id={org.id} key={org.id} textValue={org.name}>
+												{org.name}
+												{org.discountPercentage != null &&
+													` (${org.discountPercentage}% ${t(
+														"admin:createOrder.discount",
+														"discount"
+													)})`}
+											</ListBox.Item>
+										))}
+									</ListBox>
+								</Select.Popover>
 							</Select>
 						</div>
 
@@ -314,26 +321,32 @@ function FormContent({
 									"admin:createOrder.selectBillingAccountPlaceholder",
 									"Choose a billing account"
 								)}
-								selectedKeys={billingAccountId ? [billingAccountId] : []}
-								onChange={(e) => {
+								selectedKey={billingAccountId || null}
+								onSelectionChange={(key: Key | null) => {
+									const id = key ? String(key) : "";
 									const account = selectedOrganization?.billingAccounts.find(
-										(a) => a.id === e.target.value
+										(a) => a.id === id
 									);
 									if (account) {
 										setValue("billingAccount", account);
 									}
 								}}
 								isDisabled={!selectedOrganization || loading}
-								startContent={
-									<Icon icon="lucide:credit-card" className="text-default-400" />
-								}
-								items={selectedOrganization?.billingAccounts || []}
 							>
-								{(account) => (
-									<SelectItem textValue={account.name} key={account.id}>
-										{account.name} ({account.number})
-									</SelectItem>
-								)}
+								<Select.Trigger>
+									<Icon icon="lucide:credit-card" className="text-default-400 mr-2" />
+									<Select.Value />
+									<Select.Indicator />
+								</Select.Trigger>
+								<Select.Popover>
+									<ListBox>
+										{(selectedOrganization?.billingAccounts || []).map((account) => (
+											<ListBox.Item id={account.id} key={account.id} textValue={account.name}>
+												{account.name} ({account.number})
+											</ListBox.Item>
+										))}
+									</ListBox>
+								</Select.Popover>
 							</Select>
 						</div>
 					</div>

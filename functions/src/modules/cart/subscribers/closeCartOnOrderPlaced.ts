@@ -10,6 +10,14 @@ export const onOrderPlacedCloseCart = subscribe(
 		payloadSchema: OrderPlacedPayload,
 	},
 	async (event, ctx) => {
+		logger.info("closeCartOnOrderPlaced: received", {
+			eventId: event.id,
+			orderId: event.payload.orderId,
+			cartId: event.payload.cartId,
+			companyId: ctx.companyId,
+			storeId: ctx.storeId,
+		});
+
 		if (!event.payload.cartId) {
 			logger.warn("closeCartOnOrderPlaced: no cartId in payload, skipping", {
 				orderId: event.payload.orderId,
@@ -22,6 +30,22 @@ export const onOrderPlacedCloseCart = subscribe(
 			storeId: ctx.storeId,
 			companyId: ctx.companyId,
 		});
-		await appApi.cart.close(event.payload.cartId);
+
+		try {
+			await appApi.cart.close(event.payload.cartId);
+			logger.info("closeCartOnOrderPlaced: cart closed", {
+				eventId: event.id,
+				orderId: event.payload.orderId,
+				cartId: event.payload.cartId,
+			});
+		} catch (err) {
+			logger.error("closeCartOnOrderPlaced: cart.close failed", {
+				eventId: event.id,
+				orderId: event.payload.orderId,
+				cartId: event.payload.cartId,
+				err,
+			});
+			throw err;
+		}
 	},
 );

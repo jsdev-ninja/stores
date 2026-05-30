@@ -1,70 +1,62 @@
 import { useEffect, useState } from "react";
 import {
 	Card,
-	CardBody,
-	CardHeader,
-	CardFooter,
-	Divider,
+	Separator,
 	Chip,
 	Table,
-	TableHeader,
-	TableColumn,
-	TableBody,
-	TableRow,
-	TableCell,
-	Progress,
+	ProgressBar,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useParams } from "src/navigation";
 import { useAppApi } from "src/appApi";
 import { TOrder } from "@jsdev_ninja/core";
 
-// Sample order data
-
-const getStatusColor = (status: TOrder["status"]) => {
-	switch (status) {
-		case "processing":
-			return "warning";
-		case "in_delivery":
-			return "primary";
-		case "delivered":
-			return "success";
-		case "cancelled":
-			return "danger";
-		default:
-			return "default";
-	}
+const STATUS_CHIP_COLOR: Record<
+	NonNullable<TOrder["status"]>,
+	"warning" | "accent" | "success" | "danger" | "default"
+> = {
+	processing: "warning",
+	in_delivery: "accent",
+	delivered: "success",
+	cancelled: "danger",
+	pending: "default",
+	completed: "success",
+	draft: "default",
+	refunded: "warning",
 };
 
-const getStatusText = (status: TOrder["status"]) => {
-	switch (status) {
-		case "processing":
-			return "Processing";
-		case "in_delivery":
-			return "Shipped";
-		case "delivered":
-			return "Delivered";
-		case "cancelled":
-			return "Cancelled";
-		default:
-			return "Unknown";
-	}
+const STATUS_TEXT: Record<NonNullable<TOrder["status"]>, string> = {
+	processing: "Processing",
+	in_delivery: "Shipped",
+	delivered: "Delivered",
+	cancelled: "Cancelled",
+	pending: "Pending",
+	completed: "Completed",
+	draft: "Draft",
+	refunded: "Refunded",
 };
 
-const getTrackingProgress = (status: TOrder["status"]) => {
-	switch (status) {
-		case "processing":
-			return 25;
-		case "in_delivery":
-			return 50;
-		case "delivered":
-			return 100;
-		case "cancelled":
-			return 0;
-		default:
-			return 0;
-	}
+const STATUS_PROGRESS: Record<NonNullable<TOrder["status"]>, number> = {
+	processing: 25,
+	in_delivery: 50,
+	delivered: 100,
+	cancelled: 0,
+	pending: 0,
+	completed: 100,
+	draft: 0,
+	refunded: 0,
 };
+
+const getStatusColor = (
+	status: TOrder["status"]
+): "warning" | "accent" | "success" | "danger" | "default" =>
+	STATUS_CHIP_COLOR[status as NonNullable<TOrder["status"]>] ?? "default";
+
+const getStatusText = (status: TOrder["status"]) =>
+	STATUS_TEXT[status as NonNullable<TOrder["status"]>] ?? "Unknown";
+
+const getTrackingProgress = (status: TOrder["status"]) =>
+	STATUS_PROGRESS[status as NonNullable<TOrder["status"]>] ?? 0;
 
 export default function ClientOrderPage() {
 	const appApi = useAppApi();
@@ -81,6 +73,7 @@ export default function ClientOrderPage() {
 				setOrder(res.data);
 			}
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
 
 	if (!order) {
@@ -100,19 +93,22 @@ export default function ClientOrderPage() {
 
 			{/* Order Status */}
 			<Card className="mb-6">
-				<CardHeader className="flex justify-between">
+				<Card.Header className="flex justify-between">
 					<h2 className="text-lg font-semibold">Order Status</h2>
-					<Chip color={getStatusColor(order.status)} variant="flat">
-						{getStatusText(order.status)}
+					<Chip color={getStatusColor(order.status)}>
+						<Chip.Label>{getStatusText(order.status)}</Chip.Label>
 					</Chip>
-				</CardHeader>
-				<CardBody>
-					<Progress
+				</Card.Header>
+				<Card.Content>
+					<ProgressBar
 						value={getTrackingProgress(order.status)}
-						color={getStatusColor(order.status)}
-						className="mb-4"
 						aria-label="Order progress"
-					/>
+						className="mb-4"
+					>
+						<ProgressBar.Track>
+							<ProgressBar.Fill />
+						</ProgressBar.Track>
+					</ProgressBar>
 					<div className="grid grid-cols-4 text-center text-sm">
 						<div className="flex flex-col items-center">
 							<div
@@ -163,68 +159,66 @@ export default function ClientOrderPage() {
 							<span>Delivered</span>
 						</div>
 					</div>
-				</CardBody>
+				</Card.Content>
 			</Card>
 
 			{/* Order Items */}
 			<Card className="mb-6">
-				<CardHeader>
+				<Card.Header>
 					<h2 className="text-lg font-semibold">Order Items</h2>
-				</CardHeader>
-				<Table removeWrapper aria-label="Order items">
-					<TableHeader>
-						<TableColumn>PRODUCT</TableColumn>
-						<TableColumn>PRICE</TableColumn>
-						<TableColumn>QUANTITY</TableColumn>
-						<TableColumn>TOTAL</TableColumn>
-					</TableHeader>
-					<TableBody>
-						{order.cart.items.map((item) => (
-							<TableRow key={item.product.id}>
-								<TableCell>
-									<div className="flex items-center gap-3">
-										<img
-											src={item.product.images?.[0]?.url}
-											alt={item.product.name[0].value}
-											className="w-16 h-16 rounded-md object-cover"
-										/>
-										<div>
-											<p className="font-medium">{item.product.name[0].value}</p>
-											{/* <div className="text-xs text-default-500 mt-1">
-												<span className="mr-2">Size: {item.size}</span>
-												<span>Color: {item.color}</span>
-											</div> */}
-										</div>
-									</div>
-								</TableCell>
-								<TableCell>{item.product.price.toFixed(2)}</TableCell>
-								<TableCell>{item.amount}</TableCell>
-								<TableCell>{(item.product.price * item.amount).toFixed(2)}</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
+				</Card.Header>
+				<Table>
+					<Table.ScrollContainer>
+						<Table.Content aria-label="Order items">
+							<Table.Header>
+								<Table.Column isRowHeader>PRODUCT</Table.Column>
+								<Table.Column>PRICE</Table.Column>
+								<Table.Column>QUANTITY</Table.Column>
+								<Table.Column>TOTAL</Table.Column>
+							</Table.Header>
+							<Table.Body>
+								{order.cart.items.map((item) => (
+									<Table.Row key={item.product.id}>
+										<Table.Cell>
+											<div className="flex items-center gap-3">
+												<img
+													src={item.product.images?.[0]?.url}
+													alt={item.product.name[0].value}
+													className="w-16 h-16 rounded-md object-cover"
+												/>
+												<div>
+													<p className="font-medium">{item.product.name[0].value}</p>
+												</div>
+											</div>
+										</Table.Cell>
+										<Table.Cell>{item.product.price.toFixed(2)}</Table.Cell>
+										<Table.Cell>{item.amount}</Table.Cell>
+										<Table.Cell>
+											{(item.product.price * item.amount).toFixed(2)}
+										</Table.Cell>
+									</Table.Row>
+								))}
+							</Table.Body>
+						</Table.Content>
+					</Table.ScrollContainer>
 				</Table>
-				<CardFooter className="flex flex-col items-end">
+				<Card.Footer className="flex flex-col items-end">
 					<div className="w-full max-w-xs">
 						<div className="flex justify-between py-2">
 							<span className="text-default-600">Subtotal</span>
 							<span>{order.cart.cartTotal.toFixed(2)}</span>
 						</div>
-						{/* <div className="flex justify-between py-2">
-							<span className="text-default-600">Shipping</span>
-							<span>${order.shipping.toFixed(2)}</span>
-						</div> */}
 						<div className="flex justify-between py-2">
 							<span className="text-default-600">Tax</span>
 							<span>{order.cart.cartVat.toFixed(2)}</span>
 						</div>
-						<Divider className="my-2" />
+						<Separator className="my-2" />
 						<div className="flex justify-between py-2">
 							<span className="font-bold">Total</span>
 							<span className="font-bold">{order.cart.cartTotal.toFixed(2)}</span>
 						</div>
 					</div>
-				</CardFooter>
+				</Card.Footer>
 			</Card>
 		</div>
 	);

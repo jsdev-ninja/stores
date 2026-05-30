@@ -1,4 +1,4 @@
-import { Tabs, Tab } from "@heroui/react";
+import { Tabs } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useAppApi } from "src/appApi";
@@ -33,7 +33,7 @@ export function AdminProductsPage() {
 									to: "admin.addProduct",
 								})
 							}
-							color="primary"
+							variant="primary"
 						>
 							{t("admin:productsPage.addProduct")}
 						</Button>
@@ -46,12 +46,17 @@ export function AdminProductsPage() {
 					aria-label="Products view tabs"
 					className="px-4"
 				>
-					<Tab key={TAB_ALL} title={t("admin:productsPage.tabAll")} />
-					<Tab key={TAB_WITHOUT_IMAGE} title={t("admin:productsPage.tabWithoutImage")} />
-					<Tab
-						key={TAB_WITHOUT_PURCHASE_PRICE}
-						title={t("admin:productsPage.tabWithoutPurchasePrice")}
-					/>
+					<Tabs.List>
+						<Tabs.Tab id={TAB_ALL}>{t("admin:productsPage.tabAll")}</Tabs.Tab>
+						<Tabs.Tab id={TAB_WITHOUT_IMAGE}>{t("admin:productsPage.tabWithoutImage")}</Tabs.Tab>
+						<Tabs.Tab id={TAB_WITHOUT_PURCHASE_PRICE}>
+							{t("admin:productsPage.tabWithoutPurchasePrice")}
+						</Tabs.Tab>
+					</Tabs.List>
+					{/* Panels are empty — content rendered outside based on activeTab state */}
+					<Tabs.Panel id={TAB_ALL}>{null}</Tabs.Panel>
+					<Tabs.Panel id={TAB_WITHOUT_IMAGE}>{null}</Tabs.Panel>
+					<Tabs.Panel id={TAB_WITHOUT_PURCHASE_PRICE}>{null}</Tabs.Panel>
 				</Tabs>
 
 				<div className="flex">

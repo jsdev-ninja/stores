@@ -6,7 +6,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
 	delay: number = 500
 ): T {
 	const callbackRef = useRef<T>(callback);
-	const timeoutRef = useRef<number | undefined>();
+	const timeoutRef = useRef<number | undefined>(undefined);
 
 	useEffect(() => {
 		callbackRef.current = callback;

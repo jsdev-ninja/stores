@@ -105,10 +105,10 @@ export default function AdminDeliveryNotesPage() {
 						<p className="text-gray-600 mt-2">{t("deliveryNotesManagement")}</p>
 					</div>
 					<Button
-						color="primary"
+						variant="primary"
 						onPress={handleCreateDeliveryNote}
-						startContent={<Icon icon="lucide:plus" />}
 					>
+						<Icon icon="lucide:plus" />
 						{t("createDeliveryNote")}
 					</Button>
 				</div>
@@ -118,21 +118,21 @@ export default function AdminDeliveryNotesPage() {
 			<div className="mb-6 bg-white rounded-lg shadow p-4">
 				<div className="flex items-center justify-between">
 					<Button
-						variant="light"
+						variant="ghost"
 						size="sm"
 						onPress={handlePreviousMonth}
-						startContent={<Icon icon="lucide:chevron-right" />}
 					>
+						<Icon icon="lucide:chevron-right" />
 						חודש קודם
 					</Button>
 					<div className="text-lg font-semibold text-gray-900">{monthDisplay}</div>
 					<Button
-						variant="light"
+						variant="ghost"
 						size="sm"
 						onPress={handleNextMonth}
-						endContent={<Icon icon="lucide:chevron-left" />}
 					>
 						חודש הבא
+						<Icon icon="lucide:chevron-left" />
 					</Button>
 				</div>
 			</div>

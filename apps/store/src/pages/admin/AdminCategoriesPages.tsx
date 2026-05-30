@@ -48,9 +48,9 @@ export function AdminCategoriesPages() {
 				</div>
 				<div className="mt-auto">
 					<Button
-						isLoading={appApi.loading["admin.category.update"]}
+						isPending={appApi.loading["admin.category.update"]}
 						onPress={save}
-						color="danger"
+						variant="danger"
 						isDisabled={noChanged}
 					>
 						{t("save")}

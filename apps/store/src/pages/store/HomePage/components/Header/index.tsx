@@ -15,14 +15,14 @@ const Header = ({ onContact }: HeaderProps) => {
 					<div className="flex items-center gap-2">
 						<Button
 							onPress={onContact}
-							variant="flat"
+							variant="ghost"
 							size="sm"
 							className="hidden sm:inline-flex text-hero-foreground bg-hero-foreground/10 hover:bg-hero-foreground/15"
 						>
 							<Phone className="w-4 h-4 ml-2" />
 							צור קשר
 						</Button>
-						<Button isIconOnly size="sm" variant="flat" className="bg-hero-foreground/10 hover:bg-hero-foreground/15" onPress={() => navigate({ to: "store.catalog" })}>
+						<Button isIconOnly size="sm" variant="ghost" className="bg-hero-foreground/10 hover:bg-hero-foreground/15" onPress={() => navigate({ to: "store.catalog" })}>
 							<ShoppingCart className="w-4 h-4" />
 						</Button>
 					</div>
