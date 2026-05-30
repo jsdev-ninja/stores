@@ -30,23 +30,20 @@ export function ChatInput() {
 		<div className="flex gap-2 p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80">
 			<Input
 				value={value}
-				onValueChange={setValue}
+				onChange={(e) => setValue(e.target.value)}
 				onKeyDown={handleKeyDown}
 				placeholder={t("chatbotInputPlaceholder")}
-				classNames={{
-					input: "text-sm",
-					inputWrapper: "bg-white dark:bg-gray-900",
-				}}
+				className="text-sm bg-white dark:bg-gray-900"
 				minLength={1}
 				autoComplete="off"
 			/>
 			<Button
-				color="primary"
+				variant="primary"
 				isIconOnly
 				aria-label={t("chatbotSend")}
 				onPress={handleSend}
 				isDisabled={!value.trim() || ctx.isLoading}
-				isLoading={ctx.isLoading}
+				isPending={ctx.isLoading}
 			>
 				<svg
 					className="w-5 h-5"

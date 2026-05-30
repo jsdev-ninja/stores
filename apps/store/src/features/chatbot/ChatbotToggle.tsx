@@ -20,7 +20,7 @@ export function ChatbotToggle() {
 			)}
 			<Button
 				isIconOnly
-				color="primary"
+				variant="primary"
 				size="lg"
 				className="shadow-[0_4px_14px_rgba(0,0,0,0.12),0_-1px_0_rgba(255,255,255,0.08)] rounded-full"
 				aria-label={isOpen ? t("chatbotClose") : t("chatbot")}

@@ -24,7 +24,7 @@ export function ChatbotPanel() {
 				<Button
 					isIconOnly
 					size="sm"
-					variant="light"
+					variant="ghost"
 					aria-label={t("chatbotClose")}
 					onPress={() => setIsOpen(false)}
 				>

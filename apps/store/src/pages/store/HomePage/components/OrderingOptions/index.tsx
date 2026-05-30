@@ -23,8 +23,7 @@ const OrderingOptions = ({ onContact }: OrderingOptionsProps) => {
 					</p>
 					<div className="flex flex-col sm:flex-row gap-4 justify-center">
 						<Button
-							color="primary"
-							variant="flat"
+							variant="ghost"
 							size="lg"
 							onPress={onContact}
 							className="text-base px-8 py-6 font-semibold bg-white text-primary hover:bg-white/95"
@@ -33,7 +32,7 @@ const OrderingOptions = ({ onContact }: OrderingOptionsProps) => {
 							צור קשר – ספק קבוע למשרד
 						</Button>
 						<Button
-							variant="bordered"
+							variant="outline"
 							size="lg"
 							onPress={() => navigate({ to: "store.catalog" })}
 							className="text-base px-8 py-6 border-2 border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10"
