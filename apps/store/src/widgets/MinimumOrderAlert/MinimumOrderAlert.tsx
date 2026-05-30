@@ -1,4 +1,4 @@
-import { Alert, Progress } from "@heroui/react";
+import { Alert, ProgressBar } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "src/domains/Store";
 import { useCart } from "src/domains/cart";
@@ -40,22 +40,19 @@ export const MinimumOrderAlert = () => {
 	if (isFreeDelivery) {
 		return (
 			<div className="w-full mb-4">
-			<Alert
-				color="success"
-				variant="flat"
-				className="py-4"
-			>
-					<div className="space-y-1 pl-1">
-						<p className="font-medium text-base">
+				<Alert status="success" className="py-4">
+					<Alert.Indicator />
+					<Alert.Content>
+						<Alert.Title className="font-medium text-base">
 							{t("deliveryDiscount:freeDeliveryTitle", { defaultValue: "משלוח חינם!" })}
-						</p>
-						<p className="text-sm">
+						</Alert.Title>
+						<Alert.Description className="text-sm">
 							{t("deliveryDiscount:freeDeliveryDescription", {
 								defaultValue: "הזמנתך עולה על ₪{{amount}} - משלוח חינם!",
 								amount: freeDeliveryPrice,
 							})}
-						</p>
-					</div>
+						</Alert.Description>
+					</Alert.Content>
 				</Alert>
 			</div>
 		);
@@ -64,37 +61,34 @@ export const MinimumOrderAlert = () => {
 	// If delivery is not free, show warning with delivery price
 	return (
 		<div className="w-full mb-4">
-			<Alert
-				color="warning"
-				variant="flat"
-				className="py-4"
-			>
-				<div className="space-y-1 pl-1">
-					<p className="font-medium text-base">
+			<Alert status="warning" className="py-4">
+				<Alert.Indicator />
+				<Alert.Content>
+					<Alert.Title className="font-medium text-base">
 						{t("deliveryDiscount:title", { amount: freeDeliveryPrice })}
-					</p>
-					<p className="text-sm">
+					</Alert.Title>
+					<Alert.Description className="text-sm">
 						{t("deliveryDiscount:description", { amount: amountNeeded })}
-					</p>
-					<p className="text-sm font-medium mt-2">
+					</Alert.Description>
+					<Alert.Description className="text-sm font-medium mt-2">
 						{t("deliveryDiscount:deliveryPriceInfo", {
 							defaultValue: "מחיר משלוח: ₪{{price}}",
 							price: deliveryPrice,
 						})}
-					</p>
-				</div>
+					</Alert.Description>
+				</Alert.Content>
 			</Alert>
 
 			<div className="mt-4 px-1">
-				<Progress
+				<ProgressBar
 					aria-label="Order progress"
 					value={progressPercentage}
-					color="warning"
 					className="max-w-full"
-					size="md"
-					showValueLabel={true}
-					formatOptions={{ style: "percent", signDisplay: "never" }}
-				/>
+				>
+					<ProgressBar.Track>
+						<ProgressBar.Fill />
+					</ProgressBar.Track>
+				</ProgressBar>
 			</div>
 		</div>
 	);
