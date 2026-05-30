@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Modal, Select } from "@heroui/react";
+import { Modal, Select, ListBox } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Form } from "src/components/Form";
@@ -70,12 +70,12 @@ function FormContent({
 	return (
 		<>
 			<Modal.Header>
-				<Modal.Title>
+				<Modal.Heading>
 					<h3 className="text-lg font-semibold">{t("createInvoice")}</h3>
 					<p className="text-sm text-default-500">
 						בחר ארגון וטווח תאריכים ליצירת חשבונית
 					</p>
-				</Modal.Title>
+				</Modal.Heading>
 			</Modal.Header>
 			<Modal.Body className="p-4 md:p-5 grid grid-cols-1 gap-4">
 				<div className="flex flex-col gap-2">
@@ -94,16 +94,23 @@ function FormContent({
 							onChange={(e) => {
 								setValue("organizationId", e.target.value);
 							}}
-							items={organizations}
 						>
-							{(org) => (
-								<Select.Item id={org.id} textValue={org.name}>
-									{org.name}
-									{"discountPercentage" in org &&
-										org.discountPercentage &&
-										` (${org.discountPercentage}% הנחה)`}
-								</Select.Item>
-							)}
+							<Select.Trigger>
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox items={organizations}>
+									{(org) => (
+										<ListBox.Item id={org.id} textValue={org.name}>
+											{org.name}
+											{"discountPercentage" in org &&
+												org.discountPercentage &&
+												` (${org.discountPercentage}% הנחה)`}
+										</ListBox.Item>
+									)}
+								</ListBox>
+							</Select.Popover>
 						</Select>
 					</div>
 				</div>
@@ -124,16 +131,23 @@ function FormContent({
 							onChange={(e) => {
 								setValue("billingAccount", e.target.value);
 							}}
-							items={billingAccounts}
 						>
-							{(account) => (
-								<Select.Item
-									id={account.number}
-									textValue={`${account.name} (${account.number})`}
-								>
-									{account.name} ({account.number})
-								</Select.Item>
-							)}
+							<Select.Trigger>
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox items={billingAccounts}>
+									{(account) => (
+										<ListBox.Item
+											id={account.number}
+											textValue={`${account.name} (${account.number})`}
+										>
+											{account.name} ({account.number})
+										</ListBox.Item>
+									)}
+								</ListBox>
+							</Select.Popover>
 						</Select>
 					</div>
 				</div>

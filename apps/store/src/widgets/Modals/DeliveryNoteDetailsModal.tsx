@@ -99,14 +99,14 @@ export function DeliveryNoteDetailsModal({
 			<Modal.Container size="md" scroll="inside">
 				<Modal.Dialog>
 					<Modal.Header>
-						<Modal.Title>
+						<Modal.Heading>
 							<div className="text-start">{t("admin:deliveryNoteDetails.title")}</div>
 							<div className="text-sm text-default-500 text-start">
 								{t("admin:deliveryNoteDetails.description", {
 									count: selectedOrders.length,
 								})}
 							</div>
-						</Modal.Title>
+						</Modal.Heading>
 					</Modal.Header>
 					<Modal.Body>
 						<div className="space-y-4">

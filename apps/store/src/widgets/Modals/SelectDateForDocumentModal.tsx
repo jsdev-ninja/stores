@@ -47,9 +47,9 @@ export function SelectDateForDocumentModal({
 			<Modal.Container size="md">
 				<Modal.Dialog>
 					<Modal.Header>
-						<Modal.Title>
+						<Modal.Heading>
 							<h3 className="text-lg font-semibold">{t(titleKey)}</h3>
-						</Modal.Title>
+						</Modal.Heading>
 					</Modal.Header>
 					<Modal.Body className="p-4 md:p-5">
 						<div className="flex flex-col gap-1">

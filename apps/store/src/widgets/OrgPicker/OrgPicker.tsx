@@ -88,7 +88,7 @@ export function OrgPicker() {
 				<Modal.Container>
 					<Modal.Dialog>
 						<Modal.Header>
-							<Modal.Title>החלפת ארגון</Modal.Title>
+							<Modal.Heading>החלפת ארגון</Modal.Heading>
 						</Modal.Header>
 						<Modal.Body>
 							<p>החלפת ארגון תרוקן את העגלה. להמשיך?</p>
