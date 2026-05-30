@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import { FirebaseAPI } from "@jsdev_ninja/core";
+import diff from "microdiff";
 import { searchSync } from "../internal/searchSync";
 
 export const onProductCreate = functions.firestore
@@ -17,6 +18,12 @@ export const onProductDelete = functions.firestore
 export const onProductUpdate = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("products"))
 	.onUpdate((snap, context) => {
-		const { id: productId } = context.params;
+		const { id: productId, companyId, storeId } = context.params;
+		functions.logger.info("onProductUpdate", {
+			productId,
+			companyId,
+			storeId,
+			changes: diff(snap.before.data() ?? {}, snap.after.data() ?? {}),
+		});
 		return searchSync.upsert({ id: productId, ...snap.after.data() });
 	});

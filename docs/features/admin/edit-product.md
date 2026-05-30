@@ -58,10 +58,24 @@ _None._
 
 ## Logs to expect (jsdev-stores-prod)
 
-- ⚠️ **`onProductUpdate` currently logs nothing** (no `console.log`, no structured
-  log — just `searchSync.upsert`). So a successful edit produces only the trigger's
-  `Function execution took … ok` line, no product detail. If you want edit logging
-  to match create (full `product` in `jsonPayload`), say so and I'll add it.
+`onProductUpdate` now logs a structured **diff of what changed** (via microdiff):
+
+```
+onProductUpdate  { productId, companyId, storeId, changes: [ ... ] }
+```
+
+- `changes` = microdiff array of `{ type, path, oldValue, value }` for every
+  field that changed between before → after.
+- Post-test check: I read `jsonPayload.changes` and confirm the changed paths +
+  new values match exactly what you edited (e.g. you changed `price` 100→120 →
+  expect `{ type:"CHANGE", path:["price"], oldValue:100, value:120 }`).
+- Tenant: `jsonPayload.companyId` / `storeId` must be `tester_company` /
+  `tester_store`.
+- `updated_at` will always appear in `changes` (it's refreshed on every save) —
+  that's expected, not a real edit.
+
+> Requires the `onProductUpdate` redeploy to take effect. Before that deploy, the
+> trigger still logs nothing.
 
 ## Known pre-existing risk (not introduced by this fix)
 
