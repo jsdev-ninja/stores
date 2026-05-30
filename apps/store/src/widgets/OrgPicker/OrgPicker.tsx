@@ -62,19 +62,21 @@ export function OrgPicker() {
 						{activeOrganization?.name ?? "בחר ארגון"}
 					</Button>
 				</Dropdown.Trigger>
-				<Dropdown.Menu
-					aria-label="בחירת ארגון"
-					selectedKeys={activeOrganization ? new Set([activeOrganization.id]) : new Set()}
-					selectionMode="single"
-					onAction={(key) => handleSelect(key as string)}
-					items={organizations}
-				>
-					{(org) => (
-						<Dropdown.Item id={org.id} textValue={org.name}>
-							{org.name}
-						</Dropdown.Item>
-					)}
-				</Dropdown.Menu>
+				<Dropdown.Popover>
+					<Dropdown.Menu
+						aria-label="בחירת ארגון"
+						selectedKeys={activeOrganization ? new Set([activeOrganization.id]) : new Set()}
+						selectionMode="single"
+						onAction={(key) => handleSelect(key as string)}
+						items={organizations}
+					>
+						{(org) => (
+							<Dropdown.Item id={org.id} textValue={org.name}>
+								{org.name}
+							</Dropdown.Item>
+						)}
+					</Dropdown.Menu>
+				</Dropdown.Popover>
 			</Dropdown>
 
 			<Modal

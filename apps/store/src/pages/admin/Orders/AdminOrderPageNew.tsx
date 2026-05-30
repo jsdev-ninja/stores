@@ -287,7 +287,8 @@ export default function AdminOrderPageNew() {
 									)}
 								</button>
 							</Dropdown.Trigger>
-							<Dropdown.Menu
+							<Dropdown.Popover>
+								<Dropdown.Menu
 								disabledKeys={disabledKeys}
 								onAction={async (key) => {
 									if (!order) return;
@@ -337,6 +338,7 @@ export default function AdminOrderPageNew() {
 									</Dropdown.Item>
 								))}
 							</Dropdown.Menu>
+							</Dropdown.Popover>
 						</Dropdown>
 						{mainActions()}
 						{/* Mark as Paid button — shown for org orders not yet paid */}

@@ -135,18 +135,20 @@ export function AppBar() {
 										)}
 									</button>
 								</Dropdown.Trigger>
-								<Dropdown.Menu
-									onAction={(key) => {
-										const item = dropdownItems.find((item) => item.key === key);
-										item?.action();
-									}}
-								>
-									{dropdownItems.map((item) => (
-										<Dropdown.Item key={item.key} id={item.key} textValue={item.label}>
-											{item.label}
-										</Dropdown.Item>
-									))}
-								</Dropdown.Menu>
+								<Dropdown.Popover>
+									<Dropdown.Menu
+										onAction={(key) => {
+											const item = dropdownItems.find((item) => item.key === key);
+											item?.action();
+										}}
+									>
+										{dropdownItems.map((item) => (
+											<Dropdown.Item key={item.key} id={item.key} textValue={item.label}>
+												{item.label}
+											</Dropdown.Item>
+										))}
+									</Dropdown.Menu>
+								</Dropdown.Popover>
 							</Dropdown>
 						) : (
 							<Button size="sm" variant="primary" onClick={onClick}>
