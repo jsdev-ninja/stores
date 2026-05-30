@@ -14,7 +14,7 @@ export function Header({ toggleMenu }: HeaderProps) {
 			<div className="flex items-center">
 				<Button
 					isIconOnly
-					variant="light"
+					variant="ghost"
 					size="sm"
 					onPress={toggleMenu}
 					aria-label="Toggle Menu"
@@ -31,19 +31,19 @@ export function Header({ toggleMenu }: HeaderProps) {
 			</div>
 
 			<div className="hidden md:flex items-center ms-8 flex-1 max-w-md">
-				<Input
-					classNames={{
-						base: "max-w-full",
-						inputWrapper: "bg-default-100 data-[hover=true]:bg-default-200",
-					}}
-					placeholder="Search..."
-					startContent={
-						<Icon icon="lucide:search" className="text-default-400" width={16} height={16} />
-					}
-					type="search"
-					variant="bordered"
-					size="sm"
-				/>
+				<div className="relative max-w-full flex items-center">
+					<Icon
+						icon="lucide:search"
+						className="absolute start-2 text-default-400 pointer-events-none"
+						width={16}
+						height={16}
+					/>
+					<Input
+						className="ps-7 text-sm"
+						placeholder="Search..."
+						type="search"
+					/>
+				</div>
 			</div>
 
 			<div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ export function Header({ toggleMenu }: HeaderProps) {
 				{/* <ThemeSwitcher /> */}
 				<Button
 					isIconOnly
-					variant="light"
+					variant="ghost"
 					size="sm"
 					className="hidden sm:flex"
 					aria-label="Notifications"
@@ -60,14 +60,14 @@ export function Header({ toggleMenu }: HeaderProps) {
 				</Button>
 				<Button
 					isIconOnly
-					variant="light"
+					variant="ghost"
 					size="sm"
 					className="hidden sm:flex"
 					aria-label="Settings"
 				>
 					<Icon icon="lucide:settings" width={20} height={20} />
 				</Button>
-				<Button isIconOnly variant="light" size="sm" className="ms-2" aria-label="User Profile">
+				<Button isIconOnly variant="ghost" size="sm" className="ms-2" aria-label="User Profile">
 					<Icon icon="lucide:user" width={20} height={20} />
 				</Button>
 			</div>

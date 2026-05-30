@@ -1,5 +1,5 @@
 import { TProduct } from "@jsdev_ninja/core";
-import { Divider } from "@heroui/react";
+import { Separator } from "@heroui/react";
 import { navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
@@ -38,7 +38,7 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 
 					<div className="flex items-center gap-2">
 						{productWeightOrVolume}
-						<Divider orientation="vertical" />
+						<Separator orientation="vertical" />
 						<Product.ProductBrand />
 					</div>
 				</div>

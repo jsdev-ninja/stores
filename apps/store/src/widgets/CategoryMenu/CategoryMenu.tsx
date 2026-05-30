@@ -2,7 +2,7 @@ import { CategorySlice } from "src/domains/Category";
 import { useAppSelector } from "src/infra";
 
 import * as Accordion from "@radix-ui/react-accordion";
-import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
+import { Breadcrumbs } from "@heroui/react";
 import { TCategory } from "@jsdev_ninja/core";
 import classNames from "classnames";
 import { useTranslation } from "react-i18next";
@@ -136,13 +136,14 @@ export function CategoryMenu({ isAdmin }: { isAdmin?: boolean }) {
 			<div className="w-full">
 				<Breadcrumbs>
 					{breadcrumbItems.map((item, index) => (
-						<BreadcrumbItem
+						<Breadcrumbs.Item
 							key={item.id || "home"}
+							id={item.id || "home"}
 							onPress={() => handleBreadcrumbClick(item)}
 							className={index === breadcrumbItems.length - 1 ? "font-semibold" : ""}
 						>
 							{item.name}
-						</BreadcrumbItem>
+						</Breadcrumbs.Item>
 					))}
 				</Breadcrumbs>
 			</div>
