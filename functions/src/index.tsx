@@ -36,6 +36,7 @@ export { getOrganizationActions } from "./api/organizationActionsApi";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
 export { onOrderPlacedCloseCart } from "./modules/cart";
 export {
+  createProduct,
   onProductCreate,
   onProductDelete,
   onProductUpdate,

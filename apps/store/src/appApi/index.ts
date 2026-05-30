@@ -22,7 +22,7 @@ import { FirebaseApi } from "src/lib/firebase";
 import { mixPanelApi } from "src/lib/mixpanel";
 import { SentryApi } from "src/lib/sentry";
 import { SubNestedKeys } from "src/shared/types";
-import { productCreate } from "./admin";
+import { productCreate, productSave } from "./admin";
 import {
 	ProductSchema,
 	TFavoriteProduct,
@@ -557,7 +557,7 @@ export const useAppApi = () => {
 			saveProduct: async (newProduct: TNewProduct) => {
 				setLoading({ ...loading, "admin.productCreate": true });
 
-				const res = await productCreate(removeUndefinedFields(newProduct));
+				const res = await productSave(removeUndefinedFields(newProduct));
 				setLoading({ ...loading, "admin.productCreate": false });
 				return res;
 			},

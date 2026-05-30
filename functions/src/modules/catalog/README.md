@@ -14,11 +14,12 @@ Categories are stored as a single document (`id: "categories"`) with a `categori
 
 ## Admin write endpoints (callable, admin-only)
 
-All 4 endpoints require `auth.token.admin === true`. `companyId` and `storeId` are always derived from the token claims — any client-supplied tenant fields in the payload are overridden.
+All endpoints require `auth.token.admin === true`. `companyId` and `storeId` are always derived from the token claims — any client-supplied tenant fields in the payload are overridden.
 
 | Function | Description |
 |---|---|
-| `saveProduct` | Validate + **upsert** a product (`set` with `{ merge: true }`, doc id = sku). Matches the client's `setV2` behavior 1:1 — used for both create and edit. |
+| `createProduct` | Validate + **atomically create** a product (`ref.create()`, doc id = sku). Fails with `HttpsError("already-exists", "SKU already in use")` if a doc with the same SKU already exists (gRPC code 6). Use for the "Add Product" flow only. |
+| `saveProduct` | Validate + **upsert** a product (`set` with `{ merge: true }`, doc id = sku). Edit-only / update flow — fields present in the payload are written; absent fields are left unchanged on existing docs. Does NOT guard against duplicate SKUs. |
 | `deleteProduct` | Delete a product by id. Rejects `NOT_FOUND` if it doesn't exist. |
 | `createCategory` | Append a category to the array (inside a Firestore transaction — concurrent-append safe). Rejects `ALREADY_EXISTS` if id duplicates. |
 | `updateCategories` | Overwrite the entire category array. |
@@ -45,11 +46,13 @@ catalog/
 ├── README.md
 ├── index.ts              public surface — exports callables + triggers
 ├── api/                  thin callable handlers (auth check → delegate to service)
-│   ├── saveProduct.ts
+│   ├── createProduct.ts  atomic create (ref.create — fails on duplicate SKU)
+│   ├── saveProduct.ts    upsert / edit (set with merge:true)
 │   ├── deleteProduct.ts
 │   ├── createCategory.ts
 │   └── updateCategories.ts
 ├── services/             business logic
+│   ├── createProduct.ts  validate + atomic create (duplicate SKU → already-exists error)
 │   ├── saveProduct.ts    validate + upsert product
 │   ├── deleteProduct.ts  delete product with existence check
 │   ├── appendCategory.ts validate + append one category (no-duplicate check)
@@ -58,7 +61,7 @@ catalog/
 │   └── product.ts
 └── internal/             module-private — do NOT import from outside this module
     ├── paths.ts
-    ├── productsStore.ts
+    ├── productsStore.ts  createProductDoc (atomic) + upsertProductDoc (merge) + deleteProductDoc
     ├── categoriesStore.ts
     └── searchSync.ts
 ```

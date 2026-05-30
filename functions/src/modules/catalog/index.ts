@@ -14,6 +14,7 @@ export const catalogModule = {
 export { onProductCreate, onProductDelete, onProductUpdate } from "./triggers/product";
 
 // Admin write endpoints — exported here for future wiring; NOT re-exported from root index.tsx
+export { createProduct } from "./api/createProduct";
 export { saveProduct } from "./api/saveProduct";
 export { deleteProduct } from "./api/deleteProduct";
 export { createCategory } from "./api/createCategory";

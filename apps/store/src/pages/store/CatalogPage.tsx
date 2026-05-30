@@ -72,7 +72,6 @@ export function CatalogPage() {
           >
             {t("common:goToCart")} {formatter.price(cartCost.cost)}
           </Button>
-          <span className="bg-hero text-info">testign mode</span>
         </div>
       </div>
 

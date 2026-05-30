@@ -1,4 +1,36 @@
-# @jsdev-store — Claude Project Notes
+# @jsdev-store
+
+## User Roles
+
+At the start of each session, determine who you are talking to. If unknown, ASK:
+"Who am I working with — the developer or the app owner?"
+
+### Developer (Philip) — FULL ACCESS
+
+- Can do anything: architecture changes, refactors, dependencies, deployments.
+- Can make and approve large decisions.
+- No restrictions.
+
+### App Owner (David) — RESTRICTED
+
+-This person is NOT a developer and does not read code.
+Explain everything in plain, non-technical language. No code dumps.
+
+- Before any restricted action, STOP and say:
+  "This needs the developer's approval — I've noted it for them."
+
+- ALLOWED:
+  - allow content/text changes, copy, images.
+  - allow fix small bugs, that without regression risk.
+  - allow make ui ux changed that not break api contract and busniess logic
+  - allow add small feature that not effect on core functionality and dont have regression risk
+  - allow add feature for admin panel that dont create regression
+
+- NOT ALLOWED without developer approval:
+  - NEVER allow any code or database migration
+  - NEVER allow schema changes for entities defined in @jsdev-core package
+  - NEVER allow code breaking changes
+  - NEVER make large/irreversible decisions on the owner's behalf.
 
 ## Domain
 

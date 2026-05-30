@@ -46,6 +46,21 @@ export async function upsertProductDoc(product: TProduct): Promise<void> {
 }
 
 /**
+ * Create a product doc using Firestore atomic `create()` semantics.
+ *
+ * Unlike `upsertProductDoc` which uses merge-set, this call will FAIL with gRPC
+ * code 6 (ALREADY_EXISTS) if a doc at the same path already exists. The error
+ * propagates to the caller (service layer) — it is NOT caught here.
+ *
+ * This is the correct primitive for the "create new product" path: a duplicate
+ * SKU must fail loudly, never silently overwrite an existing product.
+ */
+export async function createProductDoc(product: TProduct): Promise<void> {
+	const ref = db().doc(productPath(product.companyId, product.storeId, product.id));
+	await ref.create(removeUndefinedFields(product));
+}
+
+/**
  * Delete a product doc by id.
  * Returns false if the doc didn't exist (idempotent — callers decide whether to surface).
  *

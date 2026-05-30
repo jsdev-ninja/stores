@@ -16,7 +16,7 @@
 		"email:build": "email build --dir ./src/emails"
 	},
 	"engines": {
-		"node": "22"
+		"node": "20"
 	},
 	"main": "lib/index.js",
 	"dependencies": {
@@ -59,7 +59,10 @@
 		"vitest": "^2"
 	},
 	"overrides": {
-		"next": "16.1.1"
+		"next": "15.5.18"
+	},
+	"resolutions": {
+		"next": "15.5.18"
 	},
 	"private": true
 }

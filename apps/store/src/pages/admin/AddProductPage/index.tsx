@@ -72,6 +72,7 @@ const FormSchema = NewProductSchema.omit({
 });
 export function AddProductPage() {
 	const [categories, setCategories] = useState<Array<TCategory>>([]);
+	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	const store = useStore();
 
@@ -170,12 +171,22 @@ export function AddProductPage() {
 					console.error(errors);
 				}}
 				onSubmit={async (data) => {
+					setSubmitError(null);
 					const response = await appApi.admin.productCreate(data);
 
 					if (response?.success) {
 						navigate({
 							to: "admin.products",
 						});
+						return;
+					}
+
+					if (response && !response.success) {
+						if (response.reason === "duplicate-sku") {
+							setSubmitError(t("admin:addProductPage.skuAlreadyInUse"));
+						} else {
+							setSubmitError(t("admin:addProductPage.createFailed"));
+						}
 					}
 				}}
 			>
@@ -312,6 +323,10 @@ export function AddProductPage() {
 					</Flex.Item>
 				</Flex>
 				<ImageSection />
+
+				{submitError && (
+					<div className="text-red-500 text-sm text-center">{submitError}</div>
+				)}
 
 				<div className="my-4">
 					<Form.Submit>Add product</Form.Submit>

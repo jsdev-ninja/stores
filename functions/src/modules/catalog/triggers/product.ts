@@ -5,8 +5,8 @@ import { searchSync } from "../internal/searchSync";
 export const onProductCreate = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("products"))
 	.onCreate((snap, context) => {
-		console.log(snap.data(), snap.id, snap.createTime);
-		console.log("AUTH", context.authType, context.auth?.uid);
+		const { companyId, storeId } = context.params;
+		functions.logger.info("onProductCreate", { productId: snap.id, companyId, storeId, product: snap.data() });
 		return searchSync.upsert({ id: snap.id, ...snap.data() });
 	});
 

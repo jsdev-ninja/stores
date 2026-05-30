@@ -26,6 +26,11 @@ module.exports = {
     "**/dev-preview/**/*",
     "**/dev-preview/**",
     "**/dist/dev-preview*",
+    // Test files are excluded from tsconfig, so the type-aware parser can't
+    // resolve them — keep ESLint off them too (vitest type-checks at run time).
+    "**/*.test.ts",
+    "**/__tests__/**",
+    "vitest.config.ts",
   ],
   settings: {
     // "boundaries/elements": [

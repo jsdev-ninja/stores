@@ -644,6 +644,8 @@ export const resources = {
 			},
 			addProductPage: {
 				title: "הוסף מוצר",
+				skuAlreadyInUse: 'המק"ט כבר בשימוש',
+				createFailed: "שגיאה ביצירת המוצר. נסה שוב.",
 			},
 			organizationsPage: {
 				title: "ארגונים",

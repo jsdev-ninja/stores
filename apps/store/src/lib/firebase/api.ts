@@ -1,8 +1,12 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "./app";
-import { TOrder } from "@jsdev_ninja/core";
+import { TOrder, TNewProduct } from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { CONFIG } from "src/config";
+
+export type CreateProductResult =
+	| { success: true; data: { id: string } }
+	| { success: false; reason: "duplicate-sku" | "invalid" | "unauthorized" | "unknown"; message: string };
 
 type TBudgetAccount = {
 	id: string;
@@ -344,6 +348,28 @@ async function getOrganizationActions(organizationId: string, billingAccountId?:
 	return res.data as { success: boolean; data: TOrganizationAction[] };
 }
 
+async function createProduct(product: TNewProduct): Promise<CreateProductResult> {
+	try {
+		const func = httpsCallable(functions, "createProduct");
+		const response = await func(product);
+		const data = response.data as { success: true; data: { id: string } };
+		return { success: true, data: data.data };
+	} catch (error: any) {
+		const code: string = error.code ?? "";
+		const message: string = error.message ?? "Unknown error";
+		if (code === "already-exists") {
+			return { success: false, reason: "duplicate-sku", message };
+		}
+		if (code === "invalid-argument") {
+			return { success: false, reason: "invalid", message };
+		}
+		if (code === "unauthenticated" || code === "permission-denied") {
+			return { success: false, reason: "unauthorized", message };
+		}
+		return { success: false, reason: "unknown", message };
+	}
+}
+
 export const api = {
 	init,
 	createCompanyClient,
@@ -361,4 +387,5 @@ export const api = {
 	markOrderPaid,
 	addBudgetManualTransaction,
 	getOrganizationActions,
+	createProduct,
 };
