@@ -1,37 +1,37 @@
 import { Button, Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { WebsiteLogo } from "src/widgets/WebsiteLogo";
-// import { ThemeSwitcher } from "./theme-switcher";
-// import { DirectionSwitcher } from "./direction-switcher";
+import { useAppSelector } from "src/infra";
 
 interface HeaderProps {
-	toggleMenu: () => void;
+	/** Opens the mobile sidebar drawer (hamburger, shown only below lg). */
+	onMenuClick: () => void;
 }
 
-export function Header({ toggleMenu }: HeaderProps) {
+export function Header({ onMenuClick }: HeaderProps) {
+	const storeName = useAppSelector((state) => state.store.data?.name);
+
 	return (
-		<header className="flex items-center justify-between px-4 py-3 bg-content1 border-b border-default-200 shadow-sm h-[60px]">
-			<div className="flex items-center">
+		<header className="sticky top-0 z-30 flex items-center justify-between gap-4 h-16 px-4 lg:px-8 bg-[var(--surface)] border-b border-[var(--border)]">
+			{/* Start (RTL: right) — hamburger + title */}
+			<div className="flex items-center gap-3">
 				<Button
 					isIconOnly
 					variant="ghost"
 					size="sm"
-					onPress={toggleMenu}
-					aria-label="Toggle Menu"
-					className="me-2"
+					className="lg:hidden"
+					onPress={onMenuClick}
+					aria-label="פתיחת תפריט"
 				>
 					<Icon icon="lucide:menu" width={20} height={20} />
 				</Button>
-				<div className="flex items-center">
-					<div className="size-6 mx-2">
-						<WebsiteLogo />
-					</div>
-					<span className="font-bold text-lg hidden sm:inline">Dashboard</span>
-				</div>
+				<h1 className="text-lg lg:text-xl font-extrabold tracking-tight text-[var(--foreground)]">
+					{storeName ?? "לוח ניהול"}
+				</h1>
 			</div>
 
-			<div className="hidden md:flex items-center ms-8 flex-1 max-w-md">
-				<div className="relative max-w-full flex items-center">
+			{/* End (RTL: left) — search + actions */}
+			<div className="flex items-center gap-2">
+				<div className="relative hidden md:flex items-center">
 					<Icon
 						icon="lucide:search"
 						className="absolute start-2 text-default-400 pointer-events-none"
@@ -39,35 +39,16 @@ export function Header({ toggleMenu }: HeaderProps) {
 						height={16}
 					/>
 					<Input
-						className="ps-7 text-sm"
-						placeholder="Search..."
+						className="ps-7 text-sm w-56"
+						placeholder="חיפוש..."
 						type="search"
+						aria-label="חיפוש"
 					/>
 				</div>
-			</div>
-
-			<div className="flex items-center gap-2">
-				{/* <DirectionSwitcher /> */}
-				{/* <ThemeSwitcher /> */}
-				<Button
-					isIconOnly
-					variant="ghost"
-					size="sm"
-					className="hidden sm:flex"
-					aria-label="Notifications"
-				>
+				<Button isIconOnly variant="ghost" size="sm" aria-label="התראות">
 					<Icon icon="lucide:bell" width={20} height={20} />
 				</Button>
-				<Button
-					isIconOnly
-					variant="ghost"
-					size="sm"
-					className="hidden sm:flex"
-					aria-label="Settings"
-				>
-					<Icon icon="lucide:settings" width={20} height={20} />
-				</Button>
-				<Button isIconOnly variant="ghost" size="sm" className="ms-2" aria-label="User Profile">
+				<Button isIconOnly variant="ghost" size="sm" aria-label="פרופיל">
 					<Icon icon="lucide:user" width={20} height={20} />
 				</Button>
 			</div>

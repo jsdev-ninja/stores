@@ -1,4 +1,4 @@
-import { Route } from "src/navigation";
+import { Route, useLocation } from "src/navigation";
 import { AddProductPage } from "../AddProductPage";
 import { AdminProductsPage } from "../AdminProductsPage";
 import { AdminCategoriesPages } from "../AdminCategoriesPages";
@@ -14,7 +14,7 @@ import { AdminOrganizationsPage } from "../AdminOrganizationsPage";
 import { AdminOrganizationDetailPage } from "../AdminOrganizationDetailPage/AdminOrganizationDetailPage";
 import { AdminOrganizationGroupsPage } from "../AdminOrganizationGroupsPage";
 import { AdminSuppliersPage } from "../AdminSuppliersPage";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
@@ -35,65 +35,41 @@ import AdminOrderPickPage from "../Orders/AdminOrderPickPage";
 
 
 export default function AdminLayout() {
-	const [isMenuOpen, setIsMenuOpen] = useState(true);
-	const mainRef = useRef<HTMLDivElement>(null);
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [location] = useLocation();
 
 	const appApi = useAppApi();
 	const dispatch = useAppDispatch();
-	useEffect(() => {
-		const handleResize = () => {
-			if (window.innerWidth < 1024) {
-				setIsMenuOpen(false);
-			} else {
-				setIsMenuOpen(true);
-			}
-		};
-
-		// Set initial state
-		handleResize();
-
-		// Add event listener
-		window.addEventListener("resize", handleResize);
-
-		// Cleanup
-		return () => window.removeEventListener("resize", handleResize);
-	}, []);
 
 	useEffect(() => {
 		appApi.admin.listOrganizations().then((response) => {
-
 			if (response?.success && response.data) {
 				dispatch(OrganizationSlice.actions.setOrganizations(response.data));
 			}
 		});
 	}, []);
 
-	const toggleMenu = () => {
-		setIsMenuOpen(!isMenuOpen);
-	};
+	// Close the mobile drawer whenever the route changes.
+	useEffect(() => {
+		setIsMobileMenuOpen(false);
+	}, [location.pathname]);
 
 	return (
-		<>
-			<Header toggleMenu={toggleMenu} />
-			<div className="flex flex-1 overflow-hidden relative w-full">
-				{/* Overlay for mobile menu */}
-				{isMenuOpen && window.innerWidth < 1024 && (
-					<div
-						className="sidebar-overlay lg:hidden"
-						onClick={() => setIsMenuOpen(false)}
-					></div>
-				)}
+		<div className="flex min-h-screen bg-[var(--background)]" dir="rtl">
+			<Sidebar isOpen={isMobileMenuOpen} />
 
-				<Sidebar isOpen={isMenuOpen} />
-				<main
-					ref={mainRef}
-					className={`flex-1 overflow-auto p-4 md:p-6 main-content-transition w-full ${
-						isMenuOpen ? "lg:ms-64" : "lg:ms-16"
-					}`}
-					style={{
-						width: "100%", // Remove the problematic inline width calculation
-					}}
-				>
+			{/* Mobile backdrop — only below lg, only while the drawer is open. */}
+			{isMobileMenuOpen && (
+				<div
+					className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+					onClick={() => setIsMobileMenuOpen(false)}
+					aria-hidden="true"
+				/>
+			)}
+
+			<div className="flex flex-1 flex-col min-w-0">
+				<Header onMenuClick={() => setIsMobileMenuOpen(true)} />
+				<main className="flex-1 p-4 lg:p-8">
 					<Route name="admin" index>
 						<AdminHomePage />
 					</Route>
@@ -173,6 +149,6 @@ export default function AdminLayout() {
 					</Route>
 				</main>
 			</div>
-		</>
+		</div>
 	);
 }
