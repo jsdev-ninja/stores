@@ -105,7 +105,7 @@ export function AppBar() {
 				</div>
 
 				{/* Desktop nav links */}
-				<ul className="hidden md:flex items-center gap-4">
+				<ul className="hidden md:flex items-center gap-4 list-none m-0 p-0">
 					{navLinks.map((link) => (
 						<li key={link.name}>
 							<Link params={undefined as any} to={link.to} className="text-foreground">
@@ -116,7 +116,7 @@ export function AppBar() {
 				</ul>
 
 				{/* End actions */}
-				<ul className="flex items-center gap-2">
+				<ul className="flex items-center gap-2 list-none m-0 p-0">
 					<li>
 						<OrgPicker />
 					</li>
@@ -172,7 +172,7 @@ export function AppBar() {
 
 			{/* Mobile nav menu */}
 			{mobileMenuOpen && navLinks.length > 0 && (
-				<ul className="md:hidden flex flex-col border-t border-default-200 dark:border-default-700 px-4 py-2 gap-2">
+				<ul className="md:hidden flex flex-col border-t border-default-200 dark:border-default-700 px-4 py-2 gap-2 list-none m-0">
 					{navLinks.map((link) => (
 						<li key={link.name}>
 							<Link
