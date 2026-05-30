@@ -11,6 +11,7 @@ import { InvoiceDetailsModal } from "./InvoiceDetailsModal";
 import { CreateDeliveryNoteModal } from "./CreateDeliveryNoteModal";
 import { DeliveryNoteDetailsModal } from "./DeliveryNoteDetailsModal";
 import { SelectDateForDocumentModal } from "./SelectDateForDocumentModal";
+import { ConfirmModal } from "./ConfirmModal";
 import { TOrder } from "@jsdev_ninja/core";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
@@ -64,6 +65,30 @@ export const modals = {
 		onConfirm: (date: number) => void | Promise<void>;
 	}) => (
 		<SelectDateForDocumentModal documentType={documentType} onConfirm={onConfirm} />
+	),
+	confirmModal: ({
+		title,
+		message,
+		confirmText,
+		cancelText,
+		danger,
+		onConfirm,
+	}: {
+		title?: string;
+		message?: string;
+		confirmText?: string;
+		cancelText?: string;
+		danger?: boolean;
+		onConfirm: () => void | Promise<void>;
+	}) => (
+		<ConfirmModal
+			title={title}
+			message={message}
+			confirmText={confirmText}
+			cancelText={cancelText}
+			danger={danger}
+			onConfirm={onConfirm}
+		/>
 	),
 };
 

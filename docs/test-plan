@@ -1,0 +1,11 @@
+
+
+
+# 2 payment types
+ - hyp flow (credit card with paymnet page)
+ - external paymnet (no pamynet page after order)
+
+
+1) add + remove items to card
+2) checkput page
+3) place order (hyp + external)

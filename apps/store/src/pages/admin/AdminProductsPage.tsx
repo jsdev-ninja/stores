@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
+import { modalApi } from "src/infra/modals";
 import { EmptyState } from "src/components/EmptyState/EmptyState";
 import { navigate } from "src/navigation";
 import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
@@ -139,10 +140,19 @@ export function AdminProductsPage() {
 													Edit
 												</Button>
 												<Button
-													onPress={() => appApi.admin.productDelete({ product })}
+													onPress={() =>
+														modalApi.openModal("confirmModal", {
+															title: t("admin:productsPage.deleteProductTitle"),
+															message: t("admin:productsPage.deleteProductMessage", {
+																name: product.name[0]?.value ?? product.sku,
+															}),
+															danger: true,
+															onConfirm: async () => { await appApi.admin.productDelete({ product }); },
+														})
+													}
 													fullWidth
 												>
-													Delete
+													{t("common:delete")}
 												</Button>
 											</div>
 										</div>

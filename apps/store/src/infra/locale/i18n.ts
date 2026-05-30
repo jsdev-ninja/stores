@@ -814,6 +814,8 @@ export const resources = {
 				noImageEmptyDescription: "כל המוצרים כוללים תמונה",
 				noPurchasePriceEmptyTitle: "אין מוצרים ללא מחיר רכישה",
 				noPurchasePriceEmptyDescription: "כל המוצרים כוללים מחיר רכישה",
+				deleteProductTitle: "מחיקת מוצר",
+				deleteProductMessage: "האם אתה בטוח שברצונך למחוק את המוצר {{name}}? פעולה זו לא ניתנת לביטול.",
 			},
 			productForm: {
 				edit: {
