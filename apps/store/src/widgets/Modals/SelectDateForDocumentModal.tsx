@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
-import { Input } from "@heroui/react";
+import { Modal, Input } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
@@ -40,36 +39,44 @@ export function SelectDateForDocumentModal({
 	return (
 		<Modal
 			isOpen
-			placement="top-center"
-			onClose={() => modalApi.closeModal("selectDateForDocument")}
-			size="md"
+			onOpenChange={(open) => {
+				if (!open) modalApi.closeModal("selectDateForDocument");
+			}}
 		>
-			<ModalContent>
-				<ModalHeader className="flex flex-col gap-1">
-					<h3 className="text-lg font-semibold">{t(titleKey)}</h3>
-				</ModalHeader>
-				<ModalBody className="p-4 md:p-5">
-					<Input
-						label={t("ordersPage:orderDetails.documents.documentDate")}
-						type="date"
-						value={documentDate}
-						onValueChange={setDocumentDate}
-						variant="bordered"
-					/>
-				</ModalBody>
-				<ModalFooter>
-					<Button
-						variant="light"
-						onPress={() => modalApi.closeModal("selectDateForDocument")}
-						isDisabled={isSubmitting}
-					>
-						{t("common:cancel")}
-					</Button>
-					<Button color="primary" onPress={handleConfirm} isLoading={isSubmitting}>
-						{t("common:confirm")}
-					</Button>
-				</ModalFooter>
-			</ModalContent>
+			<Modal.Backdrop />
+			<Modal.Container size="md">
+				<Modal.Dialog>
+					<Modal.Header>
+						<Modal.Title>
+							<h3 className="text-lg font-semibold">{t(titleKey)}</h3>
+						</Modal.Title>
+					</Modal.Header>
+					<Modal.Body className="p-4 md:p-5">
+						<div className="flex flex-col gap-1">
+							<label className="block text-sm font-medium">
+								{t("ordersPage:orderDetails.documents.documentDate")}
+							</label>
+							<Input
+								type="date"
+								value={documentDate}
+								onChange={(e) => setDocumentDate(e.target.value)}
+							/>
+						</div>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button
+							variant="ghost"
+							onPress={() => modalApi.closeModal("selectDateForDocument")}
+							isDisabled={isSubmitting}
+						>
+							{t("common:cancel")}
+						</Button>
+						<Button variant="primary" onPress={handleConfirm} isPending={isSubmitting}>
+							{t("common:confirm")}
+						</Button>
+					</Modal.Footer>
+				</Modal.Dialog>
+			</Modal.Container>
 		</Modal>
 	);
 }

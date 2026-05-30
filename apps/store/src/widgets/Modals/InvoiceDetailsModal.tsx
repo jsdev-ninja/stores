@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
-import { Input } from "@heroui/react";
+import { Modal, Input } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
@@ -185,74 +184,86 @@ export function InvoiceDetailsModal({
 	return (
 		<Modal
 			isOpen
-			onClose={() => modalApi.closeModal("invoiceDetails")}
-			size="md"
-			scrollBehavior="inside"
+			onOpenChange={(open) => {
+				if (!open) modalApi.closeModal("invoiceDetails");
+			}}
 		>
-			<ModalContent>
-				<ModalHeader className="flex flex-col gap-1">
-					<div className="text-start">{t("admin:invoiceDetails.title")}</div>
-					<div className="text-sm text-default-500 text-start">
-						{t("admin:invoiceDetails.description", { count: selectedOrders.length })}
-					</div>
-				</ModalHeader>
-				<ModalBody>
-					<div className="space-y-4">
-						<Input
-							label={t("admin:invoiceDetails.invoiceDate")}
-							type="date"
-							value={formData.invoiceDate}
-							onChange={(e) => handleChange("invoiceDate", e.target.value)}
-							isRequired
-							isInvalid={!!errors.invoiceDate}
-							errorMessage={errors.invoiceDate}
-							classNames={{
-								input: "text-start",
-								label: "text-start",
-							}}
-						/>
-						<Input
-							label={t("admin:invoiceDetails.customerName")}
-							placeholder={t("admin:invoiceDetails.customerNamePlaceholder")}
-							value={formData.customerName}
-							onChange={(e) => handleChange("customerName", e.target.value)}
-							isRequired
-							isInvalid={!!errors.customerName}
-							errorMessage={errors.customerName}
-							classNames={{
-								input: "text-start",
-								label: "text-start",
-							}}
-						/>
-						<Input
-							label={t("admin:invoiceDetails.customerAddress")}
-							placeholder={t("admin:invoiceDetails.customerAddressPlaceholder")}
-							value={formData.customerAddress}
-							onChange={(e) => handleChange("customerAddress", e.target.value)}
-							isRequired
-							isInvalid={!!errors.customerAddress}
-							errorMessage={errors.customerAddress}
-							classNames={{
-								input: "text-start",
-								label: "text-start",
-							}}
-						/>
-					</div>
-				</ModalBody>
-				<ModalFooter>
-					<Button
-						color="danger"
-						variant="light"
-						onPress={() => modalApi.closeModal("invoiceDetails")}
-						isDisabled={isSubmitting}
-					>
-						{t("common:cancel")}
-					</Button>
-					<Button color="primary" onPress={handleSubmit} isLoading={isSubmitting}>
-						{t("admin:invoiceDetails.createInvoice")}
-					</Button>
-				</ModalFooter>
-			</ModalContent>
+			<Modal.Backdrop />
+			<Modal.Container size="md" scroll="inside">
+				<Modal.Dialog>
+					<Modal.Header>
+						<Modal.Title>
+							<div className="text-start">{t("admin:invoiceDetails.title")}</div>
+							<div className="text-sm text-default-500 text-start">
+								{t("admin:invoiceDetails.description", { count: selectedOrders.length })}
+							</div>
+						</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+						<div className="space-y-4">
+							<div className="flex flex-col gap-1">
+								<label className="block text-sm font-medium text-start">
+									{t("admin:invoiceDetails.invoiceDate")}
+									<span className="text-danger ml-1">*</span>
+								</label>
+								<Input
+									type="date"
+									value={formData.invoiceDate}
+									onChange={(e) => handleChange("invoiceDate", e.target.value)}
+									className="text-start"
+								/>
+								{errors.invoiceDate && (
+									<p className="text-sm text-danger text-start">{errors.invoiceDate}</p>
+								)}
+							</div>
+							<div className="flex flex-col gap-1">
+								<label className="block text-sm font-medium text-start">
+									{t("admin:invoiceDetails.customerName")}
+									<span className="text-danger ml-1">*</span>
+								</label>
+								<Input
+									placeholder={t("admin:invoiceDetails.customerNamePlaceholder")}
+									value={formData.customerName}
+									onChange={(e) => handleChange("customerName", e.target.value)}
+									className="text-start"
+								/>
+								{errors.customerName && (
+									<p className="text-sm text-danger text-start">{errors.customerName}</p>
+								)}
+							</div>
+							<div className="flex flex-col gap-1">
+								<label className="block text-sm font-medium text-start">
+									{t("admin:invoiceDetails.customerAddress")}
+									<span className="text-danger ml-1">*</span>
+								</label>
+								<Input
+									placeholder={t("admin:invoiceDetails.customerAddressPlaceholder")}
+									value={formData.customerAddress}
+									onChange={(e) => handleChange("customerAddress", e.target.value)}
+									className="text-start"
+								/>
+								{errors.customerAddress && (
+									<p className="text-sm text-danger text-start">
+										{errors.customerAddress}
+									</p>
+								)}
+							</div>
+						</div>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button
+							variant="danger"
+							onPress={() => modalApi.closeModal("invoiceDetails")}
+							isDisabled={isSubmitting}
+						>
+							{t("common:cancel")}
+						</Button>
+						<Button variant="primary" onPress={handleSubmit} isPending={isSubmitting}>
+							{t("admin:invoiceDetails.createInvoice")}
+						</Button>
+					</Modal.Footer>
+				</Modal.Dialog>
+			</Modal.Container>
 		</Modal>
 	);
 }
