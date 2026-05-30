@@ -5,10 +5,7 @@ import { ZodType } from "zod";
 import admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 import { StoredEvent, StoredEventSchema } from "./types";
-import {
-  eventBusAttemptsPath,
-  eventBusDeadLetterPath,
-} from "./paths";
+import { eventBusAttemptsPath, eventBusDeadLetterPath } from "./paths";
 
 type SubscriberContext = {
   companyId: string;

@@ -1,7 +1,6 @@
-import admin from "firebase-admin";
-import { logger } from "firebase-functions/v2";
 import { TOrder } from "@jsdev_ninja/core";
-import { emit } from "../../../platform/eventBus";
+import { emitEvent } from "../../../platform/eventBus";
+import { OrderEventTypes, OrderPlacedPayload } from "../events";
 
 export async function emitOrderPlaced(params: {
 	order: TOrder;
@@ -9,32 +8,20 @@ export async function emitOrderPlaced(params: {
 	companyId: string;
 	storeId: string;
 }) {
-	try {
-		await admin.firestore().runTransaction(async (tx) => {
-			emit(tx, {
-				type: "order.placed",
-				source: "orders",
-				companyId: params.companyId,
-				storeId: params.storeId,
-				actorId: params.order.userId ? `user:${params.order.userId}` : "system",
-				payload: {
-					orderId: params.orderId,
-					cartId: params.order.cart?.id,
-					total: params.order.cart?.cartTotal ?? 0,
-					status: params.order.status,
-					paymentType: params.order.paymentType,
-					organizationId: params.order.organizationId,
-					customerEmail: params.order.client?.email,
-					billingAccount: params.order.billingAccount ?? null,
-				},
-			});
-		});
-	} catch (err) {
-		logger.error("eventBus.emit.order_placed.failed", {
+	await emitEvent<OrderPlacedPayload>({
+		type: OrderEventTypes.placed,
+		source: "orders",
+		companyId: params.companyId,
+		storeId: params.storeId,
+		actorId: params.order.userId ? `user:${params.order.userId}` : "system",
+		payload: {
 			orderId: params.orderId,
-			companyId: params.companyId,
-			storeId: params.storeId,
-			err,
-		});
-	}
+			cartId: params.order.cart?.id,
+			total: params.order.cart?.cartTotal ?? 0,
+			status: params.order.status,
+			paymentType: params.order.paymentType,
+			organizationId: params.order.organizationId,
+			customerEmail: params.order.client?.email,
+		},
+	});
 }
