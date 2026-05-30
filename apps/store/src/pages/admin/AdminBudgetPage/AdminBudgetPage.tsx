@@ -409,8 +409,7 @@ export function AdminBudgetOrganizationPage() {
       )}
 
       {/* Manual transaction modal */}
-      <Modal isOpen={manualModal} onOpenChange={setManualModal}>
-        <Modal.Backdrop />
+      <Modal.Backdrop isOpen={manualModal} onOpenChange={setManualModal}>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -473,7 +472,7 @@ export function AdminBudgetOrganizationPage() {
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
     </div>
   );
 }

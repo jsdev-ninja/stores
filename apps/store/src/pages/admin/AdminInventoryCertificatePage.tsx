@@ -733,8 +733,7 @@ export function AdminInventoryCertificatePage() {
 			</div>
 
 			{/* Save Confirmation Modal */}
-			<Modal isOpen={isSaveModalOpen} onOpenChange={setIsSaveModalOpen}>
-				<Modal.Backdrop />
+			<Modal.Backdrop isOpen={isSaveModalOpen} onOpenChange={setIsSaveModalOpen}>
 				<Modal.Container>
 					<Modal.Dialog>
 						<Modal.Header>
@@ -892,7 +891,7 @@ export function AdminInventoryCertificatePage() {
 						</Modal.Footer>
 					</Modal.Dialog>
 				</Modal.Container>
-			</Modal>
+			</Modal.Backdrop>
 		</div>
 	);
 

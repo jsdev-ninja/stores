@@ -89,13 +89,12 @@ export function DeliveryNoteDetailsModal({
 	};
 
 	return (
-		<Modal
+		<Modal.Backdrop
 			isOpen
 			onOpenChange={(open) => {
 				if (!open) modalApi.closeModal("deliveryNoteDetails");
 			}}
 		>
-			<Modal.Backdrop />
 			<Modal.Container size="md" scroll="inside">
 				<Modal.Dialog>
 					<Modal.Header>
@@ -143,6 +142,6 @@ export function DeliveryNoteDetailsModal({
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>
-		</Modal>
+		</Modal.Backdrop>
 	);
 }

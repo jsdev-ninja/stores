@@ -168,8 +168,7 @@ export function AdminSuppliersPage() {
 			</Table>
 
 			{/* Create Modal */}
-			<Modal isOpen={isCreateModalOpen} onOpenChange={handleCloseCreateModal}>
-				<Modal.Backdrop />
+			<Modal.Backdrop isOpen={isCreateModalOpen} onOpenChange={handleCloseCreateModal}>
 				<Modal.Container>
 					<Modal.Dialog>
 						<Modal.Header>
@@ -215,11 +214,10 @@ export function AdminSuppliersPage() {
 						</Modal.Footer>
 					</Modal.Dialog>
 				</Modal.Container>
-			</Modal>
+			</Modal.Backdrop>
 
 			{/* Edit Modal */}
-			<Modal isOpen={isEditModalOpen} onOpenChange={handleCloseEditModal}>
-				<Modal.Backdrop />
+			<Modal.Backdrop isOpen={isEditModalOpen} onOpenChange={handleCloseEditModal}>
 				<Modal.Container>
 					<Modal.Dialog>
 						<Modal.Header>
@@ -265,7 +263,7 @@ export function AdminSuppliersPage() {
 						</Modal.Footer>
 					</Modal.Dialog>
 				</Modal.Container>
-			</Modal>
+			</Modal.Backdrop>
 		</div>
 	);
 }

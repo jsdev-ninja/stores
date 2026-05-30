@@ -1014,11 +1014,10 @@ export default function AdminOrderPageNew() {
 		)}
 
 		{/* Payment link modal */}
-		<Modal
+		<Modal.Backdrop
 			isOpen={paymentLinkOpen}
 			onOpenChange={(open) => setPaymentLinkOpen(open)}
 		>
-			<Modal.Backdrop />
 			<Modal.Container>
 				<Modal.Dialog>
 					<Modal.Header dir="rtl">
@@ -1061,14 +1060,13 @@ export default function AdminOrderPageNew() {
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>
-		</Modal>
+		</Modal.Backdrop>
 
 		{/* Mark as Paid modal */}
-		<Modal
+		<Modal.Backdrop
 			isOpen={markPaidOpen}
 			onOpenChange={(open) => setMarkPaidOpen(open)}
 		>
-			<Modal.Backdrop />
 			<Modal.Container>
 				<Modal.Dialog>
 					<Modal.Header>
@@ -1146,7 +1144,7 @@ export default function AdminOrderPageNew() {
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>
-		</Modal>
+		</Modal.Backdrop>
 		</>
 	);
 }

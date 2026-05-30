@@ -328,13 +328,12 @@ export function CreateInvoiceModal({
 	const defaultToDate = lastDayOfMonth.getTime();
 
 	return (
-		<Modal
+		<Modal.Backdrop
 			isOpen
 			onOpenChange={(open) => {
 				if (!open) modalApi.closeModal("createInvoice");
 			}}
 		>
-			<Modal.Backdrop />
 			<Modal.Container size="lg" scroll="inside">
 				<Modal.Dialog>
 					<Form<TCreateInvoice>
@@ -386,6 +385,6 @@ export function CreateInvoiceModal({
 					</Form>
 				</Modal.Dialog>
 			</Modal.Container>
-		</Modal>
+		</Modal.Backdrop>
 	);
 }

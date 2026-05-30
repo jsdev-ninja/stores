@@ -79,14 +79,13 @@ export function OrgPicker() {
 				</Dropdown.Popover>
 			</Dropdown>
 
-			<Modal
+			<Modal.Backdrop
 				isOpen={isConfirmOpen}
 				onOpenChange={(open) => {
 					setIsConfirmOpen(open);
 					if (!open) setPendingOrg(null);
 				}}
 			>
-				<Modal.Backdrop />
 				<Modal.Container>
 					<Modal.Dialog>
 						<Modal.Header>
@@ -105,7 +104,7 @@ export function OrgPicker() {
 						</Modal.Footer>
 					</Modal.Dialog>
 				</Modal.Container>
-			</Modal>
+			</Modal.Backdrop>
 		</>
 	);
 }

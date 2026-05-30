@@ -159,13 +159,12 @@ export function CreateDeliveryNoteModal({
 	// Show order details form when order is selected
 	if (selectedOrder) {
 		return (
-			<Modal
+			<Modal.Backdrop
 				isOpen
 				onOpenChange={(open) => {
 					if (!open) handleCloseDeliveryNote();
 				}}
 			>
-				<Modal.Backdrop />
 				<Modal.Container size="md" scroll="inside">
 					<Modal.Dialog>
 						<Modal.Header>
@@ -245,18 +244,17 @@ export function CreateDeliveryNoteModal({
 						</Modal.Footer>
 					</Modal.Dialog>
 				</Modal.Container>
-			</Modal>
+			</Modal.Backdrop>
 		);
 	}
 
 	return (
-		<Modal
+		<Modal.Backdrop
 			isOpen
 			onOpenChange={(open) => {
 				if (!open) handleCloseDeliveryNote();
 			}}
 		>
-			<Modal.Backdrop />
 			<Modal.Container size="lg" scroll="inside">
 				<Modal.Dialog>
 					<Modal.Header>
@@ -414,6 +412,6 @@ export function CreateDeliveryNoteModal({
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>
-		</Modal>
+		</Modal.Backdrop>
 	);
 }

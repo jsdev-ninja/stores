@@ -925,8 +925,7 @@ export default function AdminOrderPage() {
           </div>
 
           {/* Add Product Modal */}
-          <Modal isOpen={addProductOverlay.isOpen} onOpenChange={addProductOverlay.setOpen}>
-            <Modal.Backdrop />
+          <Modal.Backdrop isOpen={addProductOverlay.isOpen} onOpenChange={addProductOverlay.setOpen}>
             <Modal.Container size="lg">
               <Modal.Dialog>
                 <Modal.Header>
@@ -1004,11 +1003,10 @@ export default function AdminOrderPage() {
                 </Modal.Footer>
               </Modal.Dialog>
             </Modal.Container>
-          </Modal>
+          </Modal.Backdrop>
 
           {/* Add External Product Modal */}
-          <Modal isOpen={addExternalOverlay.isOpen} onOpenChange={addExternalOverlay.setOpen}>
-            <Modal.Backdrop />
+          <Modal.Backdrop isOpen={addExternalOverlay.isOpen} onOpenChange={addExternalOverlay.setOpen}>
             <Modal.Container size="md">
               <Modal.Dialog>
                 <Modal.Header>
@@ -1069,7 +1067,7 @@ export default function AdminOrderPage() {
                 </Modal.Footer>
               </Modal.Dialog>
             </Modal.Container>
-          </Modal>
+          </Modal.Backdrop>
         </Card.Content>
         <Separator />
         <Card.Footer>

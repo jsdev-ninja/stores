@@ -215,8 +215,7 @@ const ClientProfileHeader = ({ profile, onRemove }: ClientProfileHeaderProps) =>
         </Button>
       </div>
 
-      <Modal isOpen={overlay.isOpen} onOpenChange={overlay.setOpen}>
-        <Modal.Backdrop />
+      <Modal.Backdrop isOpen={overlay.isOpen} onOpenChange={overlay.setOpen}>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -239,7 +238,7 @@ const ClientProfileHeader = ({ profile, onRemove }: ClientProfileHeaderProps) =>
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
     </div>
   );
 };

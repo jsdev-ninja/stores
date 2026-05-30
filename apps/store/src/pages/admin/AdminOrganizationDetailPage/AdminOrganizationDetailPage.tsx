@@ -1363,7 +1363,7 @@ export function AdminOrganizationDetailPage() {
       )}
 
       {/* Add Organization Client Modal */}
-      <Modal
+      <Modal.Backdrop
         isOpen={isAddClientModalOpen}
         onOpenChange={(open) => {
           setIsAddClientModalOpen(open);
@@ -1373,7 +1373,6 @@ export function AdminOrganizationDetailPage() {
           }
         }}
       >
-        <Modal.Backdrop />
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -1473,10 +1472,10 @@ export function AdminOrganizationDetailPage() {
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
 
       {/* Edit Organization Client Modal */}
-      <Modal
+      <Modal.Backdrop
         isOpen={isEditClientModalOpen}
         onOpenChange={(open) => {
           setIsEditClientModalOpen(open);
@@ -1487,7 +1486,6 @@ export function AdminOrganizationDetailPage() {
           }
         }}
       >
-        <Modal.Backdrop />
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -1519,11 +1517,10 @@ export function AdminOrganizationDetailPage() {
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
 
       {/* Add Billing Account Modal */}
-      <Modal isOpen={isAddBillingModalOpen} onOpenChange={setIsAddBillingModalOpen}>
-        <Modal.Backdrop />
+      <Modal.Backdrop isOpen={isAddBillingModalOpen} onOpenChange={setIsAddBillingModalOpen}>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -1563,11 +1560,10 @@ export function AdminOrganizationDetailPage() {
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
 
       {/* Edit Billing Account Modal */}
-      <Modal isOpen={isEditBillingModalOpen} onOpenChange={setIsEditBillingModalOpen}>
-        <Modal.Backdrop />
+      <Modal.Backdrop isOpen={isEditBillingModalOpen} onOpenChange={setIsEditBillingModalOpen}>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -1607,14 +1603,13 @@ export function AdminOrganizationDetailPage() {
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
 
       {/* Edit Organization Modal */}
-      <Modal
+      <Modal.Backdrop
         isOpen={isEditOrganizationModalOpen}
         onOpenChange={setIsEditOrganizationModalOpen}
       >
-        <Modal.Backdrop />
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -1748,7 +1743,7 @@ export function AdminOrganizationDetailPage() {
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
     </div>
   );
 }

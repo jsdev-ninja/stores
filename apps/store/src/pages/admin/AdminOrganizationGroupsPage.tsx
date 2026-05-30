@@ -114,8 +114,7 @@ export function AdminOrganizationGroupsPage() {
       </Table>
 
       {/* Create Modal */}
-      <Modal isOpen={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <Modal.Backdrop />
+      <Modal.Backdrop isOpen={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
         <Modal.Container>
           <Modal.Dialog>
             <Modal.Header>
@@ -145,7 +144,7 @@ export function AdminOrganizationGroupsPage() {
             </Modal.Footer>
           </Modal.Dialog>
         </Modal.Container>
-      </Modal>
+      </Modal.Backdrop>
     </div>
   );
 }

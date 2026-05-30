@@ -37,13 +37,12 @@ export function SelectDateForDocumentModal({
 	};
 
 	return (
-		<Modal
+		<Modal.Backdrop
 			isOpen
 			onOpenChange={(open) => {
 				if (!open) modalApi.closeModal("selectDateForDocument");
 			}}
 		>
-			<Modal.Backdrop />
 			<Modal.Container size="md">
 				<Modal.Dialog>
 					<Modal.Header>
@@ -77,6 +76,6 @@ export function SelectDateForDocumentModal({
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>
-		</Modal>
+		</Modal.Backdrop>
 	);
 }

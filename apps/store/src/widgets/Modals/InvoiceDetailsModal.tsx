@@ -182,13 +182,12 @@ export function InvoiceDetailsModal({
 	};
 
 	return (
-		<Modal
+		<Modal.Backdrop
 			isOpen
 			onOpenChange={(open) => {
 				if (!open) modalApi.closeModal("invoiceDetails");
 			}}
 		>
-			<Modal.Backdrop />
 			<Modal.Container size="md" scroll="inside">
 				<Modal.Dialog>
 					<Modal.Header>
@@ -264,6 +263,6 @@ export function InvoiceDetailsModal({
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>
-		</Modal>
+		</Modal.Backdrop>
 	);
 }
