@@ -108,7 +108,7 @@ export function AppBar() {
 				<ul className="hidden md:flex items-center gap-4">
 					{navLinks.map((link) => (
 						<li key={link.name}>
-							<Link params={undefined as any} color="foreground" to={link.to}>
+							<Link params={undefined as any} to={link.to} className="text-foreground">
 								{link.name}
 							</Link>
 						</li>
@@ -127,7 +127,7 @@ export function AppBar() {
 									<button
 										type="button"
 										className="flex items-center gap-1 cursor-pointer"
-										aria-label={t("openUserMenu")}
+										aria-label="Open user menu"
 									>
 										<Icon name="userCircle" size="lg" />
 										{user?.admin && (
@@ -158,7 +158,7 @@ export function AppBar() {
 					<li className="md:hidden">
 						<button
 							type="button"
-							aria-label={mobileMenuOpen ? t("closeMenu") : t("openMenu")}
+							aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
 							onClick={() => setMobileMenuOpen((prev) => !prev)}
 							className="p-1"
 						>
@@ -175,9 +175,8 @@ export function AppBar() {
 						<li key={link.name}>
 							<Link
 								params={undefined as any}
-								color="foreground"
 								to={link.to}
-								className="block py-1"
+								className="block py-1 text-foreground"
 							>
 								{link.name}
 							</Link>

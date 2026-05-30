@@ -195,7 +195,7 @@ function App() {
 
   return (
     <div className="min-h-screen min-w-screen">
-      <ToastProvider placement="top-center" />
+      <ToastProvider />
       {/* todo fix fallback */}
       <Suspense fallback="loading">
         <ModalProvider />

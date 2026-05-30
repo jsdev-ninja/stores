@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Modal, Select, ListBox } from "@heroui/react";
+import type { Key } from "react-aria-components";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Form } from "src/components/Form";
@@ -90,9 +91,9 @@ function FormContent({
 						<Select
 							placeholder={t("selectOrganization")}
 							isDisabled={loading}
-							selectedKeys={organizationId ? [organizationId] : []}
-							onChange={(e) => {
-								setValue("organizationId", e.target.value);
+							selectedKey={organizationId || null}
+							onSelectionChange={(key: Key | null) => {
+								setValue("organizationId", key ? String(key) : "");
 							}}
 						>
 							<Select.Trigger>
@@ -127,9 +128,9 @@ function FormContent({
 						<Select
 							placeholder="בחר חשבון חיוב (אופציונלי)"
 							isDisabled={!organizationId || loading}
-							selectedKeys={billingAccount ? [billingAccount] : []}
-							onChange={(e) => {
-								setValue("billingAccount", e.target.value);
+							selectedKey={billingAccount || null}
+							onSelectionChange={(key: Key | null) => {
+								setValue("billingAccount", key ? String(key) : "");
 							}}
 						>
 							<Select.Trigger>
