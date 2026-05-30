@@ -1,28 +1,15 @@
 import {
 	Card,
-	CardBody,
 	Button,
 	Input,
 	Dropdown,
-	DropdownTrigger,
-	DropdownMenu,
-	DropdownItem,
 	Table,
-	TableHeader,
-	TableBody,
-	TableColumn,
-	TableRow,
-	TableCell,
 	Alert,
 	Chip,
 	Modal,
-	ModalContent,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
 	Select,
-	SelectItem,
-	Textarea,
+	TextArea,
+	ListBox,
 } from "@heroui/react";
 import { TOrder, getCartCost } from "@jsdev_ninja/core";
 
@@ -146,19 +133,16 @@ export default function AdminOrderPageNew() {
 		{
 			id: "createPaymentLink",
 			label: t("ordersPage:actions.createPaymentLink"),
-			color: "primary",
 			className: "text-primary",
 		},
 		{
 			id: "endOrder",
 			label: t("ordersPage:actions.endOrder"),
-			color: "success",
 			className: "text-success",
 		},
 		{
 			id: "cancelOrder",
 			label: t("ordersPage:actions.cancelOrder"),
-			color: "danger",
 			className: "text-danger",
 		},
 	] as const;
@@ -195,7 +179,7 @@ export default function AdminOrderPageNew() {
 			),
 			processing: (
 				<Button
-					color="primary"
+					variant="primary"
 					onPress={async () => {
 						const res = await appApi.admin.orderInDelivery({ order });
 						if (!res?.success) {
@@ -284,17 +268,26 @@ export default function AdminOrderPageNew() {
 						className={`flex items-center gap-2 md:gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
 					>
 						<Dropdown>
-							<DropdownTrigger>
-								<Button
-									variant="bordered"
-									endContent={!isRTL ? <ChevronDown className="w-4 h-4" /> : undefined}
-									startContent={isRTL ? <ChevronDown className="w-4 h-4" /> : undefined}
-									className="text-sm md:text-base"
+							<Dropdown.Trigger>
+								<button
+									type="button"
+									className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
 								>
-									{t("common:actionsLabel")}
-								</Button>
-							</DropdownTrigger>
-							<DropdownMenu
+									{!isRTL && (
+										<>
+											{t("common:actionsLabel")}
+											<ChevronDown className="w-4 h-4" />
+										</>
+									)}
+									{isRTL && (
+										<>
+											<ChevronDown className="w-4 h-4" />
+											{t("common:actionsLabel")}
+										</>
+									)}
+								</button>
+							</Dropdown.Trigger>
+							<Dropdown.Menu
 								disabledKeys={disabledKeys}
 								onAction={async (key) => {
 									if (!order) return;
@@ -334,22 +327,22 @@ export default function AdminOrderPageNew() {
 								aria-label="actions"
 							>
 								{actions.map((action) => (
-									<DropdownItem
+									<Dropdown.Item
 										className={action.className}
-										color={action.color}
+										id={action.id}
+										textValue={action.label}
 										key={action.id}
 									>
 										{action.label}
-									</DropdownItem>
+									</Dropdown.Item>
 								))}
-							</DropdownMenu>
+							</Dropdown.Menu>
 						</Dropdown>
 						{mainActions()}
 						{/* Mark as Paid button — shown for org orders not yet paid */}
 						{organization && order?.paymentStatus !== "completed" && (
 							<Button
-								color="success"
-								variant="flat"
+								variant="secondary"
 								onPress={() => {
 									setPaidAmount(String(order?.cart.cartTotal ?? ""));
 									setMarkPaidOpen(true);
@@ -366,7 +359,7 @@ export default function AdminOrderPageNew() {
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
 				{/* Customer Card */}
 				<Card className="shadow-sm">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<div className={`flex items-start gap-3 mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
 							<div className="p-2 bg-blue-100 rounded-lg">
 								<User className="w-5 h-5 text-blue-600" />
@@ -440,8 +433,7 @@ export default function AdminOrderPageNew() {
 								</div>
 								{order?.client && (
 									<Button
-										color="primary"
-										variant="light"
+										variant="ghost"
 										size="sm"
 										className="mt-4 text-sm"
 									>
@@ -450,12 +442,12 @@ export default function AdminOrderPageNew() {
 								)}
 							</div>
 						</div>
-					</CardBody>
+					</Card.Content>
 				</Card>
 
 				{/* Order Info Card */}
 				<Card className="shadow-sm">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<div className={`flex items-start gap-3 mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
 							<div className="p-2 bg-blue-100 rounded-lg">
 								<Package className="w-5 h-5 text-blue-600" />
@@ -478,8 +470,8 @@ export default function AdminOrderPageNew() {
 											<span className="font-medium">
 												{t("ordersPage:orderDetails.orderInfo.status")}:
 											</span>{" "}
-											<Chip size="sm" color="primary" variant="flat">
-												{t(`common:orderStatutes.${order.status}`)}
+											<Chip size="sm" color="accent" variant="soft">
+												<Chip.Label>{t(`common:orderStatutes.${order.status}`)}</Chip.Label>
 											</Chip>
 										</p>
 									)}
@@ -507,17 +499,17 @@ export default function AdminOrderPageNew() {
 										<p className="text-gray-400 italic">{t("common:emptyField")}</p>
 									)}
 								</div>
-								<Button color="primary" variant="light" size="sm" className="mt-4 text-sm">
+								<Button variant="ghost" size="sm" className="mt-4 text-sm">
 									{t("ordersPage:orderDetails.orderInfo.downloadInfo")}
 								</Button>
 							</div>
 						</div>
-					</CardBody>
+					</Card.Content>
 				</Card>
 
 				{/* Deliver to Card */}
 				<Card className="shadow-sm">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<div className={`flex items-start gap-3 mb-4 ${isRTL ? "flex-row-reverse" : ""}`}>
 							<div className="p-2 bg-blue-100 rounded-lg">
 								<MapPin className="w-5 h-5 text-blue-600" />
@@ -594,8 +586,7 @@ export default function AdminOrderPageNew() {
 								</div>
 								{order?.client && (
 									<Button
-										color="primary"
-										variant="light"
+										variant="ghost"
 										size="sm"
 										className="mt-4 text-sm"
 									>
@@ -604,7 +595,7 @@ export default function AdminOrderPageNew() {
 								)}
 							</div>
 						</div>
-					</CardBody>
+					</Card.Content>
 				</Card>
 			</div>
 
@@ -612,7 +603,7 @@ export default function AdminOrderPageNew() {
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
 				{/* Payment Info Card */}
 				<Card className="shadow-sm">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
 							{t("ordersPage:orderDetails.payment.title")}
 						</h3>
@@ -626,8 +617,8 @@ export default function AdminOrderPageNew() {
 							{order?.paymentStatus && (
 								<div className="text-gray-600 flex items-center gap-2">
 									<span className="font-medium">{t("common:paymentStatus")}:</span>{" "}
-									<Chip size="sm" color="primary" variant="flat">
-										{t(`common:paymentStatuses.${order.paymentStatus}`)}
+									<Chip size="sm" color="accent" variant="soft">
+										<Chip.Label>{t(`common:paymentStatuses.${order.paymentStatus}`)}</Chip.Label>
 									</Chip>
 								</div>
 							)}
@@ -635,30 +626,35 @@ export default function AdminOrderPageNew() {
 								<p className="text-gray-400 italic">{t("common:emptyField")}</p>
 							)}
 						</div>
-					</CardBody>
+					</Card.Content>
 				</Card>
 
 				{/* Notes Card */}
 				<Card className="shadow-sm">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
 							{t("ordersPage:orderDetails.notes.title")}
 						</h3>
 						{order?.clientComment ? (
-							<Alert color="warning" variant="flat" className="py-4 text-start">
-								<p className="whitespace-pre-wrap">{order.clientComment}</p>
+							<Alert status="warning" className="py-4 text-start">
+								<Alert.Indicator />
+								<Alert.Content>
+									<Alert.Description>
+										<p className="whitespace-pre-wrap">{order.clientComment}</p>
+									</Alert.Description>
+								</Alert.Content>
 							</Alert>
 						) : (
 							<p className="text-sm text-gray-400 italic py-2">{t("common:emptyField")}</p>
 						)}
-					</CardBody>
+					</Card.Content>
 				</Card>
 			</div>
 
 			{/* Delivery Price Toggle */}
 			{order && store && (
 				<Card className="shadow-sm mb-6">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
 							{t("common:deliveryPrice")}
 						</h3>
@@ -672,14 +668,13 @@ export default function AdminOrderPageNew() {
 									min="0"
 									step="0.01"
 									value={(order.cart.deliveryPrice ?? 0).toFixed(2)}
-									isDisabled
+									disabled
 									placeholder="0.00"
 									className="flex-1 max-w-[120px]"
 								/>
 								<Button
-									color={(order.cart.deliveryPrice ?? 0) > 0 ? "danger" : "success"}
-									variant="light"
-									isLoading={isTogglingDeliveryPrice}
+									variant={(order.cart.deliveryPrice ?? 0) > 0 ? "danger" : "secondary"}
+									isPending={isTogglingDeliveryPrice}
 									isDisabled={isTogglingDeliveryPrice}
 									onPress={toggleDeliveryPrice}
 								>
@@ -694,7 +689,7 @@ export default function AdminOrderPageNew() {
 									: t("common:deliveryPriceRemovedDescription")}
 							</p>
 						</div>
-					</CardBody>
+					</Card.Content>
 				</Card>
 			)}
 
@@ -705,7 +700,7 @@ export default function AdminOrderPageNew() {
 				order?.ezDeliveryNote?.pdf_link ||
 				(order && ["completed", "delivered"].includes(order.status))) && (
 				<Card className="shadow-sm mb-6">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-4 text-start">
 							{t("ordersPage:orderDetails.documents.title")}
 						</h3>
@@ -783,9 +778,8 @@ export default function AdminOrderPageNew() {
 											</span>
 											<Button
 												size="sm"
-												color="primary"
-												variant="flat"
-												isLoading={isCreatingDeliveryNote}
+												variant="secondary"
+												isPending={isCreatingDeliveryNote}
 												isDisabled={isCreatingDeliveryNote}
 												onPress={() => {
 													if (!order) return;
@@ -819,8 +813,7 @@ export default function AdminOrderPageNew() {
 											</span>
 											<Button
 												size="sm"
-												color="primary"
-												variant="flat"
+												variant="secondary"
 												onPress={() => {
 													if (!order) return;
 													modalApi.openModal("selectDateForDocument", {
@@ -842,13 +835,13 @@ export default function AdminOrderPageNew() {
 								</>
 							)}
 						</div>
-					</CardBody>
+					</Card.Content>
 				</Card>
 			)}
 
 			{/* Product List Section */}
 			<Card className="shadow-sm mb-6">
-				<CardBody className="p-4 md:p-6">
+				<Card.Content className="p-4 md:p-6">
 					<div className="flex justify-between items-center mb-4">
 						<h3 className="text-lg font-semibold text-gray-900  text-start">
 							{t("ordersPage:orderDetails.products.title")}
@@ -862,8 +855,7 @@ export default function AdminOrderPageNew() {
 								});
 							}}
 							isIconOnly
-							color="primary"
-							variant="light"
+							variant="ghost"
 							size="sm"
 							className="shrink-0 grow-0"
 						>
@@ -871,57 +863,61 @@ export default function AdminOrderPageNew() {
 						</Button>
 					</div>
 					<div className="overflow-x-auto">
-						<Table aria-label="Products table" removeWrapper>
-							<TableHeader>
-								<TableColumn className="text-start">
-									{t("ordersPage:orderDetails.products.productName")}
-								</TableColumn>
-								<TableColumn className="text-start">
-									{t("ordersPage:orderDetails.products.price")}
-								</TableColumn>
-								<TableColumn className="text-start">
-									{t("ordersPage:orderDetails.products.quantity")}
-								</TableColumn>
-								<TableColumn className="text-start">
-									{t("ordersPage:orderDetails.products.total")}
-								</TableColumn>
-							</TableHeader>
-							<TableBody>
-								{(order?.cart.items ?? []).map((item, index) => (
-									<TableRow key={item.product.id || index}>
-										<TableCell className="text-start">
-											<div className={`flex items-center gap-3`}>
-												<div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center shrink-0">
-													<Package className="w-6 h-6 text-gray-400" />
-												</div>
-												<span className="font-medium text-gray-900">
-													{item.product.name?.[0]?.value || t("common:emptyField")}
-												</span>
-											</div>
-										</TableCell>
-										<TableCell className="text-gray-700 text-start">
-											{formatter.price(item.finalPrice || item.originalPrice || 0)}
-										</TableCell>
-										<TableCell className="text-gray-700 text-start">
-											{item.amount}
-										</TableCell>
-										<TableCell className="font-semibold text-gray-900 text-start">
-											{formatter.price(
-												(item.finalPrice || item.originalPrice || 0) * item.amount,
-											)}
-										</TableCell>
-									</TableRow>
-								))}
-							</TableBody>
+						<Table aria-label="Products table">
+							<Table.ScrollContainer>
+								<Table.Content>
+									<Table.Header>
+										<Table.Column isRowHeader className="text-start">
+											{t("ordersPage:orderDetails.products.productName")}
+										</Table.Column>
+										<Table.Column className="text-start">
+											{t("ordersPage:orderDetails.products.price")}
+										</Table.Column>
+										<Table.Column className="text-start">
+											{t("ordersPage:orderDetails.products.quantity")}
+										</Table.Column>
+										<Table.Column className="text-start">
+											{t("ordersPage:orderDetails.products.total")}
+										</Table.Column>
+									</Table.Header>
+									<Table.Body>
+										{(order?.cart.items ?? []).map((item, index) => (
+											<Table.Row key={item.product.id || index}>
+												<Table.Cell className="text-start">
+													<div className={`flex items-center gap-3`}>
+														<div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center shrink-0">
+															<Package className="w-6 h-6 text-gray-400" />
+														</div>
+														<span className="font-medium text-gray-900">
+															{item.product.name?.[0]?.value || t("common:emptyField")}
+														</span>
+													</div>
+												</Table.Cell>
+												<Table.Cell className="text-gray-700 text-start">
+													{formatter.price(item.finalPrice || item.originalPrice || 0)}
+												</Table.Cell>
+												<Table.Cell className="text-gray-700 text-start">
+													{item.amount}
+												</Table.Cell>
+												<Table.Cell className="font-semibold text-gray-900 text-start">
+													{formatter.price(
+														(item.finalPrice || item.originalPrice || 0) * item.amount,
+													)}
+												</Table.Cell>
+											</Table.Row>
+										))}
+									</Table.Body>
+								</Table.Content>
+							</Table.ScrollContainer>
 						</Table>
 					</div>
-				</CardBody>
+				</Card.Content>
 			</Card>
 
 			{/* Order Summary Section */}
 			<div className={`flex ${isRTL ? "justify-start" : "justify-end"}`}>
 				<Card className="shadow-sm w-full md:w-auto min-w-[280px]">
-					<CardBody className="p-4 md:p-6">
+					<Card.Content className="p-4 md:p-6">
 						<div className="space-y-3 text-sm text-start">
 							{order?.cart && (
 								<>
@@ -988,117 +984,166 @@ export default function AdminOrderPageNew() {
 								</>
 							)}
 						</div>
-					</CardBody>
+					</Card.Content>
 				</Card>
 			</div>
 		</div>
 
 		{/* Payment link error alert */}
 		{paymentLinkError && (
-			<Alert color="danger" className="mt-4 mx-4">
-				{paymentLinkError}
+			<Alert status="danger" className="mt-4 mx-4">
+				<Alert.Indicator />
+				<Alert.Content>
+					<Alert.Description>{paymentLinkError}</Alert.Description>
+				</Alert.Content>
 			</Alert>
 		)}
 
 		{/* Payment link loading indicator */}
 		{paymentLinkLoading && (
-			<Alert color="default" className="mt-4 mx-4">
-				{t("ordersPage:paymentLink.generating", "יוצר לינק לתשלום…")}
+			<Alert status="accent" className="mt-4 mx-4">
+				<Alert.Indicator />
+				<Alert.Content>
+					<Alert.Description>
+						{t("ordersPage:paymentLink.generating", "יוצר לינק לתשלום…")}
+					</Alert.Description>
+				</Alert.Content>
 			</Alert>
 		)}
 
 		{/* Payment link modal */}
-		<Modal isOpen={paymentLinkOpen} onClose={() => setPaymentLinkOpen(false)}>
-			<ModalContent>
-				<ModalHeader dir="rtl">
-					{t("ordersPage:paymentLink.title", "לינק לתשלום")}
-				</ModalHeader>
-				<ModalBody className="space-y-4" dir="rtl">
-					<p className="text-sm text-gray-600">
-						{t(
-							"ordersPage:paymentLink.description",
-							"שלח את הלינק ללקוח. הלינק תקף ל-48 שעות.",
-						)}
-					</p>
-					<div className="flex gap-2 items-center">
-						<Input
-							isReadOnly
-							value={paymentLinkUrl}
-							className="flex-1"
-							aria-label={t("ordersPage:paymentLink.title", "לינק לתשלום")}
-						/>
-						<Button
-							color="primary"
-							variant="flat"
-							onPress={() => {
-								navigator.clipboard.writeText(paymentLinkUrl);
-								setPaymentLinkCopied(true);
-								setTimeout(() => setPaymentLinkCopied(false), 2000);
-							}}
-						>
-							{paymentLinkCopied
-								? t("ordersPage:paymentLink.copied", "הועתק!")
-								: t("ordersPage:paymentLink.copy", "העתק")}
+		<Modal
+			isOpen={paymentLinkOpen}
+			onOpenChange={(open) => setPaymentLinkOpen(open)}
+		>
+			<Modal.Backdrop />
+			<Modal.Container>
+				<Modal.Dialog>
+					<Modal.Header dir="rtl">
+						<Modal.Heading>
+							{t("ordersPage:paymentLink.title", "לינק לתשלום")}
+						</Modal.Heading>
+					</Modal.Header>
+					<Modal.Body className="space-y-4" dir="rtl">
+						<p className="text-sm text-gray-600">
+							{t(
+								"ordersPage:paymentLink.description",
+								"שלח את הלינק ללקוח. הלינק תקף ל-48 שעות.",
+							)}
+						</p>
+						<div className="flex gap-2 items-center">
+							<Input
+								readOnly
+								value={paymentLinkUrl}
+								className="flex-1"
+								aria-label={t("ordersPage:paymentLink.title", "לינק לתשלום")}
+							/>
+							<Button
+								variant="secondary"
+								onPress={() => {
+									navigator.clipboard.writeText(paymentLinkUrl);
+									setPaymentLinkCopied(true);
+									setTimeout(() => setPaymentLinkCopied(false), 2000);
+								}}
+							>
+								{paymentLinkCopied
+									? t("ordersPage:paymentLink.copied", "הועתק!")
+									: t("ordersPage:paymentLink.copy", "העתק")}
+							</Button>
+						</div>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="ghost" onPress={() => setPaymentLinkOpen(false)}>
+							{t("common:close", "סגור")}
 						</Button>
-					</div>
-				</ModalBody>
-				<ModalFooter>
-					<Button variant="light" onPress={() => setPaymentLinkOpen(false)}>
-						{t("common:close", "סגור")}
-					</Button>
-				</ModalFooter>
-			</ModalContent>
+					</Modal.Footer>
+				</Modal.Dialog>
+			</Modal.Container>
 		</Modal>
 
 		{/* Mark as Paid modal */}
-		<Modal isOpen={markPaidOpen} onClose={() => setMarkPaidOpen(false)}>
-			<ModalContent>
-				<ModalHeader>{t("ordersPage:actions.markAsPaid", "סמן כשולם")}</ModalHeader>
-				<ModalBody className="space-y-4">
-					<Input
-						label={t("ordersPage:payment.amount", "סכום ששולם (₪)")}
-						type="number"
-						min={0.01}
-						step={0.01}
-						value={paidAmount}
-						onValueChange={setPaidAmount}
-					/>
-					<Select
-						label={t("ordersPage:payment.method", "אמצעי תשלום")}
-						selectedKeys={[paidMethod]}
-						onSelectionChange={(keys) => setPaidMethod([...keys][0] as TPaymentMethod)}
-					>
-						<SelectItem key="check" textValue="צ׳ק">צ׳ק</SelectItem>
-						<SelectItem key="bank_transfer" textValue="העברה בנקאית">העברה בנקאית</SelectItem>
-						<SelectItem key="cash" textValue="מזומן">מזומן</SelectItem>
-						<SelectItem key="credit_card" textValue="כרטיס אשראי">כרטיס אשראי</SelectItem>
-						<SelectItem key="other" textValue="אחר">אחר</SelectItem>
-					</Select>
-					<Input
-						label={t("ordersPage:payment.reference", "אסמכתא / מספר צ׳ק")}
-						value={paidReference}
-						onValueChange={setPaidReference}
-					/>
-					<Textarea
-						label={t("common:note", "הערה")}
-						value={paidNote}
-						onValueChange={setPaidNote}
-					/>
-				</ModalBody>
-				<ModalFooter>
-					<Button variant="light" onPress={() => setMarkPaidOpen(false)}>
-						{t("common:cancel", "ביטול")}
-					</Button>
-					<Button
-						color="success"
-						isLoading={markPaidLoading}
-						isDisabled={!paidAmount}
-						onPress={submitMarkPaid}
-					>
-						{t("ordersPage:payment.confirm", "אשר תשלום")}
-					</Button>
-				</ModalFooter>
-			</ModalContent>
+		<Modal
+			isOpen={markPaidOpen}
+			onOpenChange={(open) => setMarkPaidOpen(open)}
+		>
+			<Modal.Backdrop />
+			<Modal.Container>
+				<Modal.Dialog>
+					<Modal.Header>
+						<Modal.Heading>
+							{t("ordersPage:actions.markAsPaid", "סמן כשולם")}
+						</Modal.Heading>
+					</Modal.Header>
+					<Modal.Body className="space-y-4">
+						<div className="flex flex-col gap-1">
+							<label className="text-sm font-medium text-gray-700">
+								{t("ordersPage:payment.amount", "סכום ששולם (₪)")}
+							</label>
+							<Input
+								type="number"
+								min={0.01}
+								step={0.01}
+								value={paidAmount}
+								onChange={(e) => setPaidAmount(e.target.value)}
+							/>
+						</div>
+						<div className="flex flex-col gap-1">
+							<label className="text-sm font-medium text-gray-700">
+								{t("ordersPage:payment.method", "אמצעי תשלום")}
+							</label>
+							<Select
+								selectedKey={paidMethod}
+								onSelectionChange={(key) => { if (key) setPaidMethod(key as TPaymentMethod); }}
+							>
+								<Select.Trigger>
+									<Select.Value />
+									<Select.Indicator />
+								</Select.Trigger>
+								<Select.Popover>
+									<ListBox>
+										<ListBox.Item id="check" textValue="צ׳ק">צ׳ק</ListBox.Item>
+										<ListBox.Item id="bank_transfer" textValue="העברה בנקאית">העברה בנקאית</ListBox.Item>
+										<ListBox.Item id="cash" textValue="מזומן">מזומן</ListBox.Item>
+										<ListBox.Item id="credit_card" textValue="כרטיס אשראי">כרטיס אשראי</ListBox.Item>
+										<ListBox.Item id="other" textValue="אחר">אחר</ListBox.Item>
+									</ListBox>
+								</Select.Popover>
+							</Select>
+						</div>
+						<div className="flex flex-col gap-1">
+							<label className="text-sm font-medium text-gray-700">
+								{t("ordersPage:payment.reference", "אסמכתא / מספר צ׳ק")}
+							</label>
+							<Input
+								value={paidReference}
+								onChange={(e) => setPaidReference(e.target.value)}
+							/>
+						</div>
+						<div className="flex flex-col gap-1">
+							<label className="text-sm font-medium text-gray-700">
+								{t("common:note", "הערה")}
+							</label>
+							<TextArea
+								value={paidNote}
+								onChange={(e) => setPaidNote(e.target.value)}
+							/>
+						</div>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="ghost" onPress={() => setMarkPaidOpen(false)}>
+							{t("common:cancel", "ביטול")}
+						</Button>
+						<Button
+							variant="secondary"
+							isPending={markPaidLoading}
+							isDisabled={!paidAmount}
+							onPress={submitMarkPaid}
+						>
+							{t("ordersPage:payment.confirm", "אשר תשלום")}
+						</Button>
+					</Modal.Footer>
+				</Modal.Dialog>
+			</Modal.Container>
 		</Modal>
 		</>
 	);
