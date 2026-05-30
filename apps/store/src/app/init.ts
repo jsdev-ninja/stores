@@ -3,6 +3,7 @@ import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import DefaultLogoSrc from "../assets/default_logo.png";
 import { FirebaseAPI, TStore } from "@jsdev_ninja/core";
+import { loadStoreTheme } from "src/infra/theme/loadStoreTheme";
 
 export async function useAppInit() {
 	const actions = useStoreActions();
@@ -62,7 +63,7 @@ export async function useAppInit() {
 		document.getElementsByTagName("head")[0].appendChild(link);
 		document.title = company.name;
 
-		// apply store theme
+		await loadStoreTheme(store.id);
 	}
 
 	!!store && FirebaseApi.auth.setTenantId(store.tenantId);
