@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "src/components/button";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
-import { Input } from "@heroui/react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
+import { Modal, Input, Table } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
@@ -96,109 +94,123 @@ export function AdminOrganizationsPage() {
 			<div className="flex justify-between items-center mb-6">
 				<h1 className="text-2xl font-bold">{t("admin:organizationsPage.title")}</h1>
 				<Button
-					color="primary"
+					variant="primary"
 					onPress={() => setIsCreateModalOpen(true)}
-					startContent={<Icon icon="lucide:plus" />}
 				>
+					<Icon icon="lucide:plus" />
 					{t("admin:organizationsPage.createOrganization")}
 				</Button>
 			</div>
 
 			<Table aria-label="Organizations table">
-				<TableHeader>
-					<TableColumn>{t("admin:organizationsPage.name")}</TableColumn>
-					<TableColumn>חשבונות חיוב</TableColumn>
-					<TableColumn>{t("admin:organizationsPage.discountPercentage")}</TableColumn>
-					<TableColumn>{t("admin:organizationsPage.nameOnInvoice")}</TableColumn>
-					<TableColumn>{t("admin:organizationsPage.actionsLabel")}</TableColumn>
-				</TableHeader>
-				<TableBody>
-					{organizations.map((organization) => (
-						<TableRow key={organization.id}>
-							<TableCell>{organization.name}</TableCell>
-							<TableCell>
-								{organization.billingAccounts?.length > 0
-									? organization.billingAccounts.map((ba) => ba.number).join(", ")
-									: "-"}
-							</TableCell>
-							<TableCell>
-								{organization.discountPercentage
-									? `${organization.discountPercentage}%`
-									: "-"}
-							</TableCell>
-							<TableCell>{organization.nameOnInvoice || "-"}</TableCell>
-							<TableCell>
-								<div className="flex gap-2">
-									<Button
-										size="sm"
-										variant="light"
-										onPress={() => handleViewDetails(organization.id)}
-										startContent={<Icon icon="lucide:eye" />}
-									>
-										{t("admin:organizationsPage.actions.view")}
-									</Button>
-									<Button
-										size="sm"
-										color="danger"
-										variant="light"
-										onPress={() => handleDelete(organization.id)}
-										startContent={<Icon icon="lucide:trash" />}
-									>
-										{t("common:delete")}
-									</Button>
-								</div>
-							</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
+				<Table.ScrollContainer>
+					<Table.Content>
+						<Table.Header>
+							<Table.Column isRowHeader>{t("admin:organizationsPage.name")}</Table.Column>
+							<Table.Column>חשבונות חיוב</Table.Column>
+							<Table.Column>{t("admin:organizationsPage.discountPercentage")}</Table.Column>
+							<Table.Column>{t("admin:organizationsPage.nameOnInvoice")}</Table.Column>
+							<Table.Column>{t("admin:organizationsPage.actionsLabel")}</Table.Column>
+						</Table.Header>
+						<Table.Body items={organizations}>
+							{(organization) => (
+								<Table.Row id={organization.id}>
+									<Table.Cell>{organization.name}</Table.Cell>
+									<Table.Cell>
+										{organization.billingAccounts?.length > 0
+											? organization.billingAccounts.map((ba) => ba.number).join(", ")
+											: "-"}
+									</Table.Cell>
+									<Table.Cell>
+										{organization.discountPercentage
+											? `${organization.discountPercentage}%`
+											: "-"}
+									</Table.Cell>
+									<Table.Cell>{organization.nameOnInvoice || "-"}</Table.Cell>
+									<Table.Cell>
+										<div className="flex gap-2">
+											<Button
+												variant="ghost"
+												onPress={() => handleViewDetails(organization.id)}
+											>
+												<Icon icon="lucide:eye" />
+												{t("admin:organizationsPage.actions.view")}
+											</Button>
+											<Button
+												variant="danger"
+												onPress={() => handleDelete(organization.id)}
+											>
+												<Icon icon="lucide:trash" />
+												{t("common:delete")}
+											</Button>
+										</div>
+									</Table.Cell>
+								</Table.Row>
+							)}
+						</Table.Body>
+					</Table.Content>
+				</Table.ScrollContainer>
 			</Table>
 
 			{/* Create Modal */}
-			<Modal isOpen={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} size="md">
-				<ModalContent>
-					{(onClose) => (
-						<>
-							<ModalHeader className="flex flex-col gap-1">
-								{t("admin:organizationsPage.createOrganization")}
-							</ModalHeader>
-							<ModalBody>
-								<Input
-									label={t("admin:organizationsPage.name")}
-									placeholder={t("admin:organizationsPage.namePlaceholder")}
-									value={formData.name}
-									onValueChange={(value) => handleFormChange("name", value)}
-									isRequired
-								/>
-								<Input
-									label={t("admin:organizationsPage.discountPercentage")}
-									placeholder={t("admin:organizationsPage.discountPercentagePlaceholder")}
-									type="number"
-									value={formData.discountPercentage?.toString() || ""}
-									onValueChange={(value) =>
-										handleFormChange(
-											"discountPercentage",
-											value ? Number(value) : undefined
-										)
-									}
-								/>
-								<Input
-									label={t("admin:organizationsPage.nameOnInvoice")}
-									placeholder={t("admin:organizationsPage.nameOnInvoicePlaceholder")}
-									value={formData.nameOnInvoice || ""}
-									onValueChange={(value) => handleFormChange("nameOnInvoice", value)}
-								/>
-							</ModalBody>
-							<ModalFooter>
-								<Button color="danger" variant="light" onPress={onClose}>
-									{t("common:cancel")}
-								</Button>
-								<Button color="primary" onPress={handleCreate}>
-									{t("common:create")}
-								</Button>
-							</ModalFooter>
-						</>
-					)}
-				</ModalContent>
+			<Modal isOpen={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+				<Modal.Backdrop />
+				<Modal.Container>
+					<Modal.Dialog>
+						<Modal.Header>
+							<Modal.Heading>{t("admin:organizationsPage.createOrganization")}</Modal.Heading>
+						</Modal.Header>
+						<Modal.Body>
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium text-gray-700">
+										{t("admin:organizationsPage.name")}
+									</label>
+									<Input
+										placeholder={t("admin:organizationsPage.namePlaceholder")}
+										value={formData.name}
+										onChange={(e) => handleFormChange("name", e.target.value)}
+										required
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium text-gray-700">
+										{t("admin:organizationsPage.discountPercentage")}
+									</label>
+									<Input
+										placeholder={t("admin:organizationsPage.discountPercentagePlaceholder")}
+										type="number"
+										value={formData.discountPercentage?.toString() || ""}
+										onChange={(e) =>
+											handleFormChange(
+												"discountPercentage",
+												e.target.value ? Number(e.target.value) : undefined
+											)
+										}
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-sm font-medium text-gray-700">
+										{t("admin:organizationsPage.nameOnInvoice")}
+									</label>
+									<Input
+										placeholder={t("admin:organizationsPage.nameOnInvoicePlaceholder")}
+										value={formData.nameOnInvoice || ""}
+										onChange={(e) => handleFormChange("nameOnInvoice", e.target.value)}
+									/>
+								</div>
+							</div>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="ghost" onPress={() => setIsCreateModalOpen(false)}>
+								{t("common:cancel")}
+							</Button>
+							<Button variant="primary" onPress={handleCreate}>
+								{t("common:create")}
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
 			</Modal>
 		</div>
 	);
