@@ -41,7 +41,7 @@ const ProductCategories = () => {
 							key={index}
 							className="bg-background p-6 rounded-2xl text-center shadow-card hover:shadow-card-hover transition-shadow border-0"
 						>
-							<div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center mx-auto mb-4">
+							<div className="w-14 h-14 rounded-2xl bg-promo flex items-center justify-center mx-auto mb-4">
 								<category.icon className="w-7 h-7 text-primary" />
 							</div>
 							<h3 className="text-lg font-semibold text-foreground mb-2">

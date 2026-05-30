@@ -40,7 +40,7 @@ const CompleteSolution = () => {
 								key={index}
 								className="flex items-center gap-4 p-5 bg-section-alt rounded-xl shadow-card hover:shadow-card-hover transition-shadow border border-transparent"
 							>
-								<div className="w-11 h-11 rounded-xl bg-accent flex items-center justify-center shrink-0">
+								<div className="w-11 h-11 rounded-xl bg-promo flex items-center justify-center shrink-0">
 									<feature.icon className="w-5 h-5 text-primary" />
 								</div>
 								<p className="text-foreground text-right font-medium text-[15px]">
