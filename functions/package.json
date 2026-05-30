@@ -4,6 +4,8 @@
 		"lint": "eslint --ext .js,.ts .",
 		"build": "tsc",
 		"build:watch": "tsc --watch",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"serve": "npm run build && firebase emulators:start --only functions",
 		"shell": "npm run build && firebase functions:shell",
 		"start": "npm run shell",
@@ -53,7 +55,8 @@
 		"genkit-cli": "^1.30.1",
 		"parcel": "^2.12.0",
 		"react-email": "^3.0.3",
-		"typescript": "^4.5.4"
+		"typescript": "^4.5.4",
+		"vitest": "^2"
 	},
 	"overrides": {
 		"next": "16.1.1"

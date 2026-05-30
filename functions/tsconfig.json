@@ -25,7 +25,9 @@
 		"src/services/documents/dist/**/*",
 		"**/dev-preview/**/*",
 		"**/dist/dev-preview*",
-		"node_modules"
+		"node_modules",
+		"**/*.test.ts",
+		"**/__tests__/**/*"
 	],
 	"references": [{ "path": "../packages/core/tsconfig.app.json" }],
 	"composite": true

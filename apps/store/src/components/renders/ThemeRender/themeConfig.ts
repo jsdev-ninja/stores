@@ -18,6 +18,7 @@ export type ThemeLoader = () => Promise<unknown>;
  * portals (HeroUI toasts, modals) but never leak into admin routes.
  */
 export const THEME_CONFIG: Partial<Record<TStore["id"], ThemeLoader>> = {
-	// Example (don't add real entries in infra-only PR):
-	//   balasistore_store: () => import("../../../websites/balasistore/theme.css"),
+  // Example (don't add real entries in infra-only PR):
+  //   balasistore_store: () => import("../../../websites/balasistore/theme.css"),
+  tester_store: () => import("../../../websites/tester/thme.css"),
 };

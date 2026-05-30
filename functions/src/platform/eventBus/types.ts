@@ -10,6 +10,7 @@ export const EventSource = z.enum([
 	"customers",
 	"webhooks",
 	"notifications",
+	"ledger",
 ]);
 export type EventSource = z.infer<typeof EventSource>;
 

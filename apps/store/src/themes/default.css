@@ -1,7 +1,6 @@
 html body,
 #root {
   min-height: 100dvh;
-  --brand-primary: 262 83% 58%;
 }
 
 @theme {
