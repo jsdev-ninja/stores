@@ -20,6 +20,7 @@ export const resources = {
 		deliveryDiscount: {
 			title: "תקנה ב {{amount}} ש״ח ותקבל  המשלוח בחינם",
 			description: "חסר לך עוד {{amount}} ש״ח כדי לקבל משלוח בחינם",
+			deliveryPriceInfo: "מחיר משלוח: ₪{{price}}",
 		},
 		deliverySettings: {
 			title: "הגדרות משלוח",
@@ -401,6 +402,14 @@ export const resources = {
 		ordersPage: {
 			title: "הזמנות שלי",
 			createOrder: "צור הזמנה",
+			searchPlaceholder: "חיפוש הזמנה / לקוח...",
+			sync: "סנכרון",
+			export: "ייצוא",
+			tabs: {
+				active: "פעילות",
+				completed: "הסתיימו",
+				all: "הכל",
+			},
 			columns: {
 				orderId: "מזהה הזמנה",
 				customerName: "שם לקוח",
@@ -440,6 +449,7 @@ export const resources = {
 				filters: "סינונים",
 				typeHere: "הקלד כאן",
 				selectStatus: "בחר סטטוס",
+				allStatuses: "כל הסטטוסים",
 				apply: "החל",
 			},
 			pagination: {
@@ -566,6 +576,17 @@ export const resources = {
 				noTransactions: "אין תנועות",
 			},
 			createCategory: "הוסף קטגוריה",
+			createOrder: {
+				title: "צור הזמנה",
+				description: "צור הזמנה חדשה עבור לקוח",
+				noOrganization: "ללא חברה",
+				selectOrganization: "בחר חברה",
+				selectOrganizationPlaceholder: "בחר חברה",
+				discount: "הנחה",
+				selectBillingAccount: "בחר חשבון חיוב",
+				selectBillingAccountPlaceholder: "בחר חשבון חיוב",
+				createOrder: "צור הזמנה",
+			},
 			discountsPage: {
 				title: "ניהול מבצעים",
 				description: "נהל את מבצעים של חנות שלך כאן",

@@ -64,8 +64,9 @@ export async function createProductDoc(product: TProduct): Promise<void> {
  * Delete a product doc by id.
  * Returns false if the doc didn't exist (idempotent — callers decide whether to surface).
  *
- * NOTE: image removal from Firebase Storage is intentionally NOT handled here.
- * The client performs Storage cleanup independently (same as current client-side flow).
+ * NOTE: image removal from Firebase Storage is handled by the `onProductDelete`
+ * trigger (deletes the whole `products/{sku}/` prefix), not here. This function
+ * only removes the Firestore doc.
  */
 export async function deleteProductDoc(
 	companyId: string,
