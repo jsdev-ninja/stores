@@ -63,6 +63,11 @@ export async function useAppInit() {
 		document.getElementsByTagName("head")[0].appendChild(link);
 		document.title = company.name;
 
+		// Apply the store's theme to the WHOLE app (admin + storefront).
+		// Each domain resolves to exactly one store, so this attribute stays
+		// on <html> for the entire session — every route inherits the theme.
+		document.documentElement.setAttribute("data-store-theme", store.id);
+
 		await loadStoreTheme(store.id);
 	}
 

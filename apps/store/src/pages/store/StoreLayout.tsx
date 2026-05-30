@@ -14,7 +14,6 @@ import { useEffect } from "react";
 import { useAppApi } from "src/appApi";
 import { useUser } from "src/domains/user";
 import { useAppSelector, useStoreActions } from "src/infra";
-import { useStore } from "src/domains/Store";
 import FavoritesProductsPage from "./FavoritesProductsPage/FavoritesProductsPage";
 import HomePage from "./HomePage/HomePage";
 import { ordersSlice } from "src/domains/Order";
@@ -32,18 +31,8 @@ export default function StoreLayout() {
 	const user = useUser();
 	const profile = useProfile();
 	const actions = useStoreActions();
-	const store = useStore();
 
 	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
-
-	useEffect(() => {
-		const id = store?.id;
-		if (!id) return;
-		document.documentElement.setAttribute("data-store-theme", id);
-		return () => {
-			document.documentElement.removeAttribute("data-store-theme");
-		};
-	}, [store?.id]);
 
 	useEffect(() => {
 		// load profile organizations

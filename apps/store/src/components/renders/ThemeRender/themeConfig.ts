@@ -13,9 +13,11 @@ export type ThemeLoader = () => Promise<unknown>;
  *
  * A store's CSS file MUST scope its overrides under the
  * `[data-store-theme="<id>"]` selector, NOT `:root`. The attribute is
- * set on `<html>` by `StoreLayout` (only while a storefront route is
- * mounted), so theme variables cascade to every element including React
- * portals (HeroUI toasts, modals) but never leak into admin routes.
+ * set on `<html>` once at app init (`app/init.ts`) and stays for the whole
+ * session, so the theme applies to the ENTIRE app for this store — both
+ * storefront AND admin routes — and cascades to React portals (HeroUI
+ * toasts, modals). Each domain resolves to exactly one store, so there is
+ * no cross-store leakage: a given deployment only ever has one theme.
  */
 export const THEME_CONFIG: Partial<Record<TStore["id"], ThemeLoader>> = {
   // Example (don't add real entries in infra-only PR):
