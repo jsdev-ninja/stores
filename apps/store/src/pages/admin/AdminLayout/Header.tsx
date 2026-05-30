@@ -10,14 +10,17 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-	const { t } = useTranslation(["common"]);
+	const { t, i18n } = useTranslation(["common"]);
 	const [location] = useLocation();
 	const storeName = useAppSelector((state) => state.store.data?.name);
 
-	// Route keys look like "admin.orders"; the last segment matches a sidebar
-	// i18n label ("orders", "products", …). The index route is the dashboard.
-	const pageKey = location.pathname === "admin" ? "dashboard" : location.pathname.split(".").pop() ?? "";
-	const title = t(pageKey as any, { defaultValue: storeName ?? "" });
+	// Page key from the URL path's first segment, kebab→camel
+	// ("/admin/delivery-notes" → "deliveryNotes"), matching the sidebar labels in
+	// `common`. Sub-pages without a label (createOrder, editProduct, …) fall back to
+	// the store name — i18n.exists guards it so we don't log a missingKey per nav.
+	const section = location.pathname.replace(/^\/admin\/?/, "").split("/").filter(Boolean)[0] ?? "";
+	const pageKey = section ? section.replace(/-([a-z])/g, (_, c) => c.toUpperCase()) : "dashboard";
+	const title = i18n.exists(pageKey) ? t(pageKey as any) : storeName ?? "";
 
 	return (
 		<header className="sticky top-0 z-30 flex items-center justify-between gap-4 h-16 px-4 lg:px-8 bg-[var(--surface)] border-b border-[var(--border)]">

@@ -25,8 +25,11 @@ Explain everything in plain, non-technical language. No code dumps.
   - allow make ui ux changed that not break api contract and busniess logic
   - allow add small feature that not effect on core functionality and dont have regression risk
   - allow add feature for admin panel that dont create regression
+  - always create new branch and create pull
+  - if risk low, merge, if big wait for review from Philip
 
 - NOT ALLOWED without developer approval:
+  - NEVER WORK ON MAIN BRANCH ALWAYS WORK ON FEATURE BRANCH
   - NEVER allow any code or database migration
   - NEVER allow schema changes for entities defined in @jsdev-core package
   - NEVER allow code breaking changes

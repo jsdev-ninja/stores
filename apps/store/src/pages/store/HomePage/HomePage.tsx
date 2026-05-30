@@ -9,6 +9,9 @@ const HOME_PAGE_CONFIG: Record<
 	balasistore_store: {
 		homePage: lazy(() => import("../../../websites/balasistore/HomePage")),
 	},
+	tester_store: {
+		homePage: lazy(() => import("../../../websites/tester/HomePage")),
+	},
 } as const;
 
 const DefaultHomePage = lazy(() => import("../../../websites/default/DefaultHomePage"));
