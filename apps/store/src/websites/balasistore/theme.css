@@ -1,0 +1,62 @@
+/* Google Fonts — Heebo (sans) + Frank Ruhl Libre (serif italic accents).
+   MUST stay the first statement in this file (CSS spec: @import before all
+   other rules; Lightning CSS silently drops late imports). */
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+/* =========================================================
+   בלסי סטור — per-store theme (balasistore_store)
+   Source of truth: migration-new-ui/balasi-all/DESIGN.md + admin.css
+   Applies APP-WIDE (admin + storefront) via <html data-store-theme>.
+   ========================================================= */
+[data-store-theme="balasistore_store"] {
+  /* ---- Typography ---------------------------------------------------- */
+  font-family: "Heebo", -apple-system, system-ui, sans-serif;
+  --font-sans: "Heebo", -apple-system, system-ui, sans-serif;
+  --font-serif: "Frank Ruhl Libre", Georgia, serif;
+
+  /* ---- HeroUI v3 — surfaces ----------------------------------------- */
+  --background: #f6f5f1;          /* page bg — warm cream */
+  --foreground: #1a1a17;          /* primary ink */
+  --surface: #ffffff;             /* cards / paper */
+  --surface-foreground: #1a1a17;
+  --overlay: #ffffff;             /* modals, dropdowns, popovers, tooltips */
+  --overlay-foreground: #1a1a17;
+  --muted: #6b675f;               /* secondary text */
+  --default: #eeece4;             /* neutral / ghost button surface */
+  --default-foreground: #1a1a17;
+
+  /* ---- HeroUI v3 — semantic colors ---------------------------------- */
+  /* Primary CTA = green (admin .btn-primary, "order now", "approved"). */
+  --accent: #1b7a3d;
+  --accent-foreground: #ffffff;
+  --success: #1b7a3d;
+  --success-foreground: #ffffff;
+  --warning: #d4a217;
+  --warning-foreground: #1a1a17;
+  --danger: #c43f2e;
+  --danger-foreground: #ffffff;
+
+  /* Focus ring = brand orange (DESIGN §9 a11y: outline 2px solid --pop). */
+  --focus: #e8804a;
+
+  /* ---- HeroUI v3 — structure ---------------------------------------- */
+  --border: #e0dccd;              /* --line */
+  --separator: #eee9d8;           /* --line-2 */
+  --field-background: #ffffff;
+  --field-foreground: #1a1a17;
+  --field-placeholder: #9c978b;   /* --muted-2 */
+  --field-border: #e0dccd;
+  --backdrop: rgba(13, 13, 11, 0.5);
+
+  /* ---- Project storefront tokens (HomePage Tailwind utilities) ------ */
+  --color-hero: #fdfaf3;          /* --paper (public site) */
+  --color-hero-foreground: #1a1a17;
+  --color-hero-muted: #6b675f;
+  --color-section-alt: #eeece4;   /* --bg-2 — alternating sections */
+  --color-promo: #fdebe0;         /* --orange-bg — promo badge/banner bg */
+  --brand-primary: 142 64% 29%;   /* green #1b7a3d as HSL */
+
+  /* ---- Elevation (DESIGN §5 shadow scale --s-2 / --s-3) ------------- */
+  --shadow-card: 0 4px 14px rgba(13, 13, 11, 0.06);
+  --shadow-card-hover: 0 12px 36px rgba(13, 13, 11, 0.08);
+}

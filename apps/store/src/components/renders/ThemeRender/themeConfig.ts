@@ -20,7 +20,6 @@ export type ThemeLoader = () => Promise<unknown>;
  * no cross-store leakage: a given deployment only ever has one theme.
  */
 export const THEME_CONFIG: Partial<Record<TStore["id"], ThemeLoader>> = {
-  // Example (don't add real entries in infra-only PR):
-  //   balasistore_store: () => import("../../../websites/balasistore/theme.css"),
+  balasistore_store: () => import("../../../websites/balasistore/theme.css"),
   tester_store: () => import("../../../websites/tester/thme.css"),
 };
