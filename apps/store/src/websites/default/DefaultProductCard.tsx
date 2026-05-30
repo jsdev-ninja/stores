@@ -7,7 +7,7 @@ function DefaultProductCard({ product }: { product: TProduct }) {
 	return (
 		<Product key={product.id} product={product}>
 			<div
-				className="shadow p-2 md:p-4 w-full max-w-64 h-auto min-h-[280px] md:h-96 flex flex-col bg-gray-50 rounded-xl md:rounded-2xl relative"
+				className="shadow p-2 md:p-4 w-full md:w-64 h-auto min-h-[280px] md:h-96 flex flex-col bg-gray-50 rounded-xl md:rounded-2xl relative"
 				onClick={async () => {
 					navigate({
 						to: "store.product",

@@ -3,7 +3,7 @@ import { useProduct } from "./useProduct";
 import { useAppSelector } from "src/infra/store";
 import { cartSlice } from "src/domains/cart";
 import { useAppApi } from "src/appApi";
-import { ButtonGroup, ButtonProps } from "@heroui/react";
+import { ButtonProps } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { TProduct } from "@jsdev_ninja/core";
 
@@ -56,34 +56,36 @@ type InputButtonProps = Omit<ButtonProps, "value" | "onChange"> & {
 	onChange: (value: number, type: "increase" | "decrease" | "update") => void;
 	product?: TProduct;
 };
+
+/**
+ * Quantity stepper. Plain flex bar (NOT HeroUI ButtonGroup — that injects an
+ * internal `__button_group_child` prop that breaks non-button children). The
+ * `-` / `+` are the same `primary` buttons as the add-to-cart button; the qty
+ * in the middle is a solid (non-faded) segment in the same accent color. The
+ * group's `rounded-md overflow-hidden` gives one clean outer radius.
+ *
+ * `stopPropagation` on the qty/input keeps a tap on it from bubbling to the
+ * product card's navigate-to-product click.
+ */
 export function InputButton(props: InputButtonProps) {
 	const { onChange, value, size = "md", product, ...rest } = props;
 
-	// Desktop: original heights only. Small screen: touch-friendly mins via max-md:
-	const sizeToHeight = {
-		sm: "h-8",
-		md: "h-10",
-		lg: "h-12",
-	};
-	const heightClass = sizeToHeight[size] || sizeToHeight.md;
-
 	const isKgProduct = product?.priceType?.type === "kg";
 
-	// Desktop unchanged. Small screen only: touch-friendly min height
-	const groupClass =
-		"mx-auto w-full rounded-lg overflow-hidden max-md:min-h-11 max-md:touch-manipulation";
-	const btnClass = "rounded-none rounded-s-lg shrink-0 max-md:min-w-11 max-md:min-h-11";
-	const btnClassEnd = "rounded-none rounded-e-lg shrink-0 max-md:min-w-11 max-md:min-h-11";
+	const groupClass = "flex w-full items-stretch rounded-md overflow-hidden max-md:touch-manipulation";
+	const edgeBtn = "rounded-none shrink-0 max-md:min-w-11 max-md:min-h-11";
+	const valueClass =
+		"flex-1 min-w-8 grid place-items-center tabular-nums text-sm font-semibold select-none";
+	const valueStyle = { background: "var(--accent)", color: "var(--accent-foreground)" } as const;
 
 	if (isKgProduct) {
 		return (
-			<ButtonGroup size={size} className={groupClass}>
+			<div className={groupClass}>
 				<Button
-					className={btnClass}
-					onPress={() => {
-						const newAmount = Math.max(0, value - 0.5);
-						onChange(newAmount, "update");
-					}}
+					variant="primary"
+					size={size}
+					className={edgeBtn}
+					onPress={() => onChange(Math.max(0, value - 0.5), "update")}
 					isIconOnly
 					{...rest}
 				>
@@ -99,48 +101,48 @@ export function InputButton(props: InputButtonProps) {
 						const newAmount = parseFloat(e.target.value) || 0;
 						onChange(newAmount, "update");
 					}}
-					className={`flex-1 text-center border-none outline-none bg-primary text-primary-foreground m-0 px-1 align-middle min-w-[60px] max-md:min-w-0 max-md:w-14 max-md:text-sm ${heightClass}`}
+					className="flex-1 min-w-[60px] max-md:min-w-0 max-md:w-14 max-md:text-sm border-none outline-none m-0 px-1 text-center tabular-nums"
+					style={valueStyle}
 				/>
 				<Button
-					className={btnClassEnd}
-					onPress={() => {
-						const newAmount = value + 0.5;
-						onChange(newAmount, "update");
-					}}
+					variant="primary"
+					size={size}
+					className={edgeBtn}
+					onPress={() => onChange(value + 0.5, "update")}
 					isIconOnly
 					{...rest}
 				>
 					+
 				</Button>
-			</ButtonGroup>
+			</div>
 		);
 	}
 
 	return (
-		<ButtonGroup size={size} className={groupClass}>
+		<div className={groupClass}>
 			<Button
-				className={btnClass}
+				variant="primary"
+				size={size}
+				className={edgeBtn}
 				onPress={() => onChange(value - 1, "decrease")}
 				isIconOnly
 				{...rest}
 			>
 				-
 			</Button>
-			<Button
-				fullWidth
-				isDisabled
-				className={`min-w-8 flex-1 tabular-nums max-md:text-sm ${heightClass}`}
-			>
+			<div className={valueClass} style={valueStyle} onClick={(e) => e.stopPropagation()}>
 				{value}
-			</Button>
+			</div>
 			<Button
-				className={btnClassEnd}
+				variant="primary"
+				size={size}
+				className={edgeBtn}
 				onPress={() => onChange(value + 1, "increase")}
 				isIconOnly
 				{...rest}
 			>
 				+
 			</Button>
-		</ButtonGroup>
+		</div>
 	);
 }

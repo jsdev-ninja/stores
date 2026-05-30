@@ -23,3 +23,13 @@ html body,
 @utility shadow-card-hover {
   box-shadow: var(--shadow-card-hover);
 }
+
+/* HeroUI v3 Button defaults to `rounded-3xl` (~24px), which reads as a pill and
+   breaks connected button groups (cart stepper). The design uses a 6px button
+   radius. Override globally in the `components` layer so per-corner radius
+   utilities (e.g. the ButtonGroup stepper's rounded-s/e) still take precedence. */
+@layer components {
+  .button {
+    border-radius: 6px;
+  }
+}

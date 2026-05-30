@@ -39,6 +39,15 @@ Explain everything in plain, non-technical language. No code dumps.
 
 - Production domain: **storebrix.com**
 
+## Architecture
+
+### /Users/philbro/workspace/@jsdev-store/apps/store/src/websites
+
+store spefics design by store id, used when design store specific pages/components
+
+/Users/philbro/workspace/@jsdev-store/apps/store/src/components/renders
+how we render store spefics components
+
 ## Dev / Preview Rules
 
 - Only use test stores for dev and preview

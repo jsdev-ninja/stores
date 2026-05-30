@@ -1,93 +1,34 @@
-import { getCartCost } from "@jsdev_ninja/core";
-import { useTranslation } from "react-i18next";
-import { Button } from "src/components/button";
-import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
-import { useCart } from "src/domains/cart";
-import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { ComponentType, LazyExoticComponent, Suspense, lazy } from "react";
+import type { TStore } from "@jsdev_ninja/core";
 import { useStore } from "src/domains/Store";
-import { navigate } from "src/navigation";
-import { formatter } from "src/utils/formatter";
-import { Cart } from "src/widgets/Cart/Cart";
-import { CategoryMenu } from "src/widgets/CategoryMenu/CategoryMenu";
-import { ProductsWidget } from "src/widgets/Products";
 
-// todo why render twice when setSTATE
+/**
+ * Per-store catalog registry. A store listed here renders its own catalog
+ * component (lazy-loaded from `src/websites/<store>/`); every other store falls
+ * back to `DefaultCatalogPage`. Mirrors HOME_PAGE_CONFIG / RENDER_CONFIG —
+ * store-specific UI lives under `src/websites`, never as an inline branch here.
+ */
+const CATALOG_PAGE_CONFIG: Record<
+	TStore["id"],
+	{ catalogPage?: LazyExoticComponent<ComponentType<object>> }
+> = {
+	tester_store: {
+		catalogPage: lazy(() => import("src/websites/tester/CatalogPage")),
+	},
+} as const;
+
+const DefaultCatalogPage = lazy(() => import("src/websites/default/DefaultCatalogPage"));
+
 export function CatalogPage() {
-  const { t } = useTranslation(["common"]);
+	const store = useStore();
 
-  const store = useStore();
-  const cart = useCart();
-  const discounts = useDiscounts();
+	if (!store) return null;
 
-  if (!store) return null;
+	const Component = CATALOG_PAGE_CONFIG[store.id]?.catalogPage;
 
-  const cartCost = getCartCost({
-    cart: cart?.items ?? [],
-    discounts,
-    deliveryPrice: store.deliveryPrice,
-    freeDeliveryPrice: store.freeDeliveryPrice,
-    isVatIncludedInPrice: store.isVatIncludedInPrice,
-  });
-
-  return (
-    <div className="flex w-full h-full">
-      <div className="hidden md:block shrink-0 max-w-80 grow overflow-auto p-4 sticky top-0 h-[calc(100vh-64px)]">
-        <CategoryMenu />
-      </div>
-
-      <div className="grow p-3 md:p-6 flex flex-col justify-start items-start gap-4 min-w-0">
-        <div className="mx-auto w-full">
-          <ProductsWidget.SearchBox />
-        </div>
-        {/* Small screen only: 2-col grid. Desktop: original flex wrap, no change */}
-        <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:gap-4 md:justify-center w-full grow content-start">
-          <ProductsWidget.Products emptyStateAction={() => {}}>
-            {(products) => {
-              return products.map((product) => {
-                return (
-                  <div
-                    key={product.id}
-                    className="w-full min-w-0 flex justify-center md:w-auto"
-                  >
-                    <ProductRender product={product} />
-                  </div>
-                );
-              });
-            }}
-          </ProductsWidget.Products>
-        </div>
-      </div>
-
-      {/* Desktop cart sidebar */}
-      <div className="hidden md:flex min-w-80 flex-col sticky top-0 h-[calc(100vh-64px)]">
-        <div className="grow h-full">
-          <Cart />
-        </div>
-        <div className="p-4 shrink-0 mt-auto border-t">
-          <Button
-            isDisabled={!cartCost?.items?.length}
-            fullWidth
-            onPress={() => navigate({ to: "store.cart" })}
-            variant="primary"
-          >
-            {t("common:goToCart")} {formatter.price(cartCost.cost)}
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile: sticky cart bar so user can go to cart */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-background border-t shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
-        <Button
-          isDisabled={!cartCost?.items?.length}
-          fullWidth
-          size="lg"
-          onPress={() => navigate({ to: "store.cart" })}
-        >
-          {t("common:goToCart")} {formatter.price(cartCost.cost)}
-        </Button>
-      </div>
-      {/* Spacer so content is not hidden behind fixed cart bar on mobile */}
-      <div className="md:hidden h-16 shrink-0" aria-hidden />
-    </div>
-  );
+	return (
+		<Suspense fallback={null}>
+			{Component ? <Component /> : <DefaultCatalogPage />}
+		</Suspense>
+	);
 }

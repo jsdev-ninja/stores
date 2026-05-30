@@ -27,7 +27,7 @@ function BalasiStoreProduct({ product }: { product: TProduct }) {
 				<div className="absolute top-0 end-0 z-10">
 					<Product.ProductAddToFavorite />
 				</div>
-				<div className="size-28 md:size-60 mx-auto shrink-0">
+				<div className="w-full aspect-square shrink-0 overflow-hidden">
 					<Product.Image prefix="productCard" />
 				</div>
 				<div className="flex flex-col gap-1 mt-2 md:mt-4 min-w-0">
