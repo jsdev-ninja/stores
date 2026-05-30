@@ -106,31 +106,6 @@ export function createAppApi(context: TContext) {
 	}
 
 	return {
-		payments: {
-			trackPaymentCompleted: async (order: TOrder) => {
-				try {
-					logger.write({
-						severity: "INFO",
-						message: "track payment completed",
-						orderId: order.id,
-						storeId: storeId,
-						companyId: companyId,
-						order,
-					});
-					// save revenue
-				} catch (error: any) {
-					logger.write({
-						severity: "ERROR",
-						message: "error tracking payment completed",
-						orderId: order.id,
-						storeId: storeId,
-						companyId: companyId,
-						order,
-						error,
-					});
-				}
-			},
-		},
 		documents: {
 			createDeliveryNote: async (
 				order: TOrder,

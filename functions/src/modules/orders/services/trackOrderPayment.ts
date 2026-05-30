@@ -1,6 +1,5 @@
 import { logger } from "firebase-functions/v2";
 import { TOrder } from "@jsdev_ninja/core";
-import { createAppApi } from "../../../appApi";
 import { organizationActionsService } from "../../../services/organizationActionsService";
 
 /**
@@ -17,7 +16,6 @@ export async function trackOrderPayment(params: {
 	storeId: string;
 }) {
 	const { order, orderId, companyId, storeId } = params;
-	const appApi = createAppApi({ storeId, companyId });
 
 	logger.info("trackOrderPayment: tracking payment completion", {
 		orderId,
@@ -25,8 +23,6 @@ export async function trackOrderPayment(params: {
 		storeId,
 		organizationId: order.organizationId,
 	});
-
-	await appApi.payments.trackPaymentCompleted(order);
 
 	if (order.organizationId) {
 		await organizationActionsService.onPaymentCompleted(order).catch((err) => {

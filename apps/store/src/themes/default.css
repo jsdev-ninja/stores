@@ -1,6 +1,11 @@
 html body,
 #root {
   min-height: 100dvh;
+
+  /* Generic brand palette — global fallbacks, overridable per store theme.
+     Consumed via var(--brand-secondary) / var(--info) (e.g. admin KPI icons). */
+  --brand-secondary: #e8804a; /* secondary brand color */
+  --info: #1e5ba8; /* informational accent */
 }
 
 @theme {
