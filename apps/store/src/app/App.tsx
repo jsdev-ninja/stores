@@ -11,7 +11,7 @@ import { useStore } from "src/domains/Store";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { ModalProvider } from "src/widgets";
 import { useProfile } from "src/domains/profile";
-import { HeroUIProvider, ToastProvider } from "@heroui/react";
+import { ToastProvider } from "@heroui/react";
 import { useAppApi } from "src/appApi";
 import { SentryApi } from "src/lib/sentry";
 import MaintenancePage from "src/pages/MaintenancePage/MaintenancePage";
@@ -194,8 +194,8 @@ function App() {
   }
 
   return (
-    <HeroUIProvider className="min-h-screen min-w-screen">
-      <ToastProvider placement="top-center" />
+    <div className="min-h-screen min-w-screen">
+      <ToastProvider />
       {/* todo fix fallback */}
       <Suspense fallback="loading">
         <ModalProvider />
@@ -220,7 +220,7 @@ function App() {
           <PayRedirectPage />
         </Route>
       </Suspense>
-    </HeroUIProvider>
+    </div>
   );
 }
 

@@ -82,7 +82,7 @@ function AdminSettingsPage() {
 
 	async function updateDeliverySettings() {
 		if (!store) return;
-		
+
 		setIsLoading(true);
 		try {
 			const settings: {
@@ -145,7 +145,7 @@ function AdminSettingsPage() {
 			}
 
 			const result = await appApi.admin.updateStoreSettings(settings);
-			
+
 			if (result?.success) {
 				// Show success message or update local state
 			}
@@ -170,7 +170,7 @@ function AdminSettingsPage() {
 	return (
 		<div className="max-w-4xl mx-auto p-6 space-y-8">
 			<h1 className="text-3xl font-bold text-center mb-8">{t("common:adminSettings")}</h1>
-			
+
 			{/* Logo Upload Section */}
 			<div className="bg-white rounded-lg shadow p-6">
 				<h2 className="text-xl font-semibold mb-4">Upload Logo</h2>
@@ -192,16 +192,16 @@ function AdminSettingsPage() {
 				<h2 className="text-xl font-semibold mb-4">{t("common:vat")}</h2>
 				<Checkbox
 					isSelected={isVatIncludedInPrice}
-					onValueChange={setIsVatIncludedInPrice}
+					onChange={setIsVatIncludedInPrice}
 				>
-					מחירים כוללים מע"מ
+					<Checkbox.Content>מחירים כוללים מע&quot;מ</Checkbox.Content>
 				</Checkbox>
 			</div>
 
 			{/* Delivery Settings Section */}
 			<div className="bg-white rounded-lg shadow p-6">
 				<h2 className="text-xl font-semibold mb-4">{t("deliverySettings:title")}</h2>
-				
+
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					{/* Delivery Price */}
 					<div className="space-y-2">
@@ -219,8 +219,7 @@ function AdminSettingsPage() {
 								className="flex-1"
 							/>
 							<HeroButton
-								color="danger"
-								variant="light"
+								variant="danger"
 								onPress={removeDeliveryPrice}
 								isDisabled={!deliveryPrice}
 							>
@@ -270,9 +269,9 @@ function AdminSettingsPage() {
 				</div>
 
 				<div className="mt-6">
-					<Button 
+					<Button
 						onPress={updateDeliverySettings}
-						isLoading={isLoading}
+						isPending={isLoading}
 						className="w-full md:w-auto"
 					>
 						{t("common:save")}
@@ -283,63 +282,76 @@ function AdminSettingsPage() {
 			{/* Address Section */}
 			<div className="bg-white rounded-lg shadow p-6">
 				<h2 className="text-xl font-semibold mb-4">{t("common:address")}</h2>
-				
+
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<Input
-						label={t("common:country")}
-						value={address.country || ""}
-						onChange={(e) => handleAddressChange("country", e.target.value)}
-						placeholder={t("common:country")}
-					/>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">{t("common:country")}</label>
+						<Input
+							value={address.country || ""}
+							onChange={(e) => handleAddressChange("country", e.target.value)}
+							placeholder={t("common:country")}
+						/>
+					</div>
 
-					<Input
-						label={t("common:city")}
-						value={address.city || ""}
-						onChange={(e) => handleAddressChange("city", e.target.value)}
-						placeholder={t("common:city")}
-					/>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">{t("common:city")}</label>
+						<Input
+							value={address.city || ""}
+							onChange={(e) => handleAddressChange("city", e.target.value)}
+							placeholder={t("common:city")}
+						/>
+					</div>
 
-					<Input
-						label={t("common:street")}
-						value={address.street || ""}
-						onChange={(e) => handleAddressChange("street", e.target.value)}
-						placeholder={t("common:street")}
-						className="md:col-span-2"
-					/>
+					<div className="flex flex-col gap-1 md:col-span-2">
+						<label className="text-sm font-medium text-gray-700">{t("common:street")}</label>
+						<Input
+							value={address.street || ""}
+							onChange={(e) => handleAddressChange("street", e.target.value)}
+							placeholder={t("common:street")}
+						/>
+					</div>
 
-					<Input
-						label={t("common:streetNumber")}
-						value={address.streetNumber || ""}
-						onChange={(e) => handleAddressChange("streetNumber", e.target.value)}
-						placeholder={t("common:streetNumber")}
-					/>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">{t("common:streetNumber")}</label>
+						<Input
+							value={address.streetNumber || ""}
+							onChange={(e) => handleAddressChange("streetNumber", e.target.value)}
+							placeholder={t("common:streetNumber")}
+						/>
+					</div>
 
-					<Input
-						label={t("common:apartmentEnterNumber")}
-						value={address.apartmentEnterNumber || ""}
-						onChange={(e) => handleAddressChange("apartmentEnterNumber", e.target.value)}
-						placeholder={t("common:apartmentEnterNumber")}
-					/>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">{t("common:apartmentEnterNumber")}</label>
+						<Input
+							value={address.apartmentEnterNumber || ""}
+							onChange={(e) => handleAddressChange("apartmentEnterNumber", e.target.value)}
+							placeholder={t("common:apartmentEnterNumber")}
+						/>
+					</div>
 
-					<Input
-						label={t("common:floor")}
-						value={address.floor || ""}
-						onChange={(e) => handleAddressChange("floor", e.target.value)}
-						placeholder={t("common:floor")}
-					/>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">{t("common:floor")}</label>
+						<Input
+							value={address.floor || ""}
+							onChange={(e) => handleAddressChange("floor", e.target.value)}
+							placeholder={t("common:floor")}
+						/>
+					</div>
 
-					<Input
-						label={t("common:apartmentNumber")}
-						value={address.apartmentNumber || ""}
-						onChange={(e) => handleAddressChange("apartmentNumber", e.target.value)}
-						placeholder={t("common:apartmentNumber")}
-					/>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">{t("common:apartmentNumber")}</label>
+						<Input
+							value={address.apartmentNumber || ""}
+							onChange={(e) => handleAddressChange("apartmentNumber", e.target.value)}
+							placeholder={t("common:apartmentNumber")}
+						/>
+					</div>
 				</div>
 
 				<div className="mt-6">
-					<Button 
+					<Button
 						onPress={updateDeliverySettings}
-						isLoading={isLoading}
+						isPending={isLoading}
 						className="w-full md:w-auto"
 					>
 						{t("common:save")}
@@ -349,7 +361,7 @@ function AdminSettingsPage() {
 
 			{/* Chatbot Context Section */}
 			<div className="bg-white rounded-lg shadow p-6">
-				<h2 className="text-xl font-semibold mb-1">הגדרות צ'אטבוט</h2>
+				<h2 className="text-xl font-semibold mb-1">הגדרות צ&apos;אטבוט</h2>
 				<p className="text-sm text-gray-500 mb-4">
 					הוסף מידע על החנות שהבוט ישתמש בו כדי לענות על שאלות לקוחות — שעות פעילות, מדיניות החזרות, אזורי משלוח וכדומה.
 				</p>
@@ -367,7 +379,7 @@ function AdminSettingsPage() {
 					</span>
 					<Button
 						onPress={saveChatbotContext}
-						isLoading={chatbotContextLoading}
+						isPending={chatbotContextLoading}
 						isDisabled={
 							chatbotContext.length > CHATBOT_CONTEXT_MAX ||
 							chatbotContext === savedChatbotContext
@@ -380,7 +392,7 @@ function AdminSettingsPage() {
 
 		{/* Action Buttons */}
 			<div className="flex gap-4 justify-center">
-							<Button variant="bordered" onPress={() => window.history.back()}>
+						<Button variant="outline" onPress={() => window.history.back()}>
 				{t("common:cancel")}
 			</Button>
 			</div>

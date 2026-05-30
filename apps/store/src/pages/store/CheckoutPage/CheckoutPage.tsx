@@ -291,7 +291,7 @@ function CheckoutPage() {
 					</div>
 					<PaymentSummary>
 						<div className="space-y-3">
-							<Button fullWidth type="submit" isLoading={isSubmitting} isDisabled={isSubmitting}>
+							<Button fullWidth type="submit" isPending={isSubmitting} isDisabled={isSubmitting}>
 								{t("checkout:order")}
 							</Button>
 						</div>

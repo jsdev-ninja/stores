@@ -1,16 +1,5 @@
 import { useState } from "react";
-import {
-	Button,
-	Dropdown,
-	DropdownItem,
-	DropdownMenu,
-	DropdownTrigger,
-	Modal,
-	ModalBody,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-} from "@heroui/react";
+import { Button, Dropdown, Modal } from "@heroui/react";
 import { FirebaseAPI, TOrganization } from "@jsdev_ninja/core";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
@@ -68,44 +57,54 @@ export function OrgPicker() {
 	return (
 		<>
 			<Dropdown>
-				<DropdownTrigger>
-					<Button variant="flat" size="sm">
+				<Dropdown.Trigger>
+					<Button variant="ghost" size="sm">
 						{activeOrganization?.name ?? "בחר ארגון"}
 					</Button>
-				</DropdownTrigger>
-				<DropdownMenu
-					aria-label="בחירת ארגון"
-					selectedKeys={activeOrganization ? new Set([activeOrganization.id]) : new Set()}
-					selectionMode="single"
-					onAction={(key) => handleSelect(key as string)}
-					items={organizations}
-				>
-					{(org) => <DropdownItem key={org.id}>{org.name}</DropdownItem>}
-				</DropdownMenu>
+				</Dropdown.Trigger>
+				<Dropdown.Popover>
+					<Dropdown.Menu
+						aria-label="בחירת ארגון"
+						selectedKeys={activeOrganization ? new Set([activeOrganization.id]) : new Set()}
+						selectionMode="single"
+						onAction={(key) => handleSelect(key as string)}
+						items={organizations}
+					>
+						{(org) => (
+							<Dropdown.Item id={org.id} textValue={org.name}>
+								{org.name}
+							</Dropdown.Item>
+						)}
+					</Dropdown.Menu>
+				</Dropdown.Popover>
 			</Dropdown>
 
-			<Modal isOpen={isConfirmOpen} onOpenChange={(open) => {
-				setIsConfirmOpen(open);
-				if (!open) setPendingOrg(null);
-			}}>
-				<ModalContent>
-					{() => (
-						<>
-							<ModalHeader>החלפת ארגון</ModalHeader>
-							<ModalBody>
-								<p>החלפת ארגון תרוקן את העגלה. להמשיך?</p>
-							</ModalBody>
-							<ModalFooter>
-								<Button variant="light" onPress={handleCancel}>
-									ביטול
-								</Button>
-								<Button color="primary" onPress={handleConfirm}>
-									אישור
-								</Button>
-							</ModalFooter>
-						</>
-					)}
-				</ModalContent>
+			<Modal
+				isOpen={isConfirmOpen}
+				onOpenChange={(open) => {
+					setIsConfirmOpen(open);
+					if (!open) setPendingOrg(null);
+				}}
+			>
+				<Modal.Backdrop />
+				<Modal.Container>
+					<Modal.Dialog>
+						<Modal.Header>
+							<Modal.Heading>החלפת ארגון</Modal.Heading>
+						</Modal.Header>
+						<Modal.Body>
+							<p>החלפת ארגון תרוקן את העגלה. להמשיך?</p>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="ghost" onPress={handleCancel}>
+								ביטול
+							</Button>
+							<Button variant="primary" onPress={handleConfirm}>
+								אישור
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
 			</Modal>
 		</>
 	);

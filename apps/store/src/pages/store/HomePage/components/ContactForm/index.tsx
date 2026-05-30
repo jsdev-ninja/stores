@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Clock, Shield, Send } from "lucide-react";
-import { Button, Input, Textarea, addToast } from "@heroui/react";
+import { Button, Input, TextArea, toast } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 
@@ -39,23 +39,17 @@ const ContactForm = ({
             });
             if (result?.success) {
                 setFormData({ name: "", email: "", company: "", phone: "", message: "" });
-                addToast({
-                    title: t("contactForm:submitSuccessTitle"),
+                toast.success(t("contactForm:submitSuccessTitle"), {
                     description: t("contactForm:submitSuccessDescription"),
-                    color: "success",
                 });
             } else {
-                addToast({
-                    title: t("contactForm:submitFailedTitle"),
+                toast.danger(t("contactForm:submitFailedTitle"), {
                     description: t("contactForm:submitFailedDescription"),
-                    color: "danger",
                 });
             }
         } catch {
-            addToast({
-                title: t("contactForm:submitFailedTitle"),
+            toast.danger(t("contactForm:submitFailedTitle"), {
                 description: t("contactForm:submitFailedDescription"),
-                color: "danger",
             });
         } finally {
             setIsSubmitting(false);
@@ -130,7 +124,7 @@ const ContactForm = ({
                         </div>
 
                         <div>
-                            <Textarea
+                            <TextArea
                                 name="message"
                                 placeholder="ספרו לנו על צרכי המשרד שלכם (אופציונלי)"
                                 value={formData.message}
@@ -142,9 +136,8 @@ const ContactForm = ({
 
 						<Button
 							type="submit"
-							color="primary"
-							size="lg"
-							disabled={isSubmitting}
+							variant="primary"
+							isDisabled={isSubmitting}
 							className="w-full text-base py-6 font-semibold shadow-md hover:shadow-lg transition-shadow"
 						>
 							<Send className="w-4 h-4 ml-2 shrink-0" />

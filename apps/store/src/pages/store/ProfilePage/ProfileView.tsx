@@ -30,13 +30,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile }) => {
 						label={t("common:clientType")}
 						value={
 							<Chip
-								color={profile.clientType === "company" ? "primary" : "default"}
-								variant="flat"
+								color={profile.clientType === "company" ? "accent" : "default"}
+								variant="soft"
 								size="sm"
 							>
-								{profile.clientType === "company"
-									? t("common:company")
-									: t("common:individual")}
+								<Chip.Label>
+									{profile.clientType === "company"
+										? t("common:company")
+										: t("common:individual")}
+								</Chip.Label>
 							</Chip>
 						}
 					/>
@@ -47,13 +49,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile }) => {
 						label={t("common:paymentType")}
 						value={
 							<Chip
-								color={profile.paymentType === "external" ? "secondary" : "success"}
-								variant="flat"
+								color={profile.paymentType === "external" ? "accent" : "success"}
+								variant="soft"
 								size="sm"
 							>
-								{profile.paymentType === "external"
-									? t("common:paymentTypes.external")
-									: t("common:paymentTypes.j5")}
+								<Chip.Label>
+									{profile.paymentType === "external"
+										? t("common:paymentTypes.external")
+										: t("common:paymentTypes.j5")}
+								</Chip.Label>
 							</Chip>
 						}
 					/>

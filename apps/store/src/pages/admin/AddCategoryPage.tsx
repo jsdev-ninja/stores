@@ -47,7 +47,7 @@ export function AddCategoryPage() {
 					</div>
 
 					<div className="my-4">
-						<Form.Submit isLoading={appApi.loading["admin.category.create"]}>
+						<Form.Submit isPending={appApi.loading["admin.category.create"]}>
 							{t("admin:createCategory")}
 						</Form.Submit>
 					</div>

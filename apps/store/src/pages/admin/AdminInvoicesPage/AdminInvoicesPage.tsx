@@ -106,11 +106,8 @@ export default function AdminInvoicesPage() {
 						<h1 className="text-2xl font-bold text-gray-900">{t("invoices")}</h1>
 						<p className="text-gray-600 mt-2">ניהול חשבוניות ותשלומים</p>
 					</div>
-					<Button
-						color="primary"
-						onPress={handleCreateInvoice}
-						startContent={<Icon icon="lucide:plus" />}
-					>
+					<Button variant="primary" onPress={handleCreateInvoice}>
+						<Icon icon="lucide:plus" />
 						{t("createInvoice")}
 					</Button>
 				</div>
@@ -133,12 +130,7 @@ export default function AdminInvoicesPage() {
 									<span className="text-sm text-gray-600">
 										נבחרו {selectedOrders.size} הזמנות
 									</span>
-									<Button
-										size="sm"
-										color="danger"
-										variant="light"
-										onPress={() => setSelectedOrders(new Set())}
-									>
+									<Button variant="ghost" onPress={() => setSelectedOrders(new Set())}>
 										בטל בחירה
 									</Button>
 								</div>
@@ -153,9 +145,13 @@ export default function AdminInvoicesPage() {
 										<Checkbox
 											isSelected={isAllSelected}
 											isIndeterminate={isIndeterminate}
-											onValueChange={handleSelectAll}
+											onChange={handleSelectAll}
 											aria-label="בחר הכל"
-										/>
+										>
+											<Checkbox.Content>
+												<span className="sr-only">בחר הכל</span>
+											</Checkbox.Content>
+										</Checkbox>
 									</th>
 									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
 										מספר חשבונית
@@ -197,11 +193,14 @@ export default function AdminInvoicesPage() {
 										<td className="px-6 py-4 text-sm font-medium text-gray-900 w-12">
 											<Checkbox
 												isSelected={selectedOrders.has(order.id)}
-												onValueChange={(checked) =>
+												onChange={(checked) =>
 													handleSelectOrder(order.id, checked)
 												}
-												aria-label={`בחר הזמנה ${order.id.slice(-8)}`}
-											/>
+											>
+												<Checkbox.Content>
+													<span className="sr-only">{`בחר הזמנה ${order.id.slice(-8)}`}</span>
+												</Checkbox.Content>
+											</Checkbox>
 										</td>
 										{/* Invoice Number */}
 										<td className="px-6 py-4 text-sm text-gray-500">
@@ -263,28 +262,17 @@ export default function AdminInvoicesPage() {
 									<span className="text-sm text-gray-600">
 										{selectedOrders.size} הזמנות נבחרו
 									</span>
-									<Button
-										size="sm"
-										variant="light"
-										onPress={() => setSelectedOrders(new Set())}
-									>
+									<Button variant="ghost" onPress={() => setSelectedOrders(new Set())}>
 										בטל בחירה
 									</Button>
 								</div>
 								<div className="flex items-center gap-2">
-									<Button
-										size="sm"
-										color="primary"
-										onPress={handleOpenInvoiceDetailsModal}
-										startContent={<Icon icon="lucide:file-text" />}
-									>
+									<Button variant="primary" onPress={handleOpenInvoiceDetailsModal}>
+										<Icon icon="lucide:file-text" />
 										צור חשבונית
 									</Button>
-									<Button
-										size="sm"
-										color="secondary"
-										startContent={<Icon icon="lucide:download" />}
-									>
+									<Button variant="secondary">
+										<Icon icon="lucide:download" />
 										ייצא ל-Excel
 									</Button>
 								</div>

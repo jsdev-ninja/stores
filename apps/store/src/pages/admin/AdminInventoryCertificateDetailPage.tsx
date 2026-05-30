@@ -1,14 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	Table,
-	TableHeader,
-	TableColumn,
-	TableBody,
-	TableRow,
-	TableCell,
-	Button,
-} from "@heroui/react";
+import { Table, Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppApi } from "src/appApi";
 import { TSupplierInvoice } from "@jsdev_ninja/core";
@@ -124,7 +116,8 @@ export function AdminInventoryCertificateDetailPage() {
 				<div className="flex items-center justify-center h-64">
 					<div className="text-center">
 						<div className="text-lg text-red-500 mb-4 text-start">{error}</div>
-						<Button onPress={handleBack} startContent={<Icon icon="lucide:arrow-right" />}>
+						<Button onPress={handleBack}>
+							<Icon icon="lucide:arrow-right" />
 							{t("common:back")}
 						</Button>
 					</div>
@@ -141,7 +134,8 @@ export function AdminInventoryCertificateDetailPage() {
 						<div className="text-lg mb-4 text-start">
 							{t("common:inventoryCertificatePage.noInvoices" as any) || "Invoice not found"}
 						</div>
-						<Button onPress={handleBack} startContent={<Icon icon="lucide:arrow-right" />}>
+						<Button onPress={handleBack}>
+							<Icon icon="lucide:arrow-right" />
 							{t("common:back")}
 						</Button>
 					</div>
@@ -157,11 +151,8 @@ export function AdminInventoryCertificateDetailPage() {
 	return (
 		<div className="p-6">
 			<div className="flex items-center gap-4 mb-6">
-				<Button
-					variant="light"
-					onPress={handleBack}
-					startContent={<Icon icon="lucide:arrow-right" />}
-				>
+				<Button variant="ghost" onPress={handleBack}>
+					<Icon icon="lucide:arrow-right" />
 					{t("common:back")}
 				</Button>
 				<h1 className="text-2xl font-bold text-gray-900">
@@ -205,70 +196,68 @@ export function AdminInventoryCertificateDetailPage() {
 				</h2>
 
 				<div className="overflow-x-auto">
-					<Table
-						aria-label="Inventory certificate items table"
-						classNames={{
-							wrapper: "shadow-none border border-gray-300",
-							thead: "[&>tr]:border-b [&>tr]:border-gray-300",
-							tbody: "[&>tr]:border-b [&>tr]:border-gray-300 [&>tr:last-child]:border-b",
-							th: "text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-2 border-r border-gray-300 [&:last-child]:border-r-0",
-							td: "text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 [&:last-child]:border-r-0",
-						}}
-						removeWrapper
-					>
-						<TableHeader columns={columns}>
-							{(column) => (
-								<TableColumn
-									key={column.uid}
-									align={column.uid === "totalPurchasePrice" ? "end" : "start"}
-									width={column.uid === "rowNumber" ? 50 : undefined}
+					<Table aria-label="Inventory certificate items table" className="shadow-none border border-gray-300">
+						<Table.ScrollContainer>
+							<Table.Content>
+								<Table.Header>
+									{columns.map((column) => (
+										<Table.Column
+											key={column.uid}
+											isRowHeader={column.uid === "rowNumber"}
+											className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-2 border-r border-gray-300 last:border-r-0"
+										>
+											{column.name}
+										</Table.Column>
+									))}
+								</Table.Header>
+								<Table.Body
+									items={supplierInvoice.rows || []}
+									renderEmptyState={() => (
+										<div className="text-center p-4">
+											{t("common:inventoryCertificatePage.addRow") || "No items"}
+										</div>
+									)}
 								>
-									{column.name}
-								</TableColumn>
-							)}
-						</TableHeader>
-						<TableBody
-							items={supplierInvoice.rows || []}
-							emptyContent={t("common:inventoryCertificatePage.addRow") || "No items"}
-						>
-							{(row) => (
-								<TableRow key={row.id}>
-									<TableCell>
-										<div className="text-[14px] px-2 min-w-[50px]">{row.rowNumber}</div>
-									</TableCell>
-									<TableCell>
-										<div className="text-[14px]">{row.sku || "-"}</div>
-									</TableCell>
-									<TableCell>
-										<div className="text-[14px]">{row.itemName || "-"}</div>
-									</TableCell>
-									<TableCell>
-										<div className="text-[14px]">{row.quantity || 0}</div>
-									</TableCell>
-									<TableCell>
-										<div className="text-[14px]">₪ {row.purchasePrice.toFixed(2)}</div>
-									</TableCell>
-									<TableCell>
-										<div className="text-[14px]">
-											{row.lineDiscount ? `${row.lineDiscount}%` : "0%"}
-										</div>
-									</TableCell>
-									<TableCell>
-										<div className="text-[14px]">
-											{row.profitPercentage ? `${row.profitPercentage.toFixed(2)}%` : "0%"}
-										</div>
-									</TableCell>
-									<TableCell>
-										<div className="text-[14px]">₪ {row.price.toFixed(2)}</div>
-									</TableCell>
-									<TableCell>
-										<div className="min-w-[100px] text-right px-2">
-											₪ {row.totalPurchasePrice.toFixed(2)}
-										</div>
-									</TableCell>
-								</TableRow>
-							)}
-						</TableBody>
+									{(row) => (
+										<Table.Row id={row.id}>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px] px-2 min-w-[50px]">{row.rowNumber}</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px]">{row.sku || "-"}</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px]">{row.itemName || "-"}</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px]">{row.quantity || 0}</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px]">₪ {row.purchasePrice.toFixed(2)}</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px]">
+													{row.lineDiscount ? `${row.lineDiscount}%` : "0%"}
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px]">
+													{row.profitPercentage ? `${row.profitPercentage.toFixed(2)}%` : "0%"}
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px]">₪ {row.price.toFixed(2)}</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="min-w-[100px] text-right px-2">
+													₪ {row.totalPurchasePrice.toFixed(2)}
+												</div>
+											</Table.Cell>
+										</Table.Row>
+									)}
+								</Table.Body>
+							</Table.Content>
+						</Table.ScrollContainer>
 					</Table>
 				</div>
 			</div>

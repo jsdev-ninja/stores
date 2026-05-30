@@ -137,28 +137,28 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 	const isActive = location.pathname === to;
 
 	return (
-		<Tooltip
-			content={label}
-			placement={direction === "rtl" ? "left" : "right"}
-			delay={300}
-			isDisabled={!isCollapsed && window.innerWidth >= 1024}
-		>
-			<Link
-				to={to}
-				params={{}}
-				className={`flex ${
-					isCollapsed ? "justify-center" : "justify-start"
-				} items-center mb-1 w-full py-2 px-3 rounded-md transition-colors ${
-					isActive
-						? "sidebar-item-active text-primary"
-						: "text-foreground-600 hover:bg-default-100"
-				}`}
-			>
-				<div className="relative">
-					<Icon icon={icon} width={20} height={20} />
-				</div>
-				{!isCollapsed && <span className="ms-2">{label}</span>}
-			</Link>
+		<Tooltip delay={300} isDisabled={!isCollapsed && window.innerWidth >= 1024}>
+			<Tooltip.Trigger>
+				<Link
+					to={to}
+					params={{}}
+					className={`flex ${
+						isCollapsed ? "justify-center" : "justify-start"
+					} items-center mb-1 w-full py-2 px-3 rounded-md transition-colors ${
+						isActive
+							? "sidebar-item-active text-primary"
+							: "text-foreground-600 hover:bg-default-100"
+					}`}
+				>
+					<div className="relative">
+						<Icon icon={icon} width={20} height={20} />
+					</div>
+					{!isCollapsed && <span className="ms-2">{label}</span>}
+				</Link>
+			</Tooltip.Trigger>
+			<Tooltip.Content placement={direction === "rtl" ? "left" : "right"}>
+				{label}
+			</Tooltip.Content>
 		</Tooltip>
 	);
 };

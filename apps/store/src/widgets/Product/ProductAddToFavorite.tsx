@@ -24,7 +24,7 @@ export function ProductAddToFavorite() {
 	if (!product) return null;
 
 	return (
-		<Button onPress={handlePress} variant="light" color="danger" isIconOnly>
+		<Button onPress={handlePress} variant="ghost" isIconOnly>
 			<Icon fill={!!inFavorites} name="heart" />
 		</Button>
 	);

@@ -1,4 +1,4 @@
-import { Button, Image } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { isFile, TFile } from "@jsdev_ninja/core";
 import { useRef } from "react";
@@ -35,7 +35,7 @@ export function FileUpload(props: FileUploadProps) {
 				{previewSrc ? (
 					<div className="relative w-full h-full">
 						<div className="overflow-hidden  h-full flex justify-center items-center">
-							<Image
+							<img
 								src={previewSrc}
 								alt="Product"
 								className="object-contain w-full h-full"
@@ -43,10 +43,9 @@ export function FileUpload(props: FileUploadProps) {
 						</div>
 						<Button
 							isIconOnly
-							color="danger"
-							variant="shadow"
+							variant="danger"
 							size="sm"
-							className="absolute top-2 right-2 z-10"
+							className="absolute top-2 right-2 z-10 shadow-lg"
 							onPress={handleRemoveImage}
 						>
 							<Icon icon="lucide:x" />

@@ -52,12 +52,12 @@ function OrderItem({ order }: { order: TOrder }) {
 	const chipColors: Record<TOrder["status"], ChipProps["color"]> = {
 		draft: "default",
 		pending: "default",
-		processing: "secondary",
+		processing: "accent",
 		cancelled: "danger",
 		refunded: "danger",
 		completed: "success",
 		in_delivery: "warning",
-		delivered: "primary",
+		delivered: "accent",
 	};
 
 	return (
@@ -94,7 +94,7 @@ function OrderItem({ order }: { order: TOrder }) {
 				</dt>
 				<dd className="mt-1.5 inline-flex items-center">
 					<Chip color={chipColors[order.status]}>
-						{t(`common:orderStatutes.${order.status}`)}
+						<Chip.Label>{t(`common:orderStatutes.${order.status}`)}</Chip.Label>
 					</Chip>
 				</dd>
 			</dl>
@@ -102,8 +102,8 @@ function OrderItem({ order }: { order: TOrder }) {
 				<div className="w-full grid sm:grid-cols-2 lg:flex lg:w-72 lg:items-center lg:justify-end gap-4">
 					{order.paymentStatus === "pending" && (
 						<Button
-							color="secondary"
-							isLoading={loading}
+							variant="secondary"
+							isPending={loading}
 							onPress={async () => {
 								try {
 									setLoading(true);
@@ -126,7 +126,7 @@ function OrderItem({ order }: { order: TOrder }) {
 						</Button>
 					)}
 					<Button
-						color="primary"
+						variant="primary"
 						onPress={() => {
 							navigate({ to: "store.orderPage", params: { id: order.id ?? "" } });
 						}}
@@ -147,8 +147,7 @@ function OrderItem({ order }: { order: TOrder }) {
 					)} */}
 					{true && (
 						<Button
-							variant="solid"
-							color="danger"
+							variant="danger"
 							onPress={() => {
 								appApi.user.createCartFromOrder({ order });
 							}}

@@ -47,7 +47,7 @@ export const EmptyState = (props: Props) => {
 			<div className="text-gray-500">{description}</div>
 			{!!action && (
 				<div className="min-w-48">
-					<Button color="primary" fullWidth onPress={action.onClick}>
+					<Button variant="primary" fullWidth onPress={action.onClick}>
 						{action.title}
 					</Button>
 				</div>

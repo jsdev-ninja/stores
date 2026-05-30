@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
-import { Input } from "@heroui/react";
+import { Modal, Input } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
@@ -92,49 +91,58 @@ export function DeliveryNoteDetailsModal({
 	return (
 		<Modal
 			isOpen
-			onClose={() => modalApi.closeModal("deliveryNoteDetails")}
-			size="md"
-			scrollBehavior="inside"
+			onOpenChange={(open) => {
+				if (!open) modalApi.closeModal("deliveryNoteDetails");
+			}}
 		>
-			<ModalContent>
-				<ModalHeader className="flex flex-col gap-1">
-					<div className="text-start">{t("admin:deliveryNoteDetails.title")}</div>
-					<div className="text-sm text-default-500 text-start">
-						{t("admin:deliveryNoteDetails.description", { count: selectedOrders.length })}
-					</div>
-				</ModalHeader>
-				<ModalBody>
-					<div className="space-y-4">
-						<Input
-							label={t("admin:deliveryNoteDetails.deliveryNoteDate")}
-							type="date"
-							value={formData.deliveryNoteDate}
-							onChange={(e) => handleChange("deliveryNoteDate", e.target.value)}
-							isRequired
-							isInvalid={!!errors.deliveryNoteDate}
-							errorMessage={errors.deliveryNoteDate}
-							classNames={{
-								input: "text-start",
-								label: "text-start",
-							}}
-						/>
-					</div>
-				</ModalBody>
-				<ModalFooter>
-					<Button
-						color="danger"
-						variant="light"
-						onPress={() => modalApi.closeModal("deliveryNoteDetails")}
-						isDisabled={isSubmitting}
-					>
-						{t("common:cancel")}
-					</Button>
-					<Button color="primary" onPress={handleSubmit} isLoading={isSubmitting}>
-						{t("admin:deliveryNoteDetails.createDeliveryNote")}
-					</Button>
-				</ModalFooter>
-			</ModalContent>
+			<Modal.Backdrop />
+			<Modal.Container size="md" scroll="inside">
+				<Modal.Dialog>
+					<Modal.Header>
+						<Modal.Heading>
+							<div className="text-start">{t("admin:deliveryNoteDetails.title")}</div>
+							<div className="text-sm text-default-500 text-start">
+								{t("admin:deliveryNoteDetails.description", {
+									count: selectedOrders.length,
+								})}
+							</div>
+						</Modal.Heading>
+					</Modal.Header>
+					<Modal.Body>
+						<div className="space-y-4">
+							<div className="flex flex-col gap-1">
+								<label className="block text-sm font-medium text-start">
+									{t("admin:deliveryNoteDetails.deliveryNoteDate")}
+									<span className="text-danger ml-1">*</span>
+								</label>
+								<Input
+									type="date"
+									value={formData.deliveryNoteDate}
+									onChange={(e) => handleChange("deliveryNoteDate", e.target.value)}
+									className="text-start"
+								/>
+								{errors.deliveryNoteDate && (
+									<p className="text-sm text-danger text-start">
+										{errors.deliveryNoteDate}
+									</p>
+								)}
+							</div>
+						</div>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button
+							variant="danger"
+							onPress={() => modalApi.closeModal("deliveryNoteDetails")}
+							isDisabled={isSubmitting}
+						>
+							{t("common:cancel")}
+						</Button>
+						<Button variant="primary" onPress={handleSubmit} isPending={isSubmitting}>
+							{t("admin:deliveryNoteDetails.createDeliveryNote")}
+						</Button>
+					</Modal.Footer>
+				</Modal.Dialog>
+			</Modal.Container>
 		</Modal>
 	);
 }
-
