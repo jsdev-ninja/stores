@@ -1,5 +1,5 @@
 /**
- * Storefront service areas (tester dev-preview) — UI-only port of the new
+ * Storefront service areas — UI-only port of the new
  * Balasi design (index.html §service-areas). Static city data, theme tokens
  * only, no data wiring.
  */

@@ -1,5 +1,5 @@
 /**
- * Storefront FAQ (tester dev-preview) — UI-only port of the new Balasi design
+ * Storefront FAQ — UI-only port of the new Balasi design
  * (index.html §faq). Native <details>/<summary> accordion, theme tokens only.
  */
 

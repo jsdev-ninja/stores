@@ -1,5 +1,5 @@
 /**
- * Storefront footer (tester dev-preview) — UI-only port of the new Balasi
+ * Storefront footer — UI-only port of the new Balasi
  * design (index.html §footer). This replaces the old shared Footer.
  * Static links, theme tokens only, no feature wiring.
  */

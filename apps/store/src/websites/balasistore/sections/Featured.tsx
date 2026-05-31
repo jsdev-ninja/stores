@@ -1,82 +1,29 @@
 /**
- * Storefront featured products (tester dev-preview) — UI-only port of the new
- * Balasi design (index.html §featured). Static illustrative product cards,
- * theme tokens only, no data wiring.
+ * Storefront featured products — UI port of the Balasi design.
+ * Product cards now show real products from Algolia.
  */
 
+import { TProduct } from "@jsdev_ninja/core";
+import { Product } from "src/widgets/Product/Product";
 import { navigate } from "src/navigation";
 
 const ORANGE = "var(--brand-secondary)"; // design --pop
 const SERIF = "var(--font-serif)";
 
-type FeaturedProduct = {
-	id: string;
-	emoji: string;
-	cat: string;
-	name: string;
-	price: string;
-	unit: string;
-	badge?: string;
-};
+type Props = { products: TProduct[] };
 
-const FEATURED: FeaturedProduct[] = [
-	{
-		id: "f1",
-		emoji: "☕",
-		cat: "קפה ושתייה חמה",
-		name: "קפסולות נספרסו אינטנסו × 50",
-		price: "₪84",
-		unit: "לקופסה",
-		badge: "פריט נמכר",
-	},
-	{
-		id: "f2",
-		emoji: "🥐",
-		cat: "מאפים ובריאות",
-		name: "מאפי בוקר אישיים × 12",
-		price: "₪95",
-		unit: "לארגז",
-	},
-	{
-		id: "f3",
-		emoji: "💧",
-		cat: "משקאות",
-		name: "מים מינרליים 1.5L × 6",
-		price: "₪22",
-		unit: "לארגז",
-		badge: "המומלץ שלנו",
-	},
-	{
-		id: "f4",
-		emoji: "🍫",
-		cat: "חטיפים ומתוקים",
-		name: "שוקולד בלגי פרמיום × 6",
-		price: "₪64",
-		unit: "לארגז",
-	},
-	{
-		id: "f5",
-		emoji: "🧴",
-		cat: "ניקיון ותחזוקה",
-		name: "ג'ל לשטיפת ידיים × 3",
-		price: "₪48",
-		unit: "לחבילה",
-	},
-	{
-		id: "f6",
-		emoji: "🍎",
-		cat: "פירות וירקות",
-		name: "סל פירות עונתי ממובחר",
-		price: "₪120",
-		unit: "לסל",
-		badge: "חדש",
-	},
-];
+function getProductName(product: TProduct): string {
+	return product.name.find((l) => l.lang === "he")?.value ?? product.name[0]?.value ?? "";
+}
 
-function FeaturedCard({ product }: { product: FeaturedProduct }) {
+function FeaturedCard({ product }: { product: TProduct }) {
+	const name = getProductName(product);
+	const hasDiscount = product.discount?.type !== "none";
+
 	return (
 		<a
 			href="#products"
+			onClick={(e) => { e.preventDefault(); navigate({ to: "store.product", params: { id: product.id } }); }}
 			className="group relative flex flex-shrink-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:shadow-[0_12px_36px_rgba(13,13,11,0.08)]"
 			style={{ width: "240px", scrollSnapAlign: "start" }}
 		>
@@ -85,30 +32,28 @@ function FeaturedCard({ product }: { product: FeaturedProduct }) {
 				className="relative flex h-[200px] items-center justify-center border-b border-[var(--border)]"
 				style={{ background: "linear-gradient(180deg,var(--color-section-alt),var(--surface))" }}
 			>
-				<span className="text-[78px] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-2">
-					{product.emoji}
-				</span>
-				{product.badge && (
+				<div className="w-[120px] h-[120px] overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-2">
+					<Product product={product}>
+						<Product.Image />
+					</Product>
+				</div>
+				{hasDiscount && (
 					<span className="absolute start-3 top-3 bg-[var(--foreground)] px-3 py-1 text-[9.5px] font-bold uppercase tracking-[0.16em] text-white">
-						{product.badge}
+						מבצע
 					</span>
 				)}
 			</div>
 
 			{/* Body */}
 			<div className="flex flex-1 flex-col gap-1.5 p-[18px_18px_20px]">
-				<span className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: ORANGE }}>
-					{product.cat}
-				</span>
 				<h3 className="line-clamp-2 min-h-[38px] text-[15px] font-extrabold leading-tight tracking-tight text-[var(--foreground)]">
-					{product.name}
+					{name}
 				</h3>
-				<span className="text-[11.5px] text-[var(--muted)]">{product.unit}</span>
 
 				<div className="mt-3.5 flex items-center justify-between gap-2.5 border-t border-[var(--border)] pt-3.5">
-					<span className="text-[22px] font-black leading-none tracking-tight text-[var(--foreground)]">
-						{product.price}
-					</span>
+					<Product product={product}>
+						<Product.Price />
+					</Product>
 					<span
 						className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-[var(--foreground)] text-white transition-all duration-300 group-hover:bg-[var(--brand-secondary)] group-hover:rotate-90"
 					>
@@ -123,7 +68,9 @@ function FeaturedCard({ product }: { product: FeaturedProduct }) {
 	);
 }
 
-export default function Featured() {
+export default function Featured({ products }: Props) {
+	if (!products.length) return null;
+
 	return (
 		<section className="py-20 lg:py-28" style={{ background: "var(--color-section-alt)" }}>
 			<div className="container mx-auto px-4">
@@ -160,7 +107,7 @@ export default function Featured() {
 						className="flex gap-3.5 overflow-x-auto py-2 [scrollbar-width:none] [scroll-behavior:smooth] [scroll-snap-type:x_mandatory]"
 						style={{ WebkitOverflowScrolling: "touch" }}
 					>
-						{FEATURED.map((product) => (
+						{products.map((product) => (
 							<FeaturedCard key={product.id} product={product} />
 						))}
 					</div>

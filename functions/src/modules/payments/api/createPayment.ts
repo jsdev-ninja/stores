@@ -23,13 +23,13 @@ function fitAmountToItemsSum(amount: number, items: string[]): number {
 
 export const createPayment = functions.https.onCall(async (data: { order: TOrder, isJ5?: boolean }, context) => {
 	try {
-		console.log("createPayment", context);
-		console.log("create payment data", JSON.stringify(data));
+		functions.logger.info("createPayment: start", { uid: context.auth?.uid, isJ5: data.isJ5 ?? false });
+		functions.logger.info("createPayment: order received", { orderId: data.order?.id, storeId: data.order?.storeId, companyId: data.order?.companyId });
 
 		const { order, isJ5 = true } = data;
 
 		const storeId = order.storeId;
-		console.log("storeId", storeId);
+		functions.logger.info("createPayment: store", { storeId });
 
 		const store: TStore = (
 			await admin.firestore().collection(`STORES`).doc(storeId).get()
@@ -56,7 +56,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
 		).data() as TStorePrivate;
 
-		console.log("storePrivateData", JSON.stringify(storePrivateData));
+		// storePrivateData intentionally NOT logged — contains HYP credentials and secrets
 
 		const nameOnInvoice = order.nameOnInvoice;
 		const adjustedAmount = fitAmountToItemsSum(order.cart.cartTotal, items);
@@ -68,7 +68,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			PassP: storePrivateData.hypData.password,
 			Masof: storePrivateData.hypData.masof,
 			Sign: "True",
-			Amount: adjustedAmount.toString(),
+			Amount: adjustedAmount.toFixed(2),
 			J5: isJ5 ? "True" : "False",
 			MoreData: "True",
 			Order: order.id,
@@ -99,7 +99,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 			formFields: res.formFields,
 		};
 	} catch (error: any) {
-		console.error(error.message);
+		functions.logger.error("createPayment: failed", { message: error.message });
 		return null;
 	}
 });

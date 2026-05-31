@@ -1,5 +1,5 @@
 /**
- * Storefront closing CTA band (tester dev-preview) — UI-only port of the new
+ * Storefront closing CTA band — UI-only port of the new
  * Balasi design (index.html §cta). Static, theme tokens only.
  */
 

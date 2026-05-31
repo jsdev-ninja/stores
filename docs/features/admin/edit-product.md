@@ -1,14 +1,5 @@
 # Admin — Edit Product
 
-## Tenant (test)
-
-- `companyId` === `tester_company`
-- `storeId` === `tester_store`
-
-> Post-test check: I verify the updated doc stays under
-> `tester_company/tester_store/products/{sku}` with matching `companyId`/`storeId`.
-> Any other tenant value = wrong, I flag it.
-
 ## Feature
 
 Admin edits an existing product. **This path was intentionally left unchanged by

@@ -1,5 +1,5 @@
 /**
- * Storefront testimonials / how-it-works (tester dev-preview) — UI-only port
+ * Storefront testimonials / how-it-works — UI-only port
  * of the new Balasi design (index.html §how-it-works). Static steps,
  * theme tokens only, no data wiring.
  */

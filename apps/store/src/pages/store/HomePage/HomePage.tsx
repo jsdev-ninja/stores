@@ -9,8 +9,9 @@ const HOME_PAGE_CONFIG: Record<
 	balasistore_store: {
 		homePage: lazy(() => import("../../../websites/balasistore/HomePage")),
 	},
+	// tester is the dev-preview of the Balasi storefront — shares the same design
 	tester_store: {
-		homePage: lazy(() => import("../../../websites/tester/HomePage")),
+		homePage: lazy(() => import("../../../websites/balasistore/HomePage")),
 	},
 } as const;
 

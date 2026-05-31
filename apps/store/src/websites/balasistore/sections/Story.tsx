@@ -1,5 +1,5 @@
 /**
- * Storefront brand story (tester dev-preview) — UI-only port of the new Balasi
+ * Storefront brand story — UI-only port of the new Balasi
  * design (index.html §story, dark section). Static copy, theme tokens only.
  */
 

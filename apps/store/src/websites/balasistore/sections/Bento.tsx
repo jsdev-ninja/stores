@@ -1,5 +1,5 @@
 /**
- * Storefront bento banners (tester dev-preview) — UI-only port of the new
+ * Storefront bento banners — UI-only port of the new
  * Balasi design (index.html §bento). Static promo banners, theme tokens only.
  */
 

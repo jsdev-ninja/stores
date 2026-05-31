@@ -1,10 +1,5 @@
 # Admin — Delete Product
 
-## Tenant (test)
-
-- `companyId` === `tester_company`
-- `storeId` === `tester_store`
-
 ## Feature
 
 Admin deletes a product. The product doc is removed from Firestore and the

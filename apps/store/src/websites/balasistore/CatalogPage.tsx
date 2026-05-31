@@ -1,5 +1,5 @@
 /**
- * Tester-store catalog page — Balasi design port.
+ * Balasi storefront catalog page — Balasi design port.
  * Wraps real Algolia products (ProductsWidget → ProductRender) and real
  * category filtering (CategoryMenu) inside the new catalog layout.
  *
@@ -23,16 +23,16 @@ import { navigate } from "src/navigation";
 import { formatter } from "src/utils/formatter";
 import { Cart } from "src/widgets/Cart/Cart";
 import { ProductsWidget } from "src/widgets/Products";
-import { useTesterCatalog } from "./useTesterCatalog";
+import { useCatalogAside } from "./useCatalogAside";
 import { CatalogAside } from "./catalog/CatalogAside";
 import { CatalogRowHead } from "./catalog/CatalogRowHead";
 
-export default function TesterCatalogPage() {
+export default function BalasiCatalogPage() {
 	const { t } = useTranslation(["common"]);
 	const store = useStore();
 	const cart = useCart();
 	const discounts = useDiscounts();
-	const { isAsideOpen, toggleAside, closeAside } = useTesterCatalog();
+	const { isAsideOpen, toggleAside, closeAside } = useCatalogAside();
 
 	if (!store) return null;
 

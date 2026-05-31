@@ -12,8 +12,12 @@ const CATALOG_PAGE_CONFIG: Record<
 	TStore["id"],
 	{ catalogPage?: LazyExoticComponent<ComponentType<object>> }
 > = {
+	balasistore_store: {
+		catalogPage: lazy(() => import("src/websites/balasistore/CatalogPage")),
+	},
+	// tester is the dev-preview of the Balasi storefront — shares the same design
 	tester_store: {
-		catalogPage: lazy(() => import("src/websites/tester/CatalogPage")),
+		catalogPage: lazy(() => import("src/websites/balasistore/CatalogPage")),
 	},
 } as const;
 

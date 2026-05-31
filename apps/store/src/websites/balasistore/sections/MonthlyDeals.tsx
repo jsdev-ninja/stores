@@ -1,93 +1,36 @@
 /**
- * Storefront monthly deals (tester dev-preview) — UI-only port of the new
- * Balasi design (index.html §monthly-deals). Static illustrative deal cards,
- * theme tokens only, no data wiring.
+ * Storefront monthly deals — UI port of the Balasi design.
+ * Deals now come from useDiscounts() (Redux, loaded in App.tsx on user login).
+ * TDiscount has bundle-type variants with bundlePrice.
  */
+
+import { useMemo } from "react";
+import { TDiscount } from "@jsdev_ninja/core";
+import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { formatter } from "src/utils/formatter";
 
 const ORANGE = "var(--brand-secondary)"; // design --pop
 const SERIF = "var(--font-serif)";
 
-type Deal = {
-	id: string;
-	tag: "sale" | "new" | "bundle";
-	tagLabel: string;
-	emoji: string;
-	cat: string;
-	name: string;
-	price: string;
-	originalPrice?: string;
-	unit: string;
-};
-
-const DEALS: Deal[] = [
-	{
-		id: "d1",
-		tag: "sale",
-		tagLabel: "מבצע",
-		emoji: "☕",
-		cat: "קפה ושתייה חמה",
-		name: "קפסולות נספרסו ורטואו ×50",
-		price: "₪149",
-		originalPrice: "₪189",
-		unit: "לקופסה",
-	},
-	{
-		id: "d2",
-		tag: "bundle",
-		tagLabel: "חבילה",
-		emoji: "🧼",
-		cat: "ניקיון ותחזוקה",
-		name: "חבילת ניקיון משרדית — 12 מוצרים",
-		price: "₪320",
-		originalPrice: "₪420",
-		unit: "לחבילה",
-	},
-	{
-		id: "d3",
-		tag: "sale",
-		tagLabel: "מבצע",
-		emoji: "💧",
-		cat: "משקאות",
-		name: "מים מינרליים 0.5L × 24",
-		price: "₪38",
-		originalPrice: "₪52",
-		unit: "לארגז",
-	},
-	{
-		id: "d4",
-		tag: "new",
-		tagLabel: "חדש",
-		emoji: "🥗",
-		cat: "בריאות וטבעוני",
-		name: "חטיפי חומוס אפוי × 12",
-		price: "₪72",
-		unit: "לארגז",
-	},
-	{
-		id: "d5",
-		tag: "sale",
-		tagLabel: "מבצע",
-		emoji: "🍫",
-		cat: "חטיפים ומתוקים",
-		name: "שוקולד מריר 85% × 6",
-		price: "₪68",
-		originalPrice: "₪90",
-		unit: "לארגז",
-	},
-];
+const DEFAULT_ICON = "🏷️";
 
 type CSSProps = { background: string; color: string; border?: string };
 
-const TAG_BG: Record<Deal["tag"], CSSProps> = {
-	sale: { background: ORANGE, color: "white" },
-	new: { background: "var(--surface)", color: "var(--foreground)", border: "1.5px solid var(--foreground)" },
-	bundle: { background: "var(--foreground)", color: "white" },
-};
+const TAG_STYLES: CSSProps = { background: ORANGE, color: "white" };
 
-function DealCard({ deal }: { deal: Deal }) {
+function getDiscountName(discount: TDiscount): string {
+	return discount.name.find((l) => l.lang === "he")?.value ?? discount.name[0]?.value ?? "";
+}
+
+function DealCard({ discount }: { discount: TDiscount }) {
+	const name = getDiscountName(discount);
+	const price =
+		discount.variant.variantType === "bundle"
+			? formatter.price(discount.variant.bundlePrice)
+			: null;
+
 	return (
-		<a
-			href="#products"
+		<div
 			className="group relative flex flex-shrink-0 flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:shadow-[0_12px_36px_rgba(13,13,11,0.08)]"
 			style={{ width: "240px", scrollSnapAlign: "start" }}
 		>
@@ -97,39 +40,32 @@ function DealCard({ deal }: { deal: Deal }) {
 				style={{ background: "linear-gradient(180deg,var(--color-section-alt),var(--surface))" }}
 			>
 				<span className="text-[78px] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-2">
-					{deal.emoji}
+					{DEFAULT_ICON}
 				</span>
 				{/* Tag badge */}
 				<span
 					className="absolute start-3 top-3 px-3 py-1 text-[9.5px] font-bold uppercase tracking-[0.16em]"
-					style={TAG_BG[deal.tag]}
+					style={TAG_STYLES}
 				>
-					{deal.tagLabel}
+					חבילה
 				</span>
 			</div>
 
 			{/* Body */}
 			<div className="flex flex-1 flex-col gap-1.5 p-[18px_18px_20px]">
-				<span className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: ORANGE }}>
-					{deal.cat}
-				</span>
 				<h3 className="line-clamp-2 min-h-[38px] text-[15px] font-extrabold leading-tight tracking-tight text-[var(--foreground)]">
-					{deal.name}
+					{name}
 				</h3>
-				<span className="text-[11.5px] text-[var(--muted)]">{deal.unit}</span>
 
 				{/* Price row */}
 				<div className="mt-3.5 flex items-center justify-between gap-2.5 border-t border-[var(--border)] pt-3.5">
 					<div className="flex items-baseline gap-2">
-						<span
-							className="text-[22px] font-black leading-none tracking-tight"
-							style={{ color: deal.originalPrice ? ORANGE : "var(--foreground)" }}
-						>
-							{deal.price}
-						</span>
-						{deal.originalPrice && (
-							<span className="text-[13px] font-semibold text-[var(--muted)] line-through">
-								{deal.originalPrice}
+						{price !== null && (
+							<span
+								className="text-[22px] font-black leading-none tracking-tight"
+								style={{ color: ORANGE }}
+							>
+								{price}
 							</span>
 						)}
 					</div>
@@ -143,11 +79,21 @@ function DealCard({ deal }: { deal: Deal }) {
 					</span>
 				</div>
 			</div>
-		</a>
+		</div>
 	);
 }
 
 export default function MonthlyDeals() {
+	const discounts = useDiscounts();
+
+	// Show only active discounts
+	const activeDiscounts = useMemo(() => {
+		const now = Date.now();
+		return discounts.filter((d) => d.active && d.startDate <= now && d.endDate >= now);
+	}, [discounts]);
+
+	if (!activeDiscounts.length) return null;
+
 	return (
 		<section className="py-20 lg:py-28" style={{ background: "var(--background)" }}>
 			<div className="container mx-auto px-4">
@@ -176,14 +122,14 @@ export default function MonthlyDeals() {
 					</span>
 				</div>
 
-				{/* Rail with relative wrap for buttons */}
+				{/* Rail */}
 				<div className="relative px-7">
 					<div
 						className="flex gap-3.5 overflow-x-auto py-2 [scrollbar-width:none] [scroll-behavior:smooth] [scroll-snap-type:x_mandatory]"
 						style={{ WebkitOverflowScrolling: "touch" }}
 					>
-						{DEALS.map((deal) => (
-							<DealCard key={deal.id} deal={deal} />
+						{activeDiscounts.map((discount) => (
+							<DealCard key={discount.id} discount={discount} />
 						))}
 					</div>
 				</div>

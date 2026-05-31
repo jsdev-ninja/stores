@@ -1,39 +1,45 @@
-import { useRef } from "react";
-import { useTranslation } from "react-i18next";
-import Header from "src/pages/store/HomePage/components/Header";
-import Hero from "src/pages/store/HomePage/components/Hero";
-import CompleteSolution from "src/pages/store/HomePage/components/CompleteSolution";
-import ProductCategories from "src/pages/store/HomePage/components/ProductCategories";
-import WhyBlesi from "src/pages/store/HomePage/components/WhyBlesi";
-import OrderingOptions from "src/pages/store/HomePage/components/OrderingOptions";
-import ContactForm from "src/pages/store/HomePage/components/ContactForm";
-import Footer from "src/pages/store/HomePage/components/Footer";
+import { useHomeProducts } from "./useHomeProducts";
+import Hero from "./sections/Hero";
+import TrendingStrip from "./sections/TrendingStrip";
+import Bento from "./sections/Bento";
+import Categories from "./sections/Categories";
+import MonthlyDeals from "./sections/MonthlyDeals";
+import Featured from "./sections/Featured";
+import Products from "./sections/Products";
+import Story from "./sections/Story";
+import ServiceAreas from "./sections/ServiceAreas";
+import Testimonials from "./sections/Testimonials";
+import Faq from "./sections/Faq";
+import Cta from "./sections/Cta";
+import Footer from "./sections/Footer";
 
-export default function BalasiStoreHomePage() {
-	const contactFormRef = useRef<HTMLDivElement>(null);
-	const { t } = useTranslation(["common", "homePage"]);
+/**
+ * Balasi storefront home.
+ * Products are fetched once from Algolia and distributed as slices to each
+ * product section. Categories and discounts come from Redux (loaded in App.tsx).
+ */
+export default function BalasiHomePage() {
+	const { products } = useHomeProducts();
 
-	const scrollToContact = () => {
-		contactFormRef.current?.scrollIntoView({ behavior: "smooth" });
-	};
+	const heroProducts = products.slice(0, 3);
+	const trendingProducts = products.slice(0, 6);
+	const featuredProducts = products.slice(0, 6);
+	const gridProducts = products.slice(0, 8);
 
 	return (
-		<div className="min-h-screen bg-background" dir="rtl">
-			<Header onContact={scrollToContact} />
-			<div className="bg-default-100 border-b border-default-200">
-				<div className="container mx-auto px-4 py-2.5 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm">
-					<span className="font-semibold text-foreground">{t("homePage:forOfficesOnly")}</span>
-					<span className="text-default-600">{t("homePage:pricesBeforeVat")}</span>
-				</div>
-			</div>
-			<Hero onContact={scrollToContact} />
-			<CompleteSolution />
-			<ProductCategories />
-			<WhyBlesi />
-			<OrderingOptions onContact={scrollToContact} />
-			<div ref={contactFormRef}>
-				<ContactForm variant="light" />
-			</div>
+		<div className="min-h-screen bg-[var(--background)]" dir="rtl">
+			<Hero products={heroProducts} />
+			<TrendingStrip products={trendingProducts} />
+			<Bento />
+			<Categories />
+			<MonthlyDeals />
+			<Featured products={featuredProducts} />
+			<Products products={gridProducts} />
+			<Story />
+			<ServiceAreas />
+			<Testimonials />
+			<Faq />
+			<Cta />
 			<Footer />
 		</div>
 	);

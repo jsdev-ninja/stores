@@ -8,15 +8,12 @@ import { FirebaseApi } from "src/lib/firebase";
 import { Icon } from "src/components";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
-import { useStore } from "src/domains/Store";
 import { OrgPicker } from "../OrgPicker/OrgPicker";
 
 export function AppBar() {
 	const { t } = useTranslation(["common"]);
 
 	const appApi = useAppApi();
-
-	const store = useStore();
 
 	const user = useAppSelector((state) => state.user.user);
 

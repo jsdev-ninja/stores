@@ -1,5 +1,5 @@
 /**
- * Catalog sidebar for the tester store.
+ * Catalog sidebar for the Balasi storefront.
  *
  * - "קטגוריות"       → real CategoryMenu (Algolia-filtered)
  * - "תזונה וכשרות"   → STATIC placeholder — no such filter data in the backend

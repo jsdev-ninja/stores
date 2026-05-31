@@ -1,59 +1,62 @@
 /**
- * Storefront hero (tester dev-preview) — UI-only port of the new Balasi design
- * (migration-new-ui/balasi-all/index.html §hero). Static/illustrative content,
- * theme tokens only, no feature wiring. The "popular picks" cards on the right
- * are design content, not real catalog data.
+ * Storefront hero — port of the Balasi design.
+ * Right-side "popular picks" cards now show real products.
  */
 
 import { navigate } from "src/navigation";
+import { TProduct } from "@jsdev_ninja/core";
+import { Product } from "src/widgets/Product/Product";
+import { formatter } from "src/utils/formatter";
 
 const ORANGE = "var(--brand-secondary)"; // design --pop (#e8804a)
 const SERIF = "var(--font-serif)";
 
-type Pick = {
-	no: string;
-	emoji: string;
-	tag: string;
-	name: string;
-	price: string;
-	unit: string;
-	featured?: boolean;
-};
+const RANK_LABELS = ["01", "02", "03"] as const;
+const RANK_TAGS = ["פריט נמכר", "חדש בקטלוג", "המומלץ שלנו"] as const;
 
-const PICKS: Pick[] = [
-	{ no: "01", emoji: "☕", tag: "פריט נמכר", name: "קפסולות נספרסו", price: "₪84", unit: "לקופסה" },
-	{ no: "02", emoji: "🥗", tag: "חדש בקטלוג", name: "סלי פירות טריים", price: "₪120", unit: "לסל", featured: true },
-	{ no: "03", emoji: "💧", tag: "המומלץ שלנו", name: "מים מינרליים", price: "₪22", unit: "לארגז" },
-];
+type Props = { products: TProduct[] };
 
-function SmallPick({ pick, rotate }: { pick: Pick; rotate: string }) {
+function getProductName(product: TProduct): string {
+	return product.name.find((l) => l.lang === "he")?.value ?? product.name[0]?.value ?? "";
+}
+
+function SmallPickCard({ product, rotate, rank }: { product: TProduct; rotate: string; rank: number }) {
+	const name = getProductName(product);
+	const price = formatter.price(product.price);
+
 	return (
 		<div
 			className="self-center flex flex-col items-start gap-1.5 rounded-lg p-3.5 bg-[var(--surface)] text-[var(--foreground)] shadow-[0_18px_40px_rgba(0,0,0,0.45)]"
 			style={{ border: `1px solid color-mix(in oklab, ${ORANGE} 30%, transparent)`, transform: rotate }}
 		>
 			<span className="text-[13px] italic" style={{ fontFamily: SERIF, color: ORANGE }}>
-				{pick.no}
+				{RANK_LABELS[rank]}
 			</span>
-			<span className="self-center text-[32px] drop-shadow-[0_3px_6px_rgba(0,0,0,0.25)]">{pick.emoji}</span>
-			<span className="text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--muted)]">{pick.tag}</span>
-			<span className="italic text-[15px] leading-tight text-[var(--foreground)]" style={{ fontFamily: SERIF }}>
-				{pick.name}
+			<Product product={product}>
+				<div className="self-center w-[60px] h-[60px] overflow-hidden rounded">
+					<Product.Image />
+				</div>
+			</Product>
+			<span className="text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--muted)]">
+				{RANK_TAGS[rank]}
+			</span>
+			<span className="italic text-[15px] leading-tight text-[var(--foreground)] line-clamp-2" style={{ fontFamily: SERIF }}>
+				{name}
 			</span>
 			<div className="mt-1.5 flex w-full items-baseline justify-between gap-2 border-t border-black/10 pt-2.5">
 				<span className="italic text-[21px] leading-none" style={{ fontFamily: SERIF, color: ORANGE }}>
-					{pick.price}
-				</span>
-				<span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-					{pick.unit}
+					{price}
 				</span>
 			</div>
 		</div>
 	);
 }
 
-function BigPick({ pick }: { pick: Pick }) {
+function BigPickCard({ product, rank }: { product: TProduct; rank: number }) {
 	const lightGreen = "color-mix(in oklab, var(--accent) 38%, #ffffff)";
+	const name = getProductName(product);
+	const price = formatter.price(product.price);
+
 	return (
 		<div
 			className="self-center flex flex-col items-center justify-center gap-2 rounded-lg px-4 pb-4 pt-5 text-[var(--surface)] shadow-[0_28px_60px_color-mix(in_oklab,var(--accent)_40%,transparent)]"
@@ -64,35 +67,39 @@ function BigPick({ pick }: { pick: Pick }) {
 		>
 			<div className="flex w-full items-center gap-3">
 				<span className="text-[18px] italic" style={{ fontFamily: SERIF, color: lightGreen }}>
-					{pick.no}
+					{RANK_LABELS[rank]}
 				</span>
 				<span className="h-px flex-1" style={{ background: "color-mix(in oklab, var(--accent) 30%, transparent)" }} />
 			</div>
-			<span className="my-1 text-[54px] drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]">{pick.emoji}</span>
+			<Product product={product}>
+				<div className="my-1 w-[80px] h-[80px] overflow-hidden rounded-md">
+					<Product.Image />
+				</div>
+			</Product>
 			<span
 				className="self-center text-[11px] font-bold uppercase tracking-[0.28em]"
 				style={{ color: lightGreen }}
 			>
-				{pick.tag}
+				{RANK_TAGS[rank]}
 			</span>
-			<h3 className="text-center text-[24px] font-light leading-tight text-[var(--surface)]" style={{ fontFamily: SERIF }}>
-				{pick.name}
+			<h3 className="text-center text-[24px] font-light leading-tight text-[var(--surface)] line-clamp-2" style={{ fontFamily: SERIF }}>
+				{name}
 			</h3>
 			<div
 				className="mt-auto flex w-full items-baseline gap-2 pt-3.5"
 				style={{ borderTop: "1px solid color-mix(in oklab, var(--accent) 25%, transparent)" }}
 			>
 				<span className="text-[28px] font-light italic" style={{ fontFamily: SERIF, color: lightGreen }}>
-					{pick.price}
+					{price}
 				</span>
-				<span className="flex-1 border-b border-dotted" style={{ borderColor: "color-mix(in oklab, var(--accent) 35%, transparent)" }} />
-				<span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{pick.unit}</span>
 			</div>
 		</div>
 	);
 }
 
-export default function Hero() {
+export default function Hero({ products }: Props) {
+	const [p0, p1, p2] = products;
+
 	return (
 		<section
 			className="relative overflow-hidden pt-20"
@@ -196,11 +203,13 @@ export default function Hero() {
 						</em>
 					</h2>
 
-					<div className="grid flex-1 grid-cols-[1fr_1.6fr_1fr] items-center gap-4">
-						<SmallPick pick={PICKS[0]} rotate="rotate(-1deg)" />
-						<BigPick pick={PICKS[1]} />
-						<SmallPick pick={PICKS[2]} rotate="rotate(1deg)" />
-					</div>
+					{p0 && p1 && p2 ? (
+						<div className="grid flex-1 grid-cols-[1fr_1.6fr_1fr] items-center gap-4">
+							<SmallPickCard product={p0} rotate="rotate(-1deg)" rank={0} />
+							<BigPickCard product={p1} rank={1} />
+							<SmallPickCard product={p2} rotate="rotate(1deg)" rank={2} />
+						</div>
+					) : null}
 				</div>
 			</div>
 		</section>

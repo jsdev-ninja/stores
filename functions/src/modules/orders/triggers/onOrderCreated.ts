@@ -3,7 +3,6 @@ import { logger } from "firebase-functions/v2";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { emitEvent } from "../../../platform/eventBus";
 import { OrderEventTypes, OrderPlacedPayload } from "../events";
-import { isPlacedStatus } from "../internal/placedTargets";
 
 export const onOrderCreated = functions.firestore
 	.document(FirebaseAPI.firestore.getDocPath("orders"))
@@ -20,17 +19,6 @@ export const onOrderCreated = functions.firestore
 			paymentType: order.paymentType,
 			organizationId: order.organizationId,
 		});
-
-		// Emit order.placed only if the order is "real" at create time
-		// (e.g. cash-on-delivery written directly as "pending"). HYP-paid orders
-		// start as "draft" and emit later via onOrderUpdate when status transitions.
-		if (!isPlacedStatus(order.status)) {
-			logger.info(
-				"onOrderCreated: skip emit order.placed - status is not a placed target",
-				{ orderId, companyId, storeId, status: order.status },
-			);
-			return;
-		}
 
 		await emitEvent<OrderPlacedPayload>({
 			type: OrderEventTypes.placed,

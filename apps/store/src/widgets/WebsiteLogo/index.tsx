@@ -2,13 +2,13 @@ import { navigate } from "src/navigation";
 import DefaultLogoSrc from "../../assets/default_logo.png";
 import { useStore } from "src/domains/Store";
 
-export function WebsiteLogo() {
+export function WebsiteLogo({ className }: { className?: string }) {
   const store = useStore();
   return (
     <img
       src={store?.logoUrl || DefaultLogoSrc}
       alt=""
-      className="w-full h-full rounded object-cover max-w-full max-h-full"
+      className={className ?? "w-full h-full rounded object-cover max-w-full max-h-full"}
       onClick={() => {
         navigate({
           to: "store",

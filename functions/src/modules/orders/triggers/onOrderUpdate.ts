@@ -2,9 +2,6 @@ import * as functions from "firebase-functions/v1";
 import { logger } from "firebase-functions/v2";
 import diff from "microdiff";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
-import { emitEvent } from "../../../platform/eventBus";
-import { OrderEventTypes, OrderPlacedPayload } from "../events";
-import { isPlacedStatus } from "../internal/placedTargets";
 import { cancelOrder } from "../services/cancelOrder";
 import { refundOrder } from "../services/refundOrder";
 import { completeOrder } from "../services/completeOrder";
@@ -32,26 +29,6 @@ export const onOrderUpdate = functions
 				after as unknown as Record<string, unknown>,
 			),
 		});
-
-		// draft → real placement (HYP success path, or admin accepting a draft)
-		if (before.status === "draft" && isPlacedStatus(after.status)) {
-			await emitEvent<OrderPlacedPayload>({
-				type: OrderEventTypes.placed,
-				source: "orders",
-				companyId,
-				storeId,
-				actorId: after.userId ? `user:${after.userId}` : "system",
-				payload: {
-					orderId,
-					cartId: after.cart?.id,
-					total: after.cart?.cartTotal ?? 0,
-					status: after.status,
-					paymentType: after.paymentType,
-					organizationId: after.organizationId,
-					customerEmail: after.client?.email,
-				},
-			});
-		}
 
 		// any → completed
 		if (before.status !== "completed" && after.status === "completed") {

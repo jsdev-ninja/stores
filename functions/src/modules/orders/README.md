@@ -15,7 +15,7 @@ Owns the order lifecycle: creation, status transitions, payment tracking, and do
 
 | Event | When | Where |
 |---|---|---|
-| `order.placed` | order is "real" — created with placed status, OR transitions draft → pending/processing | inlined in `triggers/onOrderCreated.ts` and `triggers/onOrderUpdate.ts` |
+| `order.placed` | emitted on order creation (every new order, regardless of status) | inlined in `triggers/onOrderCreated.ts` |
 | `order.cancelled` | order transitions to `cancelled` | inlined in `services/cancelOrder.ts` |
 | `order.completed` | _not yet emitted_ — payload defined for future use | — |
 | `order.refunded` | _not yet emitted_ — payload defined for future use | — |
@@ -43,9 +43,7 @@ internal/      module-private impl — classification rules, paths, etc.
 
 ## Internal helpers
 
-| File | Purpose |
-|---|---|
-| `internal/placedTargets.ts` | `PLACED_TARGETS` constant + `isPlacedStatus()` predicate — domain rule for which statuses count as a real placement |
+_No internal helpers currently._ (`internal/placedTargets.ts` was removed when `order.placed` semantics changed to fire on every order creation.)
 
 ## Conventions
 

@@ -1,5 +1,5 @@
 /**
- * Row header for the tester catalog — section tag, serif title, sort select.
+ * Row header for the catalog — section tag, serif title, sort select.
  * Sort is LOCAL/UI-ONLY: the options match the design but no Algolia custom
  * ranking is wired.  A future task can connect this to InstantSearch's
  * `useSortBy` hook when the backend indices are configured.

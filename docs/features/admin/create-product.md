@@ -1,14 +1,5 @@
 # Admin — Create Product
 
-## Tenant (test)
-
-- `companyId` === `tester_company`
-- `storeId` === `tester_store`
-
-> On the post-test check I verify the product doc lives under
-> `tester_company/tester_store/...` and that the doc's `companyId`/`storeId`
-> fields match. **Any other tenant value = wrong, I flag it.**
-
 ## Feature
 
 Admin creates a new product from the admin panel. Image (optional) is uploaded
