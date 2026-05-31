@@ -21,6 +21,17 @@ export const TransactionPostedPayload = z.object({
 			id: z.string().min(1),
 		})
 		.optional(),
+	/**
+	 * Payer identity forwarded from the Transaction doc so budget subscribers
+	 * can identify which organization's debt to reduce without a second read.
+	 */
+	payer: z
+		.object({
+			organizationId: z.string().optional(),
+			clientId: z.string().optional(),
+			billingAccountId: z.string().optional(),
+		})
+		.optional(),
 });
 
 export type TransactionPostedPayload = z.infer<typeof TransactionPostedPayload>;

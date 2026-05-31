@@ -3,6 +3,7 @@ import * as functions from "firebase-functions/v1";
 import admin from "firebase-admin";
 import { TPayProtocolResponse, TStorePrivate } from "src/schema";
 import { hypPaymentService } from "../../../services/hypPaymentService";
+import { postTransaction } from "../../ledger/services/postTransaction";
 
 // Absorb tiny rounding drift between cart total and heshDesc items sum.
 // HYP rejects (CCode=400) when items sum != Amount. We only auto-fix small drifts
@@ -15,7 +16,6 @@ function fitAmountToItemsSum(amount: number, items: string[]): number {
 		return sum + parseFloat(m[1]) * parseFloat(m[2]);
 	}, 0);
 	const diff = Math.abs(amount - itemsSum);
-	console.log('PPPPPPPPPP',diff, amount, itemsSum);
 	if (diff > 0 && diff <= 0.2) {
 		return itemsSum;
 	}
@@ -23,39 +23,55 @@ function fitAmountToItemsSum(amount: number, items: string[]): number {
 }
 
 // charge order for J5 transaction
-export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }, context) => {
+export const chargeOrder = functions.https.onCall(async (data: { order: { id: string } }, context) => {
 	try {
-		const orderId = data.order.id;
-		const storeId = data.order.storeId;
+		// Security: derive tenant context from the auth token ONLY — never from client data.
+		// The client supplies only the orderId; companyId and storeId come from the verified token.
+		const tokenStoreId: string | undefined = context.auth?.token.storeId;
+		const tokenCompanyId: string | undefined = context.auth?.token.companyId;
 
-		console.log("context.auth?.uid", context.auth?.uid);
-		console.log("context.auth?.token", context.auth?.token.storeId);
-		console.log("orderId", orderId);
+		if (!tokenStoreId || !tokenCompanyId) {
+			functions.logger.error("chargeOrder: missing storeId or companyId in auth token", {
+				uid: context.auth?.uid ?? null,
+			});
+			return { success: false, error: "unauthorized" };
+		}
+
+		const orderId = data.order?.id;
+		if (!orderId || typeof orderId !== "string") {
+			functions.logger.error("chargeOrder: missing or invalid order.id in request");
+			return { success: false, error: "invalid_input" };
+		}
+
+		const storeId = tokenStoreId;
+		const companyId = tokenCompanyId;
 
 		const storePrivateData: TStorePrivate = (
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
 		).data() as TStorePrivate;
 
-		// const store = {} as any;
-
-		// const userId = context.auth?.uid;
-		// check if user admin
-		// check if user store id === order store id
-
+		// Load the order under the TOKEN's tenant path — if it's not there, the caller
+		// has no business accessing it (cross-tenant attempt or invalid id).
 		const orderDoc = await admin
 			.firestore()
 			.collection(
 				FirebaseAPI.firestore.getPath({
 					collectionName: "orders",
-					companyId: data.order.companyId,
-					storeId: context.auth?.token.storeId ?? "",
+					companyId,
+					storeId,
 				})
 			)
 			.doc(orderId)
 			.get();
 
 		if (!orderDoc.exists) {
-			// todo return err
+			functions.logger.error("chargeOrder: order not found under token tenant", {
+				orderId,
+				companyId,
+				storeId,
+				uid: context.auth?.uid ?? null,
+			});
+			return { success: false, error: "order_not_found" };
 		}
 
 		const order = orderDoc.data() as TOrder;
@@ -65,8 +81,8 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			.collection(
 				FirebaseAPI.firestore.getPath({
 					collectionName: "payments",
-					companyId: order.companyId,
-					storeId: context.auth?.token.storeId ?? "",
+					companyId,
+					storeId,
 				})
 			)
 			.doc(orderId)
@@ -74,8 +90,6 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 
 		if (!paymentDoc.exists) {
 			// todo return err
-			console.log("paymentDoc.exists!!!!!!");
-
 			return;
 		}
 
@@ -121,42 +135,63 @@ export const chargeOrder = functions.https.onCall(async (data: { order: TOrder }
 			heshDesc: items.join(""),
 			Pritim: "True",
 		});
+
 		if (res.success) {
-			await admin
-				.firestore()
-				.collection(
-					FirebaseAPI.firestore.getPath({
-						collectionName: "orders",
-						companyId: data.order.companyId,
-						storeId: context.auth?.token.storeId ?? "",
-					})
-				)
-				.doc(orderId)
-				.set(
-					{
-						paymentStatus: "completed",
-						status: "completed",
-					},
-					{ merge: true }
-				);
+			// B6: Post a hyp_capture transaction to the ledger.
+			// The onTransactionPostedMarkOrderPaid subscriber will set order.paymentStatus = "completed".
+			// We do NOT directly write paymentStatus here to avoid a race condition.
+			// HYP adjustedAmount is in shekels — convert to integer agorot for ledger.
+			const amountAgorot = Math.round(adjustedAmount * 100);
+
+			await postTransaction({
+				source: "hyp_result",
+				hypTransactionId: payment.payment.Id, // dedup key: hyp_{Id}
+				type: "hyp_capture",
+				amount: amountAgorot,
+				currency: "ILS",
+				direction: "in",
+				reference: { type: "order", id: order.id },
+				payer: {
+					organizationId: order.organizationId,
+					clientId: order.client?.id,
+					billingAccountId: order.billingAccount?.id,
+				},
+				clientName: order?.nameOnInvoice || clientName,
+				email: order.client?.email,
+				hyp: {
+					masof: storePrivateData.hypData.masof,
+					rawResponse: (res.data as Record<string, unknown>) ?? {},
+					capturedFromTransactionId: payment.payment.Id,
+				},
+				// Use the token-derived tenant (companyId/storeId), not order fields.
+				companyId,
+				storeId,
+			}).catch((err) => {
+				// Log but don't fail the charge — the HYP transaction already succeeded.
+				// The ledger record is best-effort on this legacy path; captureHypJ5 is preferred.
+				functions.logger.error("chargeOrder: postTransaction failed (non-fatal)", {
+					orderId: order.id,
+					hypTransactionId: payment.payment.Id,
+					err: err?.message,
+				});
+			});
 
 			await admin
 				.firestore()
 				.collection(
 					FirebaseAPI.firestore.getPath({
 						collectionName: "payments",
-						companyId: data.order.companyId,
-						storeId: context.auth?.token.storeId ?? "",
+						// Use the token-derived tenant (companyId/storeId), not order fields.
+						companyId,
+						storeId,
 					})
 				)
 				.doc(orderId + "_charged")
 				.set(res.data, { merge: true });
-			console.log("order completed");
-			console.log("chargeJ5Transaction success");
 		}
 		return { success: true };
 	} catch (error: any) {
-		console.error(error.message);
+		functions.logger.error("chargeOrder: failed", { message: error.message });
 		return null;
 	}
 });

@@ -42,7 +42,7 @@ export function CatalogAside({ isOpen, onClose }: CatalogAsideProps) {
 			{/* Mobile overlay backdrop */}
 			{isOpen && (
 				<div
-					className="md:hidden fixed inset-0 bg-black/40 z-40"
+					className="lg:hidden fixed inset-0 bg-black/40 z-40"
 					onClick={onClose}
 					aria-hidden
 				/>
@@ -52,21 +52,21 @@ export function CatalogAside({ isOpen, onClose }: CatalogAsideProps) {
 			<aside
 				className={[
 					// Desktop: sticky column, always visible
-					"hidden md:flex",
-					"md:w-60 lg:w-64 shrink-0 flex-col gap-6",
+					"hidden lg:flex",
+					"lg:w-60 xl:w-64 shrink-0 flex-col gap-6",
 					"sticky top-[90px] self-start",
 					// Mobile: fixed drawer
-					"max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-50 max-md:w-72",
-					"max-md:flex max-md:flex-col max-md:gap-6 max-md:overflow-y-auto",
-					"max-md:bg-[var(--surface)] max-md:p-5 max-md:shadow-xl",
-					"max-md:transition-transform max-md:duration-300",
-					isOpen ? "max-md:translate-x-0" : "max-md:translate-x-full",
+					"max-lg:fixed max-lg:inset-y-0 max-lg:right-0 max-lg:z-50 max-lg:w-72",
+					"max-lg:flex max-lg:flex-col max-lg:gap-6 max-lg:overflow-y-auto",
+					"max-lg:bg-[var(--surface)] max-lg:p-5 max-lg:shadow-xl",
+					"max-lg:transition-transform max-lg:duration-300",
+					isOpen ? "max-lg:translate-x-0" : "max-lg:translate-x-full",
 				].join(" ")}
 				aria-label="סינון מוצרים"
 			>
 				{/* Mobile close button */}
 				<button
-					className="md:hidden self-start p-1.5 rounded-full bg-[var(--default)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--surface)] transition-colors"
+					className="lg:hidden self-start p-1.5 rounded-full bg-[var(--default)] text-[var(--foreground)] hover:bg-[var(--foreground)] hover:text-[var(--surface)] transition-colors"
 					onClick={onClose}
 					aria-label="סגור"
 				>

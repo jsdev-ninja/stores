@@ -1,15 +1,12 @@
 import { logger } from "firebase-functions/v2";
 import { TOrder } from "@jsdev_ninja/core";
 import { emitEvent } from "../../../platform/eventBus";
-import { budgetWriter } from "../../budget/internal/writer";
 import { OrderEventTypes, OrderCancelledPayload } from "../events";
 
 /**
- * Handles the cancellation of an order: reverses any budget impact (best-effort)
- * and emits the `order.cancelled` event for downstream subscribers.
- *
- * Budget reversal only runs when the order belongs to an organization (B2B).
- * B2C cancellations have no budget impact to reverse.
+ * Handles the cancellation of an order.
+ * Emits the `order.cancelled` event — the budget subscriber
+ * (reduceDebtOnOrderCancelled) handles the debt reversal reactively.
  */
 export async function cancelOrder(params: {
 	order: TOrder;
@@ -29,18 +26,9 @@ export async function cancelOrder(params: {
 		organizationId: order.organizationId,
 	});
 
-	if (order.organizationId) {
-		await budgetWriter
-			.onOrderCancelled(order, companyId, storeId, "order_cancelled")
-			.catch((err) => {
-				logger.error("cancelOrder: budget reversal failed", {
-					orderId,
-					companyId,
-					storeId,
-					err,
-				});
-			});
-	}
+	// NOTE (B4): budgetWriter.onOrderCancelled removed.
+	// Debt reversal is now handled reactively by the budget subscriber
+	// (reduceDebtOnOrderCancelled) which fires on the order.cancelled event below.
 
 	await emitEvent<OrderCancelledPayload>({
 		type: OrderEventTypes.cancelled,

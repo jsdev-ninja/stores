@@ -2,6 +2,7 @@ import * as functions from "firebase-functions/v1";
 import { logger } from "firebase-functions/v2";
 import admin from "firebase-admin";
 import { z } from "zod";
+import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { TStorePrivate } from "src/schema";
 import { verifyHypSignature } from "../services/verifyHypSignature";
 import { validateAndConsumeLink } from "../services/validateAndConsumeLink";
@@ -157,6 +158,46 @@ export const recordHypDirectPayment = functions.https.onCall(
 				return { success: false, error: "invalid_amount" };
 			}
 
+			// Resolve payer.organizationId from the order so the budget subscriber
+			// can reduce org debt without an extra read.
+			//
+			// Security: for order-type references, we MUST successfully resolve the
+			// org context. Proceeding without it means debt would never be reduced for
+			// B2B payments. Fail closed (throw) so the caller retries.
+			// For non-order references, best-effort is acceptable (no budget impact).
+			let payerOrganizationId: string | undefined;
+			let payerClientId: string | undefined;
+			let payerBillingAccountId: string | undefined;
+
+			if (linkSnapshot.reference.type === "order") {
+				const orderPath = FirebaseAPI.firestore.getPath({
+					companyId: input.companyId,
+					storeId: input.storeId,
+					collectionName: "orders",
+					id: linkSnapshot.reference.id,
+				});
+				// Do NOT wrap in try/catch — let network/Firestore errors propagate so
+				// the caller retries. A missing doc (exists === false) also fails closed.
+				const orderSnap = await admin.firestore().doc(orderPath).get();
+				if (!orderSnap.exists) {
+					logger.error("ledger.recordHypDirectPayment.orderNotFound", {
+						orderId: linkSnapshot.reference.id,
+						companyId: input.companyId,
+						storeId: input.storeId,
+						Id: input.Id,
+					});
+					// Throw so the function retries; the HYP charge is already recorded
+					// idempotently so retrying is safe.
+					throw new Error(
+						`recordHypDirectPayment: order doc not found for orderId=${linkSnapshot.reference.id} — will retry`,
+					);
+				}
+				const order = orderSnap.data() as TOrder;
+				payerOrganizationId = order.organizationId;
+				payerClientId = order.client?.id;
+				payerBillingAccountId = order.billingAccount?.id;
+			}
+
 			// STEP 1 (priority): Record the money fact — idempotent on hyp_{Id}.
 			// The HYP charge already happened before this function runs; recording it
 			// is the durable, highest-priority action. On a browser replay, postTransaction
@@ -169,6 +210,11 @@ export const recordHypDirectPayment = functions.https.onCall(
 				currency: "ILS",
 				direction: "in",
 				reference: linkSnapshot.reference,
+				payer: {
+					organizationId: payerOrganizationId,
+					clientId: payerClientId,
+					billingAccountId: payerBillingAccountId,
+				},
 				hyp: {
 					masof: storePrivateData.hypData.masof,
 					ccode: input.CCode,

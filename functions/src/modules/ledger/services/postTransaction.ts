@@ -105,6 +105,9 @@ export async function postTransaction(
 				amount: tx.amount,
 				direction: tx.direction,
 				reference: tx.reference,
+				// Forward payer so budget subscriber can reduce org debt without
+				// an extra Firestore read.
+				payer: tx.payer,
 			};
 
 			emit<TransactionPostedPayload>(fsxn, {

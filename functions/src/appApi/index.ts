@@ -3,22 +3,17 @@ import { logger } from "../core";
 import {
 	FirebaseAPI,
 	ProductSchema,
-	TBudgetAccount,
-	TBudgetTransaction,
 	TCart,
 	TOrder,
 	TOrganization,
-	TPaymentMethod,
 	TProduct,
 	TStore,
 } from "@jsdev_ninja/core";
-import { budgetWriter } from "../modules/budget/internal/writer";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
 import { renderDeliveryNoteToHTML } from "../services/documents/renderToHTML";
 import { emitDeliveryNoteCreated } from "../modules/documents/internal/emitDeliveryNoteCreated";
-import { emitPaymentReceived } from "../modules/payments/internal/emitPaymentReceived";
 
 type TContext = {
 	storeId: string;
@@ -258,14 +253,8 @@ export function createAppApi(context: TContext) {
 							deliveryNoteNumber: res.data.doc_number,
 						});
 
-						// Add debt to organization budget when delivery note is issued
-						await budgetWriter.onDeliveryNoteCreated(
-							order,
-							companyId,
-							storeId,
-							res.data.doc_number,
-							res.data.doc_number,
-						);
+						// NOTE (B4): budgetWriter.onDeliveryNoteCreated removed.
+						// Debt now accrues via the order.placed subscriber (increaseDebtOnOrderPlaced).
 
 						return { success: true, error: null };
 					} else {
@@ -510,134 +499,10 @@ export function createAppApi(context: TContext) {
 				}
 			},
 		},
-		budget: {
-			async getBudgetAccount(organizationId: string): Promise<TBudgetAccount | null> {
-				const snap = await admin
-					.firestore()
-					.doc(
-						FirebaseAPI.firestore.getPath({
-							companyId,
-							storeId,
-							collectionName: "budgetAccounts",
-							id: organizationId,
-						}),
-					)
-					.get();
-				return snap.exists ? (snap.data() as TBudgetAccount) : null;
-			},
-
-			async listBudgetAccounts(): Promise<TBudgetAccount[]> {
-				const snap = await admin
-					.firestore()
-					.collection(
-						FirebaseAPI.firestore.getPath({
-							companyId,
-							storeId,
-							collectionName: "budgetAccounts",
-						}),
-					)
-					.orderBy("balance", "desc")
-					.get();
-				return snap.docs.map((d) => d.data() as TBudgetAccount);
-			},
-
-			async getBudgetTransactions(
-				organizationId: string,
-				filters?: { billingAccountId?: string },
-			): Promise<TBudgetTransaction[]> {
-				let query: admin.firestore.Query = admin
-					.firestore()
-					.collection(
-						`${FirebaseAPI.firestore.getPath({
-							companyId,
-							storeId,
-							collectionName: "budgetAccounts",
-							id: organizationId,
-						})}/budgetTransactions`,
-					)
-					.orderBy("createdAt", "desc");
-
-				if (filters?.billingAccountId) {
-					query = query.where("billingAccountId", "==", filters.billingAccountId);
-				}
-
-				const snap = await query.get();
-				return snap.docs.map((d) => d.data() as TBudgetTransaction);
-			},
-
-			async markOrderPaid(params: {
-				order: TOrder;
-				organizationId: string;
-				organizationName: string;
-				debt: number;
-				paymentMethod: TPaymentMethod;
-				paymentReference: string | null;
-				paymentDate: number;
-				note: string | null;
-				paidByUserId: string;
-			}): Promise<void> {
-				const db = admin.firestore();
-				const orderPath = FirebaseAPI.firestore.getPath({
-					companyId,
-					storeId,
-					collectionName: "orders",
-					id: params.order.id,
-				});
-
-				// Record payment in budget ledger
-				await budgetWriter.recordPayment({
-					companyId,
-					storeId,
-					organizationId: params.organizationId,
-					organizationName: params.organizationName,
-					order: params.order,
-					debt: params.debt,
-					paymentMethod: params.paymentMethod,
-					paymentReference: params.paymentReference,
-					paymentDate: params.paymentDate,
-					note: params.note,
-					createdBy: params.paidByUserId,
-				});
-
-				await emitPaymentReceived({
-					order: params.order,
-					organizationId: params.organizationId,
-					debt: params.debt,
-					paymentMethod: params.paymentMethod,
-					paymentReference: params.paymentReference,
-					paymentDate: params.paymentDate,
-					paidByUserId: params.paidByUserId,
-					companyId,
-					storeId,
-				});
-
-				// Mark order as paid
-				await db.doc(orderPath).update({
-					paymentStatus: "completed",
-					status: "completed",
-					"externalPayment.amount": params.debt,
-					"externalPayment.method": params.paymentMethod,
-					"externalPayment.reference": params.paymentReference,
-					"externalPayment.date": params.paymentDate,
-					"externalPayment.note": params.note,
-					"externalPayment.recordedBy": params.paidByUserId,
-				});
-			},
-
-			async addManualTransaction(params: {
-				organizationId: string;
-				organizationName: string;
-				type: "credit_note" | "debit_note";
-				debt: number;
-				note: string;
-				createdBy: string;
-			}): Promise<void> {
-				await budgetWriter.addManualTransaction({
-					companyId,
-					storeId,
-					...params,
-				});
-			},
-		},
+		// NOTE (B3): budget block removed from appApi.
+		// Budget callables now read directly from organizationBudgets/budgetRecords
+		// in modules/budget/api/budgetApi.ts and no longer go through appApi.
+		// This section was the old bridging layer to budgetWriter/repository.
+		// The budget callables are standalone functionsV2 exports in budget/index.ts.
 	};
 }

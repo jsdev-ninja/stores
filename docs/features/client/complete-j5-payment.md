@@ -1,50 +1,77 @@
 # Client — Complete J5 Payment (HYP)
 
+> Full-checklist spec (see `_TEMPLATE.md`). ✅ works · ❌ missing · ⚪ N/A · ❓ not yet verified.
+
 ## Feature
+After placement, the J5 customer pays on HYP — a **pre-authorization** (hold, not
+capture). On success HYP redirects back. We verify what records the J5 result.
 
-After the order is created (placed), the J5 flow sends the customer to HYP to
-**pre-authorize** their card (J5 = auth/hold, **not** a capture/charge). On
-success HYP redirects the browser back to the store. We are verifying **what,
-if anything, records the J5 result back onto the order**.
+## Flow
+1. Checkout J5 → `createPayment` builds HYP form → browser POSTs to HYP.
+2. Customer enters card → HYP J5 pre-auth (success `CCode=0`, code `700`, returns auth code/UID).
+3. HYP redirects back (success/pending/error page).
 
-> **Flow**: checkout → `createPayment` builds the HYP J5 form → browser POSTs to
-> HYP (`submitHypForm`) → customer enters card on HYP → HYP runs J5 pre-auth
-> (success `CCode=0`, code `700`, returns an auth code) → HYP redirects back to
-> the store (success/error page). No webhook — result comes via the browser
-> redirect.
+## Test plan
+1. On HYP page, enter card → complete J5 auth.
+2. Observe redirect; check order `paymentStatus`.
 
-## Test plan (user workflow)
+---
 
-1. From the order you created → on the HYP page, enter the (test/prod) card.
-2. Complete the J5 authorization.
-3. Observe the redirect back (success / pending / error page).
+## Expected effects — FULL checklist
 
-## Open question we're verifying (via logs)
+### 1. Firestore writes
+| Path | Op | Notes | Status |
+|---|---|---|---|
+| `…/orders/{id}` | update | `paymentStatus → pending_j5` | ✅ (TEQD3ru3 reached `pending_j5`) |
 
-- Does completing J5 **update the order** (`paymentStatus` → e.g. `pending_j5`)?
-- Or is the J5 auth only **captured later** by an admin (`chargeOrder` → `action=soft` capture)?
-- Which function handles the return: `getPaymentRedirect`, `createPayment`, a
-  trigger, or nothing? (The clean `ledger.recordHypJ5Auth` exists but is UNWIRED,
-  so the current path is legacy — logs will show the truth.)
+### 2. Expected DB state
+- Order `paymentStatus: pending_j5` (card held, not captured). ✅
+- ❓ **What sets `pending_j5`** (which function/handler) — NOT yet traced. Needs a log check.
 
-## Expected (to confirm)
+### 3. Events emitted
+- `order.placed` already fired at creation — must NOT fire again here. ✅ (verified single emit)
 
-- Order doc updated with the J5 result (auth code / `paymentStatus`) — **TBD, verifying**.
-- No second `order.placed` (placement already happened at creation).
+### 4. Subscribers
+- ⚪ none specific to J5 auth in the live (legacy) path.
+- (Intended: `ledger.transaction_posted` → `markOrderPaidOnTransactionPosted` → set `pending_j5` — but ledger unwired.)
 
-## Events / subscribers
+### 5. Cloud Functions / triggers
+| Fn | Effect | Status |
+|---|---|---|
+| `createPayment` | built the HYP form at checkout | ✅ |
+| J5 return handler (`getPaymentRedirect`? other?) | record result | ❓ not traced |
+| `onOrderUpdate` | fires on the `paymentStatus` change | ✅ (fired for TEQD3ru3) |
 
-- `order.placed` already fired at creation — should **not** fire again here.
-- If a paymentStatus→completed transition happens later (capture), `trackOrderPayment` runs (separate).
+### 6. 💰 Ledger transaction
+| Expected | Status |
+|---|---|
+| `hyp_j5_auth` transaction recorded (amount, direction in, HYP UID, dedup `hyp_…`) | ❌ **MISSING — `transactions` empty, ledger unwired** |
+| order `lastPaymentTransactionId` | ❌ null |
 
-## Logs to check (jsdev-stores-prod, balasistore)
+### 7. 💰 Budget (B2B)
+- ⚪ Budget impact only on capture/completion for B2B; verified order B2C → N/A. ❓ B2B not validated.
 
-- `createPayment` (already ran at checkout).
-- On return: `getPaymentRedirect` and/or any order update / `onOrderUpdate`.
-- Any HYP verify/auth-code handling.
-- Whether `paymentStatus` changes on the order.
+### 8. Storage — ⚪ none.
+### 9. Search index — ⚪ none.
 
-## ⚠️ Production (balasistore)
+### 10. Emails / notifications
+- ❓ J5-auth customer/admin email not verified.
 
-- **Real card pre-authorization** on a live HYP terminal (J5 holds funds, does not
-  capture — but it's a real auth on a real card). Use your prod test card.
+### 11. External services
+- HYP J5 pre-auth = **real card authorization** ✅. ezcount — ❓ (not at auth stage).
+
+### 12. Idempotency
+- HYP duplicate-charge protection is the intended `ledger` job (record + detect) — ❌ not active (ledger unwired). Risk: a double J5 on HYP would not be detected internally.
+
+### 13. Tenant — ✅ balasistore.
+
+## Logs to expect
+- `createPayment` (at checkout), J5 return handler, `onOrderUpdate` paymentStatus change.
+
+## Known gaps / not-yet-wired
+- ❌ **No `hyp_j5_auth` ledger transaction** (ledger unwired) → no money trail, no duplicate-charge detection.
+- ❓ The exact function that sets `paymentStatus: pending_j5` after the HYP redirect is not yet traced — VERIFY.
+- ❓ Customer/admin J5 email not verified.
+
+## Production / risk notes
+- Real card pre-authorization on the live HYP terminal.

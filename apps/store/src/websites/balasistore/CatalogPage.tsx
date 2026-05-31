@@ -57,7 +57,7 @@ export default function BalasiCatalogPage() {
 
 								{/* Mobile filter toggle */}
 								<button
-									className="md:hidden mb-4 inline-flex items-center gap-2.5 border-[1.5px] border-[var(--foreground)] bg-[var(--foreground)] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--surface)] transition-colors hover:bg-[var(--accent)] hover:border-[var(--accent)]"
+									className="lg:hidden mb-4 inline-flex items-center gap-2.5 border-[1.5px] border-[var(--foreground)] bg-[var(--foreground)] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--surface)] transition-colors hover:bg-[var(--accent)] hover:border-[var(--accent)]"
 									onClick={toggleAside}
 									aria-label="הצג סינונים"
 								>
@@ -78,7 +78,7 @@ export default function BalasiCatalogPage() {
 									<div className="min-w-0 flex-1 flex flex-col gap-5">
 										<ProductsWidget.SearchBox />
 
-										<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 w-full">
+										<div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-4 w-full">
 											<ProductsWidget.Products emptyStateAction={() => {}}>
 												{(products) =>
 													products.map((product) => (
@@ -97,7 +97,7 @@ export default function BalasiCatalogPage() {
 				</div>
 
 				{/* Desktop cart — LAST child → LEFT in RTL. Sticky, not fixed. */}
-				<aside className="hidden md:flex w-80 shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--surface)]">
+				<aside className="hidden xl:flex w-80 shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--surface)]">
 					<div className="grow h-full overflow-auto">
 						<Cart />
 					</div>
@@ -115,7 +115,7 @@ export default function BalasiCatalogPage() {
 			</div>
 
 			{/* Mobile sticky cart bar */}
-			<div className="md:hidden fixed bottom-0 left-0 right-0 z-40 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-[var(--background)] border-t border-[var(--border)] shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
+			<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-[var(--background)] border-t border-[var(--border)] shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
 				<Button
 					isDisabled={!cartCost?.items?.length}
 					fullWidth
@@ -126,7 +126,7 @@ export default function BalasiCatalogPage() {
 				</Button>
 			</div>
 			{/* Spacer so content is not hidden behind mobile cart bar */}
-			<div className="md:hidden h-16 shrink-0" aria-hidden />
+			<div className="xl:hidden h-16 shrink-0" aria-hidden />
 		</div>
 	);
 }

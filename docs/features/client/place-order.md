@@ -1,96 +1,89 @@
 # Client — Place Order (Checkout "Order" button)
 
+> Full-checklist spec (see `_TEMPLATE.md`). ✅ works · ❌ missing · ⚪ N/A · ❓ not yet verified.
+
 ## Feature
+A logged-in client submits checkout. **Creating the order = placement**: `order.placed`
+fires on creation (admin email + cart close), regardless of status. Then payment per
+`paymentType` (external = none; J5 = HYP pre-auth).
 
-A logged-in client submits the checkout form. An order doc is created — and
-**creating the order is the placement**: `order.placed` fires on creation
-(admin email + cart close), regardless of status. The client is then taken to
-payment depending on the store/profile `paymentType`.
+## Flow
+1. Build `newOrder` (id = cart.id, deterministic). `status` = `draft` (J5) / `pending` (external).
+2. `appApi.orders.order({order})` → `createV2` (idempotent on duplicate).
+3. external → navigate to orders. J5 → `createPaymentLink`→`createPayment` → HYP form.
 
-> **Flow** (`CheckoutPage.tsx` onSubmit):
-> 1. Build `newOrder` from cart + form (address, delivery date, invoice info), `date = Date.now()`.
-> 2. **If `paymentType === "external"`**: `status = "pending"`, `paymentType = "external"`
->    → `appApi.orders.order({ order })` → navigate to `store.orders`. **No gateway.**
-> 3. **Else (J5, default)**: `paymentType = "j5"` (order created with `status: "draft"`)
->    → `appApi.orders.order({ order })` → `appApi.user.createPaymentLink({ order, isJ5: true })`
->    (→ backend `createPayment`) → POST/redirect to HYP → **real HYP J5 card pre-auth**.
-> - `appApi.orders.order` uses `createV2` (create, idempotent — `success:false` on
->   re-submit/refresh, flow continues either way).
+## Test plan
+1. Client with items → checkout → fill form → **Order**.
+2. external: lands on orders. J5: redirect to HYP.
 
-## Placement semantics (important)
+---
 
-`order.placed` fires **once, at order creation, for every order — not gated by
-status**. So a J5 order (created as `draft`) emits `order.placed` immediately at
-checkout, **before** the customer pays on HYP. Payment is tracked separately via
-`paymentStatus` / the ledger flow — it is independent of placement.
+## Expected effects — FULL checklist
 
-> This changed: previously `order.placed` was gated to `pending`/`processing`
-> and (for J5) fired only after payment. Now it always fires on creation, and the
-> old `onOrderUpdate` draft→pending emit was removed (no double-fire).
+### 1. Firestore writes
+| Path | Op | Notes | Status |
+|---|---|---|---|
+| `…/orders/{id}` | create | `status` draft(J5)/pending(external) | ✅ |
+| `…/cart/{cartId}` | update | → `completed` via close subscriber | ✅ |
 
-## Test plan (user workflow)
+### 2. Expected DB state
+- Order doc with cart snapshot, address, deliveryDate, invoice fields. ✅
+- Cart `status: completed`, user has no active cart. ✅ (verified TEQD3ru3)
 
-1. As a logged-in client with items in cart → go to checkout.
-2. Fill the form (name, address, delivery date, phone, email).
-3. Click the **Order** button.
-4. **External**: lands on orders list, order shown as pending.
-5. **J5**: redirected to HYP payment page → complete/cancel card auth.
-6. Either way: admin gets the order email and the cart is cleared (at creation).
-
-## DB changes
-
-| Path | Operation | Notes |
+### 3. Events emitted
+| Event | When | Status |
 |---|---|---|
-| `{companyId}/{storeId}/orders/{orderId}` | `create` (`createV2`) | order doc; `status: "draft"` (J5) or `"pending"` (external); `paymentType: "j5"\|"external"` |
-| `{companyId}/{storeId}/cart/{cartId}` | update (via subscriber) | cart closed on `order.placed` |
+| `order.placed` | on creation, every order, any status | ✅ |
 
-## Expected DB state after
-
-- New order doc at `orders/{orderId}` with the cart snapshot (items, totals, vat,
-  delivery), address, deliveryDate, invoice fields. `status` = `draft` (J5) or
-  `pending` (external).
-- Cart closed (by `onOrderPlacedCloseCart`) — immediately, at creation.
-- J5: payment is separate — a HYP transaction is recorded only once the customer
-  completes auth on HYP (ledger flow, separate). The order placement does not wait
-  for it.
-
-## Events emitted
-
-| Event | When | Where |
+### 4. Subscribers
+| Subscriber | Effect | Status |
 |---|---|---|
-| `order.placed` | on order **creation**, every order, any status (incl. J5 `draft`). Exactly once. | `onOrderCreated` trigger (inline emit) |
+| `onOrderPlacedAdminEmail` | admin email | ✅ fired |
+| `onOrderPlacedCloseCart` | close cart by `cartId` | ✅ "cart closed" |
 
-> `onOrderUpdate` no longer emits `order.placed` (removed to avoid double-fire).
+### 5. Cloud Functions / triggers
+| Fn | Effect | Status |
+|---|---|---|
+| `onOrderCreated` | emit `order.placed` | ✅ |
+| `createPayment` (J5) | build HYP form (amount `.toFixed(2)`) | ✅ |
 
-## Subscribers (react to `order.placed`)
-
-| Subscriber | Effect |
+### 6. 💰 Ledger transaction
+| Expected | Status |
 |---|---|
-| `onOrderPlacedAdminEmail` | sends order-placed **email to the store admin** (status-agnostic) |
-| `onOrderPlacedCloseCart` | closes the client's cart by `payload.cartId` (status-agnostic) |
+| `hyp_j5_auth` / any `transactions` record at placement | ❌ **MISSING — ledger unwired, no transaction written** |
+| order `lastPaymentTransactionId` link | ❌ null |
 
-## Cloud Functions / triggers fired
+### 7. 💰 Budget (B2B)
+- ⚪ Only if `organizationId` set. Verified order was B2C (null) → N/A. ❓ B2B path (org budget via `organizationActions`) not yet validated.
 
-| Function | Effect |
-|---|---|
-| `onOrderCreated` (trigger) | emits `order.placed` (always, on create) |
-| `createPayment` (callable, J5 only — client calls it `createPaymentLink`) | builds the HYP J5 payment form/link |
-| HYP gateway (J5 only) | external — real card pre-authorization |
+### 8. Storage
+- ⚪ none.
 
-## Logs to expect (jsdev-stores-prod)
+### 9. Search index
+- ⚪ none.
 
-- `onOrderCreated`: `"new order created"` → emit `order.placed`.
-- `onOrderPlacedAdminEmail`: admin email send.
-- `onOrderPlacedCloseCart`: `"cart closed"`.
-- J5: `createPayment` invocation + HYP request/response.
-- All under the active `companyId` / `storeId`.
+### 10. Emails / notifications
+- Admin "order placed" email ✅. Customer confirmation email ❓ (not verified).
 
-> Requires the staged functions deploy. Before that, the live code still gates
-> `order.placed` on status (skips `draft`) — i.e. J5 won't place/email until deploy.
+### 11. External services
+- HYP J5 form created ✅ (J5 path). ezcount invoice ❓ (likely at later stage, not at placement).
 
-## ⚠️ Production impact (balasistore = PROD)
+### 12. Idempotency
+- `order.id = cart.id` + `createV2` → rage-click/refresh safe ✅. **Trap:** if cart never closed, re-checkout is a no-op → cart stuck (see complete-j5 / known gaps).
 
-- **Real order** created on the live store.
-- **Real admin email** + cart close on **every** order creation — including J5
-  orders where the customer later **abandons** payment on HYP. (Accepted: placed = created.)
-- **J5 → real HYP credit-card pre-authorization** (auth-only, but a live gateway hit).
+### 13. Tenant
+- `companyId`/`storeId` from order/token ✅ (balasistore verified).
+
+## Logs to expect
+- `onOrderCreated: new order created` → `emit order.placed`
+- `closeCartOnOrderPlaced: cart closed`, `onOrderPlacedAdminEmail`
+- J5: `createPayment` invocation
+
+## Known gaps / not-yet-wired
+- ❌ **No ledger transaction recorded at placement** (ledger module unwired).
+- ❓ Customer confirmation email not verified.
+- ⚠️ Stuck-cart trap: a cart whose order exists but never closed can't be re-closed via checkout.
+
+## Production / risk notes
+- Real order + real admin email on every creation, incl. **abandoned** J5 checkouts.
+- J5 = real card pre-authorization on HYP.

@@ -24,6 +24,8 @@ export const storeCollections = {
 	contactSubmissions: "contactSubmissions",
 	budgetAccounts: "budgetAccounts",
 	budgetTransactions: "budgetTransactions",
+	budgetRecords: "budgetRecords",
+	organizationBudgets: "organizationBudgets",
 	transactions: "transactions",
 	paymentLinks: "paymentLinks",
 	duplicateChargeAlerts: "duplicateChargeAlerts",

@@ -1,5 +1,61 @@
 import { FirebaseAPI } from "@jsdev_ninja/core";
 
+// ---------------------------------------------------------------------------
+// New target-model paths (B1)
+// ---------------------------------------------------------------------------
+
+export function budgetRecordPath(
+	companyId: string,
+	storeId: string,
+	recordId: string,
+): string {
+	return FirebaseAPI.firestore.getPath({
+		companyId,
+		storeId,
+		collectionName: "budgetRecords",
+		id: recordId,
+	});
+}
+
+export function budgetRecordsCollectionPath(
+	companyId: string,
+	storeId: string,
+): string {
+	return FirebaseAPI.firestore.getPath({
+		companyId,
+		storeId,
+		collectionName: "budgetRecords",
+	});
+}
+
+export function organizationBudgetPath(
+	companyId: string,
+	storeId: string,
+	organizationId: string,
+): string {
+	return FirebaseAPI.firestore.getPath({
+		companyId,
+		storeId,
+		collectionName: "organizationBudgets",
+		id: organizationId,
+	});
+}
+
+export function organizationBudgetsCollectionPath(
+	companyId: string,
+	storeId: string,
+): string {
+	return FirebaseAPI.firestore.getPath({
+		companyId,
+		storeId,
+		collectionName: "organizationBudgets",
+	});
+}
+
+// ---------------------------------------------------------------------------
+// Legacy paths (kept — used by legacy callables and old data)
+// ---------------------------------------------------------------------------
+
 export function budgetAccountPath(
 	companyId: string,
 	storeId: string,
