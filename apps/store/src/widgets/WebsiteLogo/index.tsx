@@ -8,7 +8,10 @@ export function WebsiteLogo({ className }: { className?: string }) {
     <img
       src={store?.logoUrl || DefaultLogoSrc}
       alt=""
-      className={className ?? "w-full h-full rounded object-cover max-w-full max-h-full"}
+      className={
+        className ??
+        "w-full h-full rounded object-center object-cover max-w-full max-h-full"
+      }
       onClick={() => {
         navigate({
           to: "store",
