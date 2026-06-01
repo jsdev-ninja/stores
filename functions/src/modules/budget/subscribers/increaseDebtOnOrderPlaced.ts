@@ -72,20 +72,27 @@ export const increaseDebtOnOrderPlaced = subscribe(
 		}
 
 		const organizationId = order.organizationId;
-		// Amount MUST come from the server-side order doc — never from the event payload
-		const amount = order.cart.cartTotal;
+		// Amount MUST come from the server-side order doc — never from the event payload.
+		// TODO(money-units): cart.cartTotal is stored in SHEKELS (ILS floats) across all
+		// current + legacy order docs, while the budget ledger standardizes on integer
+		// agorot. We convert ILS→agorot here at the subscriber boundary for now. Once
+		// orders are migrated to store agorot upstream, drop the *100 and read cartTotal
+		// directly. See CLAUDE.md "Money" + legacy-ILS note.
+		const cartTotalShekels = order.cart.cartTotal;
 
-		if (!Number.isInteger(amount) || amount <= 0) {
-			logger.error("budget.increaseDebtOnOrderPlaced: cart.cartTotal is not a positive integer agorot", {
+		if (typeof cartTotalShekels !== "number" || !Number.isFinite(cartTotalShekels) || cartTotalShekels <= 0) {
+			logger.error("budget.increaseDebtOnOrderPlaced: cart.cartTotal is not a positive number", {
 				eventId,
 				orderId: payload.orderId,
-				amount,
+				cartTotal: cartTotalShekels,
 				companyId,
 				storeId,
 			});
 			// Don't throw — log and skip to avoid poisoning the event queue
 			return;
 		}
+
+		const amount = Math.round(cartTotalShekels * 100); // ILS shekels → integer agorot
 
 		const organizationName =
 			order.client?.companyName ??

@@ -662,6 +662,9 @@ export const resources = {
 				organizationMember: "חבר בארגון",
 				searchOrganizations: "חפש ארגונים...",
 				noSearchResults: "לא נמצאו ארגונים התואמים לחיפוש שלך",
+				failedToAssignOrganization: "שגיאה בשיוך הלקוח לארגון",
+				failedToRemoveOrganization: "שגיאה בהסרת הלקוח מהארגון",
+				failedToUpdateOrganization: "שגיאה בעדכון שיוך הארגון",
 			},
 			addProductPage: {
 				title: "הוסף מוצר",
@@ -731,6 +734,7 @@ export const resources = {
 					displayNameRequired: "שם לקוח נדרש",
 					emailRequired: "אימייל נדרש",
 					selectExistingClient: "בחר לקוח מהרשימה",
+					saveOrganizationFailed: "שמירת הארגון נכשלה. נסה שוב.",
 				},
 				details: "פרטים",
 				orders: "הזמנות",

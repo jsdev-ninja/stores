@@ -112,17 +112,23 @@ function buildFormState(org: TOrganization | null): CompanyModalFormState {
 type CompanyModalProps = {
 	state: CompanyModalState;
 	onClose: () => void;
+	onSaved?: () => void;
 };
 
-function CompanyModal({ state, onClose }: CompanyModalProps) {
+function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
+	const { t } = useTranslation(["admin"]);
+	const appApi = useAppApi();
 	const [tab, setTab] = useState<CompanyTab>("details");
 	const [form, setForm] = useState<CompanyModalFormState>(buildFormState(null));
+	const [isSaving, setIsSaving] = useState(false);
+	const [saveError, setSaveError] = useState<string | null>(null);
 
-	// Reset form and tab whenever the modal opens with a new org
+	// Reset form, tab, and error whenever the modal opens with a new org
 	useEffect(() => {
 		if (state.kind === "open") {
 			setForm(buildFormState(state.org));
 			setTab("details");
+			setSaveError(null);
 		}
 	}, [state]);
 
@@ -141,7 +147,63 @@ function CompanyModal({ state, onClose }: CompanyModalProps) {
 	];
 
 	function handleFieldChange(field: keyof CompanyModalFormState, value: string) {
+		setSaveError(null);
 		setForm((prev) => ({ ...prev, [field]: value }));
+	}
+
+	async function handleSave() {
+		setSaveError(null);
+		setIsSaving(true);
+		try {
+			const address = {
+				city: form.city,
+				street: form.street,
+				streetNumber: form.streetNumber,
+			};
+			const discountPercentage = form.discountPercentage.trim()
+				? Number(form.discountPercentage)
+				: undefined;
+
+			if (isNew) {
+				const payload = {
+					name: form.name,
+					companyNumber: form.companyNumber || undefined,
+					address,
+					paymentType: form.paymentType,
+					discountPercentage,
+					nameOnInvoice: form.nameOnInvoice || undefined,
+					billingAccounts: [],
+				};
+				const result = await appApi.admin.createOrganization(payload);
+				if (result?.success) {
+					onSaved?.();
+					onClose();
+				} else {
+					setSaveError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+				}
+			} else {
+				const payload = {
+					...org!,
+					name: form.name,
+					companyNumber: form.companyNumber || undefined,
+					address,
+					paymentType: form.paymentType,
+					discountPercentage,
+					nameOnInvoice: form.nameOnInvoice || undefined,
+				};
+				const result = await appApi.admin.updateOrganization(payload);
+				if (result?.success) {
+					onSaved?.();
+					onClose();
+				} else {
+					setSaveError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+				}
+			}
+		} catch {
+			setSaveError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+		} finally {
+			setIsSaving(false);
+		}
 	}
 
 	return (
@@ -377,11 +439,20 @@ function CompanyModal({ state, onClose }: CompanyModalProps) {
 					</Modal.Body>
 
 					<Modal.Footer>
-						<Button variant="ghost" onPress={onClose}>
+						{saveError && (
+							<span className="text-xs text-[var(--danger)] flex-1 text-start">
+								{saveError}
+							</span>
+						)}
+						<Button variant="ghost" onPress={onClose} isDisabled={isSaving}>
 							סגירה
 						</Button>
-						{/* Save is UI-only: closes the modal, no backend call */}
-						<Button variant="primary" onPress={onClose}>
+						<Button
+							variant="primary"
+							onPress={handleSave}
+							isPending={isSaving}
+							isDisabled={isSaving || !form.name.trim()}
+						>
 							{isNew ? "שמור" : "שמור פרטים"}
 						</Button>
 					</Modal.Footer>
@@ -882,6 +953,7 @@ export function AdminOrganizationsPage() {
 			<CompanyModal
 				state={companyModal}
 				onClose={() => setCompanyModal({ kind: "closed" })}
+				onSaved={() => loadOrganizations()}
 			/>
 			<BaselinePhotosModal
 				state={photosModal}

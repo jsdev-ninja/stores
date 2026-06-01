@@ -16,5 +16,8 @@
 			],
 			"predeploy": ["npm run lint", "npm run build"]
 		}
-	]
+	],
+	"firestore": {
+		"indexes": "firestore.indexes.json"
+	}
 }

@@ -246,13 +246,25 @@ const ClientProfileHeader = ({ profile, onRemove }: ClientProfileHeaderProps) =>
 type ClientProfileFormProps = {
   profile: TProfile;
   onSubmit: (updatedProfile: TProfile) => void;
+  onRefresh: () => Promise<void>;
 };
 
-const ClientProfileForm = ({ profile, onSubmit }: ClientProfileFormProps) => {
+const ClientProfileForm = ({ profile, onSubmit, onRefresh }: ClientProfileFormProps) => {
   const { t } = useTranslation(["common", "admin"]);
   const [formData, setFormData] = React.useState<TProfile>(profile);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
+
+  // Sync only server-owned org fields when they change after a silent refresh.
+  // We deliberately do NOT sync the entire `profile` object here to avoid
+  // wiping unsaved Basic Info / Address edits that the admin may have typed.
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      organizationIds: profile.organizationIds,
+      organizationId: profile.organizationId,
+    }));
+  }, [profile.organizationIds, profile.organizationId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChange = (field: keyof TProfile, value: string | string[] | null) => {
     setFormData((prev) => ({
@@ -434,10 +446,7 @@ const ClientProfileForm = ({ profile, onSubmit }: ClientProfileFormProps) => {
 
       <OrganizationManagementCard
         profile={formData}
-        onOrganizationIdsChange={(organizationIds: string[]) => {
-          handleChange("organizationIds", organizationIds);
-          handleChange("organizationId", organizationIds[0] ?? null);
-        }}
+        onRefresh={onRefresh}
       />
 
       <Card className="mb-6">
@@ -531,7 +540,7 @@ const ClientProfileForm = ({ profile, onSubmit }: ClientProfileFormProps) => {
       </Card>
 
       <div className="mt-6 flex justify-end gap-2">
-        <Button variant="ghost">
+        <Button type="button" variant="ghost">
           {t("common:cancel")}
         </Button>
         <Button
@@ -549,17 +558,19 @@ const ClientProfileForm = ({ profile, onSubmit }: ClientProfileFormProps) => {
 
 type OrganizationManagementCardProps = {
   profile: TProfile;
-  onOrganizationIdsChange: (organizationIds: string[]) => void;
+  onRefresh: () => Promise<void>;
 };
 
 const OrganizationManagementCard = ({
   profile,
-  onOrganizationIdsChange,
+  onRefresh,
 }: OrganizationManagementCardProps) => {
   const { t } = useTranslation(["common", "admin"]);
   const appApi = useAppApi();
   const [organizations, setOrganizations] = useState<TOrganization[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingOrgs, setLoadingOrgs] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [orgError, setOrgError] = useState<string | null>(null);
 
   const selectedIds: string[] = profile.organizationIds && profile.organizationIds.length > 0
     ? profile.organizationIds
@@ -572,7 +583,7 @@ const OrganizationManagementCard = ({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadOrganizations = async () => {
-    setLoading(true);
+    setLoadingOrgs(true);
     try {
       const result = await appApi.admin.listOrganizations();
       if (result?.success) {
@@ -581,9 +592,47 @@ const OrganizationManagementCard = ({
     } catch (error) {
       console.error("Failed to load organizations:", error);
     } finally {
-      setLoading(false);
+      setLoadingOrgs(false);
     }
   };
+
+  const handleSelectionChange = async (keys: Set<Key> | "all") => {
+    if (keys === "all") return;
+    setOrgError(null);
+
+    const newIds = Array.from(keys as Set<string>).map(String);
+    const added = newIds.filter((id) => !selectedIds.includes(id));
+    const removed = selectedIds.filter((id) => !newIds.includes(id));
+
+    setIsSaving(true);
+    try {
+      for (const organizationId of added) {
+        const result = await appApi.admin.assignClientToOrganization({
+          clientId: profile.id,
+          organizationId,
+        });
+        if (!result?.success) {
+          setOrgError(t("admin:clientProfile.failedToAssignOrganization"));
+          return;
+        }
+      }
+      for (const organizationId of removed) {
+        const result = await appApi.admin.removeClientFromOrganization(profile.id, organizationId);
+        if (!result?.success) {
+          setOrgError(t("admin:clientProfile.failedToRemoveOrganization"));
+          return;
+        }
+      }
+      await onRefresh();
+    } catch (error) {
+      console.error("Failed to update organization membership:", error);
+      setOrgError(t("admin:clientProfile.failedToUpdateOrganization"));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const isLoading = loadingOrgs || isSaving;
 
   return (
     <Card className="mb-6">
@@ -592,8 +641,12 @@ const OrganizationManagementCard = ({
           <h2 className="text-xl font-semibold">
             {t("admin:clientProfile.organizationManagement")}
           </h2>
-          {loading && <Spinner size="sm" />}
+          {isLoading && <Spinner size="sm" />}
         </div>
+
+        {orgError && (
+          <p className="text-sm text-danger mb-3">{orgError}</p>
+        )}
 
         <div className="space-y-4">
           <div className="flex flex-col gap-1">
@@ -603,29 +656,35 @@ const OrganizationManagementCard = ({
             <ListBox
               selectionMode="multiple"
               selectedKeys={new Set(selectedIds)}
-              onSelectionChange={(keys) => {
-                if (keys === "all") return;
-                onOrganizationIdsChange(Array.from(keys as Set<string>).map(String));
-              }}
+              onSelectionChange={handleSelectionChange}
               aria-label={t("admin:clientProfile.selectOrganization")}
-              className="border rounded-md max-h-48 overflow-y-auto"
+              className={`border rounded-md max-h-48 overflow-y-auto${isLoading ? " pointer-events-none opacity-50" : ""}`}
             >
               {organizations.map((org) => (
-                <ListBox.Item key={org.id} id={org.id} textValue={org.name}>
-                  {org.name}
-                  {org.discountPercentage &&
-                    ` (${org.discountPercentage}% ${t("admin:clientProfile.discount")})`}
+                <ListBox.Item
+                  key={org.id}
+                  id={org.id}
+                  textValue={org.name}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span>
+                    {org.name}
+                    {org.discountPercentage &&
+                      ` (${org.discountPercentage}% ${t("admin:clientProfile.discount")})`}
+                  </span>
+                  <ListBox.ItemIndicator />
                 </ListBox.Item>
               ))}
             </ListBox>
           </div>
 
-          {organizations.length === 0 && !loading && (
+          {organizations.length === 0 && !loadingOrgs && (
             <div className="text-center py-4">
               <p className="text-default-500 mb-2">
                 {t("admin:clientProfile.noOrganizationsFound")}
               </p>
               <Button
+                type="button"
                 size="sm"
                 variant="ghost"
                 onPress={() => {
@@ -653,6 +712,25 @@ export default function AdminClientProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadClient = async (opts?: { silent?: boolean }) => {
+    if (!clientId) return;
+    if (!opts?.silent) setLoading(true);
+    try {
+      const res = await appApi.admin.getClient(clientId);
+      if (res?.success) {
+        setClient(res.data);
+        setError(null);
+      } else {
+        setError(t("admin:clientProfile.clientProfileNotFound"));
+      }
+    } catch (err) {
+      console.error("Error fetching client:", err);
+      setError(t("admin:clientProfile.errorLoadingProfile"));
+    } finally {
+      if (!opts?.silent) setLoading(false);
+    }
+  };
+
   async function updateProfile(updatedProfile: TProfile) {
     try {
       const result = await appApi.admin.updateClient(updatedProfile);
@@ -671,26 +749,7 @@ export default function AdminClientProfile() {
   }
 
   useEffect(() => {
-    if (!clientId) return;
-
-    setLoading(true);
-    appApi.admin
-      .getClient(clientId)
-      .then((res) => {
-        if (res?.success) {
-          setClient(res.data);
-          setError(null);
-        } else {
-          setError(t("admin:clientProfile.clientProfileNotFound"));
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching client:", err);
-        setError(t("admin:clientProfile.errorLoadingProfile"));
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    loadClient();
   }, [clientId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
@@ -718,7 +777,7 @@ export default function AdminClientProfile() {
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <ClientProfileHeader profile={client} onRemove={removeProfile} />
       <div className="mt-6">
-        <ClientProfileForm profile={client} onSubmit={updateProfile} />
+        <ClientProfileForm profile={client} onSubmit={updateProfile} onRefresh={() => loadClient({ silent: true })} />
       </div>
     </div>
   );
