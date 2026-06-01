@@ -15,9 +15,11 @@ const InputSchema = z.object({
 		.optional(),
 	payer: z
 		.object({
-			organizationId: z.string().optional(),
-			clientId: z.string().optional(),
-			billingAccountId: z.string().optional(),
+			// Accept null OR undefined from clients (forms often send null for
+			// "no value"); we normalize to undefined before persisting below.
+			organizationId: z.string().nullish(),
+			clientId: z.string().nullish(),
+			billingAccountId: z.string().nullish(),
 		})
 		.optional(),
 });
@@ -62,6 +64,16 @@ export const postManualTransaction = functions.https.onCall(
 
 			const input = parsed.data;
 
+			// Normalize nullable payer fields to undefined — the downstream
+			// Transaction schema uses optional (not nullable) strings.
+			const payer = input.payer
+				? {
+						organizationId: input.payer.organizationId ?? undefined,
+						clientId: input.payer.clientId ?? undefined,
+						billingAccountId: input.payer.billingAccountId ?? undefined,
+					}
+				: undefined;
+
 			const tx = await postTransaction({
 				source: "api",
 				idempotencyKey: input.idempotencyKey,
@@ -71,7 +83,7 @@ export const postManualTransaction = functions.https.onCall(
 				currency: "ILS",
 				direction: "in",
 				reference: input.reference,
-				payer: input.payer,
+				payer,
 				companyId,
 				storeId,
 			});

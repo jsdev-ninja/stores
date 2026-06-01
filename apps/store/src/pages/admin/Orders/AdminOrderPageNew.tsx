@@ -42,6 +42,7 @@ export default function AdminOrderPageNew() {
 	const [paidMethod, setPaidMethod] = useState<TPaymentMethod>("bank_transfer");
 	const [paidReference, setPaidReference] = useState("");
 	const [paidNote, setPaidNote] = useState("");
+	const [markPaidError, setMarkPaidError] = useState("");
 
 	// Payment link modal state
 	const [paymentLinkOpen, setPaymentLinkOpen] = useState(false);
@@ -108,25 +109,47 @@ export default function AdminOrderPageNew() {
 
 	async function submitMarkPaid() {
 		if (!order || !organization) return;
-		const debt = parseFloat(paidAmount);
-		if (!debt) return;
+		const debtShekels = parseFloat(paidAmount);
+		if (!debtShekels || debtShekels <= 0) return;
+		setMarkPaidError("");
 		setMarkPaidLoading(true);
-		await FirebaseApi.api.markOrderPaid({
-			order,
-			organizationId: organization.id,
-			organizationName: organization.name,
-			debt,
-			paymentMethod: paidMethod,
-			paymentReference: paidReference.trim() || null,
-			paymentDate: Date.now(),
-			note: paidNote.trim() || null,
-		});
-		setMarkPaidOpen(false);
-		setMarkPaidLoading(false);
-		setPaidAmount("");
-		setPaidReference("");
-		setPaidNote("");
-		refetchOrder();
+		try {
+			// Record an external payment in the ledger. The ledger fans this `manual`
+			// transaction out to: mark the order paid (markOrderPaidOnTransactionPosted)
+			// and reduce org debt (reduceDebtOnTransactionPosted). Amount is integer agorot.
+			const res = await FirebaseApi.api.postManualTransaction({
+				amount: Math.round(debtShekels * 100), // shekels → integer agorot
+				// Deterministic per order → double-clicks dedupe to one payment.
+				idempotencyKey: `order-paid-${order.id}`,
+				reference: { type: "order", id: order.id },
+				payer: {
+					organizationId: organization.id,
+					// Backend payer fields are optional strings (reject null) — coerce
+					// missing values to undefined so they're omitted from the payload.
+					clientId: order.client?.id ?? undefined,
+					billingAccountId: order.billingAccount?.id ?? undefined,
+				},
+			});
+			if (!res?.success) {
+				setMarkPaidError(
+					res?.error ??
+						t("ordersPage:payment.failed", "סימון התשלום נכשל. נסה שוב."),
+				);
+				return;
+			}
+			setMarkPaidOpen(false);
+			setPaidAmount("");
+			setPaidReference("");
+			setPaidNote("");
+			setMarkPaidError("");
+			refetchOrder();
+		} catch {
+			setMarkPaidError(
+				t("ordersPage:payment.failed", "סימון התשלום נכשל. נסה שוב."),
+			);
+		} finally {
+			setMarkPaidLoading(false);
+		}
 	}
 
 	const actions = [
@@ -347,6 +370,7 @@ export default function AdminOrderPageNew() {
 								variant="secondary"
 								onPress={() => {
 									setPaidAmount(String(order?.cart.cartTotal ?? ""));
+										setMarkPaidError("");
 									setMarkPaidOpen(true);
 								}}
 							>
@@ -1075,6 +1099,14 @@ export default function AdminOrderPageNew() {
 						</Modal.Heading>
 					</Modal.Header>
 					<Modal.Body className="space-y-4">
+							{markPaidError && (
+								<Alert status="danger">
+									<Alert.Indicator />
+									<Alert.Content>
+										<Alert.Description>{markPaidError}</Alert.Description>
+									</Alert.Content>
+								</Alert>
+							)}
 						<div className="flex flex-col gap-1">
 							<label className="text-sm font-medium text-gray-700">
 								{t("ordersPage:payment.amount", "סכום ששולם (₪)")}

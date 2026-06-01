@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import {
 	Table,
 	Input,
-	NumberField,
 	Button,
 	Select,
 	ListBox,
@@ -610,7 +609,7 @@ export function AdminInventoryCertificatePage() {
 													aria-label={`${t("common:sku")} ${t(
 														"common:inventoryCertificatePage.rowNumber"
 													)} ${row.rowNumber}`}
-													className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full"
+													className="h-8 w-full bg-white text-[14px]"
 												/>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
@@ -621,29 +620,29 @@ export function AdminInventoryCertificatePage() {
 													aria-label={`${t("common:inventoryCertificatePage.itemName")} ${t(
 														"common:inventoryCertificatePage.rowNumber"
 													)} ${row.rowNumber}`}
-													className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full"
+													className="h-8 w-full bg-white text-[14px]"
 												/>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
-												<NumberField
-													value={row.quantity}
-													onChange={(value) => {
-														updateRow(row.id, "quantity", value ?? 0);
-													}}
+												<Input
+													type="number"
+													value={row.quantity === 0 ? "" : String(row.quantity)}
+													onChange={(e) => updateRow(row.id, "quantity", Number(e.target.value) || 0)}
 													onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
 													aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t(
 														"common:inventoryCertificatePage.rowNumber"
 													)} ${row.rowNumber}`}
-													className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full"
+													className="h-8 w-full bg-white text-[14px]"
 												/>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<div className="relative">
 													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
-													<NumberField
-														value={row.purchasePrice}
-														onChange={(value) =>
-															updateRow(row.id, "purchasePrice", value ?? 0)
+													<Input
+														type="number"
+														value={row.purchasePrice === 0 ? "" : String(row.purchasePrice)}
+														onChange={(e) =>
+															updateRow(row.id, "purchasePrice", Number(e.target.value) || 0)
 														}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
 														aria-label={`${t(
@@ -651,16 +650,17 @@ export function AdminInventoryCertificatePage() {
 														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
 															row.rowNumber
 														}`}
-														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pl-6"
+														className="h-8 w-full bg-white text-[14px] pl-6"
 													/>
 												</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<div className="relative">
-													<NumberField
-														value={row.lineDiscount}
-														onChange={(value) =>
-															updateRow(row.id, "lineDiscount", value ?? 0)
+													<Input
+														type="number"
+														value={row.lineDiscount === 0 ? "" : String(row.lineDiscount)}
+														onChange={(e) =>
+															updateRow(row.id, "lineDiscount", Number(e.target.value) || 0)
 														}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
 														aria-label={`${t(
@@ -668,17 +668,18 @@ export function AdminInventoryCertificatePage() {
 														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
 															row.rowNumber
 														}`}
-														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pr-6"
+														className="h-8 w-full bg-white text-[14px] pr-6"
 													/>
 													<span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">%</span>
 												</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<div className="relative">
-													<NumberField
-														value={row.profitPercentage}
-														onChange={(value) =>
-															updateRow(row.id, "profitPercentage", value ?? 0)
+													<Input
+														type="number"
+														value={row.profitPercentage === 0 ? "" : String(row.profitPercentage)}
+														onChange={(e) =>
+															updateRow(row.id, "profitPercentage", Number(e.target.value) || 0)
 														}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
 														aria-label={`${t(
@@ -686,7 +687,7 @@ export function AdminInventoryCertificatePage() {
 														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
 															row.rowNumber
 														}`}
-														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pr-6"
+														className="h-8 w-full bg-white text-[14px] pr-6"
 													/>
 													<span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">%</span>
 												</div>
@@ -694,16 +695,17 @@ export function AdminInventoryCertificatePage() {
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<div className="relative">
 													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
-													<NumberField
-														value={row.price}
-														onChange={(value) => updateRow(row.id, "price", value ?? 0)}
+													<Input
+														type="number"
+														value={row.price === 0 ? "" : String(row.price)}
+														onChange={(e) => updateRow(row.id, "price", Number(e.target.value) || 0)}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.salesPriceFrom"
 														)} ${t("common:inventoryCertificatePage.rowNumber")} ${
 															row.rowNumber
 														}`}
-														className="text-[14px] h-8 border-0 rounded-none m-0 bg-white w-full pl-6"
+														className="h-8 w-full bg-white text-[14px] pl-6"
 													/>
 												</div>
 											</Table.Cell>

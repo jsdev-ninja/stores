@@ -329,6 +329,23 @@ async function addBudgetManualTransaction(params: {
 	return res.data as { success: boolean };
 }
 
+/**
+ * Record an external (non-HYP) money movement in the ledger — cash, bank
+ * transfer, etc. Posts a `manual` transaction which the ledger fans out to
+ * mark the referenced order paid and reduce the org's budget debt.
+ * `amount` MUST be integer agorot (convert shekels at the call site).
+ */
+async function postManualTransaction(params: {
+	amount: number; // integer agorot
+	idempotencyKey: string;
+	reference?: { type: "order" | "refund" | "adjustment"; id: string };
+	payer?: { organizationId?: string; clientId?: string; billingAccountId?: string };
+}) {
+	const func = httpsCallable(functions, "postManualTransaction");
+	const res = await func(params);
+	return res.data as { success: boolean; transactionId?: string; error?: string };
+}
+
 type TOrganizationAction = {
 	id: string;
 	type: "order.created" | "delivery_note.created" | "invoice.created" | "payment.completed";
@@ -386,6 +403,7 @@ export const api = {
 	getBudgetTransactions,
 	markOrderPaid,
 	addBudgetManualTransaction,
+	postManualTransaction,
 	getOrganizationActions,
 	createProduct,
 };

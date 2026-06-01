@@ -120,7 +120,12 @@ features
 
 1. sort orders by date created
 
-cart page  
+cart page:
+  - [ ] Fix pricing logic bug in `CartItem.tsx` (ensure total price calculates using final discounted/VAT price instead of raw `product.price * amount`).
+  - [ ] Format and declutter prices: show total price prominently, and only display unit price breakdown as subtext (e.g. `(₪13.50 ליחידה)`) when quantity > 1.
+  - [ ] Add direct "Remove" button (trash can icon using `Trash2` from `lucide-react`) next to the price in `CartItem.tsx` for quick removal.
+  - [ ] Implement a premium empty state: when the cart has 0 items, hide the order summary card and show a beautifully styled empty state (shopping bag icon, Hebrew message, and a "Back to Shop" button).
+  - [ ] Improve layout and visual styling: use elevated cards (`rounded-xl`, soft borders, hover shadow) and optimize for clean RTL representation on both mobile and desktop.
 checkout page
 catalog page
 
