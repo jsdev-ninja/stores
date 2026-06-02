@@ -28,7 +28,7 @@ function ProductCard({ product }: { product: TProduct }) {
 	return (
 		<a
 			href="#products"
-			onClick={(e) => { e.preventDefault(); navigate({ to: "store.product", params: { id: product.id } }); }}
+			onClick={(e) => { e.preventDefault(); navigate({ to: "store.catalog" }); }}
 			className="group relative flex flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:shadow-[0_12px_36px_rgba(13,13,11,0.08)]"
 		>
 			{/* Image area */}

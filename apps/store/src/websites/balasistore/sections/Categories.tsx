@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { useAppSelector } from "src/infra";
 import { CategorySlice } from "src/domains/Category";
 import { TCategory } from "@jsdev_ninja/core";
+import { navigate } from "src/navigation";
 
 const ORANGE = "var(--brand-secondary)"; // design --pop
 const SERIF = "var(--font-serif)";
@@ -29,6 +30,18 @@ function CategoryCard({ category, index }: { category: TCategory; index: number 
 			key={category.id}
 			href="#products"
 			className="group relative flex cursor-pointer flex-col overflow-hidden border-e border-b border-[var(--border)] p-7"
+			onClick={(e) => {
+				e.preventDefault();
+				navigate({
+					to: "store.catalog",
+					params: {
+						category1: category.id,
+						category2: "",
+						category3: "",
+						category4: "",
+					},
+				});
+			}}
 		>
 			<span
 				className="absolute inset-0 translate-y-full bg-[var(--foreground)] transition-transform duration-300 ease-out group-hover:translate-y-0"

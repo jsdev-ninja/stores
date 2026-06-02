@@ -30,7 +30,7 @@ function TrendingCard({ product, rank }: { product: TProduct; rank: number }) {
 	return (
 		<a
 			href="#products"
-			onClick={(e) => { e.preventDefault(); navigate({ to: "store.product", params: { id: product.id } }); }}
+			onClick={(e) => { e.preventDefault(); navigate({ to: "store.catalog" }); }}
 			className="flex flex-shrink-0 flex-col overflow-hidden rounded-sm border border-[var(--border)] bg-[var(--surface)] p-[18px_18px_16px] transition-all duration-[250ms] hover:-translate-y-1 hover:border-[var(--foreground)] hover:shadow-[0_12px_32px_rgba(26,26,23,0.10)]"
 			style={{ width: "220px", position: "relative" }}
 		>
