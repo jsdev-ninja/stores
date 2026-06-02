@@ -108,6 +108,9 @@ export async function createDocument(params: Params) {
 				price_total: params.price_total,
 				payment: params.payment,
 				date: params.date,
+				// Do NOT let EZcount auto-email the invoice to the customer.
+				// (EZcount emails customer_email by default unless this is set.)
+				dont_send_email: 1,
 			},
 		});
 		logger.write({
