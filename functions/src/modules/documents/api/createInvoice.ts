@@ -58,7 +58,10 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 
 		const orderIds = orders.map((o) => o.id).sort().join("|");
 		// Deterministic id keyed on order ids — makes EZcount idempotent across retries.
-		const transactionId = "invoice:" + createHash("sha256").update(orderIds).digest("hex");
+		// EZcount caps transaction_id at 45 chars; "invoice:" is 8, so truncate the
+		// sha256 hex to 36 (total 44). 144 bits stays collision-free for this purpose.
+		const transactionId =
+			"invoice:" + createHash("sha256").update(orderIds).digest("hex").slice(0, 36);
 
 		const res = await ezCountService.createInvoice({
 			api_key: storePrivateData.ezcount_key,

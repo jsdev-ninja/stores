@@ -1,14 +1,16 @@
 import { TProduct } from "@jsdev_ninja/core";
+import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
-import { useParams } from "src/navigation";
+import { Button } from "src/components/button";
+import { useParams, navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
 
 export function ProductPage() {
 	const params = useParams("store.product");
 
-	const { t } = useTranslation();
+	const { t } = useTranslation(["common"]);
 
 	const appApi = useAppApi();
 
@@ -35,6 +37,12 @@ export function ProductPage() {
 		<Product product={product}>
 			<section className="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
 				<div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">
+					<div className="mb-4">
+						<Button variant="ghost" onPress={() => navigate({ to: "store.catalog" })}>
+							<Icon icon="lucide:arrow-right" />
+							{t("common:back")}
+						</Button>
+					</div>
 					<div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
 						<div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
 							<Product.Image prefix="productCard" />

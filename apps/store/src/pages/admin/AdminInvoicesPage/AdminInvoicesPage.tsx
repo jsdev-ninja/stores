@@ -148,7 +148,10 @@ export default function AdminInvoicesPage() {
 											onChange={handleSelectAll}
 											aria-label="בחר הכל"
 										>
-											<Checkbox.Content>
+											<Checkbox.Control>
+											<Checkbox.Indicator />
+										</Checkbox.Control>
+										<Checkbox.Content>
 												<span className="sr-only">בחר הכל</span>
 											</Checkbox.Content>
 										</Checkbox>
@@ -197,7 +200,10 @@ export default function AdminInvoicesPage() {
 													handleSelectOrder(order.id, checked)
 												}
 											>
-												<Checkbox.Content>
+												<Checkbox.Control>
+											<Checkbox.Indicator />
+										</Checkbox.Control>
+										<Checkbox.Content>
 													<span className="sr-only">{`בחר הזמנה ${order.id.slice(-8)}`}</span>
 												</Checkbox.Content>
 											</Checkbox>
