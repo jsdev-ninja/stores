@@ -24,6 +24,12 @@ apps/store/dist
 
 # functions folder
 functions/lib
+functions/src/services/documents/dist/
+**/ui-debug.log
+**/*.tsbuildinfo
+
+# Marketing assets (kept locally, lives elsewhere)
+storebrix marketing and campain manager/
 
 node_modules
 _secrets

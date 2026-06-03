@@ -67,4 +67,3 @@ export const DeliveryNoteSchema = z.object({
 // Type inference
 export type TEzDeliveryNote = z.infer<typeof EzDeliveryNoteSchema>;
 export type TDeliveryNote = z.infer<typeof DeliveryNoteSchema>;
-export type TCalculatedData = z.infer<typeof CalculatedDataSchema>;

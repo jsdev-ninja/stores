@@ -1,10 +1,9 @@
 import * as functionsV2 from "firebase-functions/v2";
 import { createHash } from "crypto";
 import { ezCountService } from "../../../services/ezCountService";
-// import { documentsService } from "../../../services/documents";
 import { TStorePrivate } from "src/schema";
 import admin from "firebase-admin";
-import { FirebaseAPI, TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder, TOrganization } from "@jsdev_ninja/core";
 
 type TData = {
 	params: Parameters<typeof ezCountService.createInvoice>[0];
@@ -33,11 +32,6 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 		const storePrivateData: TStorePrivate = (
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
 		).data() as TStorePrivate;
-
-		// Get store data for PDF generation
-		const store: TStore = (
-			await admin.firestore().collection("STORES").doc(storeId).get()
-		).data() as TStore;
 
 		const price_total = params.price_total ?? 0;
 		let organization: TOrganization | undefined;
@@ -87,16 +81,6 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 			date: params.date,
 		});
 
-		// const pdfUrl = await documentsService.generateAndUploadInvoicePDF({
-		// 	order: orders[0],
-		// 	store,
-		// 	invoiceNumber: res.data?.doc_number,
-		// 	invoiceDate: params.date,
-		// 	companyId: auth?.token.companyId ?? "",
-		// 	storeId: auth?.token.storeId ?? "",
-		// 	orderId: "123",
-		// });
-		// console.log("pdfUrl", pdfUrl);
 		if (!res.error) {
 			// batch update orders with invoice data
 			const batch = admin.firestore().batch();

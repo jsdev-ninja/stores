@@ -1,7 +1,6 @@
 export {
 	OrderEventTypes,
 	OrderPlacedPayload,
-	OrderCompletedPayload,
 	OrderCancelledPayload,
 	OrderRefundedPayload,
 } from "./events";

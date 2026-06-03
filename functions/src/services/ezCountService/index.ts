@@ -2,12 +2,6 @@ import { TOrder, TEzDeliveryNote, getCartCost } from "@jsdev_ninja/core";
 import axios from "axios";
 import { logger } from "../../core";
 
-// application/json
-// https://demo.ezcount.co.il
-// https://api.ezcount.co.il
-// const companyId = "balasistore_company";
-// const storeId = "balasistore_store";
-
 export enum DOC_TYPE {
 	ORDER = 100, // הזמנה (Order)
 	DELIVERY = 200, // תעודת משלוח (Delivery)
