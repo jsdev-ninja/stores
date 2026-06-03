@@ -5,7 +5,7 @@ import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import { Button } from "src/components/button";
 import { TOrder } from "src/domains/Order";
-import { navigate } from "src/navigation";
+import { modalApi } from "src/infra/modals";
 import { submitHypForm } from "src/lib/payment/submitHypForm";
 import {
   ChipProps,
@@ -273,7 +273,7 @@ function OrderRow({
         <Button
           variant="primary"
           onPress={() => {
-            navigate({ to: "admin.order", params: { id: order.id } });
+            modalApi.openModal("orderDetails", { order, onUpdated: updateOrder });
           }}
         >
           {t("ordersPage:actions.viewOrder")}

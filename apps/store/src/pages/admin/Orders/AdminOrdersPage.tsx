@@ -5,6 +5,7 @@ import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import { TOrder } from "src/domains/Order";
 import { navigate } from "src/navigation";
+import { modalApi } from "src/infra/modals";
 import {
 	Table,
 	Modal,
@@ -298,7 +299,9 @@ function AdminOrdersPages() {
 							<Button
 								size="sm"
 								variant="ghost"
-								onPress={() => navigate({ to: "admin.order", params: { id: order.id } })}
+								onPress={() =>
+									modalApi.openModal("orderDetails", { order, onUpdated: updateOrder })
+								}
 							>
 								{t("ordersPage:actions.viewDetails", "פרטים")}
 							</Button>

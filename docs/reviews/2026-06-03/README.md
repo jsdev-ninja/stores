@@ -24,20 +24,32 @@ Comprehensive review of the @jsdev-store codebase after the major migrations:
 
 | File | What's in it |
 |---|---|
-| [`01-critical-security.md`](01-critical-security.md) | 🔴 Exploitable security holes (unauthenticated endpoints, leaked credentials, no `firestore.rules` in repo) |
+| **[`SECURITY.md`](SECURITY.md)** | **🔒 MASTER SECURITY INDEX** — 22 security findings from across all reports, grouped by attack vector, with phased remediation plan |
+| [`01-critical-security.md`](01-critical-security.md) | 🔴 Detailed write-ups of the dedicated security audit (SEC-01 to SEC-14) |
 | [`02-money-correctness.md`](02-money-correctness.md) | 🔴 Money loss / corruption (chargeOrder success-on-failure, debt-tracking races, org-name clobber) |
 | [`03-backend-structure.md`](03-backend-structure.md) | 🟠 CLAUDE.md violations (cross-module imports, `emit*.ts` wrappers, root collections, console.log usage) |
 | [`04-frontend-quality.md`](04-frontend-quality.md) | 🟠 React bugs, stale closures, dead buttons, UX traps |
 | [`05-heroui-react19-migration.md`](05-heroui-react19-migration.md) | 🟡 Migration artifacts (NumberField → Input regressions, Badge misuse, double-dispatch typo) |
+| [`06-dead-code.md`](06-dead-code.md) | 🧹 Dead files (~4,150 LOC), unused deps, root clutter (~33 MB), tracked build artifacts, leaked npm token in `_secrets` |
+
+**Start here if you only have time for one document:** [`SECURITY.md`](SECURITY.md) — it consolidates every security-relevant finding (auth gaps, credential leaks, IDOR, infrastructure gaps) with a 7-phase remediation plan you can work through top to bottom.
 
 ## Summary by severity
 
 | Severity | Count | Examples |
 |---|---|---|
-| 🔴 Critical | 13 | Leaked Mixpanel API token, unauth `createCompanyClient`, HYP credentials in logs, charge-success-on-failure, no firestore.rules |
-| 🟠 High | 22 | Missing admin gates, IDOR on org actions, NumberField decimal-entry broken, stub wired to destructive button |
-| 🟡 Medium | 35 | Hand-built Firestore paths, `console.log` instead of `logger`, missing READMEs, fragile `useEffect` deps |
-| ⚪ Low | 25 | Translation key `as any` casts, stale commented v2 props, redundant `forwardRef`, `thme.css` typo |
+| 🔴 Critical | 14 | Leaked Mixpanel API token, leaked npm token in `_secrets`, unauth `createCompanyClient`, HYP credentials in logs, charge-success-on-failure, no firestore.rules |
+| 🟠 High | 28 | Missing admin gates, IDOR on org actions, NumberField decimal-entry broken, stub wired to destructive button, legacy Orders pages (~1,400 LOC dead), dead platform scaffolding (~700 LOC) |
+| 🟡 Medium | 45 | Hand-built Firestore paths, `console.log` instead of `logger`, missing READMEs, fragile `useEffect` deps, ~17 unused npm deps, dead modals/widgets, completed plans not archived |
+| ⚪ Low | 30 | Translation key `as any` casts, stale commented v2 props, redundant `forwardRef`, `thme.css` typo, empty `xxxModule` placeholders, build artifacts committed |
+
+## Dead code at a glance
+
+- **~4,150 LOC** removable across ~60 files (frontend + backend + shared core)
+- **~33 MB** of root-folder clutter to remove
+- **~17 unused npm packages** across 3 workspaces
+- **4 deployed Cloud Functions** with no callers (controlled decommission)
+- **1 hidden bug**: `getCartCost` silently ignores its `discounts` parameter (store-level discounts not applied)
 
 ## ✅ What's clean
 
@@ -58,34 +70,47 @@ Worth noting — the migration is in good shape in many places:
 ### Phase 1 — Stop the bleeding (today)
 
 1. **Rotate the Mixpanel API token** (`functions/src/modules/analytics/api/mixpanelData.ts:16`) and remove from source
-2. **Remove `JSON.stringify(storePrivateData)`** log lines (`payments/api/createPaymentRedirect.ts:70`, `appApi/index.ts:140`)
-3. **Sanitize HYP `params` + ezCount `params`** before any log call
-4. **Add auth gates** to: `createCompanyClient`, `createPayment`, `createPaymentRedirect`, `createInvoice`, `createDeliveryNote`, `uiLogs`
-5. **Pull deployed `firestore.rules` into the repo** (`firebase firestore:rules:get`) and commit
+2. **Rotate npm publish token + delete `_secrets`** file at repo root
+3. **Remove `JSON.stringify(storePrivateData)`** log lines (`payments/api/createPaymentRedirect.ts:70`, `appApi/index.ts:140`)
+4. **Sanitize HYP `params` + ezCount `params`** before any log call
+5. **Add auth gates** to: `createCompanyClient`, `createPayment`, `createPaymentRedirect`, `createInvoice`, `createDeliveryNote`, `uiLogs`
+6. **Pull deployed `firestore.rules` into the repo** (`firebase firestore:rules:get`) and commit
+7. **Delete `EZcount.NodeJs.example/`** (contains leaked demo API key)
 
 ### Phase 2 — Money correctness (this week)
 
-6. Fix `chargeOrder` return value — currently returns `success: true` on HYP failure
-7. Fix `organizationName` clobber on every B2B payment
-8. Fix `recordHypJ5Auth` trusting client-supplied `payer.organizationId`
-9. Fix place/cancel race retry behavior in `reduceDebtOnOrderReversed`
-10. Add admin gate to `chargeOrder`
+8. Fix `chargeOrder` return value — currently returns `success: true` on HYP failure
+9. Fix `organizationName` clobber on every B2B payment
+10. Fix `recordHypJ5Auth` trusting client-supplied `payer.organizationId`
+11. Fix place/cancel race retry behavior in `reduceDebtOnOrderReversed`
+12. Add admin gate to `chargeOrder`
+13. Fix `getCartCost` silently ignoring `discounts` parameter (hidden bug, see [DC-02](06-dead-code.md#dc-02))
 
 ### Phase 3 — Admin UX (this week)
 
-11. Fix `rowNumber` operator precedence bug in inventory
-12. Replace NumberField regressions (decimal entry broken in 4+ places)
-13. Wire up or hide `removeProfile()` button
-14. Fix "Mark as Paid" silent no-op on invalid input
+14. Fix `rowNumber` operator precedence bug in inventory
+15. Replace NumberField regressions (decimal entry broken in 4+ places)
+16. Wire up or hide `removeProfile()` button
+17. Fix "Mark as Paid" silent no-op on invalid input
 
 ### Phase 4 — Backend hygiene (next sprint)
 
-15. Replace cross-module `internal/`/`services/` imports with public surface
-16. Delete `emit*.ts` wrappers + emit-only services
-17. Move root-collection data to tenant-scoped paths
-18. Sweep `console.log` → `logger`
-19. Split bundled api/subscribers files
-20. Add missing `README.md` files to 11 modules
+18. Replace cross-module `internal/`/`services/` imports with public surface
+19. Delete `emit*.ts` wrappers + emit-only services
+20. Move root-collection data to tenant-scoped paths
+21. Sweep `console.log` → `logger`
+22. Split bundled api/subscribers files
+23. Add missing `README.md` files to 11 modules
+
+### Phase 5 — Dead code cleanup (next sprint, in 7 rounds — see [`06-dead-code.md`](06-dead-code.md))
+
+24. Round 1: Security + clutter (rotate secrets, delete migration leftovers, archive plans, untrack build artifacts) — ~33 MB
+25. Round 2: Frontend dead files (~2,750 LOC) — legacy Orders pages, HomePage components, unused widgets/modals/components
+26. Round 3: Backend dead files (~1,400 LOC) — `integration/webhooks/`, `platform/audit/`, `platform/db/`, dead catalog admin chain
+27. Round 4: Decommission deployed-but-unused functions (`markOrderPaid`, `migrateProfilesToMultiOrg`, `appInit`, `getMixpanelData`)
+28. Round 5: Shared core cleanup — Chatbot entity, Discount/utils, Vite scaffolding
+29. Round 6: Dep cleanup — remove ~17 unused npm packages
+30. Round 7: Fix `getCartCost` discounts parameter
 
 ## How to use these reports
 

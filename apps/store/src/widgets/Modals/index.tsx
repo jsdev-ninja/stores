@@ -8,6 +8,8 @@ import { useAppSelector } from "src/infra";
 import { AdminCompanyCreateModal } from "./modals/AdminCompanyCreateModal";
 import { CreateInvoiceModal } from "./CreateInvoiceModal";
 import { InvoiceDetailsModal } from "./InvoiceDetailsModal";
+import { OrderDetailsModal } from "./OrderDetailsModal";
+import { OrderPickingModal } from "./OrderPickingModal";
 import { CreateDeliveryNoteModal } from "./CreateDeliveryNoteModal";
 import { DeliveryNoteDetailsModal } from "./DeliveryNoteDetailsModal";
 import { SelectDateForDocumentModal } from "./SelectDateForDocumentModal";
@@ -26,6 +28,16 @@ export const modals = {
 	),
 	createInvoice: ({ onOrdersFound }: { onOrdersFound?: (orders: any[]) => void }) => (
 		<CreateInvoiceModal onOrdersFound={onOrdersFound} />
+	),
+	orderDetails: ({
+		order,
+		onUpdated,
+	}: {
+		order: TOrder;
+		onUpdated?: (id: string, status: TOrder["status"]) => void;
+	}) => <OrderDetailsModal order={order} onUpdated={onUpdated} />,
+	orderPicking: ({ order, onSaved }: { order: TOrder; onSaved?: () => void }) => (
+		<OrderPickingModal order={order} onSaved={onSaved} />
 	),
 	invoiceDetails: ({
 		selectedOrders,

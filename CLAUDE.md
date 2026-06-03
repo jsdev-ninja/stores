@@ -1,5 +1,11 @@
 # @jsdev-store
 
+# HARD RULES
+
+- NEVER run commands/CLI if you not sure what command do
+- NEVER add args to commands if you not sure what is do
+- ALWAYS make sure before run coomand/CLI u understard how its works first
+
 ## User Roles
 
 At the start of each session, determine who you are talking to. If unknown, ASK:
@@ -18,6 +24,8 @@ Explain everything in plain, non-technical language. No code dumps.
 
 - Before any restricted action, STOP and say:
   "This needs the developer's approval — I've noted it for them."
+
+- if you ask question or needd permission from onwer, or for working locale machime, alway ask and descibe what you need in **Hebrew**.
 
 - ALLOWED:
   - allow content/text changes, copy, images.
