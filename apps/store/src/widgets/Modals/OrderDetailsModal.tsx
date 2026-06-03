@@ -187,8 +187,8 @@ export function OrderDetailsModal({
 				if (!open) close();
 			}}
 		>
-			<Modal.Container size="lg" scroll="inside">
-				<Modal.Dialog>
+			<Modal.Container size="lg" scroll="inside" placement="center">
+				<Modal.Dialog className="max-h-[85vh] flex flex-col">
 					<Modal.Header>
 						<Modal.Heading>
 							<div className="text-start">
@@ -196,7 +196,7 @@ export function OrderDetailsModal({
 							</div>
 						</Modal.Heading>
 					</Modal.Header>
-					<Modal.Body className="space-y-4">
+					<Modal.Body className="space-y-4 flex-1 min-h-0 overflow-y-auto">
 						{/* Info grid */}
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
 							<Field label={t("ordersPage:orderDetails.company", "חברה")}>
