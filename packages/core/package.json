@@ -1,60 +1,60 @@
 {
-	"name": "@jsdev_ninja/core",
-	"version": "0.15.0",
-	"type": "module",
-	"main": "dist/core.cjs",
-	"module": "dist/core.es.js",
-	"types": "dist/lib/index.d.ts",
-	"exports": {
-		".": {
-			"import": "./dist/core.es.js",
-			"require": "./dist/core.cjs",
-			"types": "./dist/lib/index.d.ts"
-		}
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/jsdev-ninja/stores.git"
-	},
-	"files": [
-		"dist",
-		"package.json",
-		"README.md"
-	],
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org"
-	},
-	"scripts": {
-		"dev": "vite",
-		"build": "vite build && tsc -b",
-		"prepare": "yarn build",
-		"prepublishOnly": "yarn build",
-		"lint": "eslint .",
-		"preview": "vite preview",
-		"publish_core": "yarn publish --non-interactive",
-		"test": "vitest",
-		"test:run": "vitest run"
-	},
-	"dependencies": {
-		"zod": "^3.23.8"
-	},
-	"devDependencies": {
-		"@eslint/js": "^9.9.0",
-		"@types/node": "^24.0.15",
-		"@types/react": "^18.3.3",
-		"@types/react-dom": "^18.3.0",
-		"@vitejs/plugin-react-swc": "^3.5.0",
-		"eslint": "^9.9.0",
-		"eslint-plugin-react-hooks": "^5.1.0-rc.0",
-		"eslint-plugin-react-refresh": "^0.4.9",
-		"globals": "^15.9.0",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
-		"ts-node": "^10.9.2",
-		"typescript": "^5.5.3",
-		"typescript-eslint": "^8.0.1",
-		"vite": "^5.4.1",
-		"vitest": "^3.2.4"
-	}
+  "name": "@jsdev_ninja/core",
+  "version": "0.15.1",
+  "type": "module",
+  "main": "dist/core.cjs",
+  "module": "dist/core.es.js",
+  "types": "dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/core.es.js",
+      "require": "./dist/core.cjs",
+      "types": "./dist/lib/index.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsdev-ninja/stores.git"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -b",
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "publish_core": "yarn publish --non-interactive",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/node": "^24.0.15",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^9.9.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.0.1",
+    "vite": "^5.4.1",
+    "vitest": "^3.2.4"
+  }
 }
