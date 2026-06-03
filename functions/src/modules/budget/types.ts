@@ -1,15 +1,11 @@
 import { z } from "zod";
 
 export {
-	BudgetTransactionSchema,
-	BudgetAccountSchema,
 	BudgetTransactionTypeSchema,
 	PaymentMethodSchema,
 } from "@jsdev_ninja/core";
 
 export type {
-	TBudgetTransaction,
-	TBudgetAccount,
 	TBudgetTransactionType,
 	TPaymentMethod,
 } from "@jsdev_ninja/core";

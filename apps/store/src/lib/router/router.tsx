@@ -5,18 +5,6 @@ import { comparePathWithRoutePath } from "./utils";
 import { createLink } from "./components/Link";
 import { RouteData, getRouteData } from "./utils/traverse";
 
-// rank routing
-// active link (NavLink)
-// animation
-// 404
-// Scroll Restoration
-// hooks
-//  useParams
-//  useNavigate
-//  useLocation
-//  useHistory
-// query paramsp
-
 export type { RouteKeys };
 
 function checkChildMatch(

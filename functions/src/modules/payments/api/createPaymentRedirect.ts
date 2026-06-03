@@ -1,4 +1,4 @@
-import { TOrder, TStore } from "@jsdev_ninja/core";
+import { TOrder } from "@jsdev_ninja/core";
 import * as functions from "firebase-functions/v1";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import admin from "firebase-admin";
@@ -41,10 +41,6 @@ export const createPaymentRedirect = functions.https.onCall(
 
 			const storeId = order.storeId;
 			console.log("storeId", storeId);
-
-			const store: TStore = (
-				await admin.firestore().collection(`STORES`).doc(storeId).get()
-			).data() as TStore;
 
 			// todo
 			const VAT_RATE = 18;

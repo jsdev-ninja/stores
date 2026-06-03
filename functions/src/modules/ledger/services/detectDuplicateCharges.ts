@@ -1,6 +1,4 @@
 import { logger } from "firebase-functions/v2";
-import { emitEvent } from "../../../platform/eventBus";
-import { LedgerEventTypes, DuplicateChargeDetectedPayload } from "../events";
 import { queryHypInTransactionsByOrder } from "../internal/transactionsStore";
 import { writeDuplicateChargeAlert } from "../internal/duplicateChargeAlertsStore";
 
@@ -44,14 +42,6 @@ export async function detectDuplicateCharges(params: {
 			storeId,
 			transactionIds,
 			count: transactionIds.length,
-		});
-
-		await emitEvent<DuplicateChargeDetectedPayload>({
-			type: LedgerEventTypes.duplicateChargeDetected,
-			source: "ledger",
-			companyId,
-			storeId,
-			payload: { orderId, transactionIds },
 		});
 	} catch (err) {
 		logger.error("ledger.detectDuplicateCharges.error", {

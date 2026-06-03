@@ -52,6 +52,3 @@ export const InvoiceSchema = z.object({
 	link: z.string().url("Link must be a valid URL").optional(),
 });
 
-// Type inference
-export type TInvoice = z.infer<typeof InvoiceSchema>;
-export type TEzInvoice = z.infer<typeof EzInvoiceSchema>;

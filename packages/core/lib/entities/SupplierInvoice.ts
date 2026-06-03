@@ -48,5 +48,4 @@ export const SupplierInvoiceSchema = z.object({
 
 export const NewSupplierInvoiceSchema = SupplierInvoiceSchema.omit({ id: true });
 
-export type TNewSupplierInvoice = z.infer<typeof NewSupplierInvoiceSchema>;
 export type TSupplierInvoice = z.infer<typeof SupplierInvoiceSchema>;

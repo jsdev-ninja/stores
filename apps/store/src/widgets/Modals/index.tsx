@@ -5,14 +5,12 @@ import { modalsSlice } from "src/infra/modals";
 import { AnimatePresence } from "framer-motion";
 import { ReactNode, cloneElement } from "react";
 import { useAppSelector } from "src/infra";
-import { AdminCompanyCreateModal } from "./modals/AdminCompanyCreateModal";
 import { CreateInvoiceModal } from "./CreateInvoiceModal";
 import { InvoiceDetailsModal } from "./InvoiceDetailsModal";
 import { OrderDetailsModal } from "./OrderDetailsModal";
 import { OrderPickingModal } from "./OrderPickingModal";
 import { OrderEditModal } from "./OrderEditModal";
 import { CreateDeliveryNoteModal } from "./CreateDeliveryNoteModal";
-import { DeliveryNoteDetailsModal } from "./DeliveryNoteDetailsModal";
 import { SelectDateForDocumentModal } from "./SelectDateForDocumentModal";
 import { ConfirmModal } from "./ConfirmModal";
 import { AdminCreateOrderModal } from "./AdminCreateOrderModal";
@@ -24,7 +22,6 @@ export const ModalsContainer = ({ children }: { children: ReactNode }) => {
 
 export const modals = {
 	authModal: () => <AuthModal />,
-	AdminCompanyCreateModal: () => <AdminCompanyCreateModal />,
 	categoryFormModal: ({ categoryId, onSave }: { categoryId: string; onSave?: any }) => (
 		<CategoryFormModal categoryId={categoryId} onSave={onSave} />
 	),
@@ -61,18 +58,6 @@ export const modals = {
 	),
 	createDeliveryNote: ({ onDeliveryNoteCreated }: { onDeliveryNoteCreated?: () => void }) => (
 		<CreateDeliveryNoteModal onDeliveryNoteCreated={onDeliveryNoteCreated} />
-	),
-	deliveryNoteDetails: ({
-		selectedOrders,
-		onDeliveryNoteCreated,
-	}: {
-		selectedOrders: TOrder[];
-		onDeliveryNoteCreated?: () => void;
-	}) => (
-		<DeliveryNoteDetailsModal
-			selectedOrders={selectedOrders}
-			onDeliveryNoteCreated={onDeliveryNoteCreated}
-		/>
 	),
 	selectDateForDocument: ({
 		documentType,
