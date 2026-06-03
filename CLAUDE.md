@@ -24,6 +24,8 @@ Explain everything in plain, non-technical language. No code dumps.
 
 - Before any restricted action, STOP and say:
   "This needs the developer's approval — I've noted it for them."
+- when. work with David dont ask question about git handle it alone.
+- make sure before start task you update up date date main veersion if code, use git pull or fetch
 
 - if you ask question or needd permission from onwer, or for working locale machime, alway ask and descibe what you need in **Hebrew**.
 
@@ -85,7 +87,7 @@ how we render store spefics components
 ### Tenant isolation (HARD RULE)
 
 - This is a **multi-tenant** system. Data is scoped per `{companyId}/{storeId}`. **NEVER** read, search, or query data without scoping to the current tenant — unscoped access leaks data across stores/companies and is a critical security bug.
-- **Algolia / external search indexes:** EVERY `index.search(...)` call MUST pass `filters: \`storeId:${storeId} AND companyId:${companyId}\`` (use the order's / entity's own `storeId`+`companyId`, or the active store). Never search an index without this filter. Same for any other external index or cache.
+- **Algolia / external search indexes:** EVERY `index.search(...)` call MUST pass `filters: \`storeId:${storeId} AND companyId:${companyId}\``(use the order's / entity's own`storeId`+`companyId`, or the active store). Never search an index without this filter. Same for any other external index or cache.
 - **Firestore:** always build paths with `FirebaseAPI.firestore.getPath({ companyId, storeId, collectionName })` (see "Firestore paths" below). Never hand-build a path or use a root collection.
 - When in doubt, derive `companyId`/`storeId` from the entity you already hold (e.g. `order.companyId` / `order.storeId`) or the auth token — never from unscoped client input.
 
