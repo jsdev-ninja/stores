@@ -26,7 +26,7 @@ function SmallPickCard({ product, rotate, rank }: { product: TProduct; rotate: s
 
 	return (
 		<div
-			className="self-center flex flex-col items-start gap-1.5 rounded-lg p-3.5 bg-[var(--surface)] text-[var(--foreground)] shadow-[0_18px_40px_rgba(0,0,0,0.45)]"
+			className="self-center flex flex-col items-start gap-1.5 rounded-lg p-3.5 bg-[var(--surface)] text-[var(--foreground)] shadow-[0_18px_40px_rgba(0,0,0,0.45)] transition-all duration-300 ease-out group-hover/picks:opacity-40 hover:!opacity-100 hover:!shadow-[0_26px_55px_rgba(0,0,0,0.55)]"
 			style={{ border: `1px solid color-mix(in oklab, ${ORANGE} 30%, transparent)`, transform: rotate }}
 		>
 			<span className="text-[13px] italic" style={{ fontFamily: SERIF, color: ORANGE }}>
@@ -59,7 +59,7 @@ function BigPickCard({ product, rank }: { product: TProduct; rank: number }) {
 
 	return (
 		<div
-			className="self-center flex flex-col items-center justify-center gap-2 rounded-lg px-4 pb-4 pt-5 text-[var(--surface)] shadow-[0_28px_60px_color-mix(in_oklab,var(--accent)_40%,transparent)]"
+			className="self-center flex flex-col items-center justify-center gap-2 rounded-lg px-4 pb-4 pt-5 text-[var(--surface)] shadow-[0_28px_60px_color-mix(in_oklab,var(--accent)_40%,transparent)] transition-all duration-300 ease-out group-hover/picks:opacity-40 hover:!opacity-100 hover:!-translate-y-1 hover:!shadow-[0_36px_75px_color-mix(in_oklab,var(--accent)_55%,transparent)]"
 			style={{
 				background: "linear-gradient(180deg, color-mix(in oklab, var(--foreground) 88%, #ffffff) 0%, var(--foreground) 100%)",
 				border: "1px solid var(--accent)",
@@ -204,10 +204,10 @@ export default function Hero({ products }: Props) {
 					</h2>
 
 					{p0 && p1 && p2 ? (
-						<div className="grid flex-1 grid-cols-[1fr_1.6fr_1fr] items-center gap-4">
-							<SmallPickCard product={p0} rotate="rotate(-1deg)" rank={0} />
+						<div className="group/picks grid flex-1 grid-cols-[1fr_1.6fr_1fr] items-center gap-4">
+							<SmallPickCard product={p0} rotate="none" rank={0} />
 							<BigPickCard product={p1} rank={1} />
-							<SmallPickCard product={p2} rotate="rotate(1deg)" rank={2} />
+							<SmallPickCard product={p2} rotate="none" rank={2} />
 						</div>
 					) : null}
 				</div>
