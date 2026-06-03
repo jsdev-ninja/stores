@@ -8,35 +8,65 @@ import { formatter } from "src/utils/formatter";
 import { modalApi } from "src/infra/modals";
 import { useAppApi } from "src/appApi";
 
-/* Demo design tokens (balasi-all): pill variants. */
+/* Demo design tokens (balasi-all admin.css): pill variants. */
 type PillVariant = "success" | "warn" | "info" | "danger" | "pending" | "neutral";
 const pillStyles: Record<PillVariant, string> = {
 	success: "bg-[#e3f2e8] text-[#155f30]",
 	warn: "bg-[#fff6d9] text-[#9a7600]",
 	info: "bg-[#e3eef9] text-[#1e5ba8]",
-	danger: "bg-[#fdebe0] text-[#a14a2c]",
+	danger: "bg-[#fbe3e0] text-[#c43f2e]",
 	pending: "bg-[#fdebe0] text-[#d16a35]",
-	neutral: "bg-gray-100 text-gray-500",
+	neutral: "bg-[#eeece4] text-[#6b675f]",
 };
 function Pill({ variant = "neutral", children }: { variant?: PillVariant; children: ReactNode }) {
 	return (
 		<span
-			className={`inline-flex items-center rounded px-2 py-0.5 text-[11.5px] font-semibold tracking-wide ${pillStyles[variant]}`}
+			className={`inline-block rounded px-2.5 py-[3px] text-[11px] font-bold tracking-[0.04em] ${pillStyles[variant]}`}
 		>
 			{children}
 		</span>
 	);
 }
 
-const statusPillVariant: Record<TOrder["status"], PillVariant> = {
-	draft: "neutral",
-	pending: "pending",
-	processing: "info",
-	in_delivery: "info",
-	delivered: "success",
-	completed: "success",
-	cancelled: "danger",
-	refunded: "danger",
+/* Item-status pills carry a 1px border in the demo (viewOrder line-item tags). */
+const itemPillStyles = {
+	missing: "bg-[#fdebe0] text-[#a14a2c] border border-[#d97757]",
+	replaced: "bg-[#fff7e0] text-[#7a5a15] border border-[#d4a217]",
+	deliveredInstead: "bg-[#e3f2e8] text-[#155f30] border border-[#1b7a3d]",
+} as const;
+function ItemPill({
+	variant,
+	children,
+}: {
+	variant: keyof typeof itemPillStyles;
+	children: ReactNode;
+}) {
+	return (
+		<span
+			className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold ms-1.5 ${itemPillStyles[variant]}`}
+		>
+			{children}
+		</span>
+	);
+}
+
+/* Demo footer button styles (admin.css .btn / .btn-ghost / .btn-primary / .btn-danger). */
+const btnBase =
+	"gap-2 px-4 py-[9px] text-[12.5px] font-semibold tracking-[0.02em] border-[1.5px] rounded-lg transition";
+const btnGhost = `${btnBase} bg-white text-[#1a1a17] border-[#e0dccd] hover:border-[#1a1a17] hover:bg-[#eeece4]`;
+const btnPrimary = `${btnBase} bg-[#1b7a3d] text-white border-transparent hover:bg-[#155f30]`;
+const btnDanger = `${btnBase} bg-white text-[#c43f2e] border-[#fbe3e0] hover:bg-[#fbe3e0] hover:border-[#c43f2e]`;
+
+/* Order status → pill variant + emoji, mirroring demo orderStatusPill(). */
+const statusPill: Record<TOrder["status"], { variant: PillVariant; emoji: string }> = {
+	draft: { variant: "neutral", emoji: "" },
+	pending: { variant: "warn", emoji: "⏳" },
+	processing: { variant: "info", emoji: "✓" },
+	in_delivery: { variant: "info", emoji: "🚚" },
+	delivered: { variant: "success", emoji: "✓" },
+	completed: { variant: "success", emoji: "✓" },
+	cancelled: { variant: "danger", emoji: "✖" },
+	refunded: { variant: "danger", emoji: "" },
 };
 
 /* cm-info banner — gradient card with a 3px start-border accent. */
@@ -53,11 +83,11 @@ function InfoBanner({
 }) {
 	return (
 		<div
-			className="flex items-start gap-3 rounded-md p-3.5 border-r-[3px]"
+			className="flex items-start gap-3 px-[18px] py-3.5 border-r-[3px]"
 			style={{ background: gradient, borderRightColor: accent }}
 		>
-			<span className="text-lg leading-none">{icon}</span>
-			<div className="flex-1 text-sm leading-relaxed text-start">{children}</div>
+			<span className="text-[22px] leading-none shrink-0">{icon}</span>
+			<div className="flex-1 text-[12.5px] leading-[1.55] text-start">{children}</div>
 		</div>
 	);
 }
@@ -120,6 +150,7 @@ export function OrderDetailsModal({
 				<Button
 					key="picking"
 					variant="ghost"
+					className={btnGhost}
 					isPending={loading}
 					onPress={() =>
 						modalApi.openModal("orderPicking", {
@@ -135,6 +166,7 @@ export function OrderDetailsModal({
 				<Button
 					key="edit"
 					variant="ghost"
+					className={btnGhost}
 					isPending={loading}
 					onPress={() =>
 						modalApi.openModal("orderEdit", {
@@ -150,10 +182,11 @@ export function OrderDetailsModal({
 				<Button
 					key="approve"
 					variant="primary"
+					className={btnPrimary}
 					isPending={loading}
 					onPress={() => run(() => appApi.admin.approveOrder({ order }), "completed")}
 				>
-					{t("ordersPage:actions.approveOrder", "אשר")}
+					{t("ordersPage:actions.approveOrder", "✓ אשר → תעודת משלוח")}
 				</Button>,
 			);
 		}
@@ -162,6 +195,7 @@ export function OrderDetailsModal({
 				<Button
 					key="cancel"
 					variant="danger"
+					className={btnDanger}
 					isPending={loading}
 					onPress={() => run(() => appApi.admin.cancelOrder({ order }), "cancelled")}
 				>
@@ -188,17 +222,19 @@ export function OrderDetailsModal({
 			}}
 		>
 			<Modal.Container size="lg" scroll="inside" placement="center">
-				<Modal.Dialog className="max-h-[85vh] flex flex-col">
-					<Modal.Header>
-						<Modal.Heading>
-							<div className="text-start">
-								{t("ordersPage:orderDetails.title", "הזמנה")} #{order.id.slice(-8)}
-							</div>
+				<Modal.Dialog className="max-h-[85vh] w-full max-w-3xl flex flex-col p-0 overflow-hidden">
+					{/* Demo modal chrome: black header bar + circular close (admin.css .m-head) */}
+					<Modal.Header className="relative !flex-row items-center bg-[#1a1a17] px-6 py-[18px] m-0">
+						<Modal.Heading className="flex-1 min-w-0 truncate pe-12 text-[16px] font-extrabold tracking-[-0.02em] text-white text-start">
+							{t("ordersPage:orderDetails.title", "הזמנה")} #{order.id.slice(-8)}
 						</Modal.Heading>
+						<Modal.CloseTrigger className="absolute !left-6 !right-auto !start-auto top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white transition hover:rotate-90 hover:bg-white/20">
+							✕
+						</Modal.CloseTrigger>
 					</Modal.Header>
-					<Modal.Body className="space-y-4 flex-1 min-h-0 overflow-y-auto">
+					<Modal.Body className="space-y-4 flex-1 min-h-0 overflow-y-auto px-6 py-5">
 						{/* Info grid */}
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
 							<Field label={t("ordersPage:orderDetails.company", "חברה")}>
 								{order.client?.companyName || "—"}
 							</Field>
@@ -236,11 +272,14 @@ export function OrderDetailsModal({
 									</Field>
 								</div>
 							)}
-							<div className="text-sm text-start flex items-center gap-2 flex-wrap">
+							<div className="text-sm text-start flex items-center gap-1.5 flex-wrap">
 								<span className="font-bold text-gray-700">
 									{t("ordersPage:orderDetails.orderInfo.status", "סטטוס")}:
 								</span>
-								<Pill variant={statusPillVariant[order.status]}>
+								<Pill variant={statusPill[order.status].variant}>
+									{statusPill[order.status].emoji
+										? `${statusPill[order.status].emoji} `
+										: ""}
 									{t(`common:orderStatutes.${order.status}`, order.status)}
 								</Pill>
 								<Pill variant="neutral">{order.paymentStatus}</Pill>
@@ -254,9 +293,11 @@ export function OrderDetailsModal({
 								accent="#d4a217"
 								gradient="linear-gradient(135deg,#fff6d9,#fff)"
 							>
+								{t("ordersPage:orderDetails.pendingExplain.before", "באישור ההזמנה תיווצר ")}
+								<b>{t("ordersPage:orderDetails.deliveryNote", "תעודת משלוח")}</b>
 								{t(
-									"ordersPage:orderDetails.pendingExplain",
-									'באישור ההזמנה תיווצר תעודת משלוח. חשבונית מס תופק בנפרד.',
+									"ordersPage:orderDetails.pendingExplain.after",
+									". חשבונית מס תופק בנפרד — ידנית מהתעודה או דרך החיוב החודשי המרוכז.",
 								)}
 							</InfoBanner>
 						)}
@@ -264,31 +305,38 @@ export function OrderDetailsModal({
 						{/* Fulfillment summary (after picking) */}
 						{items.some((i) => i.status === "missing" || i.status === "substituted") && (
 							<InfoBanner icon="📦" accent="#d4a217" gradient="linear-gradient(135deg,#fff7e0,#fdebe0)">
-								<b>{t("ordersPage:orderDetails.fulfillment", "שינויים בליקוט")}:</b>{" "}
+								<b>{t("ordersPage:orderDetails.fulfillment", "שינויים שהוגדרו בליקוט")}:</b>{" "}
 								{items.filter((i) => i.status === "missing").length > 0 &&
-									`${items.filter((i) => i.status === "missing").length} חסרים · `}
+									`${items.filter((i) => i.status === "missing").length} פריטים חסרים במלאי (לא ייכללו במשלוח). `}
 								{items.filter((i) => i.status === "substituted").length > 0 &&
-									`${items.filter((i) => i.status === "substituted").length} הוחלפו`}
+									`${items.filter((i) => i.status === "substituted").length} פריטים יוחלפו במוצרים דומים.`}
+								<br />
+								<span className="text-xs text-gray-500">
+									{t(
+										"ordersPage:orderDetails.fulfillmentSub",
+										"בעת אישור ההזמנה, תעודת המשלוח תופק עם השינויים האלה.",
+									)}
+								</span>
 							</InfoBanner>
 						)}
 
-						{/* Items table */}
-						<table className="w-full border-collapse text-sm">
+						{/* Items table — demo .table styling (admin.css) */}
+						<table className="w-full border-collapse text-[13.5px]">
 							<thead>
-								<tr className="text-[11px] uppercase tracking-wide text-gray-500 border-b border-gray-200">
-									<th className="text-start font-medium py-2">
+								<tr className="bg-[#eeece4]">
+									<th className="text-start font-bold text-[12px] uppercase tracking-[0.04em] text-[#1a1a17] px-4 py-3 border-b border-[#e0dccd]">
 										{t("ordersPage:orderDetails.products.product", "מוצר")}
 									</th>
-									<th className="text-start font-medium py-2">
+									<th className="text-start font-bold text-[12px] uppercase tracking-[0.04em] text-[#1a1a17] px-4 py-3 border-b border-[#e0dccd]">
 										{t("ordersPage:orderDetails.products.manufacturer", "יצרן")}
 									</th>
-									<th className="text-center font-medium py-2">
+									<th className="text-center font-bold text-[12px] uppercase tracking-[0.04em] text-[#1a1a17] px-4 py-3 border-b border-[#e0dccd]">
 										{t("ordersPage:orderDetails.products.qty", "כמות")}
 									</th>
-									<th className="text-end font-medium py-2">
+									<th className="text-end font-bold text-[12px] uppercase tracking-[0.04em] text-[#1a1a17] px-4 py-3 border-b border-[#e0dccd]">
 										{t("ordersPage:orderDetails.products.price", "מחיר")}
 									</th>
-									<th className="text-end font-medium py-2">
+									<th className="text-end font-bold text-[12px] uppercase tracking-[0.04em] text-[#1a1a17] px-4 py-3 border-b border-[#e0dccd]">
 										{t("ordersPage:columns.sum", 'סה"כ')}
 									</th>
 								</tr>
@@ -297,19 +345,26 @@ export function OrderDetailsModal({
 								{items.map((item, i) => {
 									const unit = item.finalPrice || item.originalPrice || 0;
 									const name = item.product.name?.[0]?.value || t("common:emptyField");
-									const struck = "line-through text-gray-400";
+									const struck = "line-through text-[#999]";
+									const td = "px-4 py-3 border-b border-[#eee9d8] align-middle";
 
 									if (item.status === "missing") {
 										return (
-											<tr key={item.product.id || i} className="border-b border-gray-100 bg-[#fef8f5]">
-												<td className={`py-2 text-start ${struck}`}>
-													{name}{" "}
-													<Pill variant="danger">❌ {t("ordersPage:orderDetails.missing", "חסר")}</Pill>
+											<tr key={item.product.id || i} className="bg-[#fef8f5]">
+												<td className={`${td} text-start`}>
+													<span className={struck}>{name}</span>
+													<ItemPill variant="missing">
+														❌ {t("ordersPage:orderDetails.missing", "חסר במלאי")}
+													</ItemPill>
 												</td>
-												<td className={`py-2 text-start ${struck}`}>{item.product.brand || "—"}</td>
-												<td className={`py-2 text-center ${struck}`}>{item.amount}</td>
-												<td className={`py-2 text-end ${struck}`}>{formatter.price(unit)}</td>
-												<td className={`py-2 text-end ${struck}`}>{formatter.price(0)}</td>
+												<td className={`${td} text-start ${struck} text-[12.5px]`}>
+													{item.product.brand || "—"}
+												</td>
+												<td className={`${td} text-center ${struck}`}>{item.amount}</td>
+												<td className={`${td} text-end ${struck}`}>{formatter.price(unit)}</td>
+												<td className={`${td} text-end ${struck} text-[12.5px]`}>
+													{formatter.price(unit * item.amount)}
+												</td>
 											</tr>
 										);
 									}
@@ -319,26 +374,34 @@ export function OrderDetailsModal({
 										return (
 											<Fragment key={item.product.id || i}>
 												<tr className="bg-[#fffbef]">
-													<td className={`py-2 text-start ${struck}`}>
-														{name}{" "}
-														<Pill variant="warn">🔄 {t("ordersPage:orderDetails.replaced", "הוחלף")}</Pill>
+													<td className={`${td} text-start`}>
+														<span className={struck}>{name}</span>
+														<ItemPill variant="replaced">
+															🔄 {t("ordersPage:orderDetails.replaced", "הוחלף")}
+														</ItemPill>
 													</td>
-													<td className={`py-2 text-start ${struck}`}>{item.product.brand || "—"}</td>
-													<td className={`py-2 text-center ${struck}`}>{item.amount}</td>
-													<td className={`py-2 text-end ${struck}`}>{formatter.price(unit)}</td>
-													<td className={`py-2 text-end ${struck}`}>{formatter.price(unit * item.amount)}</td>
+													<td className={`${td} text-start ${struck} text-[12.5px]`}>
+														{item.product.brand || "—"}
+													</td>
+													<td className={`${td} text-center ${struck}`}>{item.amount}</td>
+													<td className={`${td} text-end ${struck}`}>{formatter.price(unit)}</td>
+													<td className={`${td} text-end ${struck} text-[12.5px]`}>
+														{formatter.price(unit * item.amount)}
+													</td>
 												</tr>
-												<tr className="border-b border-gray-100 bg-[#f3f8f4]">
-													<td className="py-2 text-start">
-														↳ {sub.product.name?.[0]?.value}{" "}
-														<Pill variant="success">
+												<tr className="bg-[#f3f8f4]">
+													<td className={`${td} text-start`}>
+														↳ {sub.product.name?.[0]?.value}
+														<ItemPill variant="deliveredInstead">
 															✓ {t("ordersPage:orderDetails.deliveredInstead", "נמסר במקום")}
-														</Pill>
+														</ItemPill>
 													</td>
-													<td className="py-2 text-start text-gray-500">{sub.product.brand || "—"}</td>
-													<td className="py-2 text-center">{sub.amount}</td>
-													<td className="py-2 text-end text-gray-500">{formatter.price(sub.price)}</td>
-													<td className="py-2 text-end font-semibold text-gray-900">
+													<td className={`${td} text-start text-[#6b675f] text-[12.5px]`}>
+														{sub.product.brand || "—"}
+													</td>
+													<td className={`${td} text-center`}>{sub.amount}</td>
+													<td className={`${td} text-end text-[#6b675f]`}>{formatter.price(sub.price)}</td>
+													<td className={`${td} text-end font-bold text-[#1a1a17]`}>
 														{formatter.price(sub.price * sub.amount)}
 													</td>
 												</tr>
@@ -347,15 +410,14 @@ export function OrderDetailsModal({
 									}
 
 									return (
-										<tr
-											key={item.product.id || i}
-											className="border-b border-gray-100 last:border-0"
-										>
-											<td className="py-2 text-start">{name}</td>
-											<td className="py-2 text-start text-gray-500">{item.product.brand || "—"}</td>
-											<td className="py-2 text-center">{item.amount}</td>
-											<td className="py-2 text-end text-gray-500">{formatter.price(unit)}</td>
-											<td className="py-2 text-end font-semibold text-gray-900">
+										<tr key={item.product.id || i} className="last:[&>td]:border-0">
+											<td className={`${td} text-start`}>{name}</td>
+											<td className={`${td} text-start text-[#6b675f] text-[12.5px]`}>
+												{item.product.brand || "—"}
+											</td>
+											<td className={`${td} text-center`}>{item.amount}</td>
+											<td className={`${td} text-end text-[#6b675f]`}>{formatter.price(unit)}</td>
+											<td className={`${td} text-end font-bold text-[#1a1a17]`}>
 												{formatter.price(unit * item.amount)}
 											</td>
 										</tr>
@@ -364,72 +426,32 @@ export function OrderDetailsModal({
 							</tbody>
 						</table>
 
-						{/* Totals breakdown — items subtotal + VAT + delivery = grand total.
-						    Explains why the grand total differs from the line-items sum. */}
-						{(() => {
-							const lineTotal = (it: (typeof items)[number]) => {
-								if (it.status === "missing") return 0;
-								if (it.status === "substituted" && it.substitutedWith)
-									return it.substitutedWith.price * it.substitutedWith.amount;
-								return (it.finalPrice || it.originalPrice || 0) * it.amount;
-							};
-							const subtotal = items.reduce((s, it) => s + lineTotal(it), 0);
-							const vat = order.cart.cartVat ?? 0;
-							const delivery = order.cart.deliveryPrice ?? 0;
-							const discount = order.cart.cartDiscount ?? 0;
-							return (
-								<div className="border-t pt-3 space-y-1 text-sm">
-									<div className="flex justify-between text-gray-600">
-										<span>{t("ordersPage:orderDetails.subtotal", "סכום ביניים")}</span>
-										<span>{formatter.price(subtotal)}</span>
-									</div>
-									{discount > 0 && (
-										<div className="flex justify-between text-gray-600">
-											<span>{t("ordersPage:orderDetails.discount", "הנחה")}</span>
-											<span>−{formatter.price(discount)}</span>
-										</div>
-									)}
-									{vat > 0 && (
-										<div className="flex justify-between text-gray-600">
-											<span>{t("ordersPage:orderDetails.vat", 'מע"מ')}</span>
-											<span>{formatter.price(vat)}</span>
-										</div>
-									)}
-									{delivery > 0 && (
-										<div className="flex justify-between text-gray-600">
-											<span>{t("ordersPage:orderDetails.delivery.title", "משלוח")}</span>
-											<span>{formatter.price(delivery)}</span>
-										</div>
-									)}
-									<div className="flex justify-between text-lg font-black pt-1">
-										<span>{t("ordersPage:columns.sum", 'סה"כ')}</span>
-										<span>{formatter.price(order.cart.cartTotal)}</span>
-									</div>
-								</div>
-							);
-						})()}
+						{/* Grand total — single line, matching demo viewOrder. */}
+						<div className="text-start text-[18px] font-black mt-3.5 text-[#1a1a17]">
+							{t("ordersPage:columns.sum", 'סה"כ')}: {formatter.price(order.cart.cartTotal)}
+						</div>
 
 						{order.clientComment && (
-							<div className="rounded-md bg-[#fff6d9] p-2.5 text-sm text-start">
+							<div className="bg-[#fff6d9] p-2.5 text-[13px] text-start">
 								<b>{t("ordersPage:orderDetails.notes.title", "הערות")}:</b> {order.clientComment}
 							</div>
 						)}
 
 						{deliveryNoteNumber && (
-							<div className="rounded-md bg-[#e3f2e8] p-2.5 text-sm text-start">
+							<div className="bg-[#e3f2e8] p-2.5 text-[13px] text-start">
 								<b>📦 {t("ordersPage:orderDetails.deliveryNoteCreated", "תעודת משלוח שנוצרה")}:</b>{" "}
 								{deliveryNoteNumber}
 							</div>
 						)}
 						{invoiceNumber && (
-							<div className="rounded-md bg-[#e3eef9] p-2.5 text-sm text-start">
+							<div className="bg-[#e3eef9] p-2.5 text-[13px] text-start">
 								<b>🧾 {t("ordersPage:orderDetails.invoiceCreated", "חשבונית שנוצרה")}:</b>{" "}
 								{invoiceNumber}
 							</div>
 						)}
 					</Modal.Body>
-					<Modal.Footer>
-						<Button variant="ghost" onPress={close}>
+					<Modal.Footer className="flex flex-wrap justify-end gap-2 bg-[#eeece4] border-t border-[#e0dccd] px-6 py-3.5 m-0">
+						<Button variant="ghost" className={btnGhost} onPress={close}>
 							{t("common:close", "סגור")}
 						</Button>
 						{actions()}
