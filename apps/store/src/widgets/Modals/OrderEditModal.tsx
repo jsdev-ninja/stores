@@ -210,8 +210,8 @@ export function OrderEditModal({
 				if (!open) close();
 			}}
 		>
-			<Modal.Container size="lg" scroll="inside">
-				<Modal.Dialog>
+			<Modal.Container size="lg" scroll="inside" placement="center">
+				<Modal.Dialog className="max-h-[85vh] flex flex-col">
 					<Modal.Header>
 						<Modal.Heading>
 							<div className="text-start">
@@ -219,7 +219,7 @@ export function OrderEditModal({
 							</div>
 						</Modal.Heading>
 					</Modal.Header>
-					<Modal.Body className="space-y-4">
+					<Modal.Body className="space-y-4 flex-1 min-h-0 overflow-y-auto">
 						{/* Billing account + notes */}
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 							{accounts.length > 0 && (

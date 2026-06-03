@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import algoliasearch from "algoliasearch/lite";
 import { useAppApi } from "src/appApi";
 import { useStore } from "src/domains/Store";
 import { useAppSelector } from "src/infra";
@@ -6,6 +7,10 @@ import { modalApi } from "src/infra/modals";
 import { FirebaseApi } from "src/lib/firebase";
 import { TOrganization, TProduct, TOrder, TBillingAccount } from "@jsdev_ninja/core";
 import type { Key } from "react-aria-components";
+
+// Same Algolia client used by OrderPickingModal / OrderEditModal.
+const algoliaClient = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
+const productsIndex = algoliaClient.initIndex("products");
 
 export type OrderLine = { product: TProduct; qty: number };
 
@@ -15,16 +20,18 @@ export function useAdminCreateOrderModal(onOrderCreated?: (order: TOrder) => voi
 	const user = useAppSelector((s) => s.user.user);
 
 	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
-	const [products, setProducts] = useState<TProduct[]>([]);
+	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
 	const [selectedOrgId, setSelectedOrgId] = useState<string>("");
 	const [selectedAccountId, setSelectedAccountId] = useState<string>("");
 	const [lines, setLines] = useState<OrderLine[]>([]);
 	const [productSearchQuery, setProductSearchQuery] = useState("");
-	const [selectedProductId, setSelectedProductId] = useState("");
+	// The product the user has highlighted/selected from the search dropdown.
+	const [selectedProduct, setSelectedProduct] = useState<TProduct | null>(null);
 	const [qty, setQty] = useState(1);
 	const [notes, setNotes] = useState("");
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const tomorrow = new Date();
 	tomorrow.setDate(tomorrow.getDate() + 1);
@@ -34,10 +41,30 @@ export function useAdminCreateOrderModal(onOrderCreated?: (order: TOrder) => voi
 		appApi.admin.listOrganizations().then((res) => {
 			if (res?.success) setOrganizations(res.data ?? []);
 		});
-		appApi.admin.listProducts?.().then((res) => {
-			if (res?.success) setProducts(res.data ?? []);
-		});
 	}, []);
+
+	// Debounced Algolia search — tenant-scoped (HARD RULE: always filter by storeId+companyId).
+	const searchProducts = useCallback(
+		(query: string) => {
+			setProductSearchQuery(query);
+			setSelectedProduct(null);
+			if (searchTimer.current) clearTimeout(searchTimer.current);
+			if (!query.trim()) {
+				setSearchResults([]);
+				return;
+			}
+			searchTimer.current = setTimeout(async () => {
+				if (!store) return;
+				const { hits } = await productsIndex.search<TProduct>(query, {
+					// Tenant isolation: NEVER search without storeId+companyId filter.
+					filters: `storeId:${store.id} AND companyId:${store.companyId}`,
+					hitsPerPage: 20,
+				});
+				setSearchResults(hits as TProduct[]);
+			}, 250);
+		},
+		[store],
+	);
 
 	const selectedOrg = useMemo(
 		() => organizations.find((o) => o.id === selectedOrgId) ?? null,
@@ -45,16 +72,6 @@ export function useAdminCreateOrderModal(onOrderCreated?: (order: TOrder) => voi
 	);
 
 	const showBillingAccountSelector = (selectedOrg?.billingAccounts?.length ?? 0) > 1;
-
-	const filteredProducts = useMemo(() => {
-		const q = productSearchQuery.trim().toLowerCase();
-		if (!q) return products;
-		return products.filter(
-			(p) =>
-				p.name?.[0]?.value?.toLowerCase().includes(q) ||
-				p.sku?.toLowerCase().includes(q),
-		);
-	}, [products, productSearchQuery]);
 
 	const cartTotal = useMemo(
 		() => lines.reduce((sum, l) => sum + l.product.price * l.qty, 0),
@@ -70,21 +87,28 @@ export function useAdminCreateOrderModal(onOrderCreated?: (order: TOrder) => voi
 		setSelectedAccountId(key ? String(key) : "");
 	}, []);
 
+	const selectProduct = useCallback((product: TProduct) => {
+		setSelectedProduct(product);
+		setProductSearchQuery(product.name?.[0]?.value ?? "");
+		setSearchResults([]);
+	}, []);
+
 	const addLine = useCallback(() => {
-		const product = products.find((p) => p.id === selectedProductId);
-		if (!product || qty < 1) return;
+		if (!selectedProduct || qty < 1) return;
 		setLines((prev) => {
-			const existing = prev.findIndex((l) => l.product.id === product.id);
+			const existing = prev.findIndex((l) => l.product.id === selectedProduct.id);
 			if (existing >= 0) {
 				const next = [...prev];
 				next[existing] = { ...next[existing], qty: next[existing].qty + qty };
 				return next;
 			}
-			return [...prev, { product, qty }];
+			return [...prev, { product: selectedProduct, qty }];
 		});
-		setSelectedProductId("");
+		setSelectedProduct(null);
+		setProductSearchQuery("");
+		setSearchResults([]);
 		setQty(1);
-	}, [products, selectedProductId, qty]);
+	}, [selectedProduct, qty]);
 
 	const removeLine = useCallback((idx: number) => {
 		setLines((prev) => prev.filter((_, i) => i !== idx));
@@ -160,9 +184,9 @@ export function useAdminCreateOrderModal(onOrderCreated?: (order: TOrder) => voi
 	const close = useCallback(() => modalApi.closeModal("adminCreateOrder"), []);
 
 	return {
-		organizations, filteredProducts, selectedOrgId, selectedOrg,
+		organizations, searchResults, selectedOrgId, selectedOrg,
 		showBillingAccountSelector, selectedAccountId, lines, cartTotal,
-		productSearchQuery, setProductSearchQuery, selectedProductId, setSelectedProductId,
+		productSearchQuery, searchProducts, selectedProduct, selectProduct,
 		qty, setQty, notes, setNotes, deliveryDate, setDeliveryDate,
 		submitting, error, handleOrgChange, handleAccountChange,
 		addLine, removeLine, handleSubmit, close,

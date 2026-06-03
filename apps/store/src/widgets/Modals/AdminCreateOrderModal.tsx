@@ -120,42 +120,52 @@ export function AdminCreateOrderModal({ onOrderCreated }: Props) {
 							/>
 						</div>
 
-						{/* Product adder */}
+						{/* Product adder — Algolia search, no limit */}
 						<div className="flex flex-col gap-2">
 							<label className="text-sm font-semibold text-gray-700">
 								{t("ordersPage:orderDetails.products.product", "הוסף מוצר")}
 							</label>
-							<input
-								type="text"
-								className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-								placeholder="חיפוש לפי שם / מק״ט..."
-								value={vm.productSearchQuery}
-								onChange={(e) => vm.setProductSearchQuery(e.target.value)}
-							/>
-							<div className="flex gap-2">
-								<select
-									className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-									value={vm.selectedProductId}
-									onChange={(e) => vm.setSelectedProductId(e.target.value)}
-								>
-									<option value="">בחרו מוצר</option>
-									{vm.filteredProducts.map((p) => (
-										<option key={p.id} value={p.id}>
-											{p.name?.[0]?.value} — {formatter.price(p.price)}
-										</option>
-									))}
-								</select>
+							<div className="relative">
 								<input
-									type="number"
-									min={1}
-									className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-primary"
-									value={vm.qty}
-									onChange={(e) => vm.setQty(Math.max(1, Number(e.target.value)))}
+									type="text"
+									className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+									placeholder="חיפוש לפי שם / מק״ט..."
+									value={vm.productSearchQuery}
+									onChange={(e) => vm.searchProducts(e.target.value)}
+									autoComplete="off"
 								/>
-								<Button variant="ghost" onPress={vm.addLine}>
-									<Icon icon="lucide:plus" width={18} height={18} />
-								</Button>
+								{vm.searchResults.length > 0 && (
+									<ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto">
+										{vm.searchResults.map((p) => (
+											<li
+												key={p.id}
+												className="flex justify-between items-center px-3 py-2 text-sm hover:bg-gray-50 cursor-pointer"
+												onMouseDown={() => vm.selectProduct(p)}
+											>
+												<span className="text-gray-800">{p.name?.[0]?.value}</span>
+												<span className="text-gray-500 font-semibold">{formatter.price(p.price)}</span>
+											</li>
+										))}
+									</ul>
+								)}
 							</div>
+							{vm.selectedProduct && (
+								<div className="flex gap-2 items-center">
+									<span className="flex-1 text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 truncate">
+										{vm.selectedProduct.name?.[0]?.value}
+									</span>
+									<input
+										type="number"
+										min={1}
+										className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-primary"
+										value={vm.qty}
+										onChange={(e) => vm.setQty(Math.max(1, Number(e.target.value)))}
+									/>
+									<Button variant="ghost" onPress={vm.addLine}>
+										<Icon icon="lucide:plus" width={18} height={18} />
+									</Button>
+								</div>
+							)}
 						</div>
 
 						{/* Order lines */}

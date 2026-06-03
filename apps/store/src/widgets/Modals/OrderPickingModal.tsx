@@ -200,7 +200,7 @@ export function OrderPickingModal({
 			}}
 		>
 			<Modal.Container size="full" scroll="inside">
-				<Modal.Dialog>
+				<Modal.Dialog className="max-h-[100vh] flex flex-col">
 					<Modal.Header>
 						<Modal.Heading>
 							<div className="flex items-center justify-between gap-4 w-full text-start">
@@ -213,7 +213,7 @@ export function OrderPickingModal({
 							</div>
 						</Modal.Heading>
 					</Modal.Header>
-					<Modal.Body className="space-y-4">
+					<Modal.Body className="space-y-4 flex-1 min-h-0 overflow-y-auto">
 						{/* Progress */}
 						<div>
 							<div className="h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
