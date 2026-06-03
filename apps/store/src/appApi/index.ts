@@ -1275,6 +1275,20 @@ export const useAppApi = () => {
 
 				return result;
 			},
+			listProducts: async () => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				const result = await FirebaseApi.firestore.listV2<TProduct>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "products",
+					}),
+					sort: [{ name: "sku" as any, value: "asc" }],
+				});
+
+				return result;
+			},
 			// Organization Group management
 			createOrganizationGroup: async (organizationGroup: TNewOrganizationGroup) => {
 				if (!isValidAdmin || !companyId || !storeId) return;

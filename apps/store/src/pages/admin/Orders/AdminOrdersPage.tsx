@@ -4,7 +4,6 @@ import { useAppApi } from "src/appApi";
 import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import { TOrder } from "src/domains/Order";
-import { navigate } from "src/navigation";
 import { modalApi } from "src/infra/modals";
 import {
 	Table,
@@ -422,7 +421,14 @@ function AdminOrdersPages() {
 						<Icon icon="lucide:download" width={16} height={16} />
 						{t("ordersPage:export", "ייצוא")}
 					</Button>
-					<Button variant="primary" onPress={() => navigate({ to: "admin.createOrder" })}>
+					<Button
+						variant="primary"
+						onPress={() =>
+							modalApi.openModal("adminCreateOrder", {
+								onOrderCreated: () => syncOrders(),
+							})
+						}
+					>
 						<Icon icon="lucide:plus" width={16} height={16} />
 						{t("ordersPage:createOrder", "הזמנה חדשה")}
 					</Button>
