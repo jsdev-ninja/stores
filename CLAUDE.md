@@ -51,6 +51,11 @@ Explain everything in plain, non-technical language. No code dumps.
 
 ## Architecture
 
+# @jsdev_ninja/core - shared package backend and frontend
+
+- any change in this folder require package version update.
+- make sure all apps and firebase function use same and latest version of @jsdev_ninja/core package.
+
 ### /Users/philbro/workspace/@jsdev-store/apps/store/src/websites
 
 store spefics design by store id, used when design store specific pages/components
