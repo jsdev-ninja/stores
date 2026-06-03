@@ -205,9 +205,9 @@ export default function Hero({ products }: Props) {
 
 					{p0 && p1 && p2 ? (
 						<div className="group/picks grid flex-1 grid-cols-[1fr_1.6fr_1fr] items-center gap-4">
-							<SmallPickCard product={p0} rotate="rotate(-1deg)" rank={0} />
+							<SmallPickCard product={p0} rotate="none" rank={0} />
 							<BigPickCard product={p1} rank={1} />
-							<SmallPickCard product={p2} rotate="rotate(1deg)" rank={2} />
+							<SmallPickCard product={p2} rotate="none" rank={2} />
 						</div>
 					) : null}
 				</div>
