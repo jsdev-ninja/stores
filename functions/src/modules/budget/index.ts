@@ -23,8 +23,5 @@ export { updateProjectionsOnTransactionPosted } from "./subscribers/updateProjec
 export { reconcileBudgetProjections } from "./api/reconcileBudgetProjections";
 export { reconcileProjectionsSchedule } from "./triggers/reconcileProjectionsSchedule";
 export { reconcileProjections } from "./services/reconcileProjections";
-export {
-	OrgBalanceSchema,
-	RevenueRollupSchema,
-} from "./types";
-export type { TOrgBalance, TRevenueRollup } from "./types";
+// Note: OrgBalanceSchema/RevenueRollupSchema/TOrgBalance/TRevenueRollup are
+// already re-exported via `export * from "./types"` at the top of this file.
