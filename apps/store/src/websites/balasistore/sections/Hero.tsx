@@ -115,19 +115,6 @@ export default function Hero({ products }: Props) {
 			<div className="container mx-auto grid grid-cols-1 items-center gap-12 px-4 pb-16 lg:grid-cols-[0.95fr_1.05fr] lg:pb-24">
 				{/* Left */}
 				<div>
-					<div className="mb-7 flex items-center gap-3">
-						<span className="relative flex h-2.5 w-2.5">
-							<span
-								className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
-								style={{ background: ORANGE }}
-							/>
-							<span className="relative inline-flex h-2.5 w-2.5 rounded-full" style={{ background: ORANGE }} />
-						</span>
-						<span className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: ORANGE }}>
-							פעיל ברגע זה · ✓ מסירות נשלחות היום
-						</span>
-					</div>
-
 					<h1
 						className="font-extrabold tracking-tight text-[var(--foreground)]"
 						style={{ fontSize: "clamp(48px, 8vw, 108px)", lineHeight: 0.92, letterSpacing: "-0.05em" }}
