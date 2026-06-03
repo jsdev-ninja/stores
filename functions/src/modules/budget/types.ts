@@ -50,6 +50,59 @@ export const BudgetRollupSchema = z.object({
 
 export type TBudgetRollup = z.infer<typeof BudgetRollupSchema>;
 
+// ---------------------------------------------------------------------------
+// Budget redesign — ledger-derived projection read-models (Phase 1)
+// These are CACHES rebuildable from the ledger; never the source of truth.
+// Written only by applyLedgerProjection, alongside the legacy model (dual-write).
+// ---------------------------------------------------------------------------
+
+/**
+ * Accounts-receivable balance per organization.
+ * owed = Σ(debits) − Σ(credits, money in), clamped ≥ 0.
+ */
+export const OrgBalanceSchema = z.object({
+	organizationId: z.string().min(1),
+	/** Integer agorot, clamped ≥ 0 */
+	owed: z.number().int(),
+	/** Integer agorot, lifetime sum of debit accruals */
+	totalDebits: z.number().int(),
+	/** Integer agorot, lifetime sum of credit (money-in) applied to this org */
+	totalCredits: z.number().int(),
+	currency: z.literal("ILS"),
+	/** epoch millis */
+	updatedAt: z.number().int().positive(),
+	companyId: z.string().min(1),
+	storeId: z.string().min(1),
+});
+
+export type TOrgBalance = z.infer<typeof OrgBalanceSchema>;
+
+/**
+ * Revenue rollup per calendar month (Asia/Jerusalem). Doc id = yearMonth.
+ * Answers: total earned, per month/year, J5-vs-external split, per-org revenue.
+ */
+export const RevenueRollupSchema = z.object({
+	/** "2026-06" (Asia/Jerusalem), also the doc id */
+	yearMonth: z.string().regex(/^\d{4}-\d{2}$/),
+	/** Integer agorot, money received this month */
+	totalIn: z.number().int(),
+	/** Integer agorot, refunds out this month */
+	totalOut: z.number().int(),
+	/** totalIn − totalOut */
+	net: z.number().int(),
+	/** Integer agorot per payment instrument: manual / hyp_capture / hyp_direct / hyp_j5_auth */
+	byMethod: z.record(z.number().int()),
+	/** Integer agorot per organizationId ("b2c" bucket for orderless/no-org) */
+	byOrg: z.record(z.number().int()),
+	currency: z.literal("ILS"),
+	/** epoch millis */
+	updatedAt: z.number().int().positive(),
+	companyId: z.string().min(1),
+	storeId: z.string().min(1),
+});
+
+export type TRevenueRollup = z.infer<typeof RevenueRollupSchema>;
+
 export const BudgetIdempotencyMarkerSchema = z.object({
 	/** The event id this marker corresponds to. Also the doc id. */
 	eventId: z.string().min(1),

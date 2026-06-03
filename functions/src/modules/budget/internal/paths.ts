@@ -103,6 +103,45 @@ export function budgetRollupPath(companyId: string, storeId: string, rollupId: s
 	return `${budgetRollupsCollectionPath(companyId, storeId)}/${rollupId}`;
 }
 
+// ---------------------------------------------------------------------------
+// Budget redesign — ledger-derived projection read-models (Phase 1, dual-write)
+// New collections, separate from the legacy organizationBudgets/budgetRecords.
+// ---------------------------------------------------------------------------
+
+export function orgBalancePath(
+	companyId: string,
+	storeId: string,
+	organizationId: string,
+): string {
+	return `${companyId}/${storeId}/orgBalances/${organizationId}`;
+}
+
+export function orgBalancesCollectionPath(companyId: string, storeId: string): string {
+	return `${companyId}/${storeId}/orgBalances`;
+}
+
+export function revenueRollupPath(
+	companyId: string,
+	storeId: string,
+	yearMonth: string,
+): string {
+	return `${companyId}/${storeId}/revenueRollups/${yearMonth}`;
+}
+
+export function revenueRollupsCollectionPath(companyId: string, storeId: string): string {
+	return `${companyId}/${storeId}/revenueRollups`;
+}
+
+// Marker doc per processed event for the projection writer (separate namespace
+// from the legacy budgetIdempotency so both can run in parallel).
+export function projectionIdempotencyPath(
+	companyId: string,
+	storeId: string,
+	eventId: string,
+): string {
+	return `${companyId}/${storeId}/projectionIdempotency/${eventId}`;
+}
+
 // Marker doc per processed event. ID = eventId. TTL via expiresAt field (~90d).
 export function budgetIdempotencyPath(
 	companyId: string,

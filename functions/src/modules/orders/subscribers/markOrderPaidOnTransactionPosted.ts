@@ -18,14 +18,15 @@ type OrderPaymentStatus = NonNullable<TOrder["paymentStatus"]>;
  * Only the transaction types we know how to map. Unknown types are ignored
  * (the guard below will log + return rather than guess).
  */
-const TRANSACTION_TYPE_TO_PAYMENT_STATUS: Record<
-	TransactionType,
-	OrderPaymentStatus
+const TRANSACTION_TYPE_TO_PAYMENT_STATUS: Partial<
+	Record<TransactionType, OrderPaymentStatus>
 > = {
 	hyp_j5_auth: "pending_j5",
 	hyp_capture: "completed",
 	hyp_direct: "completed",
 	manual: "completed",
+	// Debit types (delivery_note/invoice/...) have direction "none" and never
+	// reach the mapping — the direction guard returns first. Left unmapped.
 };
 
 /**

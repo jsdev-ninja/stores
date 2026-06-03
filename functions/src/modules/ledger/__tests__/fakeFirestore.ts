@@ -103,7 +103,7 @@ export class FakeFirestore {
 						id: p.split("/").pop()!,
 						data: () => d,
 					}));
-				return { empty: docs.length === 0, docs };
+				return { empty: docs.length === 0, size: docs.length, docs };
 			},
 			doc(id?: string) {
 				const docId = id ?? `auto_${++autoCounter}_${Date.now()}`;
@@ -133,7 +133,7 @@ export class FakeFirestore {
 						id: p.split("/").pop()!,
 						data: () => d,
 					}));
-				return { empty: docs.length === 0, docs };
+				return { empty: docs.length === 0, size: docs.length, docs };
 			},
 		};
 		return query;
@@ -142,6 +142,22 @@ export class FakeFirestore {
 	async runTransaction<T>(fn: (txn: FakeTxn) => Promise<T>): Promise<T> {
 		const txn = new FakeTxn(this);
 		return fn(txn);
+	}
+
+	batch() {
+		const self = this;
+		const writes: Array<{ path: string; data: Record<string, unknown> }> = [];
+		return {
+			set(ref: { path: string }, data: Record<string, unknown>) {
+				writes.push({ path: ref.path, data });
+			},
+			async commit() {
+				for (const w of writes) {
+					self.setCalls.push(w);
+					self.docs.set(w.path, w.data);
+				}
+			},
+		};
 	}
 }
 

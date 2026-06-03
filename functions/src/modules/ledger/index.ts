@@ -5,12 +5,14 @@
 export {
 	TransactionSchema,
 	TransactionTypeSchema,
+	TransactionKindSchema,
 	PaymentLinkSchema,
 	DuplicateChargeAlertSchema,
 } from "./types";
 export type {
 	Transaction,
 	TransactionType,
+	TransactionKind,
 	PaymentLink,
 	DuplicateChargeAlert,
 } from "./types";
@@ -38,3 +40,6 @@ export { recordHypDirectPayment } from "./api/recordHypDirectPayment";
 
 // Public callable (token only, no auth)
 export { getPaymentLink } from "./api/getPaymentLink";
+
+// Subscribers (wired in functions/src/index.tsx)
+export { postDebitOnDeliveryNoteCreated } from "./subscribers/postDebitOnDeliveryNoteCreated";

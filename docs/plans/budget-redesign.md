@@ -1,6 +1,19 @@
 # Plan: budget + ledger redesign (stable, ledger-as-source-of-truth)
 
-**Status:** Proposed — not started.
+**Status:** Phase 1 + reconciliation IMPLEMENTED (dual-write, additive, not yet deployed).
+Decision §9.1 resolved: **unified ledger** (`Transaction.kind: credit|debit`, accruals use `direction:"none"`).
+Remaining (not started): admin UI repoint + revenue report, backfill/cutover, retire legacy collections, fulfillment-aware `createDeliveryNote` rendering.
+
+**Implemented files:**
+- `ledger/types.ts`, `ledger/services/postTransaction.ts`, `ledger/events.ts` — `kind` + debt types + `direction:"none"`.
+- `ledger/subscribers/postDebitOnDeliveryNoteCreated.ts` — debit on DN created (B2B, fulfilled amount).
+- `budget/services/applyLedgerProjection.ts` + `budget/subscribers/updateProjectionsOnTransactionPosted.ts` — orgBalances + revenueRollups projections.
+- `budget/services/reconcileProjections.ts` + `budget/api/reconcileBudgetProjections.ts` (admin callable) + `budget/triggers/reconcileProjectionsSchedule.ts` (nightly) — rebuild/backfill/parity/self-heal.
+- Tests: `applyLedgerProjection.test.ts` (7), `reconcileProjections.test.ts` (4).
+
+---
+
+
 **Why:** the current budget module is unstable. Debt is incurred at `order.placed` on the *original* `cartTotal`, but an order isn't final at placement — it gets **picked, edited, or cancelled**, and the amount changes. So debt is anchored to a moving target → stale debt, reversals that reverse the wrong amount, snapshots that drift with no self-correction, and noisy J5 over-reductions. Root cause: **debt is created too early, on the wrong amount.**
 
 This redesign also unlocks **financial reporting** (total earned, per month/year, by payment method, per org) — which the current model can't do.

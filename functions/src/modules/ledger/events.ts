@@ -11,10 +11,21 @@ export const LedgerEventTypes = {
 
 export const TransactionPostedPayload = z.object({
 	transactionId: z.string().min(1),
-	type: z.enum(["manual", "hyp_direct", "hyp_j5_auth", "hyp_capture"]),
+	/** credit = money in / owed-reduced; debit = owed-increased accrual. Defaults to credit for legacy events. */
+	kind: z.enum(["credit", "debit"]).default("credit"),
+	type: z.enum([
+		"manual",
+		"hyp_direct",
+		"hyp_j5_auth",
+		"hyp_capture",
+		"delivery_note",
+		"invoice",
+		"credit_note",
+		"adjustment",
+	]),
 	/** Integer agorot */
 	amount: z.number().int().positive(),
-	direction: z.enum(["in", "out"]),
+	direction: z.enum(["in", "out", "none"]),
 	reference: z
 		.object({
 			type: z.enum(["order", "refund", "adjustment"]),

@@ -5,24 +5,53 @@ import { z } from "zod";
 // ---------------------------------------------------------------------------
 
 export const TransactionTypeSchema = z.enum([
+	// Payment instruments (credits — money in / refunds out)
 	"manual",
 	"hyp_direct",
 	"hyp_j5_auth",
 	"hyp_capture",
+	// Debt sources (debits — accounts-receivable accruals, no money movement)
+	"delivery_note",
+	"invoice",
+	"credit_note",
+	"adjustment",
 ]);
 export type TransactionType = z.infer<typeof TransactionTypeSchema>;
 
+/**
+ * credit = money in (payment) or owed-reduced.
+ * debit  = owed-increased (a delivery note / invoice issued on credit terms).
+ * Existing rows written before this field existed default to "credit".
+ */
+export const TransactionKindSchema = z.enum(["credit", "debit"]);
+export type TransactionKind = z.infer<typeof TransactionKindSchema>;
+
 export const TransactionSchema = z.object({
 	id: z.string().min(1),
+	/** credit (money in / owed-reduced) or debit (owed-increased accrual) */
+	kind: TransactionKindSchema.default("credit"),
 	type: TransactionTypeSchema,
 	/** Integer agorot (1 ILS = 100 agorot), always positive */
 	amount: z.number().int().positive(),
 	currency: z.literal("ILS"),
-	direction: z.enum(["in", "out"]),
+	/**
+	 * Money flow: in = received, out = refund, none = accrual (debits have no
+	 * cash movement). Old budget subscribers act only on "in", so debits with
+	 * "none" are safely ignored by the legacy path.
+	 */
+	direction: z.enum(["in", "out", "none"]),
 	reference: z
 		.object({
 			type: z.enum(["order", "refund", "adjustment"]),
 			id: z.string().min(1),
+		})
+		.optional(),
+	/** Source document that produced a debit (delivery note / invoice). */
+	document: z
+		.object({
+			type: z.enum(["delivery_note", "invoice", "credit_note"]),
+			id: z.string().min(1),
+			number: z.string().optional(),
 		})
 		.optional(),
 	payer: z

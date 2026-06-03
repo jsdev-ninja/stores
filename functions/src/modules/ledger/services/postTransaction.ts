@@ -21,8 +21,11 @@ function isAlreadyExists(err: unknown): boolean {
 
 type TransactionData = Omit<
 	Transaction,
-	"id" | "dedupKey" | "actor" | "source" | "causedByEventId" | "createdAt"
->;
+	"id" | "dedupKey" | "actor" | "source" | "causedByEventId" | "createdAt" | "kind"
+> & {
+	/** Defaults to "credit" when omitted (keeps existing payment call sites unchanged). */
+	kind?: Transaction["kind"];
+};
 
 export type PostTransactionInput = TransactionData &
 	(
@@ -66,11 +69,13 @@ export async function postTransaction(
 
 	const tx: Transaction = TransactionSchema.parse({
 		id: docId,
+		kind: input.kind ?? "credit",
 		type: input.type,
 		amount: input.amount,
 		currency: input.currency,
 		direction: input.direction,
 		reference: input.reference,
+		document: input.document,
 		payer: input.payer,
 		hyp: input.hyp,
 		clientName: input.clientName,
@@ -101,6 +106,7 @@ export async function postTransaction(
 			// Emit event in the same transaction — atomic with the doc write
 			const eventPayload: TransactionPostedPayload = {
 				transactionId: tx.id,
+				kind: tx.kind,
 				type: tx.type,
 				amount: tx.amount,
 				direction: tx.direction,

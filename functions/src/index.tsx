@@ -30,6 +30,7 @@ export {
   recordHypJ5Auth,
   recordHypDirectPayment,
   getPaymentLink,
+  postDebitOnDeliveryNoteCreated,
 } from "./modules/ledger";
 export { createDeliveryNote, createInvoice } from "./modules/documents";
 export { onSupplierInvoiceCreate } from "./modules/suppliers";
@@ -44,6 +45,9 @@ export {
   reduceDebtOnOrderCancelled,
   reduceDebtOnOrderRefunded,
   reduceDebtOnTransactionPosted,
+  updateProjectionsOnTransactionPosted,
+  reconcileBudgetProjections,
+  reconcileProjectionsSchedule,
 } from "./modules/budget";
 export { getOrganizationActions } from "./api/organizationActionsApi";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";

@@ -17,3 +17,14 @@ export {
 export { increaseDebtOnOrderPlaced } from "./subscribers/increaseDebtOnOrderPlaced";
 export { reduceDebtOnOrderCancelled, reduceDebtOnOrderRefunded } from "./subscribers/reduceDebtOnOrderReversed";
 export { reduceDebtOnTransactionPosted } from "./subscribers/reduceDebtOnTransactionPosted";
+
+// Budget redesign — ledger-derived projections (Phase 1, dual-write)
+export { updateProjectionsOnTransactionPosted } from "./subscribers/updateProjectionsOnTransactionPosted";
+export { reconcileBudgetProjections } from "./api/reconcileBudgetProjections";
+export { reconcileProjectionsSchedule } from "./triggers/reconcileProjectionsSchedule";
+export { reconcileProjections } from "./services/reconcileProjections";
+export {
+	OrgBalanceSchema,
+	RevenueRollupSchema,
+} from "./types";
+export type { TOrgBalance, TRevenueRollup } from "./types";
