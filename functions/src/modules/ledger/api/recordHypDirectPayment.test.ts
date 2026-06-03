@@ -10,6 +10,16 @@ let storePrivateData: unknown = {
 vi.mock("firebase-admin", () => ({
 	default: {
 		firestore: () => ({
+			doc: () => ({
+				get: async () => ({
+					exists: true,
+					data: () => ({
+						organizationId: "org-123",
+						client: { id: "client-123" },
+						billingAccount: { id: "billing-123" },
+					}),
+				}),
+			}),
 			collection: () => ({
 				doc: () => ({
 					get: async () => ({

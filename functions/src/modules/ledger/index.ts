@@ -18,15 +18,8 @@ export type {
 } from "./types";
 
 // Events
-export {
-	LedgerEventTypes,
-	TransactionPostedPayload,
-	DuplicateChargeDetectedPayload,
-} from "./events";
-export type {
-	TransactionPostedPayload as TTransactionPostedPayload,
-	DuplicateChargeDetectedPayload as TDuplicateChargeDetectedPayload,
-} from "./events";
+export { LedgerEventTypes, TransactionPostedPayload } from "./events";
+export type { TransactionPostedPayload as TTransactionPostedPayload } from "./events";
 
 // Admin callables (require admin custom claim + token-derived tenant)
 export { postManualTransaction } from "./api/postManualTransaction";

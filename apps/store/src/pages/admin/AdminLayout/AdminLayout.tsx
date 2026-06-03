@@ -7,7 +7,6 @@ import { EditProductPage } from "../EditProductPage/EditProductPage";
 import AdminSettingsPage from "../AdminSettingsPage";
 import AdminHomePage from "../AdminHomePage";
 import AdminUsersPage from "../AdminUsersPage";
-// import AdminOrderPage from "../Orders/AdminOrderPage";
 import AdminDiscountsPage from "../AdminDiscountsPage";
 import AdminClientProfile from "../AdminClientProfile/AdminClientProfile";
 import { AdminOrganizationsPage } from "../AdminOrganizationsPage";
@@ -31,7 +30,6 @@ import { useAppDispatch } from "src/infra";
 import AdminOrdersPage from "../Orders/AdminOrdersPage";
 import AdminOrderPageNew from "../Orders/AdminOrderPageNew";
 import AdminOrderPickPage from "../Orders/AdminOrderPickPage";
-// import AdminOrdersPages from "../Orders/AdminOrdersPages";
 
 
 export default function AdminLayout() {
@@ -92,11 +90,9 @@ export default function AdminLayout() {
 						<AddCategoryPage />
 					</Route>
 					<Route name="admin.orders">
-						{/* <AdminOrdersPages /> */}
 						<AdminOrdersPage />
 					</Route>
 					<Route name="admin.order">
-						{/* <AdminOrderPage /> */}
 						<AdminOrderPageNew />
 					</Route>
 					<Route name="admin.pickOrder">

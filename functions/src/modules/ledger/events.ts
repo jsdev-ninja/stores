@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const LedgerEventTypes = {
 	transactionPosted: "ledger.transaction_posted",
-	duplicateChargeDetected: "ledger.duplicate_charge_detected",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -47,15 +46,3 @@ export const TransactionPostedPayload = z.object({
 
 export type TransactionPostedPayload = z.infer<typeof TransactionPostedPayload>;
 
-// ---------------------------------------------------------------------------
-// ledger.duplicate_charge_detected
-// ---------------------------------------------------------------------------
-
-export const DuplicateChargeDetectedPayload = z.object({
-	orderId: z.string().min(1),
-	transactionIds: z.array(z.string().min(1)).min(2),
-});
-
-export type DuplicateChargeDetectedPayload = z.infer<
-	typeof DuplicateChargeDetectedPayload
->;

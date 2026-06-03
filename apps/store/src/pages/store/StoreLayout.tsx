@@ -13,16 +13,14 @@ import CartPage from "./CartPage/CartPage";
 import { useEffect } from "react";
 import { useAppApi } from "src/appApi";
 import { useUser } from "src/domains/user";
-import { useAppSelector, useStoreActions } from "src/infra";
+import { useStoreActions } from "src/infra";
 import FavoritesProductsPage from "./FavoritesProductsPage/FavoritesProductsPage";
 import HomePage from "./HomePage/HomePage";
-import { ordersSlice } from "src/domains/Order";
 import TermsPage from "./TermsPage/TermsPage";
 import DiscountsPage from "./DiscountsPage/DiscountsPage";
 import ClientOrderPage from "./ClientOrderPage";
 import { ProductsWidget } from "src/widgets/Products";
 import { ChatbotFeature } from "src/features/chatbot";
-// import { UnPaidPendingOrder } from "src/widgets/UnPaidPendingOrder/UnPaidPendingOrder";
 import { useProfile } from "src/domains/profile";
 
 export default function StoreLayout() {
@@ -31,8 +29,6 @@ export default function StoreLayout() {
 	const user = useUser();
 	const profile = useProfile();
 	const actions = useStoreActions();
-
-	const unPaidPendingOrder = useAppSelector(ordersSlice.selectors.selectUnPaidPendingOrder);
 
 	useEffect(() => {
 		// load profile organizations
@@ -57,16 +53,6 @@ export default function StoreLayout() {
 		);
 		return () => unsubscribe?.();
 	}, [user]);
-
-	if (unPaidPendingOrder && user?.uid === unPaidPendingOrder.userId) {
-		// todo dont show when no needed
-		// return (
-		// 	<>
-		// 		<AppBar />
-		// 		<UnPaidPendingOrder />
-		// 	</>
-		// );
-	}
 
 	return (
 		<ProductsWidget>

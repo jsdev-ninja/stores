@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const OrderEventTypes = {
 	placed: "order.placed",
-	completed: "order.completed",
 	cancelled: "order.cancelled",
 	refunded: "order.refunded",
 } as const;
@@ -18,15 +17,6 @@ export const OrderPlacedPayload = z.object({
 });
 
 export type OrderPlacedPayload = z.infer<typeof OrderPlacedPayload>;
-
-export const OrderCompletedPayload = z.object({
-	orderId: z.string().min(1),
-	organizationId: z.string().optional(),
-	clientId: z.string().optional(),
-	total: z.number().optional(),
-	completedAt: z.number().optional(),
-});
-export type OrderCompletedPayload = z.infer<typeof OrderCompletedPayload>;
 
 export const OrderCancelledPayload = z.object({
 	orderId: z.string().min(1),

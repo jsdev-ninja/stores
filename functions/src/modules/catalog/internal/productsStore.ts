@@ -30,22 +30,6 @@ function removeUndefinedFields<T>(obj: T): T {
 }
 
 /**
- * Upsert a product doc using Firestore merge-set semantics — matching the client's
- * `setDoc(ref, doc, { merge: true })` call in FirebaseApi.firestore.setV2.
- *
- * Undefined fields are stripped before write (matching the client's
- * removeUndefinedFields() call on the payload).
- *
- * Merge means: fields present in the payload are written; fields absent from the
- * payload are left as-is on existing docs. For a new product this is equivalent
- * to a plain create.
- */
-export async function upsertProductDoc(product: TProduct): Promise<void> {
-	const ref = db().doc(productPath(product.companyId, product.storeId, product.id));
-	await ref.set(removeUndefinedFields(product), { merge: true });
-}
-
-/**
  * Create a product doc using Firestore atomic `create()` semantics.
  *
  * Unlike `upsertProductDoc` which uses merge-set, this call will FAIL with gRPC
@@ -60,22 +44,3 @@ export async function createProductDoc(product: TProduct): Promise<void> {
 	await ref.create(removeUndefinedFields(product));
 }
 
-/**
- * Delete a product doc by id.
- * Returns false if the doc didn't exist (idempotent — callers decide whether to surface).
- *
- * NOTE: image removal from Firebase Storage is handled by the `onProductDelete`
- * trigger (deletes the whole `products/{sku}/` prefix), not here. This function
- * only removes the Firestore doc.
- */
-export async function deleteProductDoc(
-	companyId: string,
-	storeId: string,
-	productId: string,
-): Promise<{ existed: boolean }> {
-	const ref = db().doc(productPath(companyId, storeId, productId));
-	const snap = await ref.get();
-	if (!snap.exists) return { existed: false };
-	await ref.delete();
-	return { existed: true };
-}
