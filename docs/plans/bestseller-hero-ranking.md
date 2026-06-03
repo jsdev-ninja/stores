@@ -1,67 +1,80 @@
-# Plan: rank the home "המבחר הפופולרי" hero by actual best-sellers
+# Plan: rank the home "המבחר הפופולרי" hero by actual best-sellers (Algolia-native)
 
 **Status:** Not started — awaiting developer (Philip) approval.
-**Requested by:** David (app owner), 2026-06-03. David authorized it, but it touches `@jsdev_ninja/core` schema + orders backend, which is outside the owner's authority per `CLAUDE.md` — hence this plan for Philip's sign-off.
+**Requested by:** David (app owner), 2026-06-03.
+**Revision 2 (2026-06-03):** Reworked per Philip's PR review — use Algolia's **built-in** popularity features instead of a hand-rolled sales counter. This removes the `@jsdev_ninja/core` schema change entirely.
 
 ---
 
 ## Current behaviour
 
-The balasistore home hero ("המבחר הפופולרי", 3 cards) and the "🔥 פופולרי השבוע" strip do **not** reflect real sales.
-
 - `apps/store/src/websites/balasistore/HomePage.tsx` → `heroProducts = products.slice(0, 3)`.
-- `apps/store/src/websites/balasistore/useHomeProducts.ts:36` queries Algolia index `"products"` with `filters: companyId AND storeId AND isPublished:true`, **no ranking** — order is Algolia default (arbitrary).
-- The card tags "פריט נמכר / חדש בקטלוג / המומלץ שלנו" are **static text bound to position**, not data.
-
-So today it's just "the first 3 published products," presented as if popular.
+- `apps/store/src/websites/balasistore/useHomeProducts.ts:36` queries Algolia index `"products"` with `filters: companyId AND storeId AND isPublished:true`, **no ranking** — arbitrary order, presented as "popular".
+- Card tags ("פריט נמכר / חדש בקטלוג / המומלץ שלנו") are **static text bound to position**, not data.
 
 ## Goal
 
-Show the 3 (and trending 6) products that have **actually sold the most**, ranked descending by quantity sold.
+Show the products that have **actually sold the most**, using Algolia's native popularity, so we don't maintain our own metric.
 
 ---
 
-## What sales data exists
+## How Algolia does this natively (research summary)
 
-- Order entity: `packages/core/lib/entities/Order.ts`; path `{companyId}/{storeId}/orders/{orderId}` (via `FirebaseAPI.firestore.getDocPath("orders")`).
-- Each order has `cart.items[]` (`packages/core/lib/entities/Cart.ts`), each item = `{ product, amount, finalPrice, ... }`. **`product.id` + `amount` are all we need to aggregate.**
-- Order triggers exist: `onOrderCreated.ts`, `onOrderUpdate.ts`; events `placed | cancelled | refunded` (`functions/src/modules/orders/events.ts`).
-- **No existing sales aggregation:** no `soldCount`/`quantitySold` field, no counter trigger, no rollup job anywhere.
-- Algolia sync (`functions/src/modules/catalog/internal/searchSync.ts`) forwards **all** product fields via `saveObject` — so any new product field syncs automatically.
+Algolia computes "popular / trending" from **conversion events** (e.g. purchases) that we send to the **Insights API**. Two built-in features consume those events — pick one:
 
----
+### Feature 1 — Algolia Recommend: **Trending Items** model (best fit for a "popular picks" shelf)
+- A pre-trained model that returns the **most popular items** across the whole catalog, or **per facet value** (e.g. per category). Exactly the "המבחר הפופולרי" use case.
+- Trained & enabled in the **Algolia dashboard** (choose "trending overall" vs "per facet").
+- **Data requirement:** ~**250+ conversion events over ≥15 days** (window auto-extends to 30 days; max 3M). Until trained, it returns nothing → we need a fallback (see Cold-start).
+- **Frontend:** the storefront already uses a direct Algolia client (not InstantSearch), so the natural fit is the `@algolia/recommend` client method `getTrendingItems({ indexName, maxRecommendations, facetName?, facetValue? })`. (InstantSearch also offers a `<TrendingItems>` widget if we later move to it.)
 
-## Option A — per-product sold counter, incremented on order events (recommended)
+### Feature 2 — **Dynamic Re-Ranking (DRR)** (re-orders normal search results)
+- AI that promotes records becoming popular, applied **on top of the existing search** in `useHomeProducts`. We keep the current query and just enable DRR per-index in the dashboard.
+- **Data requirement:** ≥**2 conversions or 20 clicks per record** within a 30-day window to promote that record.
+- Simpler to wire on the frontend (no new package — same search call), but it re-ranks *search* results rather than giving a clean "top sellers" list, and the effect is subtler.
 
-1. **Core schema** — add optional `soldQuantityTotal?: number` to `ProductSchema` (`packages/core/lib/entities/Product.ts`). Optional → existing docs/code unaffected.
-2. **New subscriber** `functions/src/modules/orders/subscribers/incrementProductSalesOnOrderPlaced.ts` (or react to an order-completed event):
-   - For each `order.cart.items[]`: `FieldValue.increment(item.amount)` on `{companyId}/{storeId}/products/{item.product.id}` `soldQuantityTotal`.
-   - **Idempotency** per `CLAUDE.md`: deterministic dedupe key `evt_incrementProductSales_{eventId}` so a re-delivered event can't double-count.
-3. **Cancellation / refund** — react to `cancelled` / `refunded` and `FieldValue.increment(-amount)` (floor at 0) so counts stay honest.
-4. **Algolia** — no code change; `soldQuantityTotal` rides along on the next product save. (Backfill note below.)
-5. **Frontend** — `useHomeProducts.ts:36`: add `customRanking: ["desc(soldQuantityTotal)"]` (or sort the hits) so hero/trending take the top sellers. Optionally make the position tags reflect real rank.
-
-### Cost / risk
-- **~50–80 LOC across 2 packages** (`@jsdev_ninja/core`, `functions/src/modules`, `apps/store`). No new collections, no new Firestore paths, no breaking change.
-- **Real care points:** (a) refund/cancel decrement correctness; (b) idempotency so re-delivered order events don't double-count; (c) **historical backfill** — counters start at 0, so the ranking is empty/biased until enough new orders accrue. A one-off backfill script over existing orders may be wanted (this is the part that smells like a migration → explicit Philip call).
-
-## Option B — scheduled rollup job
-A scheduled function aggregates `completed` orders periodically into product counters. Cheaper per-write at high volume, but the ranking lags (hours/day). More moving parts than A for our scale.
-
-## Option C — manual selection (owner-authorizable, no core change)
-Owner picks the 3 hero products in admin; store the IDs in store-specific settings. No `@jsdev-core` change, no orders logic. Offered to David as the do-it-today alternative; he chose to wait for the automatic version.
+**Both require the same prerequisite: we must send conversion (purchase) events to Algolia.** That's the real work.
 
 ---
 
-## Recommendation
-**Option A** for an always-current ranking. Two explicit decisions for Philip:
-1. Increment on `placed`, or only on an order-**completed** state? (placed = simpler/livelier; completed = truer "sold").
-2. Backfill existing orders once (a migration), or let counters accrue forward from launch?
+## The real work: send purchase/conversion events (Insights API)
+
+- A **purchase = a "conversion" event**. Conversion events sent **without a `queryID`** can be sent **any time** (the 1h/4-day timing limit only applies to events tied to a search `queryID`). Our purchases happen at checkout, decoupled from search → send them **without** a queryID. Simple and robust.
+- **Server-side is supported and is the right place for us:** forward events from the existing order flow. On order placement (`functions/src/modules/orders/triggers/onOrderCreated.ts` / the order-placed path), for each `order.cart.items[]` send a conversion event with `objectIDs = [product.id]`, the store's index name, and a `userToken` (customer id, or an anonymous token). Use the Algolia API client `sendEvents` (Node) / Insights API.
+  - Idempotency per `CLAUDE.md`: only emit once per order (dedupe key `evt_algoliaInsights_{eventId}` / `{orderId}`) so re-delivered triggers don't double-count.
+- **Optional richer signal:** also send client-side `click`/`add-to-cart` events (with queryID from search) for DRR quality. Not required for the Trending Items MVP.
+
+### What this approach AVOIDS (vs the old hand-rolled plan)
+- ❌ No `soldQuantityTotal` field on the Product schema → **no `@jsdev_ninja/core` change** (so this part is no longer owner-blocked for schema reasons).
+- ❌ No custom Firestore counter, no increment/decrement-on-refund bookkeeping, no rollup job. Algolia maintains popularity and decay over time.
+
+---
+
+## Cold-start (important, non-technical impact)
+
+Until enough purchase events accumulate (Trending Items: ~250 events / 15 days), Algolia has nothing to rank. We must keep a **fallback**: if `getTrendingItems` returns fewer than 3, fall back to the current `slice(0,3)`. Same idea for DRR (it just no-ops until thresholds are met). So the section never looks broken; it simply "gets smarter" once data flows.
+
+---
+
+## Open decisions for Philip
+1. **Which feature** — Recommend **Trending Items** (clean "top sellers" list, paid Recommend add-on, needs a new query path) vs **Dynamic Re-Ranking** (reuses current search, subtler, check it's in our plan)? Recommend Trending Items is the closer match to "המבחר הפופולרי".
+2. **Algolia plan** — confirm our Algolia subscription includes the chosen feature (Recommend / DRR are paid add-ons). This is a commercial decision, not just code.
+3. **userToken policy** — logged-in customer id vs anonymous token for events (affects Personalization later, and privacy).
+4. **Events scope for MVP** — purchases only (server-side) to start, or also client click/add-to-cart now?
+
+## Scope by area (after a feature is chosen)
+- `functions/src/modules/orders/...` — new subscriber/emitter to send purchase conversion events to Algolia Insights (server-side). *(backend, needs Philip — but no core schema change.)*
+- Algolia dashboard — enable/train Trending Items (or enable DRR). *(config, not code.)*
+- `apps/store/src/websites/balasistore/useHomeProducts.ts` + `HomePage.tsx` — fetch via `getTrendingItems` (Recommend) **or** keep search with DRR; add the cold-start fallback. *(store app.)*
+- Possibly add the `@algolia/recommend` client dependency (Recommend path only).
 
 ## Key files
-- `apps/store/src/websites/balasistore/useHomeProducts.ts` (ranking)
-- `apps/store/src/websites/balasistore/HomePage.tsx` (slices)
-- `packages/core/lib/entities/Product.ts` (new `soldQuantityTotal` field)
-- `functions/src/modules/orders/events.ts`, `.../triggers/onOrderCreated.ts` (event source)
-- `functions/src/modules/orders/subscribers/` (new increment/decrement subscribers)
-- `functions/src/modules/catalog/internal/searchSync.ts` (Algolia sync — already field-agnostic)
+- `apps/store/src/websites/balasistore/useHomeProducts.ts`, `HomePage.tsx`
+- `functions/src/modules/orders/triggers/onOrderCreated.ts`, `functions/src/modules/orders/events.ts`
+- `functions/src/modules/catalog/internal/searchSync.ts` (existing Algolia integration / client setup to mirror)
+
+## Sources
+- Algolia Recommend overview & Trending Items — https://www.algolia.com/doc/guides/algolia-recommend/overview
+- Set up Algolia Recommend — https://www.algolia.com/doc/guides/algolia-recommend/how-to/set-up/
+- Dynamic Re-Ranking — https://www.algolia.com/doc/guides/algolia-ai/re-ranking
+- Sending events (Insights API, server-side) — https://www.algolia.com/doc/guides/sending-events/getting-started/
