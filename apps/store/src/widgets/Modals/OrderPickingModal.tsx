@@ -14,6 +14,7 @@ import { formatter } from "src/utils/formatter";
 import { modalApi } from "src/infra/modals";
 import { useAppApi } from "src/appApi";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { useStore } from "src/domains/Store";
 
 const algoliaClient = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
 const productsIndex = algoliaClient.initIndex("products");
@@ -37,11 +38,12 @@ export function OrderPickingModal({
 	onSaved,
 }: {
 	order: TOrder;
-	onSaved?: () => void;
+	onSaved?: (order: TOrder) => void;
 }) {
 	const { t } = useTranslation(["common", "ordersPage"]);
 	const appApi = useAppApi();
 	const discounts = useDiscounts();
+	const store = useStore();
 
 	const [items, setItems] = useState<TCartItemProduct[]>(
 		(order.cart.items ?? []).map((i) => ({ ...i })),
@@ -50,6 +52,7 @@ export function OrderPickingModal({
 	// Per-line product search (for substitution). Keyed by item index.
 	const [searchFor, setSearchFor] = useState<number | null>(null);
 	const [searchResults, setSearchResults] = useState<TProduct[]>([]);
+	const [searchQuery, setSearchQuery] = useState("");
 
 	const close = () => modalApi.closeModal("orderPicking");
 
@@ -77,6 +80,7 @@ export function OrderPickingModal({
 			),
 		);
 		setSearchFor(null);
+		setSearchQuery("");
 		setSearchResults([]);
 	}
 
@@ -95,11 +99,17 @@ export function OrderPickingModal({
 	}
 
 	async function searchProducts(query: string) {
+		setSearchQuery(query);
 		if (!query.trim()) {
 			setSearchResults([]);
 			return;
 		}
-		const { hits } = await productsIndex.search<TProduct>(query, { hitsPerPage: 6 });
+		// Tenant isolation: NEVER search the index unscoped — always filter by the
+		// order's storeId + companyId, or results leak across stores/companies.
+		const { hits } = await productsIndex.search<TProduct>(query, {
+			filters: `storeId:${order.storeId} AND companyId:${order.companyId}`,
+			hitsPerPage: 6,
+		});
 		setSearchResults(hits);
 	}
 
@@ -121,9 +131,11 @@ export function OrderPickingModal({
 		return getCartCost({
 			cart: effective,
 			discounts,
-			deliveryPrice: order.storeOptions?.deliveryPrice ?? order.cart.deliveryPrice ?? 0,
-			freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice ?? 0,
-			isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice ?? false,
+			deliveryPrice:
+				store?.deliveryPrice ?? order.storeOptions?.deliveryPrice ?? order.cart.deliveryPrice ?? 0,
+			freeDeliveryPrice: store?.freeDeliveryPrice ?? order.storeOptions?.freeDeliveryPrice ?? 0,
+			isVatIncludedInPrice:
+				store?.isVatIncludedInPrice ?? order.storeOptions?.isVatIncludedInPrice ?? false,
 		});
 	}
 
@@ -142,9 +154,9 @@ export function OrderPickingModal({
 					deliveryPrice: cost.deliveryPrice,
 				},
 			};
-			const res = await appApi.admin.updateOrder({ order: updated });
+			const res = await appApi.admin.saveOrder({ order: updated });
 			if (res?.success) {
-				onSaved?.();
+				onSaved?.(updated);
 				close();
 			}
 		} finally {
@@ -301,6 +313,7 @@ export function OrderPickingModal({
 													<div className="mt-2">
 														<Input
 															placeholder={t("ordersPage:picking.searchProduct", "חפש מוצר תחליף…")}
+															value={searchQuery}
 															onChange={(e) => searchProducts(e.target.value)}
 															autoFocus
 														/>

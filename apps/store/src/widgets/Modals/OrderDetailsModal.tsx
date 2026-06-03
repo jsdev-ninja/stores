@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@heroui/react";
 import { TOrder } from "@jsdev_ninja/core";
@@ -82,7 +82,7 @@ export function OrderDetailsModal({
 	onUpdated,
 }: {
 	order: TOrder;
-	onUpdated?: (id: string, status: TOrder["status"]) => void;
+	onUpdated?: (order: TOrder) => void;
 }) {
 	const { t } = useTranslation(["common", "ordersPage"]);
 	const appApi = useAppApi();
@@ -91,6 +91,12 @@ export function OrderDetailsModal({
 
 	const close = () => modalApi.closeModal("orderDetails");
 
+	// Apply an updated order to both this popup and the list row.
+	function applyUpdate(updated: TOrder) {
+		setOrder(updated);
+		onUpdated?.(updated);
+	}
+
 	async function run(
 		fn: () => Promise<unknown> | undefined,
 		nextStatus: TOrder["status"],
@@ -98,10 +104,7 @@ export function OrderDetailsModal({
 		setLoading(true);
 		try {
 			const res = (await fn()) as { success?: boolean } | undefined;
-			if (res?.success) {
-				setOrder((o) => ({ ...o, status: nextStatus }));
-				onUpdated?.(order.id, nextStatus);
-			}
+			if (res?.success) applyUpdate({ ...order, status: nextStatus });
 		} finally {
 			setLoading(false);
 		}
@@ -121,11 +124,26 @@ export function OrderDetailsModal({
 					onPress={() =>
 						modalApi.openModal("orderPicking", {
 							order,
-							onSaved: () => close(),
+							onSaved: (updated) => applyUpdate(updated),
 						})
 					}
 				>
 					{t("ordersPage:actions.picking", "📦 מצב ליקוט")}
+				</Button>,
+			);
+			els.push(
+				<Button
+					key="edit"
+					variant="ghost"
+					isPending={loading}
+					onPress={() =>
+						modalApi.openModal("orderEdit", {
+							order,
+							onSaved: (updated) => applyUpdate(updated),
+						})
+					}
+				>
+					{t("ordersPage:actions.editOrder", "✏️ ערוך הזמנה")}
 				</Button>,
 			);
 			els.push(
@@ -243,6 +261,17 @@ export function OrderDetailsModal({
 							</InfoBanner>
 						)}
 
+						{/* Fulfillment summary (after picking) */}
+						{items.some((i) => i.status === "missing" || i.status === "substituted") && (
+							<InfoBanner icon="📦" accent="#d4a217" gradient="linear-gradient(135deg,#fff7e0,#fdebe0)">
+								<b>{t("ordersPage:orderDetails.fulfillment", "שינויים בליקוט")}:</b>{" "}
+								{items.filter((i) => i.status === "missing").length > 0 &&
+									`${items.filter((i) => i.status === "missing").length} חסרים · `}
+								{items.filter((i) => i.status === "substituted").length > 0 &&
+									`${items.filter((i) => i.status === "substituted").length} הוחלפו`}
+							</InfoBanner>
+						)}
+
 						{/* Items table */}
 						<table className="w-full border-collapse text-sm">
 							<thead>
@@ -267,17 +296,63 @@ export function OrderDetailsModal({
 							<tbody>
 								{items.map((item, i) => {
 									const unit = item.finalPrice || item.originalPrice || 0;
+									const name = item.product.name?.[0]?.value || t("common:emptyField");
+									const struck = "line-through text-gray-400";
+
+									if (item.status === "missing") {
+										return (
+											<tr key={item.product.id || i} className="border-b border-gray-100 bg-[#fef8f5]">
+												<td className={`py-2 text-start ${struck}`}>
+													{name}{" "}
+													<Pill variant="danger">❌ {t("ordersPage:orderDetails.missing", "חסר")}</Pill>
+												</td>
+												<td className={`py-2 text-start ${struck}`}>{item.product.brand || "—"}</td>
+												<td className={`py-2 text-center ${struck}`}>{item.amount}</td>
+												<td className={`py-2 text-end ${struck}`}>{formatter.price(unit)}</td>
+												<td className={`py-2 text-end ${struck}`}>{formatter.price(0)}</td>
+											</tr>
+										);
+									}
+
+									if (item.status === "substituted" && item.substitutedWith) {
+										const sub = item.substitutedWith;
+										return (
+											<Fragment key={item.product.id || i}>
+												<tr className="bg-[#fffbef]">
+													<td className={`py-2 text-start ${struck}`}>
+														{name}{" "}
+														<Pill variant="warn">🔄 {t("ordersPage:orderDetails.replaced", "הוחלף")}</Pill>
+													</td>
+													<td className={`py-2 text-start ${struck}`}>{item.product.brand || "—"}</td>
+													<td className={`py-2 text-center ${struck}`}>{item.amount}</td>
+													<td className={`py-2 text-end ${struck}`}>{formatter.price(unit)}</td>
+													<td className={`py-2 text-end ${struck}`}>{formatter.price(unit * item.amount)}</td>
+												</tr>
+												<tr className="border-b border-gray-100 bg-[#f3f8f4]">
+													<td className="py-2 text-start">
+														↳ {sub.product.name?.[0]?.value}{" "}
+														<Pill variant="success">
+															✓ {t("ordersPage:orderDetails.deliveredInstead", "נמסר במקום")}
+														</Pill>
+													</td>
+													<td className="py-2 text-start text-gray-500">{sub.product.brand || "—"}</td>
+													<td className="py-2 text-center">{sub.amount}</td>
+													<td className="py-2 text-end text-gray-500">{formatter.price(sub.price)}</td>
+													<td className="py-2 text-end font-semibold text-gray-900">
+														{formatter.price(sub.price * sub.amount)}
+													</td>
+												</tr>
+											</Fragment>
+										);
+									}
+
 									return (
 										<tr
 											key={item.product.id || i}
 											className="border-b border-gray-100 last:border-0"
 										>
-											<td className="py-2 text-start">
-												{item.product.name?.[0]?.value || t("common:emptyField")}
-											</td>
-											<td className="py-2 text-start text-gray-500">
-												{item.product.brand || "—"}
-											</td>
+											<td className="py-2 text-start">{name}</td>
+											<td className="py-2 text-start text-gray-500">{item.product.brand || "—"}</td>
 											<td className="py-2 text-center">{item.amount}</td>
 											<td className="py-2 text-end text-gray-500">{formatter.price(unit)}</td>
 											<td className="py-2 text-end font-semibold text-gray-900">
@@ -289,13 +364,54 @@ export function OrderDetailsModal({
 							</tbody>
 						</table>
 
-						<div className="text-start text-lg font-black">
-							{t("ordersPage:columns.sum", 'סה"כ')}: {formatter.price(order.cart.cartTotal)}
-						</div>
+						{/* Totals breakdown — items subtotal + VAT + delivery = grand total.
+						    Explains why the grand total differs from the line-items sum. */}
+						{(() => {
+							const lineTotal = (it: (typeof items)[number]) => {
+								if (it.status === "missing") return 0;
+								if (it.status === "substituted" && it.substitutedWith)
+									return it.substitutedWith.price * it.substitutedWith.amount;
+								return (it.finalPrice || it.originalPrice || 0) * it.amount;
+							};
+							const subtotal = items.reduce((s, it) => s + lineTotal(it), 0);
+							const vat = order.cart.cartVat ?? 0;
+							const delivery = order.cart.deliveryPrice ?? 0;
+							const discount = order.cart.cartDiscount ?? 0;
+							return (
+								<div className="border-t pt-3 space-y-1 text-sm">
+									<div className="flex justify-between text-gray-600">
+										<span>{t("ordersPage:orderDetails.subtotal", "סכום ביניים")}</span>
+										<span>{formatter.price(subtotal)}</span>
+									</div>
+									{discount > 0 && (
+										<div className="flex justify-between text-gray-600">
+											<span>{t("ordersPage:orderDetails.discount", "הנחה")}</span>
+											<span>−{formatter.price(discount)}</span>
+										</div>
+									)}
+									{vat > 0 && (
+										<div className="flex justify-between text-gray-600">
+											<span>{t("ordersPage:orderDetails.vat", 'מע"מ')}</span>
+											<span>{formatter.price(vat)}</span>
+										</div>
+									)}
+									{delivery > 0 && (
+										<div className="flex justify-between text-gray-600">
+											<span>{t("ordersPage:orderDetails.delivery.title", "משלוח")}</span>
+											<span>{formatter.price(delivery)}</span>
+										</div>
+									)}
+									<div className="flex justify-between text-lg font-black pt-1">
+										<span>{t("ordersPage:columns.sum", 'סה"כ')}</span>
+										<span>{formatter.price(order.cart.cartTotal)}</span>
+									</div>
+								</div>
+							);
+						})()}
 
 						{order.clientComment && (
 							<div className="rounded-md bg-[#fff6d9] p-2.5 text-sm text-start">
-								<b>{t("ordersPage:orderDetails.notes", "הערות")}:</b> {order.clientComment}
+								<b>{t("ordersPage:orderDetails.notes.title", "הערות")}:</b> {order.clientComment}
 							</div>
 						)}
 

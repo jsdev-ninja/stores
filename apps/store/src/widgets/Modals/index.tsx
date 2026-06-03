@@ -10,6 +10,7 @@ import { CreateInvoiceModal } from "./CreateInvoiceModal";
 import { InvoiceDetailsModal } from "./InvoiceDetailsModal";
 import { OrderDetailsModal } from "./OrderDetailsModal";
 import { OrderPickingModal } from "./OrderPickingModal";
+import { OrderEditModal } from "./OrderEditModal";
 import { CreateDeliveryNoteModal } from "./CreateDeliveryNoteModal";
 import { DeliveryNoteDetailsModal } from "./DeliveryNoteDetailsModal";
 import { SelectDateForDocumentModal } from "./SelectDateForDocumentModal";
@@ -34,10 +35,13 @@ export const modals = {
 		onUpdated,
 	}: {
 		order: TOrder;
-		onUpdated?: (id: string, status: TOrder["status"]) => void;
+		onUpdated?: (order: TOrder) => void;
 	}) => <OrderDetailsModal order={order} onUpdated={onUpdated} />,
-	orderPicking: ({ order, onSaved }: { order: TOrder; onSaved?: () => void }) => (
+	orderPicking: ({ order, onSaved }: { order: TOrder; onSaved?: (order: TOrder) => void }) => (
 		<OrderPickingModal order={order} onSaved={onSaved} />
+	),
+	orderEdit: ({ order, onSaved }: { order: TOrder; onSaved?: (order: TOrder) => void }) => (
+		<OrderEditModal order={order} onSaved={onSaved} />
 	),
 	invoiceDetails: ({
 		selectedOrders,

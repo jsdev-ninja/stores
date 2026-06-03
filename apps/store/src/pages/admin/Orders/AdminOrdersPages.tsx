@@ -273,7 +273,11 @@ function OrderRow({
         <Button
           variant="primary"
           onPress={() => {
-            modalApi.openModal("orderDetails", { order, onUpdated: updateOrder });
+            modalApi.openModal("orderDetails", {
+              order,
+              onUpdated: (updated: TOrder) =>
+                updateOrder(updated.id, updated.status),
+            });
           }}
         >
           {t("ordersPage:actions.viewOrder")}

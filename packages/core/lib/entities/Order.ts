@@ -66,6 +66,9 @@ export const OrderSchema = z.object({
 	invoice: InvoiceSchema.optional(),
 	ezInvoice: EzInvoiceSchema.optional(),
 	ezDeliveryNote: EzDeliveryNoteSchema.optional(),
+	// Audit: who last changed the order + when (epoch millis). Stamped by admin writes.
+	updatedBy: z.string().optional(),
+	updatedAt: z.number().optional(),
 });
 
 export type TOrder = z.infer<typeof OrderSchema>;

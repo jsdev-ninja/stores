@@ -300,7 +300,11 @@ function AdminOrdersPages() {
 								size="sm"
 								variant="ghost"
 								onPress={() =>
-									modalApi.openModal("orderDetails", { order, onUpdated: updateOrder })
+									modalApi.openModal("orderDetails", {
+										order,
+										onUpdated: (updated: TOrder) =>
+											setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o))),
+									})
 								}
 							>
 								{t("ordersPage:actions.viewDetails", "פרטים")}

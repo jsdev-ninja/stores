@@ -934,6 +934,23 @@ export const useAppApi = () => {
 					doc: newOrder,
 				});
 			},
+			/**
+			 * Write the order EXACTLY as built by the caller — NO cart recompute.
+			 * Use for picking/edit, where cart.items carry fulfillment status and
+			 * cart.cartTotal is already the FULFILLED total. updateOrder re-derives the
+			 * cart via getCartCost and would strip status + reset deliveryPrice.
+			 */
+			async saveOrder({ order }: { order: TOrder }) {
+				if (!isValidAdmin) return { success: false as const };
+				return FirebaseApi.firestore.setV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "orders",
+					}),
+					doc: { ...order, updatedBy: userId ?? "", updatedAt: Date.now() },
+				});
+			},
 			async chargeOrder({ order }: { order: TOrder }) {
 				// get transactionId
 
@@ -1039,6 +1056,8 @@ export const useAppApi = () => {
 					order.id,
 					{
 						status: "cancelled",
+						updatedBy: userId ?? "",
+						updatedAt: Date.now(),
 					},
 					FirebaseAPI.firestore.getPath({
 						companyId,
@@ -1071,7 +1090,7 @@ export const useAppApi = () => {
 					}
 					await FirebaseApi.firestore.update<TOrder>(
 						order.id,
-						{ status: "completed" },
+						{ status: "completed", updatedBy: userId ?? "", updatedAt: Date.now() },
 						ordersPath,
 					);
 					return { success: true as const };

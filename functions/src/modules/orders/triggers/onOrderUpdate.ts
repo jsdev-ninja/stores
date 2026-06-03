@@ -17,9 +17,14 @@ export const onOrderUpdate = functions
 		const after = snap.after.data() as TOrder;
 
 		logger.info("onOrderUpdate: order updated", {
+			category: "audit.orderUpdate",
 			orderId,
 			companyId,
 			storeId,
+			// Who/when made the change (stamped by admin writes). "system" when a
+			// trigger/server flow wrote it without an admin actor.
+			updatedBy: after.updatedBy ?? "system",
+			updatedAt: after.updatedAt ?? null,
 			statusBefore: before.status,
 			statusAfter: after.status,
 			paymentStatusBefore: before.paymentStatus,

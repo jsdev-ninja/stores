@@ -82,6 +82,13 @@ how we render store spefics components
 
 (we have legecy data in ILS, every time need udnerstard what legacy and what not)
 
+### Tenant isolation (HARD RULE)
+
+- This is a **multi-tenant** system. Data is scoped per `{companyId}/{storeId}`. **NEVER** read, search, or query data without scoping to the current tenant — unscoped access leaks data across stores/companies and is a critical security bug.
+- **Algolia / external search indexes:** EVERY `index.search(...)` call MUST pass `filters: \`storeId:${storeId} AND companyId:${companyId}\`` (use the order's / entity's own `storeId`+`companyId`, or the active store). Never search an index without this filter. Same for any other external index or cache.
+- **Firestore:** always build paths with `FirebaseAPI.firestore.getPath({ companyId, storeId, collectionName })` (see "Firestore paths" below). Never hand-build a path or use a root collection.
+- When in doubt, derive `companyId`/`storeId` from the entity you already hold (e.g. `order.companyId` / `order.storeId`) or the auth token — never from unscoped client input.
+
 ## Backend module structure
 
 The functions backend is a **modular monolith** under `functions/src/modules/{moduleName}/`. Every module follows the same shape.
