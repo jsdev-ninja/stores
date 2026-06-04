@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { ReactNode } from "react";
+import React, { ReactNode, useMemo } from "react";
 import * as RadixSelect from "@radix-ui/react-select";
 import classnames from "classnames";
 import { CheckIcon } from "@radix-ui/react-icons";
@@ -27,9 +27,34 @@ export const Select = <T,>({
 
 	const form = useFormContext();
 
+	// Build a value -> label map from the rendered <Select.Item> children so the
+	// combobox input can display the human-readable label of the saved value.
+	// Without this, the underlying Combobox shows the raw enum code (or nothing),
+	// which makes a saved selection (e.g. a "kg" price type) look unset.
+	const labelByValue = useMemo(() => {
+		const map = new Map<unknown, ReactNode>();
+		React.Children.forEach(children, (child) => {
+			if (React.isValidElement(child) && (child.props as any)?.value !== undefined) {
+				map.set((child.props as any).value, (child.props as any).children);
+			}
+		});
+		return map;
+	}, [children]);
+
+	const resolvedDisplayValue =
+		displayValue ??
+		((value: any): string => {
+			if (Array.isArray(value)) {
+				return value.map((v) => labelByValue.get(v) ?? v).join(", ");
+			}
+			if (value === undefined || value === null || value === "") return "";
+			const itemLabel = labelByValue.get(value);
+			return (itemLabel as string) ?? String(value);
+		});
+
 	return (
 		<BaseSelect
-			displayValue={displayValue}
+			displayValue={resolvedDisplayValue}
 			multiple={multiple}
 			onChange={(newValue: any) => {
 				if (multiple && Array.isArray(newValue)) {
