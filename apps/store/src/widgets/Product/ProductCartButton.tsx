@@ -5,7 +5,6 @@ import { cartSlice } from "src/domains/cart";
 import { useAppApi } from "src/appApi";
 import { ButtonProps } from "@heroui/react";
 import { useTranslation } from "react-i18next";
-import { TProduct } from "@jsdev_ninja/core";
 
 type Props = Omit<ButtonProps, "value" | "onChange">;
 
@@ -45,7 +44,6 @@ export function ProductCartButton(props: Props) {
 				if (type === "increase") return appApi.user.addItemToCart({ product });
 				if (type === "update") return appApi.user.updateCartItemAmount({ product, amount });
 			}}
-			product={product}
 			{...props}
 		/>
 	);
@@ -54,7 +52,6 @@ export function ProductCartButton(props: Props) {
 type InputButtonProps = Omit<ButtonProps, "value" | "onChange"> & {
 	value: number;
 	onChange: (value: number, type: "increase" | "decrease" | "update") => void;
-	product?: TProduct;
 };
 
 /**
@@ -68,55 +65,16 @@ type InputButtonProps = Omit<ButtonProps, "value" | "onChange"> & {
  * product card's navigate-to-product click.
  */
 export function InputButton(props: InputButtonProps) {
-	const { onChange, value, size = "md", product, ...rest } = props;
+	const { onChange, value, size = "md", ...rest } = props;
 
-	const isKgProduct = product?.priceType?.type === "kg";
-
+	// Quantities are whole numbers on the storefront — including weight products
+	// (e.g. a customer orders 5 kg). The exact weight (e.g. 4.9 kg) is corrected
+	// later in the admin order-edit screen, not by the customer here.
 	const groupClass = "flex w-full items-stretch rounded-md overflow-hidden max-md:touch-manipulation";
 	const edgeBtn = "rounded-none shrink-0 max-md:min-w-11 max-md:min-h-11";
 	const valueClass =
 		"flex-1 min-w-8 grid place-items-center tabular-nums text-sm font-semibold select-none";
 	const valueStyle = { background: "var(--accent)", color: "var(--accent-foreground)" } as const;
-
-	if (isKgProduct) {
-		return (
-			<div className={groupClass}>
-				<Button
-					variant="primary"
-					size={size}
-					className={edgeBtn}
-					onPress={() => onChange(Math.max(0, value - 0.5), "update")}
-					isIconOnly
-					{...rest}
-				>
-					-
-				</Button>
-				<input
-					type="number"
-					step="0.1"
-					min="0"
-					value={value}
-					onClick={(e) => e.stopPropagation()}
-					onChange={(e) => {
-						const newAmount = parseFloat(e.target.value) || 0;
-						onChange(newAmount, "update");
-					}}
-					className="flex-1 min-w-[60px] max-md:min-w-0 max-md:w-14 max-md:text-sm border-none outline-none m-0 px-1 text-center tabular-nums"
-					style={valueStyle}
-				/>
-				<Button
-					variant="primary"
-					size={size}
-					className={edgeBtn}
-					onPress={() => onChange(value + 0.5, "update")}
-					isIconOnly
-					{...rest}
-				>
-					+
-				</Button>
-			</div>
-		);
-	}
 
 	return (
 		<div className={groupClass}>
