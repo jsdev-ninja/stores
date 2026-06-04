@@ -4,21 +4,20 @@ import { hypPaymentService } from "../../../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
 
-// Absorb tiny rounding drift between cart total and heshDesc items sum.
-// HYP rejects (CCode=400) when items sum != Amount. We only auto-fix small drifts
-// (≤ 0.20 ILS) to avoid masking real bugs.
-function fitAmountToItemsSum(amount: number, items: string[]): number {
-	// Raw sum — no per-line rounding, no final rounding.
+// HYP/EzCount recomputes each heshDesc line as `qty × price`, rounds it the way
+// the raw float naturally rounds (= toFixed(2)), then sums. `Amount` MUST equal
+// that sum exactly or HYP rejects with CCode=400 ("סכום הפריטים אינו תואם לסכום לחיוב").
+//
+// We derive Amount from the SAME per-line toFixed rounding HYP uses — NOT Math.round
+// (rounds half-agora line totals up) and NOT the raw unrounded float (e.g. 1.45 × 15.90 =
+// 23.0549… stays a long float, never equals HYP's 2dp line). Both diverge by an agora.
+function sumHeshDescItems(items: string[]): number {
 	const itemsSum = items.reduce((sum, line) => {
 		const m = line.match(/~([\d.]+)~([\d.]+)\]$/);
 		if (!m) return sum;
-		return sum + parseFloat(m[1]) * parseFloat(m[2]);
+		return sum + Number((parseFloat(m[1]) * parseFloat(m[2])).toFixed(2));
 	}, 0);
-	const diff = Math.abs(amount - itemsSum);
-	if (diff > 0 && diff <= 0.2) {
-		return itemsSum;
-	}
-	return amount;
+	return Number(itemsSum.toFixed(2));
 }
 
 export const createPayment = functions.https.onCall(async (data: { order: TOrder, isJ5?: boolean }, context) => {
@@ -55,7 +54,8 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		// storePrivateData intentionally NOT logged — contains HYP credentials and secrets
 
 		const nameOnInvoice = order.nameOnInvoice;
-		const adjustedAmount = fitAmountToItemsSum(order.cart.cartTotal, items);
+		// Amount sent to HYP must equal HYP's own sum of the heshDesc lines.
+		const adjustedAmount = sumHeshDescItems(items);
 
 		const res = await hypPaymentService.createPaymentLink({
 			action: "APISign",

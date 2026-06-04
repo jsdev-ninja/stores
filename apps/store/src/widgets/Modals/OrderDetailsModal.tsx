@@ -190,6 +190,32 @@ export function OrderDetailsModal({
 				</Button>,
 			);
 		}
+		if (order.paymentStatus === "pending_j5") {
+			els.push(
+				<Button
+					key="chargeOrder"
+					variant="primary"
+					className={btnPrimary}
+					isPending={loading}
+					onPress={async () => {
+						setLoading(true);
+						try {
+							const res = await appApi.admin.chargeOrder({ order });
+							if (!res?.success) return;
+							// Backend chargeOrder does NOT directly write paymentStatus —
+							// the onTransactionPostedMarkOrderPaid subscriber flips it to
+							// "completed" asynchronously. Refetch to pick that up.
+							const fresh = await appApi.admin.getOrder(order.id);
+							if (fresh?.success && fresh.data) applyUpdate(fresh.data);
+						} finally {
+							setLoading(false);
+						}
+					}}
+				>
+					{t("ordersPage:actions.chargeOrder")}
+				</Button>,
+			);
+		}
 		if (order.status !== "cancelled" && order.status !== "completed") {
 			els.push(
 				<Button

@@ -34,6 +34,7 @@ export default function AdminOrderPageNew() {
 	const [order, setOrder] = useState<TOrder | null>(null);
 	const [isCreatingDeliveryNote, setIsCreatingDeliveryNote] = useState(false);
 	const [isTogglingDeliveryPrice, setIsTogglingDeliveryPrice] = useState(false);
+	const [isChargingOrder, setIsChargingOrder] = useState(false);
 
 	// Mark as Paid modal state
 	const [markPaidOpen, setMarkPaidOpen] = useState(false);
@@ -646,6 +647,29 @@ export default function AdminOrderPageNew() {
 									<Chip size="sm" color="accent" variant="soft">
 										<Chip.Label>{t(`common:paymentStatuses.${order.paymentStatus}`)}</Chip.Label>
 									</Chip>
+								</div>
+							)}
+							{order?.paymentStatus === "pending_j5" && (
+								<div className="pt-2">
+									<Button
+										variant="primary"
+										isPending={isChargingOrder}
+										onPress={async () => {
+											if (!order) return;
+											setIsChargingOrder(true);
+											try {
+												const res = await appApi.admin.chargeOrder({ order });
+												if (!res?.success) return;
+												// Subscriber updates paymentStatus async — refetch to pick it up.
+												const fresh = await appApi.admin.getOrder(order.id);
+												if (fresh?.success) setOrder(fresh.data);
+											} finally {
+												setIsChargingOrder(false);
+											}
+										}}
+									>
+										{t("ordersPage:actions.chargeOrder")}
+									</Button>
 								</div>
 							)}
 							{!order?.paymentType && !order?.paymentStatus && (
