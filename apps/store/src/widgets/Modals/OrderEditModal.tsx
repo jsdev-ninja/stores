@@ -23,11 +23,83 @@ const productsIndex = algoliaClient.initIndex("products");
 const unit = (it: TCartItemProduct) => it.finalPrice || it.originalPrice || it.product.price || 0;
 const nameOf = (it: TCartItemProduct) => it.product.name?.[0]?.value || "—";
 
+// Step the qty stepper uses for weight/measured products (kg, gram, …).
+const WEIGHT_STEP = 0.5;
+const WEIGHT_MIN = 0.01;
+
+// Weight/measured products (kg, gram, liter, ml) are ordered by a fractional
+// amount (e.g. 4.8 kg); only "unit" products are whole-number. Missing
+// priceType falls back to unit behaviour.
+function isWeightItem(it: TCartItemProduct): boolean {
+	const type = it.product.priceType?.type;
+	return !!type && type !== "unit";
+}
+
+// Round to 3 decimals to keep weights clean and avoid float drift (0.1+0.2…).
+function roundQty(n: number): number {
+	return Math.round(n * 1000) / 1000;
+}
+
 function lineTotal(it: TCartItemProduct): number {
 	if (it.status === "missing") return 0;
 	if (it.status === "substituted" && it.substitutedWith)
 		return it.substitutedWith.price * it.substitutedWith.amount;
 	return unit(it) * it.amount;
+}
+
+/**
+ * Quantity field for an order line. For weight products it must accept a typed
+ * decimal (e.g. "4.8"). A plain controlled number input can't do that — coercing
+ * to a number on every keystroke drops the trailing "." — so this keeps a local
+ * text buffer while focused and only commits a clamped number on blur. The +/-
+ * buttons drive `value` from the parent, which syncs the text when not editing.
+ */
+function QtyInput({
+	value,
+	weight,
+	onCommit,
+}: {
+	value: number;
+	weight: boolean;
+	onCommit: (n: number) => void;
+}) {
+	const [text, setText] = useState(String(value));
+	const [focused, setFocused] = useState(false);
+
+	useEffect(() => {
+		if (!focused) setText(String(value));
+	}, [value, focused]);
+
+	function commit() {
+		const min = weight ? WEIGHT_MIN : 1;
+		const parsed = parseFloat(text);
+		let next = Number.isFinite(parsed) ? parsed : min;
+		next = weight ? roundQty(next) : Math.round(next);
+		next = Math.max(min, next);
+		onCommit(next);
+		setText(String(next));
+	}
+
+	return (
+		<input
+			type="text"
+			inputMode="decimal"
+			value={text}
+			onClick={(e) => e.stopPropagation()}
+			onFocus={() => setFocused(true)}
+			onChange={(e) => {
+				const raw = e.target.value;
+				// Allow only digits and a single decimal point while typing.
+				if (!/^\d*\.?\d*$/.test(raw)) return;
+				setText(raw);
+			}}
+			onBlur={() => {
+				setFocused(false);
+				commit();
+			}}
+			className="w-12 text-center text-sm font-bold bg-white rounded-full outline-none"
+		/>
+	);
 }
 
 /**
@@ -91,7 +163,20 @@ export function OrderEditModal({
 
 	function changeQty(idx: number, delta: number) {
 		setItems((prev) =>
-			prev.map((it, i) => (i === idx ? { ...it, amount: Math.max(1, it.amount + delta) } : it)),
+			prev.map((it, i) => {
+				if (i !== idx) return it;
+				const min = isWeightItem(it) ? WEIGHT_MIN : 1;
+				return { ...it, amount: Math.max(min, roundQty(it.amount + delta)) };
+			}),
+		);
+	}
+	function setQty(idx: number, amount: number) {
+		setItems((prev) =>
+			prev.map((it, i) => {
+				if (i !== idx) return it;
+				const min = isWeightItem(it) ? WEIGHT_MIN : 1;
+				return { ...it, amount: Math.max(min, roundQty(amount)) };
+			}),
 		);
 	}
 	function removeItem(idx: number) {
@@ -303,19 +388,24 @@ export function OrderEditModal({
 												</div>
 											</div>
 											<div className="flex items-center gap-2 flex-wrap">
-												{/* qty stepper */}
+												{/* qty stepper — weight products step by 0.5 and accept a typed
+												    decimal weight (e.g. 4.8); unit products step by 1 */}
 												<div className="inline-flex items-center rounded-full bg-gray-100 p-0.5">
 													<button
 														type="button"
-														onClick={() => changeQty(idx, -1)}
+														onClick={() => changeQty(idx, isWeightItem(it) ? -WEIGHT_STEP : -1)}
 														className="h-6 w-6 rounded-full bg-white font-bold"
 													>
 														−
 													</button>
-													<span className="min-w-7 text-center text-sm font-bold">{it.amount}</span>
+													<QtyInput
+														value={it.amount}
+														weight={isWeightItem(it)}
+														onCommit={(n) => setQty(idx, n)}
+													/>
 													<button
 														type="button"
-														onClick={() => changeQty(idx, 1)}
+														onClick={() => changeQty(idx, isWeightItem(it) ? WEIGHT_STEP : 1)}
 														className="h-6 w-6 rounded-full bg-white font-bold"
 													>
 														+
