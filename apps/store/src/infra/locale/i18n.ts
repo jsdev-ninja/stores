@@ -94,6 +94,7 @@ export const resources = {
 				subCategories: "תתי-קטגוריות",
 				discounts: "מבצעים",
 				suppliers: "ספקים",
+				inventoryCertificate: "חשבוניות ספקים",
 				deliveryNotes: "תעודות משלוח",
 				invoices: "חשבוניות לקוחות",
 				budget: "חובות לקוחות",
@@ -154,7 +155,7 @@ export const resources = {
 			order: "הזמנה",
 			note: "הערה",
 			suppliers: "ספקים",
-			inventoryCertificate: "תעודת מלאי",
+			inventoryCertificate: "חשבוניות ספקים",
 			inventoryCertificatePage: {
 				documentDate: "תאריך תעודה",
 				supplier: "ספק",
