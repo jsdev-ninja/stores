@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { useNewOrdersCount } from "./useNewOrdersCount";
 import AdminCreateOrderPage from "../AdminCreateOrderPage/AdminCreateOrderPage";
 import AdminInvoicesPage from "../AdminInvoicesPage/AdminInvoicesPage";
 import AdminDeliveryNotesPage from "../AdminDeliveryNotesPage/AdminDeliveryNotesPage";
@@ -39,6 +40,8 @@ export default function AdminLayout() {
 	const appApi = useAppApi();
 	const dispatch = useAppDispatch();
 
+	const { count: newOrdersCount, markSeen } = useNewOrdersCount();
+
 	useEffect(() => {
 		appApi.admin.listOrganizations().then((response) => {
 			if (response?.success && response.data) {
@@ -52,9 +55,16 @@ export default function AdminLayout() {
 		setIsMobileMenuOpen(false);
 	}, [location.pathname]);
 
+	// Viewing the orders screen clears the "new orders" badge.
+	useEffect(() => {
+		if (location.pathname === "/admin/orders") {
+			markSeen();
+		}
+	}, [location.pathname, markSeen]);
+
 	return (
 		<div className="flex min-h-screen bg-[var(--background)]" dir="rtl">
-			<Sidebar isOpen={isMobileMenuOpen} />
+			<Sidebar isOpen={isMobileMenuOpen} newOrdersCount={newOrdersCount} />
 
 			{/* Mobile backdrop — only below lg, only while the drawer is open. */}
 			{isMobileMenuOpen && (

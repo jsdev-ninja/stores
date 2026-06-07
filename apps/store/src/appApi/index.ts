@@ -292,6 +292,30 @@ export const useAppApi = () => {
 					sort: [{ name: "date", value: "desc" }],
 				});
 			},
+			subscribeToOrders: (callback: (orders: TOrder[]) => void) => {
+				if (!isValidAdmin) return () => {};
+
+				return FirebaseApi.firestore.subscribeList<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: [
+						{
+							name: "storeId",
+							operator: "==",
+							value: store.id,
+						},
+						{
+							name: "companyId",
+							operator: "==",
+							value: companyId,
+						},
+					],
+					callback,
+				});
+			},
 			getOrdersForInvoice: async ({
 				organizationId,
 				billingAccount,
