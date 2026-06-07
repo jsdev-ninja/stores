@@ -68,6 +68,11 @@ export function AdminInventoryCertificatePage() {
 	// Debounce timers for SKU lookups
 	const skuDebounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
 
+	// Raw (in-progress) text for numeric inputs, so the user can freely type
+	// decimals like "8.04" without the value being normalized mid-typing.
+	// Keyed by `${rowId}:${field}`. Cleared on blur so the display normalizes.
+	const [rawNumericInputs, setRawNumericInputs] = useState<Record<string, string>>({});
+
 	// Load suppliers on mount
 	useEffect(() => {
 		const loadSuppliers = async () => {
@@ -248,6 +253,41 @@ export function AdminInventoryCertificatePage() {
 				loadProductBySku(id, value);
 			}, 1000);
 		}
+	};
+
+	const rawNumericKey = (rowId: string, field: keyof TSupplierInvoice["rows"][number]) =>
+		`${rowId}:${field}`;
+
+	// Value to display in a numeric input: the user's in-progress text if they
+	// are currently typing, otherwise the normalized number ("" for 0).
+	const getNumericInputValue = (
+		row: TSupplierInvoice["rows"][number],
+		field: keyof TSupplierInvoice["rows"][number]
+	): string => {
+		const key = rawNumericKey(row.id, field);
+		if (key in rawNumericInputs) return rawNumericInputs[key];
+		const num = row[field] as number;
+		return num === 0 ? "" : String(num);
+	};
+
+	const handleNumericChange = (
+		rowId: string,
+		field: keyof TSupplierInvoice["rows"][number],
+		rawValue: string
+	) => {
+		setRawNumericInputs((prev) => ({ ...prev, [rawNumericKey(rowId, field)]: rawValue }));
+		updateRow(rowId, field, Number(rawValue) || 0);
+	};
+
+	const handleNumericBlur = (
+		rowId: string,
+		field: keyof TSupplierInvoice["rows"][number]
+	) => {
+		setRawNumericInputs((prev) => {
+			const next = { ...prev };
+			delete next[rawNumericKey(rowId, field)];
+			return next;
+		});
 	};
 
 	const addRow = (): string => {
@@ -626,8 +666,9 @@ export function AdminInventoryCertificatePage() {
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<Input
 													type="number"
-													value={row.quantity === 0 ? "" : String(row.quantity)}
-													onChange={(e) => updateRow(row.id, "quantity", Number(e.target.value) || 0)}
+													value={getNumericInputValue(row, "quantity")}
+													onChange={(e) => handleNumericChange(row.id, "quantity", e.target.value)}
+													onBlur={() => handleNumericBlur(row.id, "quantity")}
 													onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
 													aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t(
 														"common:inventoryCertificatePage.rowNumber"
@@ -640,10 +681,11 @@ export function AdminInventoryCertificatePage() {
 													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
 													<Input
 														type="number"
-														value={row.purchasePrice === 0 ? "" : String(row.purchasePrice)}
+														value={getNumericInputValue(row, "purchasePrice")}
 														onChange={(e) =>
-															updateRow(row.id, "purchasePrice", Number(e.target.value) || 0)
+															handleNumericChange(row.id, "purchasePrice", e.target.value)
 														}
+														onBlur={() => handleNumericBlur(row.id, "purchasePrice")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.purchasePriceIn"
@@ -658,10 +700,11 @@ export function AdminInventoryCertificatePage() {
 												<div className="relative">
 													<Input
 														type="number"
-														value={row.lineDiscount === 0 ? "" : String(row.lineDiscount)}
+														value={getNumericInputValue(row, "lineDiscount")}
 														onChange={(e) =>
-															updateRow(row.id, "lineDiscount", Number(e.target.value) || 0)
+															handleNumericChange(row.id, "lineDiscount", e.target.value)
 														}
+														onBlur={() => handleNumericBlur(row.id, "lineDiscount")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.lineDiscount"
@@ -677,10 +720,11 @@ export function AdminInventoryCertificatePage() {
 												<div className="relative">
 													<Input
 														type="number"
-														value={row.profitPercentage === 0 ? "" : String(row.profitPercentage)}
+														value={getNumericInputValue(row, "profitPercentage")}
 														onChange={(e) =>
-															updateRow(row.id, "profitPercentage", Number(e.target.value) || 0)
+															handleNumericChange(row.id, "profitPercentage", e.target.value)
 														}
+														onBlur={() => handleNumericBlur(row.id, "profitPercentage")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.profitPercent"
@@ -697,8 +741,9 @@ export function AdminInventoryCertificatePage() {
 													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
 													<Input
 														type="number"
-														value={row.price === 0 ? "" : String(row.price)}
-														onChange={(e) => updateRow(row.id, "price", Number(e.target.value) || 0)}
+														value={getNumericInputValue(row, "price")}
+														onChange={(e) => handleNumericChange(row.id, "price", e.target.value)}
+														onBlur={() => handleNumericBlur(row.id, "price")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.salesPriceFrom"
