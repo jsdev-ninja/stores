@@ -341,6 +341,9 @@ function AdminOrdersPages() {
 			<div className="flex items-center gap-1 border-b border-[var(--border)]">
 				{TABS.map((tabDef) => {
 					const active = tab === tabDef.key;
+					// Highlight the "active orders" tab badge when there are open orders
+					// awaiting attention, so it stands out even when the tab isn't selected.
+					const needsAttention = tabDef.key === "active" && !active && counts.active > 0;
 					return (
 						<button
 							key={tabDef.key}
@@ -359,7 +362,9 @@ function AdminOrdersPages() {
 								style={
 									active
 										? { backgroundColor: softBg("var(--accent)"), color: "var(--accent)" }
-										: { backgroundColor: "var(--default)", color: "var(--muted)" }
+										: needsAttention
+											? { backgroundColor: "var(--danger)", color: "var(--danger-foreground)" }
+											: { backgroundColor: "var(--default)", color: "var(--muted)" }
 								}
 							>
 								{counts[tabDef.key]}
