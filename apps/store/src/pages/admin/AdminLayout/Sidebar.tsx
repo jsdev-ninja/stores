@@ -53,6 +53,11 @@ const navItems = [
     icon: "lucide:truck",
   },
   {
+    labelKey: "nav.inventoryCertificate",
+    path: "admin.inventoryCertificate" as RouteKeys<typeof routes>,
+    icon: "lucide:clipboard-list",
+  },
+  {
     labelKey: "nav.deliveryNotes",
     path: "admin.deliveryNotes" as RouteKeys<typeof routes>,
     icon: "lucide:file-text",
