@@ -65,6 +65,12 @@ export function AdminInventoryCertificatePage() {
 	// Supplier invoices list state (for view tab)
 	const [supplierInvoices, setSupplierInvoices] = useState<TSupplierInvoice[]>([]);
 
+	// Filters for the view tab
+	const [invoiceSearch, setInvoiceSearch] = useState<string>("");
+	const [invoiceSupplierFilter, setInvoiceSupplierFilter] = useState<string | null>(null);
+	const [invoiceDateFrom, setInvoiceDateFrom] = useState<string>("");
+	const [invoiceDateTo, setInvoiceDateTo] = useState<string>("");
+
 	// Debounce timers for SKU lookups
 	const skuDebounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
 
@@ -531,6 +537,38 @@ export function AdminInventoryCertificatePage() {
 		[t]
 	);
 
+	// Apply view-tab filters: free-text search (supplier name / invoice number),
+	// supplier dropdown, and a date range. Empty filters are ignored.
+	const filteredInvoices = useMemo(() => {
+		const search = invoiceSearch.trim().toLowerCase();
+		const fromMs = invoiceDateFrom ? new Date(`${invoiceDateFrom}T00:00:00`).getTime() : null;
+		const toMs = invoiceDateTo ? new Date(`${invoiceDateTo}T23:59:59.999`).getTime() : null;
+
+		return supplierInvoices.filter((invoice) => {
+			if (search) {
+				const haystack = `${invoice.supplier?.name ?? ""} ${invoice.supplier?.code ?? ""} ${invoice.invoiceNumber ?? ""}`.toLowerCase();
+				if (!haystack.includes(search)) return false;
+			}
+			if (invoiceSupplierFilter && invoice.supplier?.id !== invoiceSupplierFilter) return false;
+			if (fromMs !== null && invoice.date < fromMs) return false;
+			if (toMs !== null && invoice.date > toMs) return false;
+			return true;
+		});
+	}, [supplierInvoices, invoiceSearch, invoiceSupplierFilter, invoiceDateFrom, invoiceDateTo]);
+
+	const hasActiveInvoiceFilters =
+		invoiceSearch.trim() !== "" ||
+		invoiceSupplierFilter !== null ||
+		invoiceDateFrom !== "" ||
+		invoiceDateTo !== "";
+
+	const clearInvoiceFilters = () => {
+		setInvoiceSearch("");
+		setInvoiceSupplierFilter(null);
+		setInvoiceDateFrom("");
+		setInvoiceDateTo("");
+	};
+
 	// Build create tab content (defined outside JSX to allow Tabs.Panel children)
 	const createTabContent = (
 		<div className="mt-6">
@@ -945,6 +983,73 @@ export function AdminInventoryCertificatePage() {
 	const viewTabContent = (
 		<div className="mt-6">
 			<div className="bg-white rounded-lg shadow p-6">
+				{/* Filters */}
+				<div className="flex flex-wrap items-end gap-3 mb-4">
+					<div className="flex flex-col gap-1 min-w-[220px] flex-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.searchPlaceholder")}
+						</label>
+						<Input
+							value={invoiceSearch}
+							onChange={setInvoiceSearch}
+							placeholder={t("common:inventoryCertificatePage.searchPlaceholder")}
+						/>
+					</div>
+					<div className="flex flex-col gap-1 min-w-[180px]">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.supplier")}
+						</label>
+						<Select
+							selectedKey={invoiceSupplierFilter ?? "__all__"}
+							onSelectionChange={(key: Key | null) => {
+								const value = String(key);
+								setInvoiceSupplierFilter(value === "__all__" ? null : value);
+							}}
+						>
+							<Select.Trigger>
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox>
+									<ListBox.Item
+										id="__all__"
+										textValue={t("common:inventoryCertificatePage.filterBySupplier")}
+									>
+										{t("common:inventoryCertificatePage.filterBySupplier")}
+									</ListBox.Item>
+									{suppliers.map((supplier) => (
+										<ListBox.Item
+											id={supplier.id}
+											key={supplier.id}
+											textValue={`${supplier.name}${supplier.code ? ` (${supplier.code})` : ""}`}
+										>
+											{supplier.name} {supplier.code ? `(${supplier.code})` : ""}
+										</ListBox.Item>
+									))}
+								</ListBox>
+							</Select.Popover>
+						</Select>
+					</div>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.dateFrom")}
+						</label>
+						<Input type="date" value={invoiceDateFrom} onChange={setInvoiceDateFrom} />
+					</div>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.dateTo")}
+						</label>
+						<Input type="date" value={invoiceDateTo} onChange={setInvoiceDateTo} />
+					</div>
+					{hasActiveInvoiceFilters && (
+						<Button variant="secondary" onPress={clearInvoiceFilters}>
+							<Icon icon="lucide:x" />
+							{t("common:inventoryCertificatePage.clearFilters")}
+						</Button>
+					)}
+				</div>
 				<Table aria-label="Supplier invoices table" className="shadow-none border border-gray-300">
 					<Table.ScrollContainer>
 						<Table.Content>
@@ -960,10 +1065,12 @@ export function AdminInventoryCertificatePage() {
 								))}
 							</Table.Header>
 							<Table.Body
-								items={supplierInvoices}
+								items={filteredInvoices}
 								renderEmptyState={() => (
 									<div className="text-center p-4">
-										{t("common:inventoryCertificatePage.noInvoices")}
+										{hasActiveInvoiceFilters
+											? t("common:inventoryCertificatePage.noMatchingInvoices")
+											: t("common:inventoryCertificatePage.noInvoices")}
 									</div>
 								)}
 							>
