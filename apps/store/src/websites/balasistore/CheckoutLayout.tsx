@@ -256,16 +256,10 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 									title="🏦 העברה בנקאית"
 									subtitle="פרטי חשבון יישלחו לאחר אישור ההזמנה"
 								/>
-								<PaymentOption
-									title="🧾 שוטף + 30 · באישור מראש"
-									subtitle="תנאי תשלום ללקוחות עסקיים מאושרים"
-									highlighted
-								/>
+								{/* "שוטף + 30" (net-30) is intentionally NOT shown on the public
+								    site — owner's request. It belongs to Phase 3 (credit-terms
+								    payment), pending approval. Do not re-add here. */}
 							</div>
-							<p className="mt-2 rounded-[8px] bg-[#fdf6ec] px-3 py-2 text-[12px] text-[var(--muted)]">
-								בחירת אפשרות "שוטף + 30" כפופה לאישור החנות. נחזור אליכם לאישור התנאים
-								לפני שליחת ההזמנה.
-							</p>
 						</div>
 
 						<div className="mt-5 grid grid-cols-1 gap-4">
