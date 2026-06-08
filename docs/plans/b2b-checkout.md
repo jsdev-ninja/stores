@@ -101,13 +101,44 @@ The mockup explicitly gates this: *"כפוף לאישור חברת בלסי… �
 
 ---
 
-## Suggested phasing
+## Task breakdown (small, independent PRs)
 
-1. **Phase 1 (UI):** rebuild checkout to the mockup, fields B persisted as optional. Low risk,
-   visible win, no payment changes. Net-30 option shown but **disabled / "coming soon"** or
-   routed to manual contact.
-2. **Phase 2 (auto-org):** upsert organization from order (section C) once decisions above are made.
-3. **Phase 3 (net-30):** credit-terms payment type + approval gate (section D) — separate review.
+Per Philip's review on #28: **split into small tasks — no single big PR.** Each row below is
+one small, independently-reviewable PR. Order matters only where "depends on" says so; each is
+shippable on its own behind the existing `isBalasi` gate.
+
+> **Decisions to lock before T3+** (Philip): (1) auto-create org silently vs. "pending review"?
+> (2) dedup key = tax id only, or tax id + name? (3) tax-id collision with an org owned by a
+> different user → reject / link / flag?
+
+### Track A — UI (no schema, no payment) — owner-authorizable
+- **T1 — Checkout layout redesign (UI only).** ✅ DONE → PR #31 (approved). 5-section mockup,
+  every submitted field keeps its existing `name`, new B2B fields are visual-only.
+- **T2 — Drop net-30 from public site.** ✅ DONE (in #31). Owner request.
+
+### Track B — Persist new order fields (one field-group per PR; each = core schema bump)
+Each adds optional fields to `Order` in `@jsdev_ninja/core` (back-compat, all optional) + wires
+the matching UI input + shows it read-only in the admin order view. Small and isolated.
+- **T3 — `companyName` on order.** Wire the company-name input → persist → show in admin.
+- **T4 — `taxId` on order.** Same shape as T3.
+- **T5 — `contact { fullName, role, phone, email }` on order.** Contact-person block.
+- **T6 — `poNumber` on order.** PO field.
+- **T7 — `outOfStockPolicy: "substitute" | "remove"`.** Persist the substitution choice.
+> Each T3–T7: 1 core PR (schema) + 1 store PR (wire UI + admin display), or one small PR if
+> trivial. Bump core version + update both consumers (`apps/store`, `functions`) per CLAUDE.md.
+
+### Track C — Auto-create organization (depends on T3+T4)
+- **T8 — `upsertOrganizationFromOrder` service (no trigger yet).** Pure function: given an order
+  with companyName+taxId, find-or-create the tenant-scoped `Organization` (idempotent
+  `.create()` by deterministic id from tax id). Unit-tested in isolation. No wiring.
+- **T9 — Wire T8 to `order.placed`.** Thin subscriber/trigger calls T8; sets `order.organizationId`.
+  Behind a per-store flag so it's off until verified.
+
+### Track D — Net-30 / credit terms (financial — separate review, depends on Track C)
+- **T10 — Add `"credit_terms"` to `PaymentTypeSchema`** + thread through order create / admin
+  charge / delivery-note / org-debt ledger. Core enum change.
+- **T11 — Net-30 approval gate.** Order on credit terms parks for admin approval before fulfilment.
+- **T12 — Re-add net-30 option to checkout UI**, gated to approved B2B customers only.
 
 ---
 
