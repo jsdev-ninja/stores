@@ -60,6 +60,7 @@ Explain everything in plain, non-technical language. No code dumps.
 
 - any change in this folder require package version update.
 - make sure all apps and firebase function use same and latest version of @jsdev_ninja/core package.
+- **When you bump the `@jsdev_ninja/core` version, you MUST also update the dependency to that exact new version in every consumer** — the client (`apps/store/package.json`) and the backend (`functions/package.json`). Do not leave consumers pointing at the old version. (On merge to `main`, CI publishes the new core version to npm; the backend installs it from the registry, so the version reference must match.)
 
 ### /Users/philbro/workspace/@jsdev-store/apps/store/src/websites
 
