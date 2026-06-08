@@ -359,6 +359,20 @@ export function AdminInventoryCertificatePage() {
 
 		// e.preventDefault();
 
+		// Require a quantity before leaving the quantity column: pressing Enter on
+		// an empty / zero quantity keeps focus on the field instead of advancing.
+		if (currentField === "quantity") {
+			const rawQuantity = (e.target as HTMLInputElement).value;
+			const quantity = Number(rawQuantity);
+			if (!rawQuantity.trim() || !Number.isFinite(quantity) || quantity <= 0) {
+				e.preventDefault();
+				const input = e.target as HTMLInputElement;
+				input.focus();
+				input.select();
+				return;
+			}
+		}
+
 		const currentIndex = fieldOrder.indexOf(currentField);
 		const nextIndex = currentIndex + 1;
 
