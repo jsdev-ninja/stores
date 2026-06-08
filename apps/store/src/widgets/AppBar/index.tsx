@@ -9,6 +9,7 @@ import { Icon } from "src/components";
 import { useAppApi } from "src/appApi";
 import { WebsiteLogo } from "../WebsiteLogo";
 import { OrgPicker } from "../OrgPicker/OrgPicker";
+import { BalasiCartButton } from "src/websites/balasistore/CartDrawer";
 
 export function AppBar() {
   const { t } = useTranslation(["common"]);
@@ -117,6 +118,9 @@ export function AppBar() {
 
         {/* End actions */}
         <ul className="flex items-center gap-2 list-none m-0 p-0">
+          <li>
+            <BalasiCartButton />
+          </li>
           <li>
             <OrgPicker />
           </li>

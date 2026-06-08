@@ -2149,6 +2149,43 @@ export const useAppApi = () => {
 					amount,
 				});
 			},
+			async clearCart() {
+				if (!isValidUser) {
+					return;
+				}
+
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
+
+				logger({
+					message: "user clear cart",
+					severity: "INFO",
+				});
+
+				FirebaseApi.firestore.setV2<TCart>({
+					collection: FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "cart",
+					}),
+					doc: {
+						...actualCart,
+						items: [],
+					},
+				});
+
+				// Update local state
+				actions.dispatch(actions.cart.clear());
+
+				mixPanelApi.track("USER_CLEAR_CART", {
+					storeId: store.id,
+					storeName: store.name,
+					companyId: companyId,
+					companyName: company?.name,
+				});
+			},
 		},
 		superAdmin: {
 			getAllStores: async () => {
