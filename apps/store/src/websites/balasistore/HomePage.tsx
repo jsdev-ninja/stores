@@ -6,6 +6,7 @@ import Categories from "./sections/Categories";
 import MonthlyDeals from "./sections/MonthlyDeals";
 import Featured from "./sections/Featured";
 import Products from "./sections/Products";
+import RecentlyViewed from "./sections/RecentlyViewed";
 import Story from "./sections/Story";
 import ServiceAreas from "./sections/ServiceAreas";
 import Testimonials from "./sections/Testimonials";
@@ -35,6 +36,7 @@ export default function BalasiHomePage() {
 			<MonthlyDeals />
 			<Featured products={featuredProducts} />
 			<Products products={gridProducts} />
+			<RecentlyViewed />
 			<Story />
 			<ServiceAreas />
 			<Testimonials />

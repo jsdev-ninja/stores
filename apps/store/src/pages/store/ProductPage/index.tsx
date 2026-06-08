@@ -6,6 +6,8 @@ import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { useParams, navigate } from "src/navigation";
 import { Product } from "src/widgets/Product";
+import { useStore } from "src/domains/Store";
+import { recordRecentlyViewed } from "src/utils/recentlyViewed";
 
 export function ProductPage() {
 	const params = useParams("store.product");
@@ -13,6 +15,7 @@ export function ProductPage() {
 	const { t } = useTranslation(["common"]);
 
 	const appApi = useAppApi();
+	const store = useStore();
 
 	const [product, setProduct] = useState<TProduct | null>(() => {
 		const state = history.state?.product;
@@ -30,6 +33,11 @@ export function ProductPage() {
 			}
 		});
 	}, [params.id]);
+
+	// Track the opened product for the "recently viewed" rail (client-only, per store).
+	useEffect(() => {
+		if (product && store?.id) recordRecentlyViewed(store.id, product);
+	}, [product, store?.id]);
 
 	if (!product) return null;
 

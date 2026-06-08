@@ -65,8 +65,19 @@ export function AdminInventoryCertificatePage() {
 	// Supplier invoices list state (for view tab)
 	const [supplierInvoices, setSupplierInvoices] = useState<TSupplierInvoice[]>([]);
 
+	// Filters for the view tab
+	const [invoiceSearch, setInvoiceSearch] = useState<string>("");
+	const [invoiceSupplierFilter, setInvoiceSupplierFilter] = useState<string | null>(null);
+	const [invoiceDateFrom, setInvoiceDateFrom] = useState<string>("");
+	const [invoiceDateTo, setInvoiceDateTo] = useState<string>("");
+
 	// Debounce timers for SKU lookups
 	const skuDebounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
+
+	// Raw (in-progress) text for numeric inputs, so the user can freely type
+	// decimals like "8.04" without the value being normalized mid-typing.
+	// Keyed by `${rowId}:${field}`. Cleared on blur so the display normalizes.
+	const [rawNumericInputs, setRawNumericInputs] = useState<Record<string, string>>({});
 
 	// Load suppliers on mount
 	useEffect(() => {
@@ -248,6 +259,41 @@ export function AdminInventoryCertificatePage() {
 				loadProductBySku(id, value);
 			}, 1000);
 		}
+	};
+
+	const rawNumericKey = (rowId: string, field: keyof TSupplierInvoice["rows"][number]) =>
+		`${rowId}:${field}`;
+
+	// Value to display in a numeric input: the user's in-progress text if they
+	// are currently typing, otherwise the normalized number ("" for 0).
+	const getNumericInputValue = (
+		row: TSupplierInvoice["rows"][number],
+		field: keyof TSupplierInvoice["rows"][number]
+	): string => {
+		const key = rawNumericKey(row.id, field);
+		if (key in rawNumericInputs) return rawNumericInputs[key];
+		const num = row[field] as number;
+		return num === 0 ? "" : String(num);
+	};
+
+	const handleNumericChange = (
+		rowId: string,
+		field: keyof TSupplierInvoice["rows"][number],
+		rawValue: string
+	) => {
+		setRawNumericInputs((prev) => ({ ...prev, [rawNumericKey(rowId, field)]: rawValue }));
+		updateRow(rowId, field, Number(rawValue) || 0);
+	};
+
+	const handleNumericBlur = (
+		rowId: string,
+		field: keyof TSupplierInvoice["rows"][number]
+	) => {
+		setRawNumericInputs((prev) => {
+			const next = { ...prev };
+			delete next[rawNumericKey(rowId, field)];
+			return next;
+		});
 	};
 
 	const addRow = (): string => {
@@ -499,6 +545,38 @@ export function AdminInventoryCertificatePage() {
 		});
 	};
 
+	// Apply view-tab filters: free-text search (supplier name / invoice number),
+	// supplier dropdown, and a date range. Empty filters are ignored.
+	const filteredInvoices = useMemo(() => {
+		const search = invoiceSearch.trim().toLowerCase();
+		const fromMs = invoiceDateFrom ? new Date(`${invoiceDateFrom}T00:00:00`).getTime() : null;
+		const toMs = invoiceDateTo ? new Date(`${invoiceDateTo}T23:59:59.999`).getTime() : null;
+
+		return supplierInvoices.filter((invoice) => {
+			if (search) {
+				const haystack = `${invoice.supplier?.name ?? ""} ${invoice.supplier?.code ?? ""} ${invoice.invoiceNumber ?? ""}`.toLowerCase();
+				if (!haystack.includes(search)) return false;
+			}
+			if (invoiceSupplierFilter && invoice.supplier?.id !== invoiceSupplierFilter) return false;
+			if (fromMs !== null && invoice.date < fromMs) return false;
+			if (toMs !== null && invoice.date > toMs) return false;
+			return true;
+		});
+	}, [supplierInvoices, invoiceSearch, invoiceSupplierFilter, invoiceDateFrom, invoiceDateTo]);
+
+	const hasActiveInvoiceFilters =
+		invoiceSearch.trim() !== "" ||
+		invoiceSupplierFilter !== null ||
+		invoiceDateFrom !== "" ||
+		invoiceDateTo !== "";
+
+	const clearInvoiceFilters = () => {
+		setInvoiceSearch("");
+		setInvoiceSupplierFilter(null);
+		setInvoiceDateFrom("");
+		setInvoiceDateTo("");
+	};
+
 	// Build create tab content (defined outside JSX to allow Tabs.Panel children)
 	const createTabContent = (
 		<div className="mt-6">
@@ -634,8 +712,9 @@ export function AdminInventoryCertificatePage() {
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<Input
 													type="number"
-													value={row.quantity === 0 ? "" : String(row.quantity)}
-													onChange={(e) => updateRow(row.id, "quantity", Number(e.target.value) || 0)}
+													value={getNumericInputValue(row, "quantity")}
+													onChange={(e) => handleNumericChange(row.id, "quantity", e.target.value)}
+													onBlur={() => handleNumericBlur(row.id, "quantity")}
 													onKeyDown={(e) => handleKeyDown(e, row.id, "quantity")}
 													aria-label={`${t("common:inventoryCertificatePage.quantity")} ${t(
 														"common:inventoryCertificatePage.rowNumber"
@@ -648,10 +727,11 @@ export function AdminInventoryCertificatePage() {
 													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
 													<Input
 														type="number"
-														value={row.purchasePrice === 0 ? "" : String(row.purchasePrice)}
+														value={getNumericInputValue(row, "purchasePrice")}
 														onChange={(e) =>
-															updateRow(row.id, "purchasePrice", Number(e.target.value) || 0)
+															handleNumericChange(row.id, "purchasePrice", e.target.value)
 														}
+														onBlur={() => handleNumericBlur(row.id, "purchasePrice")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "purchasePrice")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.purchasePriceIn"
@@ -666,10 +746,11 @@ export function AdminInventoryCertificatePage() {
 												<div className="relative">
 													<Input
 														type="number"
-														value={row.lineDiscount === 0 ? "" : String(row.lineDiscount)}
+														value={getNumericInputValue(row, "lineDiscount")}
 														onChange={(e) =>
-															updateRow(row.id, "lineDiscount", Number(e.target.value) || 0)
+															handleNumericChange(row.id, "lineDiscount", e.target.value)
 														}
+														onBlur={() => handleNumericBlur(row.id, "lineDiscount")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "lineDiscount")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.lineDiscount"
@@ -685,10 +766,11 @@ export function AdminInventoryCertificatePage() {
 												<div className="relative">
 													<Input
 														type="number"
-														value={row.profitPercentage === 0 ? "" : String(row.profitPercentage)}
+														value={getNumericInputValue(row, "profitPercentage")}
 														onChange={(e) =>
-															updateRow(row.id, "profitPercentage", Number(e.target.value) || 0)
+															handleNumericChange(row.id, "profitPercentage", e.target.value)
 														}
+														onBlur={() => handleNumericBlur(row.id, "profitPercentage")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "profitPercentage")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.profitPercent"
@@ -705,8 +787,9 @@ export function AdminInventoryCertificatePage() {
 													<span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">₪</span>
 													<Input
 														type="number"
-														value={row.price === 0 ? "" : String(row.price)}
-														onChange={(e) => updateRow(row.id, "price", Number(e.target.value) || 0)}
+														value={getNumericInputValue(row, "price")}
+														onChange={(e) => handleNumericChange(row.id, "price", e.target.value)}
+														onBlur={() => handleNumericBlur(row.id, "price")}
 														onKeyDown={(e) => handleKeyDown(e, row.id, "price")}
 														aria-label={`${t(
 															"common:inventoryCertificatePage.salesPriceFrom"
@@ -908,6 +991,73 @@ export function AdminInventoryCertificatePage() {
 	const viewTabContent = (
 		<div className="mt-6">
 			<div className="bg-white rounded-lg shadow p-6">
+				{/* Filters */}
+				<div className="flex flex-wrap items-end gap-3 mb-4">
+					<div className="flex flex-col gap-1 min-w-[220px] flex-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.searchPlaceholder")}
+						</label>
+						<Input
+							value={invoiceSearch}
+							onChange={(e) => setInvoiceSearch(e.target.value)}
+							placeholder={t("common:inventoryCertificatePage.searchPlaceholder")}
+						/>
+					</div>
+					<div className="flex flex-col gap-1 min-w-[180px]">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.supplier")}
+						</label>
+						<Select
+							selectedKey={invoiceSupplierFilter ?? "__all__"}
+							onSelectionChange={(key: Key | null) => {
+								const value = String(key);
+								setInvoiceSupplierFilter(value === "__all__" ? null : value);
+							}}
+						>
+							<Select.Trigger>
+								<Select.Value />
+								<Select.Indicator />
+							</Select.Trigger>
+							<Select.Popover>
+								<ListBox>
+									<ListBox.Item
+										id="__all__"
+										textValue={t("common:inventoryCertificatePage.filterBySupplier")}
+									>
+										{t("common:inventoryCertificatePage.filterBySupplier")}
+									</ListBox.Item>
+									{suppliers.map((supplier) => (
+										<ListBox.Item
+											id={supplier.id}
+											key={supplier.id}
+											textValue={`${supplier.name}${supplier.code ? ` (${supplier.code})` : ""}`}
+										>
+											{supplier.name} {supplier.code ? `(${supplier.code})` : ""}
+										</ListBox.Item>
+									))}
+								</ListBox>
+							</Select.Popover>
+						</Select>
+					</div>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.dateFrom")}
+						</label>
+						<Input type="date" value={invoiceDateFrom} onChange={(e) => setInvoiceDateFrom(e.target.value)} />
+					</div>
+					<div className="flex flex-col gap-1">
+						<label className="text-sm font-medium text-gray-700">
+							{t("common:inventoryCertificatePage.dateTo")}
+						</label>
+						<Input type="date" value={invoiceDateTo} onChange={(e) => setInvoiceDateTo(e.target.value)} />
+					</div>
+					{hasActiveInvoiceFilters && (
+						<Button variant="secondary" onPress={clearInvoiceFilters}>
+							<Icon icon="lucide:x" />
+							{t("common:inventoryCertificatePage.clearFilters")}
+						</Button>
+					)}
+				</div>
 				<Table aria-label="Supplier invoices table" className="shadow-none border border-gray-300">
 					<Table.ScrollContainer>
 						<Table.Content>
@@ -923,10 +1073,12 @@ export function AdminInventoryCertificatePage() {
 								))}
 							</Table.Header>
 							<Table.Body
-								items={supplierInvoices}
+								items={filteredInvoices}
 								renderEmptyState={() => (
 									<div className="text-center p-4">
-										{t("common:inventoryCertificatePage.noInvoices")}
+										{hasActiveInvoiceFilters
+											? t("common:inventoryCertificatePage.noMatchingInvoices")
+											: t("common:inventoryCertificatePage.noInvoices")}
 									</div>
 								)}
 							>

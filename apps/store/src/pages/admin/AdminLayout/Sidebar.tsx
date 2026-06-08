@@ -53,6 +53,11 @@ const navItems = [
     icon: "lucide:truck",
   },
   {
+    labelKey: "nav.inventoryCertificate",
+    path: "admin.inventoryCertificate" as RouteKeys<typeof routes>,
+    icon: "lucide:clipboard-list",
+  },
+  {
     labelKey: "nav.deliveryNotes",
     path: "admin.deliveryNotes" as RouteKeys<typeof routes>,
     icon: "lucide:file-text",
@@ -81,9 +86,11 @@ const footerItems = [
 interface SidebarProps {
   /** Mobile drawer open state. On lg+ the sidebar is always visible (CSS). */
   isOpen: boolean;
+  /** Number of new orders since the admin last viewed the orders screen. */
+  newOrdersCount?: number;
 }
 
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen, newOrdersCount = 0 }: SidebarProps) {
   const { t } = useTranslation(["common"]);
   const [location] = useLocation();
 
@@ -130,6 +137,17 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   className="shrink-0 opacity-90"
                 />
                 <span className="flex-1">{t(item.labelKey as any)}</span>
+                {item.path === "admin.orders" && newOrdersCount > 0 && (
+                  <span
+                    aria-label={t("nav.newOrdersBadge" as any, {
+                      count: newOrdersCount,
+                      defaultValue: "{{count}} הזמנות חדשות",
+                    })}
+                    className="shrink-0 min-w-5 h-5 px-1.5 grid place-items-center rounded-full bg-[var(--danger)] text-white text-[11px] font-bold leading-none"
+                  >
+                    {newOrdersCount > 99 ? "99+" : newOrdersCount}
+                  </span>
+                )}
               </Link>
             );
           })}
