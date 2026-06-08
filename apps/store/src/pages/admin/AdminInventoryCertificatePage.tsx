@@ -533,9 +533,17 @@ export function AdminInventoryCertificatePage() {
 			{ name: t("common:inventoryCertificatePage.invoiceNumber"), uid: "invoiceNumber" },
 			{ name: t("common:inventoryCertificatePage.totalWithVat"), uid: "total" },
 			{ name: t("common:inventoryCertificatePage.rowsCount"), uid: "rowsCount" },
+			{ name: t("common:actionsLabel"), uid: "actions" },
 		],
 		[t]
 	);
+
+	const openInvoiceDetail = (invoiceId: string) => {
+		navigate({
+			to: "admin.inventoryCertificateDetail",
+			params: { id: invoiceId },
+		});
+	};
 
 	// Apply view-tab filters: free-text search (supplier name / invoice number),
 	// supplier dropdown, and a date range. Empty filters are ignored.
@@ -1078,12 +1086,7 @@ export function AdminInventoryCertificatePage() {
 									<Table.Row
 										id={invoice.id}
 										className="cursor-pointer hover:bg-gray-50"
-										onClick={() => {
-											navigate({
-												to: "admin.inventoryCertificateDetail",
-												params: { id: invoice.id },
-											});
-										}}
+										onClick={() => openInvoiceDetail(invoice.id)}
 									>
 										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
 											{new Date(invoice.date).toLocaleDateString()}
@@ -1100,6 +1103,16 @@ export function AdminInventoryCertificatePage() {
 										</Table.Cell>
 										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
 											{invoice.rows?.length || 0}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											<Button
+												variant="primary"
+												onPress={() => openInvoiceDetail(invoice.id)}
+												aria-label={`${t("common:actions.view")} ${invoice.invoiceNumber || ""}`}
+											>
+												<Icon icon="lucide:eye" />
+												{t("common:actions.view")}
+											</Button>
 										</Table.Cell>
 									</Table.Row>
 								)}
