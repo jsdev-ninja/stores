@@ -233,6 +233,9 @@ export const useAppApi = () => {
 				if (!isValidAdmin || !companyId || !storeId) return;
 
 				updateLoading({ "admin.listSupplierInvoiceDrafts": true });
+				// Filter by status only (no orderBy) so the query does NOT require a
+				// composite Firestore index — otherwise it fails and drafts appear
+				// to "not save". Drafts are sorted by date (newest first) client-side.
 				const result = await FirebaseApi.firestore.listV2<TSupplierInvoice>({
 					collection: FirebaseAPI.firestore.getPath({
 						storeId,
@@ -240,9 +243,15 @@ export const useAppApi = () => {
 						collectionName: "supplierInvoices",
 					}),
 					where: [{ name: "status", value: "draft", operator: "==" }],
-					sort: [{ name: "date", value: "desc" }],
 				});
 				updateLoading({ "admin.listSupplierInvoiceDrafts": false });
+
+				if (result?.success && Array.isArray(result.data)) {
+					return {
+						...result,
+						data: [...result.data].sort((a, b) => (b.date ?? 0) - (a.date ?? 0)),
+					};
+				}
 
 				return result;
 			},
