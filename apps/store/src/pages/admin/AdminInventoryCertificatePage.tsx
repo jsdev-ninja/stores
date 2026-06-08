@@ -991,7 +991,7 @@ export function AdminInventoryCertificatePage() {
 						</label>
 						<Input
 							value={invoiceSearch}
-							onChange={setInvoiceSearch}
+							onChange={(e) => setInvoiceSearch(e.target.value)}
 							placeholder={t("common:inventoryCertificatePage.searchPlaceholder")}
 						/>
 					</div>
@@ -1035,13 +1035,13 @@ export function AdminInventoryCertificatePage() {
 						<label className="text-sm font-medium text-gray-700">
 							{t("common:inventoryCertificatePage.dateFrom")}
 						</label>
-						<Input type="date" value={invoiceDateFrom} onChange={setInvoiceDateFrom} />
+						<Input type="date" value={invoiceDateFrom} onChange={(e) => setInvoiceDateFrom(e.target.value)} />
 					</div>
 					<div className="flex flex-col gap-1">
 						<label className="text-sm font-medium text-gray-700">
 							{t("common:inventoryCertificatePage.dateTo")}
 						</label>
-						<Input type="date" value={invoiceDateTo} onChange={setInvoiceDateTo} />
+						<Input type="date" value={invoiceDateTo} onChange={(e) => setInvoiceDateTo(e.target.value)} />
 					</div>
 					{hasActiveInvoiceFilters && (
 						<Button variant="secondary" onPress={clearInvoiceFilters}>

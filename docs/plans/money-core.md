@@ -20,13 +20,22 @@ invoice, or HYP is.
 
 Accepts primitive money facts only (numbers + ids), never a cart/order/product object.
 
-| Op | Input | Output |
-|---|---|---|
-| `post(tx)` | `amount` (agorot int), `currency`, `accountId/orgId`, `kind` (credit\|debit), `direction`, opaque `reference {type,id}`, `idempotencyKey` | recorded transaction |
-| `balance(accountId)` | account id | derived number |
-| `reverse(txId, reason)` | a transaction id | a reversing transaction |
+**3 write/derive ops (frozen) + reads.**
 
-`reference` is an **opaque pointer** — stored, never read by the core.
+| Op | Kind | Input | Output |
+|---|---|---|---|
+| `post(tx)` | write | `amount` (agorot int), `currency`, `accountId/orgId`, `kind` (credit\|debit), `direction`, opaque `reference {type,id}`, `idempotencyKey` | recorded transaction |
+| `balance(accountId)` | derive | account id | derived number |
+| `reverse(txId, reason)` | write | a transaction id | a reversing transaction |
+| `getTransactionById(id)` (+ scoped reads) | read | transaction id | the stored transaction |
+
+The three write/derive ops are the frozen invariant-bearing contract. **Reads** (e.g.
+`getTransactionById`) are also public — a ledger that can't be read is useless — and are not
+"a 4th invariant," just access.
+
+`reference` is an **opaque pointer** — stored, **never read by the core.** Reads hand the raw
+transaction (incl. `reference`) to features; features are *allowed* to dereference it. This is
+how a feature reads the ledger without touching the raw collection — see Check 2 / D5.
 
 ## The 6 rules ("always works no matter what")
 
@@ -75,19 +84,35 @@ a listener that calls `post()`, core untouched.
 Recorded now so the frozen API doesn't foreclose the right answer. None block the
 refactor. **D2, D4, D6 are worth applying during the carve;** the rest come later.
 
-- **D1 — `balance()` shard-ready.** Hot accounts (main A/R, "HYP cash") use N sharded
-  running-balance docs (`FieldValue.increment` to a random shard inside the post tx);
-  cold accounts may sum entries. A single counter breaks at >1 posting/sec/account.
-  `balance()` returns a *derived* number; callers never assume a single field.
+> **PREREQUISITE (surfaced by Phase 0):** D1 and D4 both presume an **`account` entity with a
+> `currency` field** — and the audit found **neither exists**. Today `Transaction` hardcodes
+> `currency: z.literal("ILS")`, there is no account, and balances are derived per-org via the
+> budget `orgBalances` projection. So **D1 and D4 are not "later" — they are blocked on a
+> data-model design** (introduce an account entity, OR keep `org+type` as the key and hang
+> currency off that, AND decide how `orgBalances` projects per-currency). That design is a
+> **prerequisite track**, not a function to write. Anyone picking up "add `balance()`" needs to
+> know it's a schema project first.
+
+- **D1 — `balance()` shard-ready.** *(Blocked on the account/currency design above.)* Hot
+  accounts (main A/R, "HYP cash") use N sharded running-balance docs (`FieldValue.increment`
+  to a random shard inside the post tx); cold accounts may sum entries. A single counter breaks
+  at >1 posting/sec/account. `balance()` returns a *derived* number; callers never assume a
+  single field.
 - **D2 — closed-period check INSIDE the post transaction.** Read `closedPeriods/{yyyymm}`
   via `tx.get()` in the same `runTransaction`, keyed on `effectiveAt`. Outside = race
   (period closes between check and commit). *Apply during the carve.*
 - **D3 — `reverse()` posts to today's open period.** `effectiveAt = now`, carries
   `reversalOf`, swaps debit/credit. Never backdates into a (possibly closed) period.
-- **D4 — one currency per account; FX explicit.** Currency is fixed per account; `post()`
-  rejects `currency` ≠ account currency; cross-currency = explicit two-account transfer,
-  never one implicit conversion. Defines "wrong currency" in rule 6. *Pin before the carve
-  if a 2nd currency (e.g. ₱) is on the roadmap.*
+- **D4 — one currency per account; FX explicit.** *(Blocked on the account/currency design
+  above.)* Currency is fixed per account; `post()` rejects `currency` ≠ account currency;
+  cross-currency = explicit two-account transfer, never one implicit conversion. Defines "wrong
+  currency" in rule 6.
+  **₱ / 2nd-currency reality check:** this is NOT "relax `z.literal("ILS")` → enum." Per Phase 0
+  it is (a) relax the literal **and** (b) introduce the account-or-org-currency entity **and**
+  (c) decide how `orgBalances` projects per-currency — i.e. it touches the **frozen `Transaction`
+  schema** this whole refactor exists to keep stable. If Philippines exposure is genuinely on the
+  roadmap, that sequence deserves its own one-line plan **now** — better to know the schema change
+  is coming than to freeze around `ILS` and reopen it in six months.
 - **D5 — reconciliation is a named future track (a feature, not the core).** A job in
   `payments-hyp/` (or `reconciliation/`) dereferences the opaque `reference` to match
   ledger ↔ vendor settlement ↔ source doc, flags drift ("captured, no `transaction_posted`";
@@ -130,12 +155,63 @@ boundaries move.
 6. Output: one-page "core surface" list.
 **Gate:** Philip approves the core surface.
 
+### Phase 0 — findings (read-only, complete)
+
+**Importers of `ledger` (the surface the carve must preserve):**
+| Importer | Imports | → after carve |
+|---|---|---|
+| `functions/src/index.tsx` | the 8 callables/subscribers (below) | re-point to `money` / `payments-hyp` / `billing` |
+| `budget/subscribers/reduceDebtOnTransactionPosted` | `ledger/events`, **`ledger/internal/transactionsStore.getTransactionById`** | `money` events + `money.getTransactionById` |
+| `budget/subscribers/updateProjectionsOnTransactionPosted` | `ledger/events`, **`getTransactionById` (internal)** | same |
+| `orders/subscribers/markOrderPaidOnTransactionPosted` | `ledger/events` | `money` events |
+| `payments/api/chargeOrder` | `ledger/services/postTransaction` | `money.post()` |
+
+**Public-surface tags (`ledger/index.ts`):**
+- **CORE → `money/`:** `TransactionSchema`, `TransactionTypeSchema`, `TransactionKindSchema`,
+  `Transaction*` types; `LedgerEventTypes` + `TransactionPostedPayload`; `postTransaction` (→ `post`);
+  `postManualTransaction` (generic manual journal = just `post()`); **`getTransactionById`** (read).
+- **HYP → `payments-hyp/`:** `captureHypJ5`, `createHypDirectPaymentLink`, `createHypCheckoutPayment`,
+  `recordHypJ5Auth`, `recordHypDirectPayment`, `getPaymentLink`; `PaymentLinkSchema`/`PaymentLink`,
+  `DuplicateChargeAlertSchema`/`DuplicateChargeAlert`; services `createPaymentLink`,
+  `verifyHypSignature`; internal `paymentLinksStore`.
+- **BILLING → `billing/`:** `postDebitOnDeliveryNoteCreated`.
+
+**D6 audit — both guards MOVE (Phase 2 = 10 files):**
+- `detectDuplicateCharges.ts` → HYP ("after a `hyp_*` 'in' transaction", `queryHypInTransactionsByOrder`,
+  logs `duplicate_charge_detected`). **Move to `payments-hyp/`.**
+- `validateAndConsumeLink.ts` → payment-link domain (`consumePaymentLink`, single-use link).
+  **Move to `payments-hyp/`.**
+
+**D4 audit — currency is NOT per-account; there is no account entity:**
+- `Transaction` hardcodes `currency: z.literal("ILS")` and is keyed by `payer.organizationId` +
+  type/kind/direction. There is **no `account` concept**; balances are derived per-org via the
+  budget `orgBalances` projection.
+- **Schema gap (D1/D4 track):** D4's "one currency per account" and D1's "per-account sharded
+  balance" both presume an account entity with a `currency` field that doesn't exist yet. Adding a
+  2nd currency (the possible ₱ exposure) = relax `z.literal("ILS")` → enum **and** introduce an
+  account (or org+type) carrying currency. **Surfaced now; no change in this refactor.**
+
+**Two decisions for the gate:**
+1. **Promote `getTransactionById` to `money`'s public surface.** Two budget subscribers already
+   reach into `ledger/internal/transactionsStore` — an existing privacy-boundary breach. The carve
+   should expose it as a `money` read export, and those imports route through `money/index.ts`.
+2. **Route all deep imports through `money/index.ts`.** Today `orders`/`budget`/`payments` import
+   `ledger/events`, `ledger/services/postTransaction`, `ledger/internal/*` directly (not via
+   `index.ts`). Phase 1 repoints them to the public `money` surface (`money.post()`, `money` events,
+   `money.getTransactionById`).
+
 ## Phase 1 — Carve `modules/money/`
 - Move core files: `postTransaction.ts`, `transactionsStore.ts`, `paths.ts`, `events.ts`,
   `types.ts`. (`@jsdev_ninja/core` `Transaction` stays where it is.)
 - Guard services per D6 decision from Phase 0.
 - Keep all function/subscriber names identical; only update import paths.
 - `money/index.ts` exports ONLY the Phase-0 core surface.
+- **PR scope note:** Phase 1 is two mechanical things in one — the file move **and** repointing
+  the existing deep imports (`budget/` two subscribers, `payments/chargeOrder`) from
+  `ledger/internal|services|events` to the public `money` surface. Expect the diff to touch
+  `budget/`/`payments/` import lines, not just `money/` paths. All-in-one is defensible (tests
+  prove behavior unchanged). If the PR feels too wide, the clean split is: **move-only first**
+  (old paths kept working via a re-export shim) → **repoint as a 2nd PR**.
 **Verify:** typecheck + ledger tests green; path + event unchanged.
 
 ## Phase 2 — Extract `modules/payments-hyp/` (vendor adapter)
@@ -156,6 +232,11 @@ boundaries move.
 - Guardrail in `CLAUDE.md` / `modules/money/README.md`: "`money/` imports nothing from other
   modules; features depend on money, never the reverse; nobody writes `transactions` directly;
   corrections are reversing entries."
+- **Reads stay narrow.** The `money` read surface is `getTransactionById` (by-id, returns one
+  immutable fact) — **not** a general query API. No `queryTransactionsByOrg(...)` / filtered /
+  business-shaped reads inside `money/`; the moment those appear you've rebuilt the budget
+  projection inside the core and "money doesn't know what an org is" blurs. Business-shaped
+  queries live in the budget/reporting projections, which read via the export.
 - **Two CI checks** — one for each half of the law (`money` doesn't import features; features
   don't bypass `post()`):
 
@@ -179,11 +260,11 @@ boundaries move.
   - This is the rule that keeps "all movement goes through `money.post()`" true after everyone
     has moved on; the import check alone does not enforce it.
   - **Intentionally strict — flags any *reference* to the collection (read or write) outside
-    `money/`.** Grep can't tell read from write, so legitimate read-only consumers (e.g. a
-    report) must read via a `money` export, never the raw path. Confirm during D5 design that
-    reconciliation reads `transactions` only through a `money` export (its current design reads
-    `reference`/vendor/source docs and writes its own collection, so it should stay clean); if
-    a raw read is ever needed, add it as an explicit allowlist entry with a comment.
+    `money/`.** Grep can't tell read from write, so legitimate read-only consumers must read via
+    a `money` export, never the raw path. **This is already satisfied:** `money.getTransactionById`
+    (+ scoped reads) is the public read path, so D5 reconciliation and any report read through it
+    and never trip Check 2. If a raw read is ever genuinely needed, add an explicit allowlist
+    entry with a comment.
   - The **grep form is the gate of record.** The dependency-cruiser `pathNot: "@jsdev_ninja/core"`
     on the `to` clause is likely redundant-but-harmless (the package resolves to `node_modules`,
     not `^functions/src/modules/`, so it never matches the `to` pattern) — verify against the
@@ -191,6 +272,13 @@ boundaries move.
 **Gate:** Philip approves.
 
 ## Out of scope (separate tracks)
+- **Account/currency schema design** — prerequisite for D1/D4. Phase 0 found no account entity
+  and `currency` hardcoded `z.literal("ILS")`. A data-model project, not a function. Not started.
+- **₱ / second-currency flag (the freeze's known exception).** Second-currency support is the ONE
+  change that reopens the frozen `Transaction` schema (literal→enum **+** account-or-org-currency
+  entity **+** per-currency `orgBalances` projection). If it moves from "possible" to "roadmap," it
+  gets its own plan **before** any further money-core freezing. Flag planted now; do not scope
+  until PH is actually real — nobody should freeze around `ILS` believing it's permanent.
 - `balance()` / `reverse()` first-class ops (D1, D3) — later track.
 - Reconciliation feature (D5) — with the payment-confirmation cutover.
 - Legacy-budget retirement (`organizationBudgets`/`budgetRecords`).

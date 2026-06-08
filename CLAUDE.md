@@ -49,6 +49,11 @@ Explain everything in plain, non-technical language. No code dumps.
 
 - Production domain: **storebrix.com**
 
+## worflow
+
+- ALWAYS validate build complie before merge or commit
+- ALWAYS validate lint before merge or commit
+
 ## Architecture
 
 # @jsdev_ninja/core - shared package backend and frontend
