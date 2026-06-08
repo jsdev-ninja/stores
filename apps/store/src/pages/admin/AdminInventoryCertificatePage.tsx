@@ -65,6 +65,12 @@ export function AdminInventoryCertificatePage() {
 	// Supplier invoices list state (for view tab)
 	const [supplierInvoices, setSupplierInvoices] = useState<TSupplierInvoice[]>([]);
 
+	// Drafts (work-in-progress invoices) state. `draftId` tracks the draft
+	// currently being edited in the create tab, so we can delete it on finalize.
+	const [drafts, setDrafts] = useState<TSupplierInvoice[]>([]);
+	const [draftId, setDraftId] = useState<string | null>(null);
+	const [isSavingDraft, setIsSavingDraft] = useState(false);
+
 	// Filters for the view tab
 	const [invoiceSearch, setInvoiceSearch] = useState<string>("");
 	const [invoiceSupplierFilter, setInvoiceSupplierFilter] = useState<string | null>(null);
@@ -109,6 +115,14 @@ export function AdminInventoryCertificatePage() {
 				}
 			};
 			loadSupplierInvoices();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeTab]);
+
+	// Load drafts when the drafts tab is active
+	useEffect(() => {
+		if (activeTab === "drafts") {
+			loadDrafts();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTab]);
@@ -490,6 +504,75 @@ export function AdminInventoryCertificatePage() {
 		setIsSaveModalOpen(true);
 	};
 
+	const loadDrafts = async () => {
+		try {
+			const result = await appApi.admin.listSupplierInvoiceDrafts();
+			if (result?.success) {
+				setDrafts((result.data || []) as TSupplierInvoice[]);
+			}
+		} catch (error) {
+			console.error("Failed to load drafts:", error);
+		}
+	};
+
+	// Reset the create form back to an empty, fresh invoice.
+	const resetForm = () => {
+		setSupplierInvoice({
+			type: "SupplierInvoice",
+			date: new Date().getTime(),
+			invoiceNumber: "",
+			rows: [],
+			productsToUpdate: [],
+			supplier: undefined,
+		});
+		setDraftId(null);
+	};
+
+	// Save the current in-progress invoice as a draft. Does NOT update product
+	// prices (the create trigger skips drafts) — that only happens on finalize.
+	const handleSaveDraft = async () => {
+		setIsSavingDraft(true);
+		try {
+			const id = draftId ?? FirebaseApi.firestore.generateDocId("supplierInvoices");
+			const result = await appApi.admin.saveSupplierInvoiceDraft({
+				...supplierInvoice,
+				id,
+				// productsToUpdate is derived from the rows and is recomputed when the
+				// draft is finalized, so we don't persist it on the draft (keeps the
+				// write free of undefined sub-fields).
+				productsToUpdate: [],
+				vat: invoiceSummary.totalVat,
+				total: invoiceSummary.totalWithVat,
+				totalBeforeVat: invoiceSummary.totalBeforeVat,
+			});
+			if (result?.success) {
+				setDraftId(id);
+				if (activeTab === "drafts") loadDrafts();
+			}
+		} catch (error) {
+			console.error("Failed to save draft:", error);
+		} finally {
+			setIsSavingDraft(false);
+		}
+	};
+
+	// Open a saved draft for continued editing in the create tab.
+	const openDraft = (draft: TSupplierInvoice) => {
+		setSupplierInvoice(draft);
+		setDraftId(draft.id);
+		setActiveTab("create");
+	};
+
+	const handleDeleteDraft = async (id: string) => {
+		try {
+			await appApi.admin.deleteSupplierInvoiceDraft(id);
+			setDrafts((prev) => prev.filter((d) => d.id !== id));
+			if (draftId === id) resetForm();
+		} catch (error) {
+			console.error("Failed to delete draft:", error);
+		}
+	};
+
 	// Helper to get date as string for the date input
 	const documentDate = supplierInvoice.date
 		? new Date(supplierInvoice.date).toISOString().split("T")[0]
@@ -647,6 +730,14 @@ export function AdminInventoryCertificatePage() {
 						>
 							<Icon icon="lucide:plus" />
 							{t("common:inventoryCertificatePage.addRow")}
+						</Button>
+						<Button
+							variant="ghost"
+							onPress={handleSaveDraft}
+							isDisabled={isSavingDraft || supplierInvoice.rows?.length === 0}
+						>
+							<Icon icon="lucide:file-clock" />
+							{t("common:inventoryCertificatePage.saveDraft")}
 						</Button>
 						<Button
 							variant="primary"
@@ -968,8 +1059,15 @@ export function AdminInventoryCertificatePage() {
 										vat: invoiceSummary.totalVat,
 										total: invoiceSummary.totalWithVat,
 										totalBeforeVat: invoiceSummary.totalBeforeVat,
+										status: "completed",
 									});
+									// If this invoice was finalized from a draft, remove the draft
+									// so it no longer appears in the drafts list.
+									if (draftId) {
+										await appApi.admin.deleteSupplierInvoiceDraft(draftId);
+									}
 									setIsSaveModalOpen(false);
+									resetForm();
 									// Refresh supplier invoices list if view tab is active
 									if (activeTab === "view") {
 										const result = await appApi.admin.listSupplierInvoices();
@@ -1124,6 +1222,82 @@ export function AdminInventoryCertificatePage() {
 		</div>
 	);
 
+	const draftsTabContent = (
+		<div className="mt-6">
+			<div className="bg-white rounded-lg shadow p-6">
+				<Table aria-label="Supplier invoice drafts table" className="shadow-none border border-gray-300">
+					<Table.ScrollContainer>
+						<Table.Content>
+							<Table.Header>
+								{viewColumns.map((column) => (
+									<Table.Column
+										key={column.uid}
+										isRowHeader={column.uid === "date"}
+										className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-transparent p-2 border-r border-gray-300 last:border-r-0"
+									>
+										{column.name}
+									</Table.Column>
+								))}
+							</Table.Header>
+							<Table.Body
+								items={drafts}
+								renderEmptyState={() => (
+									<div className="text-center p-4">
+										{t("common:inventoryCertificatePage.noDrafts")}
+									</div>
+								)}
+							>
+								{(draft) => (
+									<Table.Row
+										id={draft.id}
+										className="cursor-pointer hover:bg-gray-50"
+										onClick={() => openDraft(draft)}
+									>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{new Date(draft.date).toLocaleDateString()}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{draft.supplier?.name || "-"}
+											{draft.supplier?.code && ` (${draft.supplier.code})`}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{draft.invoiceNumber || "-"}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0 text-right">
+											₪ {draft.total?.toFixed(2) || "0.00"}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											{draft.rows?.length || 0}
+										</Table.Cell>
+										<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+											<div className="flex gap-2">
+												<Button
+													variant="primary"
+													onPress={() => openDraft(draft)}
+													aria-label={`${t("common:inventoryCertificatePage.continueEditing")} ${draft.invoiceNumber || ""}`}
+												>
+													<Icon icon="lucide:pencil" />
+													{t("common:inventoryCertificatePage.continueEditing")}
+												</Button>
+												<Button
+													variant="danger"
+													onPress={() => handleDeleteDraft(draft.id)}
+													aria-label={`${t("common:inventoryCertificatePage.deleteDraft")} ${draft.invoiceNumber || ""}`}
+												>
+													<Icon icon="lucide:trash" />
+												</Button>
+											</div>
+										</Table.Cell>
+									</Table.Row>
+								)}
+							</Table.Body>
+						</Table.Content>
+					</Table.ScrollContainer>
+				</Table>
+			</div>
+		</div>
+	);
+
 	return (
 		<div className="p-6">
 			<div className="mb-6">
@@ -1138,10 +1312,12 @@ export function AdminInventoryCertificatePage() {
 				<Tabs.List>
 					<Tabs.Tab id="create">{t("common:inventoryCertificatePage.createTab")}</Tabs.Tab>
 					<Tabs.Tab id="view">{t("common:inventoryCertificatePage.viewTab")}</Tabs.Tab>
+					<Tabs.Tab id="drafts">{t("common:inventoryCertificatePage.draftsTab")}</Tabs.Tab>
 				</Tabs.List>
 
 				<Tabs.Panel id="create">{createTabContent}</Tabs.Panel>
 				<Tabs.Panel id="view">{viewTabContent}</Tabs.Panel>
+				<Tabs.Panel id="drafts">{draftsTabContent}</Tabs.Panel>
 			</Tabs>
 		</div>
 	);

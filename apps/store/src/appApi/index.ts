@@ -193,7 +193,70 @@ export const useAppApi = () => {
 				});
 				updateLoading({ "admin.listSupplierInvoices": false });
 
+				// Exclude drafts from the finalized list. Legacy invoices have no
+				// status and are treated as finalized.
+				if (result?.success && Array.isArray(result.data)) {
+					return {
+						...result,
+						data: result.data.filter((invoice) => invoice.status !== "draft"),
+					};
+				}
+
 				return result;
+			},
+			// Save a supplier invoice as a draft (work-in-progress). Stored in the
+			// same `supplierInvoices` collection with status "draft" so the existing
+			// permissions apply; the create trigger skips drafts, so NO product
+			// prices are updated until the invoice is finalized.
+			saveSupplierInvoiceDraft: async (
+				draft: Partial<TSupplierInvoice> & { id: string }
+			) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				const { supplier, ...rest } = draft;
+				return await FirebaseApi.firestore.setV2({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "supplierInvoices",
+						companyId,
+						storeId,
+					}),
+					doc: {
+						...rest,
+						// only include supplier when selected (avoid undefined writes)
+						...(supplier ? { supplier } : {}),
+						type: "SupplierInvoice",
+						status: "draft",
+					},
+				});
+			},
+			listSupplierInvoiceDrafts: async () => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.listSupplierInvoiceDrafts": true });
+				const result = await FirebaseApi.firestore.listV2<TSupplierInvoice>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "supplierInvoices",
+					}),
+					where: [{ name: "status", value: "draft", operator: "==" }],
+					sort: [{ name: "date", value: "desc" }],
+				});
+				updateLoading({ "admin.listSupplierInvoiceDrafts": false });
+
+				return result;
+			},
+			deleteSupplierInvoiceDraft: async (id: string) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				return await FirebaseApi.firestore.remove({
+					id,
+					collectionName: FirebaseAPI.firestore.getPath({
+						collectionName: "supplierInvoices",
+						companyId,
+						storeId,
+					}),
+				});
 			},
 			getSupplierInvoice: async (id: string) => {
 				if (!isValidAdmin || !companyId || !storeId) return;
