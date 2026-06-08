@@ -24,6 +24,18 @@ export const onSupplierInvoiceCreate = functions.firestore.onDocumentCreated(
 		const supplierInvoice = event.data.data() as TSupplierInvoice;
 		console.log("supplier invoice create", supplierInvoice, { companyId, storeId, id });
 
+		// Drafts are work-in-progress and must NOT touch product prices. Prices are
+		// only applied once the invoice is finalized (status "completed" / legacy
+		// invoices with no status keep the original behavior).
+		if (supplierInvoice.status === "draft") {
+			logger.write({
+				severity: "INFO",
+				message: "onSupplierInvoiceCreate: skipping draft, no product price update",
+				event,
+			});
+			return;
+		}
+
 		const batch = admin.firestore().batch();
 
 		for (const productToUpdate of supplierInvoice.productsToUpdate) {

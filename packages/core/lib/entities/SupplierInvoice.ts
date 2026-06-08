@@ -4,6 +4,10 @@ import { SupplierSchema } from "./Supplier";
 export const SupplierInvoiceSchema = z.object({
 	type: z.literal("SupplierInvoice"),
 	id: z.string(),
+	// "draft" = work-in-progress, NOT yet finalized. Product prices are only
+	// updated once the invoice is finalized ("completed"). Legacy invoices have
+	// no status and are treated as finalized.
+	status: z.enum(["draft", "completed"]).optional(),
 	supplier: SupplierSchema,
 	invoiceNumber: z.string(),
 	date: z.number(),
