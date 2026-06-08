@@ -11,6 +11,7 @@ import { navigate } from "src/navigation";
 import { submitHypForm } from "src/lib/payment/submitHypForm";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
+import BalasiCheckoutLayout from "src/websites/balasistore/CheckoutLayout";
 import { z } from "zod";
 
 
@@ -110,6 +111,11 @@ function CheckoutPage() {
 	if (cartData.isReady && !cart) {
 		return null;
 	}
+
+	// Balasi storefront gets a dedicated checkout LAYOUT (markup only). The
+	// <Form>, schema, defaultValues and onSubmit below are shared and unchanged,
+	// so the order data and payment flow are identical for every store.
+	const isBalasi = store.id === "balasistore_store" || store.id === "tester_store";
 
 
 
@@ -211,6 +217,14 @@ function CheckoutPage() {
 					}
 				}}
 			>
+				{isBalasi ? (
+					<BalasiCheckoutLayout
+						t={t}
+						minDate={minDate}
+						maxDate={maxDate}
+						isSubmitting={isSubmitting}
+					/>
+				) : (
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
 					<div className="min-w-0 flex-1 space-y-8">
 						<div className="space-y-4">
@@ -297,6 +311,7 @@ function CheckoutPage() {
 						</div>
 					</PaymentSummary>
 				</div>
+				)}
 			</Form>
 		</section>
 	);
