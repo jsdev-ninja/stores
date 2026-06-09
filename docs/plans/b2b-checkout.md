@@ -5,8 +5,9 @@
 built as a separate HTML prototype. This doc translates that mockup into an implementation
 spec so Philip can scope/approve it.
 
-> ⚠️ Owner-restricted feature. Touches the `Order` schema (`@jsdev_ninja/core`), payment
-> logic, and org creation → **cannot ship without developer sign-off** per CLAUDE.md.
+> ⚠️ Owner-restricted feature. Touches the `Order` schema (`@jsdev_ninja/core`) and org
+> creation → **cannot ship without developer sign-off** per CLAUDE.md.
+> ❌ Net-30 / "שוטף+30" is **not** part of this — the owner does not want it.
 
 ---
 
@@ -21,8 +22,8 @@ those details (the question that kicked this off). The mockup has 5 sections:
    Plus a banner: *"השלמה אוטומטית מהפעם הקודמת"* — prefill from the last order.
 2. **איש קשר (Contact person)** — full name (required), role/title, phone (required), email (required).
 3. **כתובת למשלוח (Delivery address)** — street+number, city, floor/entrance, zip, delivery notes.
-4. **מועד אספקה ותשלום (Delivery slot & payment)** — date + time slot, payment method incl.
-   **"שוטף + 30"** (net-30, *subject to approval*), **PO number**, extra notes.
+4. **מועד אספקה ותשלום (Delivery slot & payment)** — date + time slot, payment method
+   (credit card + bank transfer only), **PO number**, extra notes.
 5. **אם חסר במלאי (Out-of-stock policy)** — substitute with similar (default) vs. remove item;
    terms checkbox, marketing opt-in, order summary.
 
@@ -43,18 +44,17 @@ those details (the question that kicked this off). The mockup has 5 sections:
   `billingAccounts[]`, `groupId`. **Organizations are created manually only**, via
   `appApi … createOrganization` from the admin Organizations page. No order-driven creation.
 - **Payment types** (`packages/core/lib/entities/Payment/index.ts`):
-  `PaymentTypeSchema = ["external", "j5", "none"]`. **There is no "net-30 / שוטף+30" type.**
+  `PaymentTypeSchema = ["external", "j5", "none"]`. Checkout offers credit card + bank transfer.
   Priority: store → organization → profile (profile strongest).
-- **Org credit/debt already exists**: `reduceDebtOnTransactionPosted` lowers org debt on
-  capture (see `order-approve-flow.md`) — so a credit-terms ("שוטף+30") concept partially
-  exists on the org ledger side, just not as a selectable checkout payment method.
 - A profile already carries `clientType: "user" | "company"` (marked `@deprecated`) and
   `organizationIds[]`. Checkout already blocks if the user belongs to orgs but hasn't picked one
   (`CheckoutPage.tsx:63`).
 
 **Takeaway:** the *data model for B2B orgs largely exists*. The gap is (a) the checkout UI,
-(b) a few new order fields, (c) **auto-create/upsert org from order**, and (d) the **net-30
-payment path** — which is the riskiest piece.
+(b) a few new order fields, and (c) **auto-create/upsert org from order**.
+
+> ❌ **Net-30 / "שוטף+30" is explicitly out of scope — the owner does not want it at all.**
+> Do not add a credit-terms payment type or a net-30 option anywhere.
 
 ---
 
@@ -89,16 +89,6 @@ to an org:
 > 2. Dedup key — tax id only, or tax id + name?
 > 3. What if tax id collides with an existing org owned by a different user?
 
-### D. "שוטף + 30" / net-30 payment method (HIGH risk — needs Philip)
-The mockup explicitly gates this: *"כפוף לאישור חברת בלסי… נחזור אליכם לאישור התנאים."*
-- Requires a **new payment type** (e.g. extend `PaymentTypeSchema` with `"credit_terms"`),
-  which is a core enum change touching order creation, admin charge flow, delivery-note logic,
-  and the org debt ledger.
-- Needs an **approval gate**: order can't be auto-confirmed on net-30 — it parks for admin
-  approval of the customer's credit terms before fulfilment.
-- This is real financial logic (issuing credit to a business). **Should be its own phase**,
-  not bundled with the UI work.
-
 ---
 
 ## Task breakdown (small, independent PRs)
@@ -114,7 +104,8 @@ shippable on its own behind the existing `isBalasi` gate.
 ### Track A — UI (no schema, no payment) — owner-authorizable
 - **T1 — Checkout layout redesign (UI only).** ✅ DONE → PR #31 (approved). 5-section mockup,
   every submitted field keeps its existing `name`, new B2B fields are visual-only.
-- **T2 — Drop net-30 from public site.** ✅ DONE (in #31). Owner request.
+- **T2 — Remove net-30 entirely.** ✅ DONE. Owner does not want "שוטף+30" at all — removed
+  from checkout UI and from the public FAQ (#31 / #41). Not a future phase.
 
 ### Track B — Persist new order fields (one field-group per PR; each = core schema bump)
 Each adds optional fields to `Order` in `@jsdev_ninja/core` (back-compat, all optional) + wires
@@ -134,11 +125,7 @@ the matching UI input + shows it read-only in the admin order view. Small and is
 - **T9 — Wire T8 to `order.placed`.** Thin subscriber/trigger calls T8; sets `order.organizationId`.
   Behind a per-store flag so it's off until verified.
 
-### Track D — Net-30 / credit terms (financial — separate review, depends on Track C)
-- **T10 — Add `"credit_terms"` to `PaymentTypeSchema`** + thread through order create / admin
-  charge / delivery-note / org-debt ledger. Core enum change.
-- **T11 — Net-30 approval gate.** Order on credit terms parks for admin approval before fulfilment.
-- **T12 — Re-add net-30 option to checkout UI**, gated to approved B2B customers only.
+> ~~Track D — Net-30 / credit terms~~ — **dropped. Owner does not want net-30.**
 
 ---
 

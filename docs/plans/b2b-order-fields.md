@@ -3,7 +3,8 @@
 **Status:** Needs Philip's approval. Requested by David (owner) — "I want the fields to actually save."
 **Parent plan:** `docs/plans/b2b-checkout.md` (PR #28). UI shipped in PR #31 (T1–T2, approved).
 **Scope of THIS doc:** persistence only — make the new checkout fields save on the order and show
-in the admin order view. **No org auto-creation (Track C). No net-30 (Track D).** Those stay separate.
+in the admin order view. **No org auto-creation (Track C)** — that stays separate.
+Net-30 / "שוטף+30" is **dropped entirely** (owner does not want it).
 
 ---
 
