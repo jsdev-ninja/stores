@@ -14,6 +14,7 @@ import { CreateDeliveryNoteModal } from "./CreateDeliveryNoteModal";
 import { SelectDateForDocumentModal } from "./SelectDateForDocumentModal";
 import { ConfirmModal } from "./ConfirmModal";
 import { AdminCreateOrderModal } from "./AdminCreateOrderModal";
+import { AccountModal } from "./AccountModal";
 import { TOrder } from "@jsdev_ninja/core";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
@@ -22,6 +23,7 @@ export const ModalsContainer = ({ children }: { children: ReactNode }) => {
 
 export const modals = {
 	authModal: () => <AuthModal />,
+	accountModal: () => <AccountModal />,
 	categoryFormModal: ({ categoryId, onSave }: { categoryId: string; onSave?: any }) => (
 		<CategoryFormModal categoryId={categoryId} onSave={onSave} />
 	),
