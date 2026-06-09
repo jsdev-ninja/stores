@@ -85,7 +85,7 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 	if (!profile) return null;
 
 	return (
-		<div dir="rtl">
+		<div dir="rtl" className="bg-[var(--background)]">
 			{/* ---- Header band ------------------------------------------------ */}
 			<header
 				className="relative overflow-hidden px-6 py-10 text-white"
