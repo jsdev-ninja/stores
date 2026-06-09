@@ -232,12 +232,6 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 								max={maxDate}
 								defaultValue={tomorrow}
 							/>
-							{/* VISUAL-ONLY: delivery hour (Phase 2) */}
-							<VisualField label="שעת אספקה">
-								<select className={FIELD_CLASS} defaultValue="any" disabled>
-									<option value="any">לא משנה</option>
-								</select>
-							</VisualField>
 						</div>
 
 						{/* VISUAL-ONLY: payment method (Phase 3 — credit-terms / net-30) */}
