@@ -244,7 +244,7 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 							</VisualField>
 						</div>
 
-						{/* VISUAL-ONLY: payment method (Phase 3 — credit-terms / net-30) */}
+						{/* Payment method (display). Only credit card + bank transfer are offered. */}
 						<div className="mt-5">
 							<p className="mb-2 text-sm font-medium text-[var(--foreground)]">
 								אופן תשלום <span style={{ color: ORANGE }}>*</span>
@@ -260,9 +260,6 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 									title="🏦 העברה בנקאית"
 									subtitle="פרטי חשבון יישלחו לאחר אישור ההזמנה"
 								/>
-								{/* "שוטף + 30" (net-30) is intentionally NOT shown on the public
-								    site — owner's request. It belongs to Phase 3 (credit-terms
-								    payment), pending approval. Do not re-add here. */}
 							</div>
 						</div>
 
@@ -328,29 +325,22 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 	);
 }
 
-/* ---------- VISUAL-ONLY presentational sub-components (Phase 2/3) ---------- */
+/* ---------- presentational sub-components ---------- */
 
 function PaymentOption({
 	title,
 	subtitle,
 	badge,
-	highlighted,
 	defaultChecked,
 }: {
 	title: string;
 	subtitle: string;
 	badge?: string;
-	highlighted?: boolean;
 	defaultChecked?: boolean;
 }) {
 	return (
 		<label
-			className="flex cursor-pointer items-center justify-between gap-3 rounded-[10px] border px-4 py-3"
-			style={{
-				borderColor: highlighted ? "#1b7a3d" : "var(--border)",
-				borderStyle: highlighted ? "dashed" : "solid",
-				background: highlighted ? "#eef7f0" : "transparent",
-			}}
+			className="flex cursor-pointer items-center justify-between gap-3 rounded-[10px] border border-[var(--border)] px-4 py-3"
 		>
 			<div>
 				<div className="flex items-center gap-2">
