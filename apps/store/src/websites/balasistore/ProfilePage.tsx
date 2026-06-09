@@ -117,7 +117,7 @@ export default function BalasiProfilePage() {
 
 			<main className="mx-auto max-w-[900px] px-4">
 				{/* ---- Stats --------------------------------------------------- */}
-				<section className="-mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3">
+				<section className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
 					<StatCard label="הזמנות החודש" value={ordersThisMonth} accent={GREEN} />
 					<StatCard label="מועדפים" value={favorites.length} accent={ORANGE} />
 					<StatCard label="סה״כ הזמנות" value={orders.length} accent={GREEN} />
