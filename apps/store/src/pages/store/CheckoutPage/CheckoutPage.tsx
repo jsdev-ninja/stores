@@ -22,6 +22,19 @@ const checkoutSchema = z.object({
 	address: AddressSchema,
 	email: z.string().email(),
 	phone: z.string().optional(),
+	// --- B2B buyer details (optional) — persisted onto the order ---
+	companyName: z.string().optional(),
+	companyNumber: z.string().optional(),
+	contact: z
+		.object({
+			fullName: z.string().optional(),
+			role: z.string().optional(),
+			phone: z.string().optional(),
+			email: z.string().optional(),
+		})
+		.optional(),
+	poNumber: z.string().optional(),
+	outOfStockPolicy: z.enum(["substitute", "remove"]).optional(),
 });
 
 type TCheckout = z.infer<typeof checkoutSchema>;
@@ -130,6 +143,17 @@ function CheckoutPage() {
 					email: profile?.email ?? "",
 					phone: profile?.phoneNumber ?? "",
 					clientComment: "",
+					// B2B prefill (auto-fill from profile/organization where available)
+					companyName: profile?.companyName ?? profileOrganization?.name ?? "",
+					companyNumber: profileOrganization?.companyNumber ?? "",
+					contact: {
+						fullName: profile?.displayName ?? "",
+						role: "",
+						phone: profile?.phoneNumber ?? "",
+						email: profile?.email ?? "",
+					},
+					poNumber: "",
+					outOfStockPolicy: "substitute",
 				}}
 				onError={(errors) => {
 					console.warn("errors", errors);
@@ -174,6 +198,12 @@ function CheckoutPage() {
 							clientComment: values.clientComment,
 							emailOnInvoice: values.email,
 							phoneNumberOnInvoice: values.phone,
+							// B2B buyer details
+							companyName: values.companyName,
+							companyNumber: values.companyNumber,
+							contact: values.contact,
+							poNumber: values.poNumber,
+							outOfStockPolicy: values.outOfStockPolicy,
 						}
 
 						if (
