@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { useUser } from "src/domains/user";
 import { navigate } from "src/navigation";
+import { modalApi } from "src/infra/modals";
 
 const ORANGE = "var(--brand-secondary)"; // design --pop
 
@@ -60,7 +61,7 @@ export default function WelcomeBack() {
 
 			<button
 				type="button"
-				onClick={() => navigate({ to: "store.profile" })}
+				onClick={() => modalApi.openModal("accountModal")}
 				className="cursor-pointer border-0 px-4 py-[7px] text-[11.5px] font-bold uppercase tracking-[0.06em] text-white"
 				style={{ background: ORANGE }}
 			>
