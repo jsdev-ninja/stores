@@ -14,8 +14,6 @@
 
 import { getCartCost } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
-import { useAppApi } from "src/appApi";
-import { Icon } from "src/components";
 import { Button } from "src/components/button";
 import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
 import { useCart } from "src/domains/cart";
@@ -27,9 +25,11 @@ import { formatter } from "src/utils/formatter";
 import { ProductsWidget } from "src/widgets/Products";
 import {
 	BALASI_ORANGE,
+	BalasiCartClear,
 	BalasiCartEmpty,
 	BalasiCartFooter,
 	BalasiCartItemList,
+	BalasiCheckoutCta,
 } from "./cart/BalasiCartParts";
 import { useCatalogAside } from "./useCatalogAside";
 import { CatalogAside } from "./catalog/CatalogAside";
@@ -40,7 +40,6 @@ export default function BalasiCatalogPage() {
 	const store = useStore();
 	const cart = useCart();
 	const discounts = useDiscounts();
-	const appApi = useAppApi();
 	const user = useAppSelector((state) => state.user.user);
 	const { isAsideOpen, toggleAside, closeAside } = useCatalogAside();
 
@@ -124,58 +123,37 @@ export default function BalasiCatalogPage() {
 				    rows, free-shipping bar, summary and "המשך להזמנה" CTA. Only
 				    difference vs the drawer is that it stays docked (no backdrop /
 				    close button). */}
-				<aside className="hidden xl:flex w-[400px] shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--background)]">
-					{/* Dark header band */}
-					<div className="shrink-0 bg-[var(--foreground)] px-5 py-5 text-white">
-						<div
-							className="text-[12px] font-bold tracking-[0.12em]"
+				<aside className="hidden xl:flex w-[460px] shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--background)]">
+					{/* Dark header band (.dr-head) */}
+					<div className="shrink-0 border-b border-[var(--border)] bg-[var(--foreground)] p-7 text-white">
+						<span
+							className="text-[10px] font-bold uppercase tracking-[0.18em]"
 							style={{ color: BALASI_ORANGE }}
 						>
 							הסל שלי
-						</div>
-						<div className="text-[22px] font-black leading-tight">
+						</span>
+						<h3 className="mt-1 text-[22px] font-black leading-tight tracking-[-0.03em]">
 							{cartItemCount} פריטים
-						</div>
+						</h3>
 					</div>
 
-					{/* Body — clear button + item rows / empty */}
-					<div className="flex-1 overflow-y-auto px-5 py-4">
+					{/* Body (.dr-body) — clear + item rows / empty */}
+					<div className="flex-1 overflow-y-auto px-7">
 						{hasItems ? (
 							<>
-								<div className="mb-3 flex justify-start">
-									<button
-										type="button"
-										onClick={() => appApi.user.clearCart()}
-										className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-[12px] font-semibold text-[var(--muted)] transition-colors hover:text-[var(--danger)]"
-									>
-										<Icon name="trash" size="sm" />
-										ניקוי הסל
-									</button>
-								</div>
-								<BalasiCartItemList
-									items={cartCost.items}
-									onRemove={(product) =>
-										appApi.user.updateCartItemAmount({ product, amount: 0 })
-									}
-								/>
+								<BalasiCartClear />
+								<BalasiCartItemList items={cartCost.items} />
 							</>
 						) : (
 							<BalasiCartEmpty />
 						)}
 					</div>
 
-					{/* Footer: free-shipping + summary + CTA */}
+					{/* Footer (.dr-foot) — free-shipping + totals + CTA */}
 					{hasItems && (
-						<div className="shrink-0 border-t border-[var(--border)] bg-[var(--surface)] px-5 py-4">
+						<div className="shrink-0 border-t border-[var(--border)] bg-[var(--surface)] px-7 py-6">
 							<BalasiCartFooter cartCost={cartCost} freeDeliveryPrice={freeDeliveryPrice}>
-								<button
-									type="button"
-									onClick={goToCheckout}
-									className="flex w-full items-center justify-center gap-2 rounded-md bg-[var(--foreground)] py-3.5 text-[15px] font-bold text-white transition-opacity hover:opacity-90"
-								>
-									<span>המשך להזמנה</span>
-									<span aria-hidden>←</span>
-								</button>
+								<BalasiCheckoutCta onClick={goToCheckout} />
 							</BalasiCartFooter>
 						</div>
 					)}
