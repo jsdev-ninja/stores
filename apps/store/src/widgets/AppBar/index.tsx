@@ -127,9 +127,6 @@ export function AppBar() {
         {/* End actions */}
         <ul className="flex items-center gap-2 list-none m-0 p-0">
           <li>
-            <BalasiCartButton />
-          </li>
-          <li>
             <OrgPicker />
           </li>
           <li>
@@ -171,6 +168,10 @@ export function AppBar() {
                 {text}
               </Button>
             )}
+          </li>
+          {/* Cart — far end (top-left in RTL) */}
+          <li>
+            <BalasiCartButton />
           </li>
           {/* Mobile hamburger */}
           <li className="md:hidden">

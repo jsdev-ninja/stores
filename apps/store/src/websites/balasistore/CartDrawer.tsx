@@ -40,21 +40,21 @@ export function BalasiCartButton() {
 
 	return (
 		<>
+			{/* "הסל [count]" pill — dark button with an orange count badge. */}
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
 				aria-label="פתח את הסל"
-				className="relative flex items-center justify-center p-1 text-[var(--foreground)] transition-opacity hover:opacity-70"
+				className="flex items-center gap-2 rounded-md bg-[var(--foreground)] px-3 py-2 text-white transition-opacity hover:opacity-90"
 			>
-				<Icon name="cart" size="md" />
-				{itemCount > 0 && (
-					<span
-						className="absolute -top-1.5 -end-1.5 grid h-[18px] min-w-[18px] place-items-center rounded-full px-1 text-[11px] font-bold leading-none text-white"
-						style={{ background: ORANGE }}
-					>
-						{itemCount}
-					</span>
-				)}
+				<Icon name="cart" size="sm" />
+				<span className="text-[14px] font-bold leading-none">הסל</span>
+				<span
+					className="grid h-[22px] min-w-[22px] place-items-center rounded-full px-1 text-[12px] font-bold leading-none text-white"
+					style={{ background: ORANGE }}
+				>
+					{itemCount}
+				</span>
 			</button>
 			{open && <CartDrawerPanel onClose={() => setOpen(false)} />}
 		</>
