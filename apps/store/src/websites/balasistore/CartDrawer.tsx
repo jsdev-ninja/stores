@@ -13,11 +13,11 @@
  * is fully scoped to balasistore (+ the tester preview store).
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getCartCost, TProduct } from "@jsdev_ninja/core";
 import { Icon } from "src/components";
 import { useAppApi } from "src/appApi";
-import { useAppSelector } from "src/infra";
+import { useAppSelector, useStoreActions } from "src/infra";
 import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
@@ -33,17 +33,19 @@ const isBalasiStore = (id?: string) => id === "balasistore_store" || id === "tes
 export function BalasiCartButton() {
 	const store = useStore();
 	const cart = useCart();
-	const [open, setOpen] = useState(false);
+	const actions = useStoreActions();
+	const isOpen = useAppSelector((state) => state.ui.isCartDrawerOpen);
 
 	if (!isBalasiStore(store?.id)) return null;
 
 	const itemCount = (cart?.items ?? []).reduce((sum, item) => sum + item.amount, 0);
+	const close = () => actions.dispatch(actions.ui.closeCartDrawer());
 
 	return (
 		<>
 			<button
 				type="button"
-				onClick={() => setOpen(true)}
+				onClick={() => actions.dispatch(actions.ui.openCartDrawer())}
 				aria-label="פתח את הסל"
 				className="relative flex items-center justify-center p-1 text-[var(--foreground)] transition-opacity hover:opacity-70"
 			>
@@ -57,7 +59,7 @@ export function BalasiCartButton() {
 					</span>
 				)}
 			</button>
-			{open && <CartDrawerPanel onClose={() => setOpen(false)} />}
+			{isOpen && <CartDrawerPanel onClose={close} />}
 		</>
 	);
 }

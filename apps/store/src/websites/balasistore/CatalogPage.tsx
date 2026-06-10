@@ -19,7 +19,7 @@ import { ProductRender } from "src/components/renders/ProductRender/ProductRende
 import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
-import { navigate } from "src/navigation";
+import { useStoreActions } from "src/infra";
 import { formatter } from "src/utils/formatter";
 import { Cart } from "src/widgets/Cart/Cart";
 import { ProductsWidget } from "src/widgets/Products";
@@ -32,7 +32,10 @@ export default function BalasiCatalogPage() {
 	const store = useStore();
 	const cart = useCart();
 	const discounts = useDiscounts();
+	const actions = useStoreActions();
 	const { isAsideOpen, toggleAside, closeAside } = useCatalogAside();
+
+	const openCart = () => actions.dispatch(actions.ui.openCartDrawer());
 
 	if (!store) return null;
 
@@ -105,7 +108,7 @@ export default function BalasiCatalogPage() {
 						<Button
 							isDisabled={!cartCost?.items?.length}
 							fullWidth
-							onPress={() => navigate({ to: "store.cart" })}
+							onPress={openCart}
 							variant="primary"
 						>
 							{t("common:goToCart")} {formatter.price(cartCost.cost)}
@@ -120,7 +123,7 @@ export default function BalasiCatalogPage() {
 					isDisabled={!cartCost?.items?.length}
 					fullWidth
 					size="lg"
-					onPress={() => navigate({ to: "store.cart" })}
+					onPress={openCart}
 				>
 					{t("common:goToCart")} {formatter.price(cartCost.cost)}
 				</Button>

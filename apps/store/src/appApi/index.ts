@@ -2104,6 +2104,12 @@ export const useAppApi = () => {
 					companyId: companyId,
 					companyName: company?.name,
 				});
+
+				// Balasi storefront: surface the cart drawer when an item is added so
+				// the customer sees their cart pop up (scoped to balasi/tester only).
+				if (store?.id === "balasistore_store" || store?.id === "tester_store") {
+					actions.dispatch(actions.ui.openCartDrawer());
+				}
 			},
 			async removeItemFromCart({ product }: { product: TProduct }) {
 				if (!isValidUser) {
