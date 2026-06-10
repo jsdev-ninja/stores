@@ -426,6 +426,52 @@ export default function AdminOrderPageNew() {
 											{order.client.companyName}
 										</p>
 									)}
+									{/* B2B buyer details captured at checkout */}
+									{order?.companyName && (
+										<p>
+											<span className="font-medium">שם החברה:</span>{" "}
+											{order.companyName}
+										</p>
+									)}
+									{order?.companyNumber && (
+										<p>
+											<span className="font-medium">ח.פ / עוסק מורשה:</span>{" "}
+											{order.companyNumber}
+										</p>
+									)}
+									{order?.contact?.fullName && (
+										<p>
+											<span className="font-medium">איש קשר:</span>{" "}
+											{order.contact.fullName}
+											{order.contact.role ? ` (${order.contact.role})` : ""}
+										</p>
+									)}
+									{order?.contact?.phone && (
+										<p>
+											<span className="font-medium">טלפון איש קשר:</span>{" "}
+											{order.contact.phone}
+										</p>
+									)}
+									{order?.contact?.email && (
+										<p>
+											<span className="font-medium">מייל איש קשר:</span>{" "}
+											{order.contact.email}
+										</p>
+									)}
+									{order?.poNumber && (
+										<p>
+											<span className="font-medium">הזמנת רכש (PO):</span>{" "}
+											{order.poNumber}
+										</p>
+									)}
+									{order?.outOfStockPolicy && (
+										<p>
+											<span className="font-medium">חוסר במלאי:</span>{" "}
+											{order.outOfStockPolicy === "substitute"
+												? "להחליף למוצר דומה"
+												: "להסיר את הפריט"}
+										</p>
+									)}
 									{organization && (
 										<>
 											<p>

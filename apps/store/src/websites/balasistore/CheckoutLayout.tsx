@@ -20,6 +20,7 @@ import { getCartCost, TOrder } from "@jsdev_ninja/core";
 import { Form } from "src/components/Form";
 import { Button } from "src/components/button";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
+import { useFormContext } from "react-hook-form";
 import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
@@ -131,15 +132,19 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 								</span>
 							</VisualField>
 
-							{/* VISUAL-ONLY: company name (Phase 2 — needs Order schema) */}
-							<VisualField label="שם החברה" required>
-								<input className={FIELD_CLASS} placeholder="שם החברה" />
-							</VisualField>
+							{/* WIRED: company name → order.companyName */}
+							<Form.Input<TOrder>
+								name="companyName"
+								label="שם החברה"
+								placeholder="שם החברה"
+							/>
 
-							{/* VISUAL-ONLY: tax id (Phase 2 — needs Order schema) */}
-							<VisualField label="ח.פ / עוסק מורשה" required>
-								<input className={FIELD_CLASS} placeholder="מספר ח.פ / עוסק מורשה" />
-							</VisualField>
+							{/* WIRED: tax id → order.companyNumber */}
+							<Form.Input<TOrder>
+								name="companyNumber"
+								label="ח.פ / עוסק מורשה"
+								placeholder="מספר ח.פ / עוסק מורשה"
+							/>
 
 							{/* WIRED: name on invoice (unchanged field) */}
 							<Form.Input<TOrder> name="nameOnInvoice" label={t("common:nameOnInvoice")} />
@@ -150,26 +155,25 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 					<Section>
 						<SectionHead num="02" title="איש קשר" />
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-							{/* WIRED */}
+							{/* WIRED: contact person → order.contact */}
 							<Form.Input<TOrder>
 								placeholder={t("fullName")}
-								name="client.displayName"
+								name="contact.fullName"
 								label={t("fullName")}
 							/>
-							{/* VISUAL-ONLY: role/title (Phase 2) */}
-							<VisualField label="תפקיד">
-								<input className={FIELD_CLASS} placeholder="לדוגמה: מנהלת משרד" />
-							</VisualField>
-							{/* WIRED */}
+							<Form.Input<TOrder>
+								name="contact.role"
+								label="תפקיד"
+								placeholder="לדוגמה: מנהלת משרד"
+							/>
 							<Form.Input<TOrder>
 								placeholder={t("common:phone")}
-								name="client.phoneNumber"
+								name="contact.phone"
 								label={t("common:phone")}
 							/>
-							{/* WIRED */}
 							<Form.Input<TOrder>
 								placeholder={t("common:email")}
-								name="client.email"
+								name="contact.email"
 								label={t("common:email")}
 							/>
 						</div>
@@ -234,7 +238,7 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 							/>
 						</div>
 
-						{/* VISUAL-ONLY: payment method (Phase 3 — credit-terms / net-30) */}
+						{/* Payment method (display). Only credit card + bank transfer are offered. */}
 						<div className="mt-5">
 							<p className="mb-2 text-sm font-medium text-[var(--foreground)]">
 								אופן תשלום <span style={{ color: ORANGE }}>*</span>
@@ -250,17 +254,16 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 									title="🏦 העברה בנקאית"
 									subtitle="פרטי חשבון יישלחו לאחר אישור ההזמנה"
 								/>
-								{/* "שוטף + 30" (net-30) is intentionally NOT shown on the public
-								    site — owner's request. It belongs to Phase 3 (credit-terms
-								    payment), pending approval. Do not re-add here. */}
 							</div>
 						</div>
 
 						<div className="mt-5 grid grid-cols-1 gap-4">
-							{/* VISUAL-ONLY: PO number (Phase 2) */}
-							<VisualField label="הזמנת רכש (PO)">
-								<input className={FIELD_CLASS} placeholder="מספר הזמנת רכש" />
-							</VisualField>
+							{/* WIRED: PO number → order.poNumber */}
+							<Form.Input<TOrder>
+								name="poNumber"
+								label="הזמנת רכש (PO)"
+								placeholder="מספר הזמנת רכש"
+							/>
 						</div>
 					</Section>
 
@@ -270,15 +273,16 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 						<p className="mb-3 text-[13px] text-[var(--muted)]">
 							איך לנהוג אם מוצר אינו זמין בעת ההכנה?
 						</p>
-						{/* VISUAL-ONLY: substitution policy (Phase 2) */}
+						{/* WIRED: substitution policy → order.outOfStockPolicy (default "substitute") */}
 						<div className="space-y-3">
 							<StockOption
+								value="substitute"
 								title="✅ החליפו למוצר דומה"
 								subtitle="אם מוצר חסר, נשלח לכם תחליף קרוב באותו מחיר או זול יותר"
 								badge="מומלץ"
-								defaultChecked
 							/>
 							<StockOption
+								value="remove"
 								title="❌ אל תחליפו — הסירו את הפריט"
 								subtitle="אם מוצר חסר, פשוט אל תכללו אותו במשלוח. תקבלו זיכוי על הסכום"
 							/>
@@ -315,29 +319,22 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 	);
 }
 
-/* ---------- VISUAL-ONLY presentational sub-components (Phase 2/3) ---------- */
+/* ---------- presentational sub-components ---------- */
 
 function PaymentOption({
 	title,
 	subtitle,
 	badge,
-	highlighted,
 	defaultChecked,
 }: {
 	title: string;
 	subtitle: string;
 	badge?: string;
-	highlighted?: boolean;
 	defaultChecked?: boolean;
 }) {
 	return (
 		<label
-			className="flex cursor-pointer items-center justify-between gap-3 rounded-[10px] border px-4 py-3"
-			style={{
-				borderColor: highlighted ? "#1b7a3d" : "var(--border)",
-				borderStyle: highlighted ? "dashed" : "solid",
-				background: highlighted ? "#eef7f0" : "transparent",
-			}}
+			className="flex cursor-pointer items-center justify-between gap-3 rounded-[10px] border border-[var(--border)] px-4 py-3"
 		>
 			<div>
 				<div className="flex items-center gap-2">
@@ -359,16 +356,18 @@ function PaymentOption({
 }
 
 function StockOption({
+	value,
 	title,
 	subtitle,
 	badge,
-	defaultChecked,
 }: {
+	value: "substitute" | "remove";
 	title: string;
 	subtitle: string;
 	badge?: string;
-	defaultChecked?: boolean;
 }) {
+	// Form-bound radio → writes to order.outOfStockPolicy via the shared <Form>.
+	const methods = useFormContext();
 	return (
 		<label className="flex cursor-pointer items-center justify-between gap-3 rounded-[10px] border border-[var(--border)] px-4 py-3">
 			<div>
@@ -380,7 +379,7 @@ function StockOption({
 				</div>
 				<p className="text-[12px] text-[var(--muted)]">{subtitle}</p>
 			</div>
-			<input type="radio" name="balasi-stock-visual" defaultChecked={defaultChecked} />
+			<input type="radio" value={value} {...methods.register("outOfStockPolicy")} />
 		</label>
 	);
 }

@@ -60,6 +60,19 @@ export const OrderSchema = z.object({
 	emailOnInvoice: z.string().email().optional(),
 	phoneNumberOnInvoice: z.string().optional(),
 	clientComment: z.string().optional(),
+	// --- B2B buyer details (optional, additive — back-compat) ---
+	companyName: z.string().optional(),
+	companyNumber: z.string().optional(), // ח.פ / עוסק מורשה (aligns with Organization.companyNumber)
+	contact: z
+		.object({
+			fullName: z.string().optional(),
+			role: z.string().optional(), // תפקיד
+			phone: z.string().optional(),
+			email: z.string().optional(),
+		})
+		.optional(),
+	poNumber: z.string().optional(), // הזמנת רכש
+	outOfStockPolicy: z.enum(["substitute", "remove"]).optional(),
 	organizationId: z.string().optional(),
 	billingAccount: BillingAccountSchema.optional(),
 	deliveryNote: DeliveryNoteSchema.optional(),
