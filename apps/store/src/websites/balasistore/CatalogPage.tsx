@@ -68,7 +68,7 @@ export default function BalasiCatalogPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-[var(--background)]" dir="rtl">
+		<div className="min-h-screen bg-[#ece5d4]" dir="rtl">
 			<div className="flex w-full items-start">
 				{/* Main content — to the RIGHT of the cart in RTL */}
 				<div className="grow min-w-0">
