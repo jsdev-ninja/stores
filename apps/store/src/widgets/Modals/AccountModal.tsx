@@ -16,7 +16,7 @@ export function AccountModal() {
 			}}
 		>
 			<Modal.Container size="lg" placement="center">
-				<Modal.Dialog className="overflow-hidden rounded-2xl p-0">
+				<Modal.Dialog className="w-[94vw] max-w-[820px] overflow-hidden rounded-2xl p-0">
 					<div className="max-h-[88vh] overflow-y-auto" dir="rtl">
 						<Suspense fallback={null}>
 							<AccountContent onClose={close} />
