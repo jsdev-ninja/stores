@@ -14,6 +14,7 @@
 
 import { getCartCost } from "@jsdev_ninja/core";
 import { useTranslation } from "react-i18next";
+import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { ProductRender } from "src/components/renders/ProductRender/ProductRender";
 import { useCart } from "src/domains/cart";
@@ -21,8 +22,8 @@ import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
 import { formatter } from "src/utils/formatter";
-import { Cart } from "src/widgets/Cart/Cart";
 import { ProductsWidget } from "src/widgets/Products";
+import { BALASI_ORANGE, BalasiCartEmpty, BalasiCartItemList } from "./cart/BalasiCartParts";
 import { useCatalogAside } from "./useCatalogAside";
 import { CatalogAside } from "./catalog/CatalogAside";
 import { CatalogRowHead } from "./catalog/CatalogRowHead";
@@ -32,6 +33,7 @@ export default function BalasiCatalogPage() {
 	const store = useStore();
 	const cart = useCart();
 	const discounts = useDiscounts();
+	const appApi = useAppApi();
 	const { isAsideOpen, toggleAside, closeAside } = useCatalogAside();
 
 	if (!store) return null;
@@ -98,8 +100,23 @@ export default function BalasiCatalogPage() {
 
 				{/* Desktop cart — LAST child → LEFT in RTL. Sticky, not fixed. */}
 				<aside className="hidden xl:flex w-80 shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--surface)]">
-					<div className="grow h-full overflow-auto">
-						<Cart />
+					<div className="grow h-full overflow-auto px-4 pt-4">
+						<div
+							className="mb-2 text-[12px] font-bold tracking-[0.12em]"
+							style={{ color: BALASI_ORANGE }}
+						>
+							הסל שלי
+						</div>
+						{cartCost.items?.length ? (
+							<BalasiCartItemList
+								items={cartCost.items}
+								onRemove={(product) =>
+									appApi.user.updateCartItemAmount({ product, amount: 0 })
+								}
+							/>
+						) : (
+							<BalasiCartEmpty />
+						)}
 					</div>
 					<div className="p-4 shrink-0 border-t border-[var(--border)]">
 						<Button
