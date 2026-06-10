@@ -23,7 +23,12 @@ import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
 import { formatter } from "src/utils/formatter";
 import { ProductsWidget } from "src/widgets/Products";
-import { BALASI_ORANGE, BalasiCartEmpty, BalasiCartItemList } from "./cart/BalasiCartParts";
+import {
+	BALASI_ORANGE,
+	BalasiCartEmpty,
+	BalasiCartFooter,
+	BalasiCartItemList,
+} from "./cart/BalasiCartParts";
 import { useCatalogAside } from "./useCatalogAside";
 import { CatalogAside } from "./catalog/CatalogAside";
 import { CatalogRowHead } from "./catalog/CatalogRowHead";
@@ -45,6 +50,10 @@ export default function BalasiCatalogPage() {
 		freeDeliveryPrice: store.freeDeliveryPrice,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
+
+	const cartItemCount = (cartCost.items ?? []).reduce((sum, item) => sum + item.amount, 0);
+	const freeDeliveryPrice = store.freeDeliveryPrice ?? 0;
+	const hasItems = !!cartCost.items?.length;
 
 	return (
 		<div className="min-h-screen bg-[var(--background)]" dir="rtl">
@@ -98,16 +107,26 @@ export default function BalasiCatalogPage() {
 					</ProductsWidget>
 				</div>
 
-				{/* Desktop cart — LAST child → LEFT in RTL. Sticky, not fixed. */}
+				{/* Desktop cart — LAST child → LEFT in RTL. Sticky, not fixed.
+				    Same design language as the cart drawer: dark header band,
+				    shared item rows, free-shipping bar + summary footer. */}
 				<aside className="hidden xl:flex w-80 shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--surface)]">
-					<div className="grow h-full overflow-auto px-4 pt-4">
+					{/* Dark header band */}
+					<div className="shrink-0 bg-[var(--foreground)] px-5 py-4 text-white">
 						<div
-							className="mb-2 text-[12px] font-bold tracking-[0.12em]"
+							className="text-[12px] font-bold tracking-[0.12em]"
 							style={{ color: BALASI_ORANGE }}
 						>
 							הסל שלי
 						</div>
-						{cartCost.items?.length ? (
+						<div className="text-[18px] font-black leading-tight">
+							{cartItemCount} פריטים
+						</div>
+					</div>
+
+					{/* Items / empty */}
+					<div className="grow overflow-auto px-4 py-3">
+						{hasItems ? (
 							<BalasiCartItemList
 								items={cartCost.items}
 								onRemove={(product) =>
@@ -118,16 +137,22 @@ export default function BalasiCatalogPage() {
 							<BalasiCartEmpty />
 						)}
 					</div>
-					<div className="p-4 shrink-0 border-t border-[var(--border)]">
-						<Button
-							isDisabled={!cartCost?.items?.length}
-							fullWidth
-							onPress={() => navigate({ to: "store.cart" })}
-							variant="primary"
-						>
-							{t("common:goToCart")} {formatter.price(cartCost.cost)}
-						</Button>
-					</div>
+
+					{/* Footer: free-shipping + summary + CTA */}
+					{hasItems && (
+						<div className="shrink-0 border-t border-[var(--border)] px-4 py-4">
+							<BalasiCartFooter cartCost={cartCost} freeDeliveryPrice={freeDeliveryPrice}>
+								<button
+									type="button"
+									onClick={() => navigate({ to: "store.cart" })}
+									className="flex w-full items-center justify-center gap-2 rounded-md bg-[var(--foreground)] py-3.5 text-[15px] font-bold text-white transition-opacity hover:opacity-90"
+								>
+									<span>מעבר לעגלה</span>
+									<span aria-hidden>←</span>
+								</button>
+							</BalasiCartFooter>
+						</div>
+					)}
 				</aside>
 			</div>
 
