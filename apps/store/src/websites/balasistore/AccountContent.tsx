@@ -55,6 +55,14 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 		navigate({ to, params } as Parameters<typeof navigate>[0]);
 	}
 
+	// Go to the storefront home and scroll to the FAQ section.
+	function openFaq() {
+		go("store");
+		setTimeout(() => {
+			document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+		}, 150);
+	}
+
 	// Orders placed in the current calendar month.
 	const now = new Date();
 	const ordersThisMonth = orders.filter((o) => {
@@ -134,42 +142,19 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 			</header>
 
 			<main className="mx-auto max-w-[900px] px-4 pb-10">
-				{/* ---- Stats --------------------------------------------------- */}
-				<section className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
-					<StatCard label="הזמנות החודש" value={ordersThisMonth} accent={GREEN} />
-					<StatCard label="מועדפים" value={favorites.length} accent={ORANGE} />
-					<StatCard label="סה״כ הזמנות" value={orders.length} accent={GREEN} />
-				</section>
-
-				{/* ---- Quick actions ------------------------------------------ */}
-				<section className="mt-10">
-					<h2 className="mb-4 text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
-						פעולות מהירות
-					</h2>
-					<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-						<QuickAction
-							icon="🛒"
-							title="הזמנה חדשה"
-							subtitle="גלשו בקטלוג והזמינו"
-							onClick={() => go("store.catalog")}
-						/>
-						<QuickAction
-							icon="📦"
-							title="ההזמנות שלי"
-							subtitle="מעקב והיסטוריה"
-							onClick={() => go("store.orders")}
-						/>
-						<QuickAction
-							icon="❤️"
-							title="המועדפים שלי"
-							subtitle="המוצרים שאהבתם"
-							onClick={() => go("store.favoritesProducts")}
-						/>
+				{/* ---- Stats (segmented bar, like the original) --------------- */}
+				<section className="mt-6">
+					<div className="flex overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+						<Stat label="הזמנות החודש" value={ordersThisMonth} accent={GREEN} />
+						<span className="w-px self-stretch bg-[var(--border)]" aria-hidden />
+						<Stat label="מועדפים" value={favorites.length} accent={ORANGE} />
+						<span className="w-px self-stretch bg-[var(--border)]" aria-hidden />
+						<Stat label="סה״כ הזמנות" value={orders.length} accent={GREEN} />
 					</div>
 				</section>
 
 				{/* ---- Previous orders ----------------------------------------- */}
-				<section className="mt-10">
+				<section className="mt-8">
 					<h2 className="mb-4 text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
 						הזמנות קודמות
 					</h2>
@@ -185,6 +170,39 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 							))}
 						</div>
 					)}
+				</section>
+
+				{/* ---- Quick actions (4, like the original) ------------------- */}
+				<section className="mt-8">
+					<h2 className="mb-4 text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
+						פעולות מהירות
+					</h2>
+					<div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+						<QuickAction
+							icon="🛒"
+							title="הזמנה חדשה"
+							subtitle="גלשו בקטלוג והזמינו"
+							onClick={() => go("store.catalog")}
+						/>
+						<QuickAction
+							icon="🎁"
+							title="חבילות מוכנות"
+							subtitle="חסכו זמן עם סלים מוכנים"
+							onClick={() => go("store.catalog")}
+						/>
+						<QuickAction
+							icon="❓"
+							title="שאלות נפוצות"
+							subtitle="תשובות לשאלות הכי שכיחות"
+							onClick={openFaq}
+						/>
+						<QuickAction
+							icon="💬"
+							title="צור קשר"
+							subtitle="שירות לקוחות בוואטסאפ"
+							onClick={() => window.open("https://wa.me/", "_blank")}
+						/>
+					</div>
 				</section>
 
 				{/* ---- Personal details (preserves edit functionality) -------- */}
@@ -223,14 +241,14 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 	);
 }
 
-function StatCard({ label, value, accent }: { label: string; value: number; accent: string }) {
+function Stat({ label, value, accent }: { label: string; value: number; accent: string }) {
 	return (
-		<div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 text-center shadow-sm">
-			<div className="text-[32px] font-black leading-none" style={{ color: accent }}>
-				{value}
-			</div>
-			<div className="mt-2 text-[12px] font-semibold tracking-[0.02em] text-[var(--muted)]">
+		<div className="flex-1 px-2 py-4 text-center">
+			<div className="text-[12px] font-semibold tracking-[0.02em] text-[var(--muted)]">
 				{label}
+			</div>
+			<div className="mt-1.5 text-[28px] font-black leading-none" style={{ color: accent }}>
+				{value}
 			</div>
 		</div>
 	);
