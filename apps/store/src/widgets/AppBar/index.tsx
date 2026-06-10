@@ -10,6 +10,7 @@ import { useAppApi } from "src/appApi";
 import { useStore } from "src/domains/Store";
 import { WebsiteLogo } from "../WebsiteLogo";
 import { OrgPicker } from "../OrgPicker/OrgPicker";
+import { BalasiCartButton } from "src/websites/balasistore/CartDrawer";
 
 // Stores whose personal area opens as a popup dialog instead of a full page.
 const ACCOUNT_MODAL_STORES = ["balasistore_store", "tester_store"];
@@ -125,6 +126,9 @@ export function AppBar() {
 
         {/* End actions */}
         <ul className="flex items-center gap-2 list-none m-0 p-0">
+          <li>
+            <BalasiCartButton />
+          </li>
           <li>
             <OrgPicker />
           </li>
