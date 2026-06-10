@@ -90,8 +90,6 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 		}
 	}
 
-	if (!profile) return null;
-
 	return (
 		<div dir="rtl" className="bg-[var(--background)]">
 			{/* ---- Header band ------------------------------------------------ */}
@@ -206,36 +204,38 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 				</section>
 
 				{/* ---- Personal details (preserves edit functionality) -------- */}
-				<section className="mt-10">
-					<div className="mb-4 flex items-center justify-between">
-						<h2 className="text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
-							פרטים אישיים
-						</h2>
-						{!isEditing && (
-							<button
-								type="button"
-								onClick={() => setIsEditing(true)}
-								className="cursor-pointer text-[13px] font-bold underline"
-								style={{ color: GREEN }}
-							>
-								עריכת פרטים
-							</button>
-						)}
-					</div>
+				{profile && (
+					<section className="mt-10">
+						<div className="mb-4 flex items-center justify-between">
+							<h2 className="text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
+								פרטים אישיים
+							</h2>
+							{!isEditing && (
+								<button
+									type="button"
+									onClick={() => setIsEditing(true)}
+									className="cursor-pointer text-[13px] font-bold underline"
+									style={{ color: GREEN }}
+								>
+									עריכת פרטים
+								</button>
+							)}
+						</div>
 
-					<div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-						{isEditing ? (
-							<ProfileForm
-								profile={profile}
-								onSave={handleSave}
-								onCancel={() => setIsEditing(false)}
-								isSaving={isSaving}
-							/>
-						) : (
-							<ProfileView profile={profile} />
-						)}
-					</div>
-				</section>
+						<div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
+							{isEditing ? (
+								<ProfileForm
+									profile={profile}
+									onSave={handleSave}
+									onCancel={() => setIsEditing(false)}
+									isSaving={isSaving}
+								/>
+							) : (
+								<ProfileView profile={profile} />
+							)}
+						</div>
+					</section>
+				)}
 			</main>
 		</div>
 	);
