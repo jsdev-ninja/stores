@@ -650,29 +650,27 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 
 	// Pull all delivery notes for the tenant (all-time) and keep only this org's.
 	// Reuses the same admin read API the delivery-notes page uses — no backend change.
-	const loadDeliveryNotes = useCallback(
-		async (orgId: string) => {
-			setIsLoading(true);
-			try {
-				const result = await appApi.admin.getDeliveryNotes({
-					fromDate: 0,
-					toDate: Date.now(),
-				});
-				if (result?.success) {
-					const forOrg = (result.data || []).filter(
-						(o) => o.organizationId === orgId,
-					);
-					forOrg.sort((a, b) => dnDate(b) - dnDate(a));
-					setDeliveryNotes(forOrg);
-				}
-			} catch (error) {
-				console.error("Failed to load ledger delivery notes:", error);
-			} finally {
-				setIsLoading(false);
+	const loadDeliveryNotes = useCallback(async (orgId: string) => {
+		setIsLoading(true);
+		try {
+			const result = await appApi.admin.getDeliveryNotes({
+				fromDate: 0,
+				toDate: Date.now(),
+			});
+			if (result?.success) {
+				const forOrg = (result.data || []).filter(
+					(o) => o.organizationId === orgId,
+				);
+				forOrg.sort((a, b) => dnDate(b) - dnDate(a));
+				setDeliveryNotes(forOrg);
 			}
-		},
-		[appApi],
-	);
+		} catch (error) {
+			console.error("Failed to load ledger delivery notes:", error);
+		} finally {
+			setIsLoading(false);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi is re-created each render but stable in behavior
+	}, []);
 
 	useEffect(() => {
 		if (state.kind !== "open") return;
@@ -680,7 +678,8 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 		setDeliveryNotes([]);
 		setSelectedDnIds(new Set());
 		loadDeliveryNotes(state.org.id);
-	}, [state, loadDeliveryNotes]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- run once per modal open (keyed on state)
+	}, [state]);
 
 	const dnTotalSum = deliveryNotes.reduce((sum, o) => sum + dnTotal(o), 0);
 
