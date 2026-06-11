@@ -26,6 +26,23 @@ export const onOrderPlacedCloseCart = subscribe(
 			return;
 		}
 
+		// A "draft" order is an unpaid checkout that has been (or is about to be)
+		// redirected to the online payment gateway (J5). We must NOT close the cart
+		// yet: if the customer presses "back" to add more products, their cart has
+		// to survive. The cart is closed only once payment is actually confirmed —
+		// see markOrderPaidOnTransactionPosted (closes the cart on hyp_j5_auth).
+		if (event.payload.status === "draft") {
+			logger.info(
+				"closeCartOnOrderPlaced: order is a draft (payment pending), keeping cart open",
+				{
+					orderId: event.payload.orderId,
+					cartId: event.payload.cartId,
+					eventId: event.id,
+				},
+			);
+			return;
+		}
+
 		const appApi = createAppApi({
 			storeId: ctx.storeId,
 			companyId: ctx.companyId,

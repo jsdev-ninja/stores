@@ -140,6 +140,23 @@ export const useAppApi = () => {
 					doc: order,
 				});
 			},
+			// Checkout writes the order BEFORE redirecting to the payment gateway.
+			// Use an upsert (not a create-and-bail) so that if the customer goes
+			// back, edits the cart and checks out again, the still-unpaid draft
+			// order is refreshed to match the new cart instead of keeping the stale
+			// snapshot. Idempotent against rage-clicks (deterministic cart.id).
+			upsertCheckoutOrder: async ({ order }: { order: TOrder }) => {
+				if (!isValidUser) return;
+
+				return await FirebaseApi.firestore.upsertOrderV2({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					doc: order,
+				});
+			},
 		},
 		contactForm: {
 			submit: async (data: {

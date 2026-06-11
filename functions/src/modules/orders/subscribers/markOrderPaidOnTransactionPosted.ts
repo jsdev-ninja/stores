@@ -180,6 +180,36 @@ export const onTransactionPostedMarkOrderPaid = subscribe(
 				previousStatus: currentStatus ?? null,
 				nextStatus,
 			});
+
+			// 9. Close the cart for a confirmed online checkout payment (J5 auth).
+			// The cart was deliberately LEFT OPEN when the draft order was created
+			// (see closeCartOnOrderPlaced) so the customer could go back and edit it
+			// before paying. Now that payment is confirmed, close it. Best-effort:
+			// a failure here must NOT fail the paymentStatus write (which would
+			// needlessly retry the whole event) — so it is caught and logged.
+			if (payload.type === "hyp_j5_auth" && order.cart?.id) {
+				const cartPath = FirebaseAPI.firestore.getPath({
+					companyId,
+					storeId,
+					collectionName: "cart",
+					id: order.cart.id,
+				});
+				try {
+					await db.doc(cartPath).set({ status: "completed" }, { merge: true });
+					logger.info("markOrderPaidOnTransactionPosted: cart closed", {
+						eventId,
+						orderId,
+						cartId: order.cart.id,
+					});
+				} catch (cartErr) {
+					logger.warn("markOrderPaidOnTransactionPosted: failed to close cart", {
+						eventId,
+						orderId,
+						cartId: order.cart.id,
+						err: cartErr,
+					});
+				}
+			}
 		} catch (err) {
 			logger.error("markOrderPaidOnTransactionPosted: failed", {
 				eventId,

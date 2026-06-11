@@ -105,6 +105,50 @@ async function createV2<T extends { id?: string }>(data: {
 	}
 }
 
+// Idempotent write for the checkout order. The order id is deterministic
+// (cart.id), so:
+//   - First submit  → the doc does not exist → create it (fires onOrderCreated once).
+//   - Re-submit      → the doc already exists and is still unpaid → refresh it so it
+//                      reflects the LATEST cart (customer went back, edited the cart,
+//                      and checked out again). Without this, the added/removed
+//                      products would be dropped and the customer charged the stale total.
+// A paid order is never touched — re-submitting can't clobber a completed payment.
+async function upsertOrderV2<T extends { id?: string; paymentStatus?: string }>(data: {
+	collection: string;
+	doc: T;
+}) {
+	const PAID_PAYMENT_STATUSES = ["pending_j5", "completed", "refunded"];
+	try {
+		return await runTransaction(
+			db,
+			async (transaction) => {
+				const docRef = doc(db, data.collection, data.doc.id ?? generateDocId(data.collection));
+
+				const docSnapshot = await transaction.get(docRef);
+
+				if (docSnapshot.exists()) {
+					const existing = docSnapshot.data() as { paymentStatus?: string };
+					if (existing.paymentStatus && PAID_PAYMENT_STATUSES.includes(existing.paymentStatus)) {
+						// Already paid — leave the order untouched.
+						return { success: true, docId: docRef.id };
+					}
+					// Unpaid draft — refresh it to match the current cart.
+					transaction.set(docRef, removeUndefinedFields(data.doc), { merge: true });
+					return { success: true, docId: docRef.id };
+				}
+
+				// First submit — create the order (the onOrderCreated trigger fires once).
+				transaction.set(docRef, removeUndefinedFields(data.doc));
+				return { success: true, docId: docRef.id };
+			},
+			{ maxAttempts: 1 }
+		);
+	} catch (error) {
+		console.error("Error upserting document with transaction:", error);
+		return { success: false, docId: "" };
+	}
+}
+
 async function create(item: any, coll: any) {
 	try {
 		const docRef = await addDoc(collection(db, coll), item);
@@ -342,6 +386,7 @@ export const firestore = {
 	subscribeList,
 	createV2,
 	setV2,
+	upsertOrderV2,
 	listV2,
 	update,
 	arrayUnion,
