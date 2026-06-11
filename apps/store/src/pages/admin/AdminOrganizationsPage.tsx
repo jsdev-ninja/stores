@@ -810,7 +810,16 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 									/>
 								</div>
 							) : showDeliveryNotes && deliveryNotes.length > 0 ? (
-								<div className="overflow-hidden rounded-lg border border-[var(--border)]">
+								<div className="flex flex-col gap-2">
+									{invoiceableNotes.length > 0 && (
+										<div className="flex items-center gap-2 px-1 text-sm text-[var(--muted)]">
+											<Icon icon="lucide:mouse-pointer-click" width={14} height={14} />
+											<span>
+												סמנו תעודות משלוח (לחיצה על השורה) ואז לחצו "הפק חשבונית מרוכזת"
+											</span>
+										</div>
+									)}
+									<div className="overflow-hidden rounded-lg border border-[var(--border)]">
 									<table className="w-full text-sm">
 										<thead>
 											<tr className="bg-[var(--background)] text-[11px] font-bold uppercase tracking-wide text-[var(--muted)] text-start">
@@ -843,14 +852,23 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 												return (
 													<tr
 														key={o.id}
+														onClick={
+															invoiced
+																? undefined
+																: () => toggleSelectOne(o.id, !selectedDnIds.has(o.id))
+														}
 														className={[
 															"border-t border-[var(--border)] hover:bg-[var(--background)] transition-colors",
+															invoiced ? "" : "cursor-pointer",
 															selectedDnIds.has(o.id)
 																? "bg-[color-mix(in_oklab,var(--accent)_8%,transparent)]"
 																: "",
 														].join(" ")}
 													>
-														<td className="px-3 py-2">
+														<td
+															className="px-3 py-2"
+															onClick={(e) => e.stopPropagation()}
+														>
 															<Checkbox
 																isSelected={selectedDnIds.has(o.id)}
 																isDisabled={invoiced}
@@ -888,7 +906,10 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 																<span className="text-[var(--muted)]">—</span>
 															)}
 														</td>
-														<td className="px-3 py-2 text-end">
+														<td
+															className="px-3 py-2 text-end"
+															onClick={(e) => e.stopPropagation()}
+														>
 															{pdf ? (
 																<a
 																	href={pdf}
@@ -918,6 +939,7 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 											</tr>
 										</tfoot>
 									</table>
+									</div>
 								</div>
 							) : (
 								<div className="py-10 text-center text-[var(--muted)]">
