@@ -294,101 +294,122 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 					<Modal.Body>
 						{/* ── Details Tab ── */}
 						{(isNew || tab === "details") && (
-							<div className="grid grid-cols-2 gap-x-4 gap-y-4">
-								<div className="flex flex-col gap-1 col-span-2">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										שם החברה <span className="text-[var(--danger)]">*</span>
-									</label>
-									<Input
-										value={form.name}
-										onChange={(e) => handleFieldChange("name", e.target.value)}
-										placeholder="שם החברה"
-									/>
+							<div className="flex flex-col gap-6">
+								{/* Identity */}
+								<div className="grid grid-cols-2 gap-x-4 gap-y-4">
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											שם החברה <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={form.name}
+											onChange={(e) => handleFieldChange("name", e.target.value)}
+											placeholder="שם החברה"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											ח.פ <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={form.companyNumber}
+											onChange={(e) => handleFieldChange("companyNumber", e.target.value)}
+											placeholder="מספר חברה"
+										/>
+									</div>
 								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										ח.פ
-									</label>
-									<Input
-										value={form.companyNumber}
-										onChange={(e) => handleFieldChange("companyNumber", e.target.value)}
-										placeholder="מספר חברה"
-									/>
+
+								{/* Address */}
+								<div className="flex flex-col gap-3">
+									<h4 className="text-xs font-bold text-[var(--foreground)] uppercase tracking-wide">
+										כתובת
+									</h4>
+									<div className="grid grid-cols-2 gap-x-4 gap-y-4">
+										<div className="flex flex-col gap-1">
+											<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+												כתובת ראשית
+											</label>
+											<Input
+												value={form.street}
+												onChange={(e) => handleFieldChange("street", e.target.value)}
+												placeholder="רחוב"
+											/>
+										</div>
+										<div className="flex flex-col gap-1">
+											<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+												עיר
+											</label>
+											<Input
+												value={form.city}
+												onChange={(e) => handleFieldChange("city", e.target.value)}
+												placeholder="עיר"
+											/>
+										</div>
+										<div className="flex flex-col gap-1">
+											<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+												מספר
+											</label>
+											<Input
+												value={form.streetNumber}
+												onChange={(e) => handleFieldChange("streetNumber", e.target.value)}
+												placeholder="מספר"
+											/>
+										</div>
+									</div>
 								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										עיר
-									</label>
-									<Input
-										value={form.city}
-										onChange={(e) => handleFieldChange("city", e.target.value)}
-										placeholder="עיר"
-									/>
-								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										רחוב
-									</label>
-									<Input
-										value={form.street}
-										onChange={(e) => handleFieldChange("street", e.target.value)}
-										placeholder="רחוב"
-									/>
-								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										מספר
-									</label>
-									<Input
-										value={form.streetNumber}
-										onChange={(e) => handleFieldChange("streetNumber", e.target.value)}
-										placeholder="מספר"
-									/>
-								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										תנאי תשלום
-									</label>
-									<Select
-										selectedKey={form.paymentType}
-										onSelectionChange={(k) => handleFieldChange("paymentType", k as string)}
-										aria-label="תנאי תשלום"
-									>
-										<Select.Trigger>
-											<Select.Value />
-											<Select.Indicator />
-										</Select.Trigger>
-										<Select.Popover>
-											<ListBox>
-												<ListBox.Item id="j5" textValue="J5">J5</ListBox.Item>
-												<ListBox.Item id="external" textValue="תשלום חיצוני">תשלום חיצוני</ListBox.Item>
-												<ListBox.Item id="none" textValue="לא מוגדר">לא מוגדר</ListBox.Item>
-											</ListBox>
-										</Select.Popover>
-									</Select>
-								</div>
-								<div className="flex flex-col gap-1">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										% הנחה
-									</label>
-									<Input
-										type="number"
-										value={form.discountPercentage}
-										onChange={(e) => handleFieldChange("discountPercentage", e.target.value)}
-										placeholder="0"
-										min="0"
-										max="100"
-									/>
-								</div>
-								<div className="flex flex-col gap-1 col-span-2">
-									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
-										שם בחשבונית
-									</label>
-									<Input
-										value={form.nameOnInvoice}
-										onChange={(e) => handleFieldChange("nameOnInvoice", e.target.value)}
-										placeholder="שם כפי שיופיע בחשבונית"
-									/>
+
+								{/* Billing terms */}
+								<div className="flex flex-col gap-3">
+									<h4 className="text-xs font-bold text-[var(--foreground)] uppercase tracking-wide">
+										תנאי חיוב
+									</h4>
+									<div className="grid grid-cols-2 gap-x-4 gap-y-4">
+										<div className="flex flex-col gap-1">
+											<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+												תנאי תשלום
+											</label>
+											<Select
+												selectedKey={form.paymentType}
+												onSelectionChange={(k) => handleFieldChange("paymentType", k as string)}
+												aria-label="תנאי תשלום"
+											>
+												<Select.Trigger>
+													<Select.Value />
+													<Select.Indicator />
+												</Select.Trigger>
+												<Select.Popover>
+													<ListBox>
+														<ListBox.Item id="j5" textValue="J5">J5</ListBox.Item>
+														<ListBox.Item id="external" textValue="תשלום חיצוני">תשלום חיצוני</ListBox.Item>
+														<ListBox.Item id="none" textValue="לא מוגדר">לא מוגדר</ListBox.Item>
+													</ListBox>
+												</Select.Popover>
+											</Select>
+										</div>
+										<div className="flex flex-col gap-1">
+											<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+												% הנחה
+											</label>
+											<Input
+												type="number"
+												value={form.discountPercentage}
+												onChange={(e) => handleFieldChange("discountPercentage", e.target.value)}
+												placeholder="0"
+												min="0"
+												max="100"
+											/>
+										</div>
+										<div className="flex flex-col gap-1 col-span-2">
+											<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+												שם בחשבונית
+											</label>
+											<Input
+												value={form.nameOnInvoice}
+												onChange={(e) => handleFieldChange("nameOnInvoice", e.target.value)}
+												placeholder="שם כפי שיופיע בחשבונית"
+											/>
+										</div>
+									</div>
 								</div>
 							</div>
 						)}
