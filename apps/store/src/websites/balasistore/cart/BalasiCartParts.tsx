@@ -40,8 +40,11 @@ function CartRow({ item }: { item: CartLine }) {
 	return (
 		<Product product={product}>
 			<div className="grid grid-cols-[60px_1fr_auto] items-center gap-4 border-b border-[var(--border)] py-5">
-				{/* Thumbnail — 60×60 dark square */}
-				<div className="grid size-[60px] place-items-center overflow-hidden bg-[var(--foreground)]">
+				{/* Thumbnail — 60×60 dark square. `flex` (not `grid place-items-center`)
+				    so the image's `h-full`/object-contain resolves against the box's
+				    definite 60px height — otherwise tall portrait product shots
+				    overflow the square and get clipped top/bottom. */}
+				<div className="flex size-[60px] items-center justify-center overflow-hidden bg-[var(--foreground)]">
 					<Product.Image />
 				</div>
 
