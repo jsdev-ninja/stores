@@ -932,7 +932,7 @@ export function AdminInventoryCertificatePage() {
 
 			{/* Save Confirmation Modal */}
 			<Modal.Backdrop isOpen={isSaveModalOpen} onOpenChange={setIsSaveModalOpen}>
-				<Modal.Container>
+				<Modal.Container size="lg" scroll="inside" placement="center">
 					<Modal.Dialog className="max-h-[85vh] flex flex-col">
 						<Modal.Header>
 							<Modal.Heading>
