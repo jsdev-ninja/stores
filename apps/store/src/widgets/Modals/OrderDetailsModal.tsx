@@ -145,6 +145,7 @@ export function OrderDetailsModal({
 		// New flow: a pending order is approved in one step → completed.
 		// For "external" the onOrderUpdate trigger creates the delivery note;
 		// for "j5" approveOrder charges the J5 hold first. (See approveOrder.)
+		// Picking — only for a pending order that's ready to be fulfilled.
 		if (order.status === "pending") {
 			els.push(
 				<Button
@@ -162,6 +163,12 @@ export function OrderDetailsModal({
 					{t("ordersPage:actions.picking", "📦 מצב ליקוט")}
 				</Button>,
 			);
+		}
+		// Edit — for "pending" AND "draft" ("לא הושלם") orders. A draft is an order
+		// whose payment never completed (e.g. the customer's cart was lost before
+		// paying). Exposing the edit button here lets the admin recover/fix such a
+		// stuck order instead of only being able to cancel it.
+		if (order.status === "pending" || order.status === "draft") {
 			els.push(
 				<Button
 					key="edit"
@@ -178,6 +185,9 @@ export function OrderDetailsModal({
 					{t("ordersPage:actions.editOrder", "✏️ ערוך הזמנה")}
 				</Button>,
 			);
+		}
+		// Approve — only for a pending order.
+		if (order.status === "pending") {
 			els.push(
 				<Button
 					key="approve"
