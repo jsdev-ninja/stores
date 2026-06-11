@@ -933,13 +933,13 @@ export function AdminInventoryCertificatePage() {
 			{/* Save Confirmation Modal */}
 			<Modal.Backdrop isOpen={isSaveModalOpen} onOpenChange={setIsSaveModalOpen}>
 				<Modal.Container>
-					<Modal.Dialog>
+					<Modal.Dialog className="max-h-[85vh] flex flex-col">
 						<Modal.Header>
 							<Modal.Heading>
 								{t("common:inventoryCertificatePage.saveModalTitle")}
 							</Modal.Heading>
 						</Modal.Header>
-						<Modal.Body>
+						<Modal.Body className="flex-1 min-h-0 overflow-y-auto">
 							<p className="text-gray-700 mb-4">
 								{t("common:inventoryCertificatePage.saveModalDescription")}
 							</p>
