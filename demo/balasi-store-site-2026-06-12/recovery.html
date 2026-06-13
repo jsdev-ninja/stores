@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>שחזור נתוני בלסי סטור</title>
+<style>
+  body { font-family:system-ui,sans-serif; background:#f6f5f1; padding:24px; line-height:1.6; max-width:900px; margin:0 auto; }
+  h1 { color:#1a1a17 }
+  .card { background:#fff; border:1px solid #e0dccd; padding:20px; margin:14px 0; border-radius:6px }
+  .ok { color:#1b7a3d; font-weight:700 }
+  .bad { color:#c43f2e; font-weight:700 }
+  .warn { color:#9a6f1d; font-weight:700 }
+  pre { background:#1a1a17; color:#fff; padding:12px; overflow:auto; font-size:11px; max-height:200px }
+  table { width:100%; border-collapse:collapse; margin:8px 0 }
+  td, th { padding:6px 10px; border-bottom:1px solid #eee; text-align:right; font-size:13px }
+  th { background:#f6f5f1 }
+  button { background:#d97757; color:#fff; padding:10px 18px; border:0; cursor:pointer; font-size:14px; font-weight:600; margin:4px; border-radius:4px }
+  button.ghost { background:#fff; color:#1a1a17; border:1px solid #e0dccd }
+  button.success { background:#1b7a3d }
+  button:hover { opacity:.85 }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center }
+  input[type=file] { margin:8px 0 }
+  details { margin:6px 0 }
+</style>
+</head>
+<body>
+
+<h1>🔍 כלי שחזור נתוני בלסי סטור</h1>
+<p>הדף הזה בודק מה קיים ב-localStorage ומציע אפשרויות שחזור. <b>אל תרענן או תסגור</b> עד שנפתור את הבעיה.</p>
+
+<div class="card">
+  <h2>שלב 1 — מה יש כרגע ב-localStorage?</h2>
+  <div id="currentState"></div>
+</div>
+
+<div class="card">
+  <h2>שלב 2 — תמונות מצב יומיות (אם קיימות)</h2>
+  <div id="snapshots"></div>
+</div>
+
+<div class="card">
+  <h2>שלב 3 — שחזור מקובץ JSON שהורדת בעבר</h2>
+  <p>אם הורדת קובץ JSON של גיבוי בעבר, גרור אותו לכאן או בחר קובץ:</p>
+  <input type="file" accept=".json" id="jsonFile" />
+  <div id="fileResult"></div>
+</div>
+
+<div class="card">
+  <h2>שלב 4 — מה לעשות?</h2>
+  <p id="recommendation"></p>
+</div>
+
+<script>
+const KEYS = ['companies','customers','products','orders','invoices','suppliers','deliveryNotes','receipts','credits','categories','supplierEntities','promotions','settings'];
+
+function counts(obj) {
+  if (!obj) return null;
+  const out = {};
+  KEYS.forEach(k => {
+    const v = obj[k];
+    out[k] = Array.isArray(v) ? v.length : (v && typeof v === 'object' ? '✓' : 0);
+  });
+  return out;
+}
+
+function renderState() {
+  const cur = {};
+  let any = false;
+  KEYS.forEach(k => {
+    try {
+      const raw = localStorage.getItem('admin_' + k);
+      const parsed = raw ? JSON.parse(raw) : null;
+      cur[k] = parsed;
+      if (parsed && (Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length)) any = true;
+    } catch (e) { cur[k] = null; }
+  });
+  const c = counts(cur);
+  const el = document.getElementById('currentState');
+  if (any) {
+    el.innerHTML = `
+      <p class="ok">✓ נתונים קיימים ב-localStorage:</p>
+      <table>
+        <tr><th>סוג</th><th>כמות</th></tr>
+        ${KEYS.map(k => `<tr><td>${k}</td><td><b>${c[k]}</b></td></tr>`).join('')}
+      </table>
+      <p>אם האדמין מציג טבלאות ריקות, זה באג ברנדור — לא איבוד נתונים.</p>
+    `;
+  } else {
+    el.innerHTML = `<p class="bad">⚠️ אין נתונים ב-localStorage</p><p>הנתונים נמחקו או נוקה הדפדפן. נבדוק תמונות מצב.</p>`;
+  }
+}
+
+function renderSnapshots() {
+  const snapshots = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('admin_snapshot_')) {
+      try {
+        const raw = localStorage.getItem(k);
+        const parsed = JSON.parse(raw);
+        const date = k.replace('admin_snapshot_', '');
+        snapshots.push({ key:k, date, data:parsed.data, savedAt:parsed.savedAt, size:raw.length });
+      } catch(e) {}
+    }
+  }
+  snapshots.sort((a,b) => b.date.localeCompare(a.date));
+  const el = document.getElementById('snapshots');
+  if (!snapshots.length) {
+    el.innerHTML = `<p class="warn">לא נמצאו תמונות מצב — או שלא נכנסת לאדמין מאז שהוספתי את הגיבוי האוטומטי, או שהדפדפן מנקה localStorage.</p>`;
+    return;
+  }
+  el.innerHTML = `
+    <p class="ok">✓ נמצאו ${snapshots.length} תמונות מצב:</p>
+    <table>
+      <tr><th>תאריך</th><th>חברות</th><th>לקוחות</th><th>מוצרים</th><th>הזמנות</th><th>חשבוניות</th><th>גודל</th><th>פעולה</th></tr>
+      ${snapshots.map(s => {
+        const c = counts(s.data);
+        return `<tr>
+          <td><b>${s.date}</b></td>
+          <td>${c.companies}</td>
+          <td>${c.customers}</td>
+          <td>${c.products}</td>
+          <td>${c.orders}</td>
+          <td>${c.invoices}</td>
+          <td>${Math.round(s.size/1024)} KB</td>
+          <td><button onclick="restoreFromSnapshot('${s.key}')">↩ שחזר</button>
+              <button class="ghost" onclick="downloadSnapshot('${s.key}')">📥 הורד</button></td>
+        </tr>`;
+      }).join('')}
+    </table>
+  `;
+}
+
+function restoreFromSnapshot(key) {
+  if (!confirm('האם להחזיר את הנתונים מהגיבוי הזה? הנתונים הנוכחיים יוחלפו.')) return;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key));
+    if (!parsed?.data) { alert('פורמט גיבוי לא תקין'); return; }
+    KEYS.forEach(k => {
+      if (parsed.data[k] !== undefined) {
+        localStorage.setItem('admin_' + k, JSON.stringify(parsed.data[k]));
+      }
+    });
+    alert('✓ הנתונים שוחזרו! פתח את האדמין ובדוק.');
+    location.reload();
+  } catch (e) { alert('שגיאה בשחזור: ' + e.message); }
+}
+
+function downloadSnapshot(key) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return;
+  const blob = new Blob([raw], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `balasi-recovery-${key.replace('admin_snapshot_','')}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+document.getElementById('jsonFile').addEventListener('change', (ev) => {
+  const f = ev.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed?.data) {
+        document.getElementById('fileResult').innerHTML = `<p class="bad">הקובץ לא בפורמט הצפוי — חסר שדה data</p>`;
+        return;
+      }
+      const c = counts(parsed.data);
+      document.getElementById('fileResult').innerHTML = `
+        <p class="ok">✓ הקובץ תקין. תוכן:</p>
+        <table>
+          <tr><th>סוג</th><th>כמות</th></tr>
+          ${KEYS.map(k => `<tr><td>${k}</td><td><b>${c[k]}</b></td></tr>`).join('')}
+        </table>
+        <button class="success" onclick='restoreFromFile(${JSON.stringify(JSON.stringify(parsed))})'>↩ שחזר את הנתונים האלו</button>
+      `;
+    } catch (err) {
+      document.getElementById('fileResult').innerHTML = `<p class="bad">שגיאה: ${err.message}</p>`;
+    }
+  };
+  reader.readAsText(f);
+});
+
+function restoreFromFile(jsonStr) {
+  if (!confirm('האם להחזיר את הנתונים מהקובץ? הנתונים הנוכחיים יוחלפו.')) return;
+  try {
+    const parsed = JSON.parse(jsonStr);
+    KEYS.forEach(k => {
+      if (parsed.data[k] !== undefined) {
+        localStorage.setItem('admin_' + k, JSON.stringify(parsed.data[k]));
+      }
+    });
+    alert('✓ הנתונים שוחזרו! פתח את האדמין.');
+  } catch (e) { alert('שגיאה: ' + e.message); }
+}
+
+renderState();
+renderSnapshots();
+</script>
+
+</body>
+</html>
