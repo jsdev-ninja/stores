@@ -49,6 +49,14 @@ Explain everything in plain, non-technical language. No code dumps.
 
 - Production domain: **storebrix.com**
 
+## Documentation — Single Source of Truth
+
+- **`apps/docs`** (Docusaurus site, dev server on port **5179**) is the **single source of truth** for all project documentation: architecture, modules, payment/ledger flows, conventions, runbooks, decisions.
+- When you learn or decide something durable about how the system works, **write it into `apps/docs`** — not scattered `docs/*.md`, ad-hoc notes, or only in CLAUDE.md.
+- Before answering architecture/flow questions, **consult `apps/docs` first**; if it's wrong or missing, update it as part of the task.
+- Keep `apps/docs` in sync with reality: when code changes alter a documented flow, update the matching doc in the same change.
+- This rule is for content/reference docs only. `CLAUDE.md` (agent rules) and `TODO.md` (active issues) stay where they are.
+
 ## worflow
 
 - ALWAYS validate build complie before merge or commit
