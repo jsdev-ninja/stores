@@ -11,6 +11,7 @@ import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useEffect, useState } from "react";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
+import BalasiAdminCreateOrderLayout from "src/websites/balasistore/AdminCreateOrderLayout";
 import { Select, ListBox } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useFormContext } from "react-hook-form";
@@ -204,6 +205,7 @@ function AdminCreateOrderPage() {
 					setSelectedOrganization={setSelectedOrganization}
 					minDate={minDate}
 					maxDate={maxDate}
+					isBalasi={store.id === "balasistore_store" || store.id === "tester_store"}
 				/>
 			</Form>
 		</section>
@@ -218,6 +220,7 @@ function FormContent({
 	setSelectedOrganization,
 	minDate,
 	maxDate,
+	isBalasi,
 }: {
 	organizations: TOrganization[];
 	selectedOrganization: TOrganization | null;
@@ -226,6 +229,7 @@ function FormContent({
 	setSelectedOrganization: (org: TOrganization | null) => void;
 	minDate: string;
 	maxDate: string;
+	isBalasi: boolean;
 }) {
 	const { t } = useTranslation(["common", "checkout"]);
 	const { watch, setValue } = useFormContext<TOrder>();
@@ -262,6 +266,22 @@ function FormContent({
 		},
 		...organizations,
 	];
+
+	// Balasi store gets a dedicated warm LAYOUT (markup only). Same field names,
+	// same org/billing selects, same submit — order creation logic is unchanged.
+	if (isBalasi) {
+		return (
+			<BalasiAdminCreateOrderLayout
+				t={t}
+				organizations={organizations}
+				selectedOrganization={selectedOrganization}
+				loading={loading}
+				onOrganizationSelect={onOrganizationSelect}
+				minDate={minDate}
+				maxDate={maxDate}
+			/>
+		);
+	}
 
 	return (
 		<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">

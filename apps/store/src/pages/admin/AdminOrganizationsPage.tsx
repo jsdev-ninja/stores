@@ -9,9 +9,11 @@ import {
 	Select,
 	ListBox,
 	Button,
+	Checkbox,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { TOrganization, TBillingAccount } from "@jsdev_ninja/core";
+import { modalApi } from "src/infra/modals";
+import { TOrganization, TBillingAccount, TOrder } from "@jsdev_ninja/core";
 import type { TPaymentType } from "@jsdev_ninja/core";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -50,6 +52,45 @@ function formatAddress(org: TOrganization): string {
 	if (!a) return "—";
 	const parts = [a.street, a.streetNumber, a.city].filter(Boolean);
 	return parts.length > 0 ? parts.join(" ") : "—";
+}
+
+// ─── Delivery-note helpers (a "delivery note" row is an order) ────────────────
+// Mirrors the extractors used on AdminDeliveryNotesPage so the ledger card shows
+// the same data the delivery-notes page does.
+
+function fmtDate(ms?: number): string {
+	if (!ms) return "—";
+	const v = ms < 1e12 ? ms * 1000 : ms;
+	try {
+		return new Date(v).toLocaleDateString("he-IL");
+	} catch {
+		return "—";
+	}
+}
+
+// Legacy amounts are stored in shekels (the delivery-notes page renders cartTotal directly).
+function fmtMoney(n: number): string {
+	return "₪" + n.toLocaleString("he-IL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function dnNumber(o: TOrder): string {
+	return o.deliveryNote?.number ?? o.ezDeliveryNote?.doc_number ?? "—";
+}
+function dnPdf(o: TOrder): string | undefined {
+	return o.deliveryNote?.link ?? o.ezDeliveryNote?.pdf_link ?? o.ezDeliveryNote?.pdf_link_copy;
+}
+function dnDate(o: TOrder): number {
+	return o.deliveryNote?.date ?? o.date;
+}
+function dnItemCount(o: TOrder): number {
+	return o.deliveryNote?.items?.length ?? o.cart?.items?.length ?? 0;
+}
+function dnTotal(o: TOrder): number {
+	return o.deliveryNote?.total ?? o.cart?.cartTotal ?? 0;
+}
+// An issued (EZcount) invoice number, if this delivery note was already invoiced.
+function dnInvoiceNumber(o: TOrder): string | undefined {
+	return o.ezInvoice?.doc_number;
 }
 
 // ─── Baseline photo areas (mirrors PHOTO_AREAS in balasi admin.js) ───────────
@@ -593,27 +634,97 @@ function BaselinePhotosModal({ state, onClose }: BaselinePhotosModalProps) {
 
 type LedgerTab = "all" | "dn" | "inv" | "rcp" | "crd";
 
-const LEDGER_TABS: { key: LedgerTab; label: string }[] = [
-	{ key: "all", label: "הכל" },
-	{ key: "dn", label: "תעודות משלוח (0)" },
-	{ key: "inv", label: "חשבוניות (0)" },
-	{ key: "rcp", label: "קבלות (0)" },
-	{ key: "crd", label: "זיכויים (0)" },
-];
-
 type LedgerModalProps = {
 	state: LedgerModalState;
 	onClose: () => void;
 };
 
 function LedgerModal({ state, onClose }: LedgerModalProps) {
+	const appApi = useAppApi();
 	const [ledgerTab, setLedgerTab] = useState<LedgerTab>("all");
+	const [deliveryNotes, setDeliveryNotes] = useState<TOrder[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [selectedDnIds, setSelectedDnIds] = useState<Set<string>>(new Set());
 	const isOpen = state.kind === "open";
 	const org = state.kind === "open" ? state.org : null;
 
+	// Pull all delivery notes for the tenant (all-time) and keep only this org's.
+	// Reuses the same admin read API the delivery-notes page uses — no backend change.
+	const loadDeliveryNotes = useCallback(async (orgId: string) => {
+		setIsLoading(true);
+		try {
+			const result = await appApi.admin.getDeliveryNotes({
+				fromDate: 0,
+				toDate: Date.now(),
+			});
+			if (result?.success) {
+				const forOrg = (result.data || []).filter(
+					(o) => o.organizationId === orgId,
+				);
+				forOrg.sort((a, b) => dnDate(b) - dnDate(a));
+				setDeliveryNotes(forOrg);
+			}
+		} catch (error) {
+			console.error("Failed to load ledger delivery notes:", error);
+		} finally {
+			setIsLoading(false);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi is re-created each render but stable in behavior
+	}, []);
+
 	useEffect(() => {
-		if (state.kind === "open") setLedgerTab("all");
+		if (state.kind !== "open") return;
+		setLedgerTab("all");
+		setDeliveryNotes([]);
+		setSelectedDnIds(new Set());
+		loadDeliveryNotes(state.org.id);
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- run once per modal open (keyed on state)
 	}, [state]);
+
+	const dnTotalSum = deliveryNotes.reduce((sum, o) => sum + dnTotal(o), 0);
+
+	// Only delivery notes that haven't been invoiced yet can go into a new invoice.
+	const invoiceableNotes = deliveryNotes.filter((o) => !dnInvoiceNumber(o));
+	const selectedNotes = deliveryNotes.filter((o) => selectedDnIds.has(o.id));
+	const allInvoiceableSelected =
+		invoiceableNotes.length > 0 &&
+		invoiceableNotes.every((o) => selectedDnIds.has(o.id));
+
+	function toggleSelectAll(checked: boolean) {
+		setSelectedDnIds(checked ? new Set(invoiceableNotes.map((o) => o.id)) : new Set());
+	}
+
+	function toggleSelectOne(id: string, checked: boolean) {
+		setSelectedDnIds((prev) => {
+			const next = new Set(prev);
+			if (checked) next.add(id);
+			else next.delete(id);
+			return next;
+		});
+	}
+
+	function handleCreateConsolidatedInvoice() {
+		if (selectedNotes.length === 0) return;
+		// Reuse the existing invoice-creation modal + backend exactly as the
+		// Invoices page does — no change to invoice/money logic.
+		modalApi.openModal("invoiceDetails", {
+			selectedOrders: selectedNotes,
+			onInvoiceCreated: () => {
+				if (state.kind === "open") loadDeliveryNotes(state.org.id);
+				setSelectedDnIds(new Set());
+			},
+		});
+	}
+
+	const LEDGER_TABS: { key: LedgerTab; label: string }[] = [
+		{ key: "all", label: "הכל" },
+		{ key: "dn", label: `תעודות משלוח (${deliveryNotes.length})` },
+		{ key: "inv", label: "חשבוניות (0)" },
+		{ key: "rcp", label: "קבלות (0)" },
+		{ key: "crd", label: "זיכויים (0)" },
+	];
+
+	const showDeliveryNotes = ledgerTab === "all" || ledgerTab === "dn";
 
 	return (
 		<Modal.Backdrop isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -690,17 +801,174 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 								})}
 							</div>
 
-							{/* Ledger entries — empty state */}
-							<div className="py-10 text-center text-[var(--muted)]">
-								<p className="text-5xl mb-3">📒</p>
-								<p className="font-semibold">אין תנועות להצגה</p>
-								<p className="text-sm mt-1">לא נמצאו תנועות בקטגוריה זו</p>
-							</div>
+							{/* Ledger entries */}
+							{isLoading ? (
+								<div className="py-10 text-center text-[var(--muted)]">
+									<Icon
+										icon="lucide:loader-2"
+										className="mx-auto h-6 w-6 animate-spin"
+									/>
+								</div>
+							) : showDeliveryNotes && deliveryNotes.length > 0 ? (
+								<div className="flex flex-col gap-2">
+									{invoiceableNotes.length > 0 && (
+										<div className="flex items-center gap-2 px-1 text-sm text-[var(--muted)]">
+											<Icon icon="lucide:mouse-pointer-click" width={14} height={14} />
+											<span>
+												סמנו תעודות משלוח (לחיצה על השורה) ואז לחצו "הפק חשבונית מרוכזת"
+											</span>
+										</div>
+									)}
+									<div className="overflow-hidden rounded-lg border border-[var(--border)]">
+									<table className="w-full text-sm">
+										<thead>
+											<tr className="bg-[var(--background)] text-[11px] font-bold uppercase tracking-wide text-[var(--muted)] text-start">
+												<th className="px-3 py-2 w-10">
+													<Checkbox
+														isSelected={allInvoiceableSelected}
+														isDisabled={invoiceableNotes.length === 0}
+														onChange={toggleSelectAll}
+														aria-label="בחר הכל"
+													>
+														<Checkbox.Control>
+															<Checkbox.Indicator />
+														</Checkbox.Control>
+													</Checkbox>
+												</th>
+												<th className="px-3 py-2 text-start font-bold">סוג</th>
+												<th className="px-3 py-2 text-start font-bold">מס׳ תעודה</th>
+												<th className="px-3 py-2 text-start font-bold">תאריך</th>
+												<th className="px-3 py-2 text-start font-bold">פריטים</th>
+												<th className="px-3 py-2 text-start font-bold">סה"כ</th>
+												<th className="px-3 py-2 text-start font-bold">חשבונית</th>
+												<th className="px-3 py-2 text-end font-bold"></th>
+											</tr>
+										</thead>
+										<tbody>
+											{deliveryNotes.map((o) => {
+												const pdf = dnPdf(o);
+												const invoiceNumber = dnInvoiceNumber(o);
+												const invoiced = Boolean(invoiceNumber);
+												return (
+													<tr
+														key={o.id}
+														onClick={
+															invoiced
+																? undefined
+																: () => toggleSelectOne(o.id, !selectedDnIds.has(o.id))
+														}
+														className={[
+															"border-t border-[var(--border)] hover:bg-[var(--background)] transition-colors",
+															invoiced ? "" : "cursor-pointer",
+															selectedDnIds.has(o.id)
+																? "bg-[color-mix(in_oklab,var(--accent)_8%,transparent)]"
+																: "",
+														].join(" ")}
+													>
+														<td
+															className="px-3 py-2"
+															onClick={(e) => e.stopPropagation()}
+														>
+															<Checkbox
+																isSelected={selectedDnIds.has(o.id)}
+																isDisabled={invoiced}
+																onChange={(checked) => toggleSelectOne(o.id, checked)}
+																aria-label={`בחר תעודת משלוח ${dnNumber(o)}`}
+															>
+																<Checkbox.Control>
+																	<Checkbox.Indicator />
+																</Checkbox.Control>
+															</Checkbox>
+														</td>
+														<td className="px-3 py-2">
+															<BadgePill color="var(--accent)" icon="lucide:truck">
+																תעודת משלוח
+															</BadgePill>
+														</td>
+														<td className="px-3 py-2 font-semibold text-[var(--foreground)]">
+															{dnNumber(o)}
+														</td>
+														<td className="px-3 py-2 text-[var(--muted)]">
+															{fmtDate(dnDate(o))}
+														</td>
+														<td className="px-3 py-2 text-[var(--muted)]">
+															{dnItemCount(o)} פריטים
+														</td>
+														<td className="px-3 py-2 font-bold text-[var(--foreground)]">
+															{fmtMoney(dnTotal(o))}
+														</td>
+														<td className="px-3 py-2">
+															{invoiced ? (
+																<BadgePill color="var(--success)" icon="lucide:file-check">
+																	{invoiceNumber}
+																</BadgePill>
+															) : (
+																<span className="text-[var(--muted)]">—</span>
+															)}
+														</td>
+														<td
+															className="px-3 py-2 text-end"
+															onClick={(e) => e.stopPropagation()}
+														>
+															{pdf ? (
+																<a
+																	href={pdf}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+																>
+																	<Icon icon="lucide:eye" width={13} height={13} />
+																	צפה
+																</a>
+															) : (
+																<span className="text-[var(--muted)]">—</span>
+															)}
+														</td>
+													</tr>
+												);
+											})}
+										</tbody>
+										<tfoot>
+											<tr className="border-t border-[var(--border)] bg-[var(--background)] font-bold">
+												<td className="px-3 py-2 text-[var(--muted)]" colSpan={5}>
+													סך תעודות משלוח
+												</td>
+												<td className="px-3 py-2 text-[var(--foreground)]" colSpan={3}>
+													{fmtMoney(dnTotalSum)}
+												</td>
+											</tr>
+										</tfoot>
+									</table>
+									</div>
+								</div>
+							) : (
+								<div className="py-10 text-center text-[var(--muted)]">
+									<p className="text-5xl mb-3">📒</p>
+									<p className="font-semibold">אין תנועות להצגה</p>
+									<p className="text-sm mt-1">לא נמצאו תנועות בקטגוריה זו</p>
+								</div>
+							)}
 						</div>
 					</Modal.Body>
 					<Modal.Footer>
+						{selectedNotes.length > 0 && (
+							<span className="text-sm text-[var(--muted)] me-auto">
+								נבחרו {selectedNotes.length} תעודות · {fmtMoney(
+									selectedNotes.reduce((sum, o) => sum + dnTotal(o), 0),
+								)}
+							</span>
+						)}
 						<Button variant="ghost" onPress={onClose}>
 							סגירה
+						</Button>
+						<Button
+							variant="primary"
+							onPress={handleCreateConsolidatedInvoice}
+							isDisabled={selectedNotes.length === 0}
+						>
+							<Icon icon="lucide:file-text" width={14} height={14} />
+							הפק חשבונית מרוכזת
+							{selectedNotes.length > 0 ? ` (${selectedNotes.length})` : ""}
 						</Button>
 					</Modal.Footer>
 				</Modal.Dialog>

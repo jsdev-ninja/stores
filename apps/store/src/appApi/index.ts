@@ -193,7 +193,79 @@ export const useAppApi = () => {
 				});
 				updateLoading({ "admin.listSupplierInvoices": false });
 
+				// Exclude drafts from the finalized list. Legacy invoices have no
+				// status and are treated as finalized.
+				if (result?.success && Array.isArray(result.data)) {
+					return {
+						...result,
+						data: result.data.filter((invoice) => invoice.status !== "draft"),
+					};
+				}
+
 				return result;
+			},
+			// Save a supplier invoice as a draft (work-in-progress). Stored in the
+			// same `supplierInvoices` collection with status "draft" so the existing
+			// permissions apply; the create trigger skips drafts, so NO product
+			// prices are updated until the invoice is finalized.
+			saveSupplierInvoiceDraft: async (
+				draft: Partial<TSupplierInvoice> & { id: string }
+			) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				const { supplier, ...rest } = draft;
+				return await FirebaseApi.firestore.setV2({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "supplierInvoices",
+						companyId,
+						storeId,
+					}),
+					doc: {
+						...rest,
+						// only include supplier when selected (avoid undefined writes)
+						...(supplier ? { supplier } : {}),
+						type: "SupplierInvoice",
+						status: "draft",
+					},
+				});
+			},
+			listSupplierInvoiceDrafts: async () => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				updateLoading({ "admin.listSupplierInvoiceDrafts": true });
+				// Filter by status only (no orderBy) so the query does NOT require a
+				// composite Firestore index — otherwise it fails and drafts appear
+				// to "not save". Drafts are sorted by date (newest first) client-side.
+				const result = await FirebaseApi.firestore.listV2<TSupplierInvoice>({
+					collection: FirebaseAPI.firestore.getPath({
+						storeId,
+						companyId,
+						collectionName: "supplierInvoices",
+					}),
+					where: [{ name: "status", value: "draft", operator: "==" }],
+				});
+				updateLoading({ "admin.listSupplierInvoiceDrafts": false });
+
+				if (result?.success && Array.isArray(result.data)) {
+					return {
+						...result,
+						data: [...result.data].sort((a, b) => (b.date ?? 0) - (a.date ?? 0)),
+					};
+				}
+
+				return result;
+			},
+			deleteSupplierInvoiceDraft: async (id: string) => {
+				if (!isValidAdmin || !companyId || !storeId) return;
+
+				return await FirebaseApi.firestore.remove({
+					id,
+					collectionName: FirebaseAPI.firestore.getPath({
+						collectionName: "supplierInvoices",
+						companyId,
+						storeId,
+					}),
+				});
 			},
 			getSupplierInvoice: async (id: string) => {
 				if (!isValidAdmin || !companyId || !storeId) return;
@@ -2147,6 +2219,43 @@ export const useAppApi = () => {
 					productId: product.id,
 					productName: product.name[0].value,
 					amount,
+				});
+			},
+			async clearCart() {
+				if (!isValidUser) {
+					return;
+				}
+
+				if (user.isAnonymous && !allowAnonymousClients) {
+					modalApi.openModal("authModal");
+					return;
+				}
+
+				logger({
+					message: "user clear cart",
+					severity: "INFO",
+				});
+
+				FirebaseApi.firestore.setV2<TCart>({
+					collection: FirebaseAPI.firestore.getPath({
+						companyId,
+						storeId,
+						collectionName: "cart",
+					}),
+					doc: {
+						...actualCart,
+						items: [],
+					},
+				});
+
+				// Update local state
+				actions.dispatch(actions.cart.clear());
+
+				mixPanelApi.track("USER_CLEAR_CART", {
+					storeId: store.id,
+					storeName: store.name,
+					companyId: companyId,
+					companyName: company?.name,
 				});
 			},
 		},

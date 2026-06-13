@@ -7,8 +7,13 @@ import { useAppSelector } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { Icon } from "src/components";
 import { useAppApi } from "src/appApi";
+import { useStore } from "src/domains/Store";
 import { WebsiteLogo } from "../WebsiteLogo";
 import { OrgPicker } from "../OrgPicker/OrgPicker";
+import { BalasiCartButton } from "src/websites/balasistore/CartDrawer";
+
+// Stores whose personal area opens as a popup dialog instead of a full page.
+const ACCOUNT_MODAL_STORES = ["balasistore_store", "tester_store"];
 
 export function AppBar() {
   const { t } = useTranslation(["common"]);
@@ -16,6 +21,8 @@ export function AppBar() {
   const appApi = useAppApi();
 
   const user = useAppSelector((state) => state.user.user);
+  const store = useStore();
+  const useAccountModal = !!store && ACCOUNT_MODAL_STORES.includes(store.id);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -37,9 +44,11 @@ export function AppBar() {
       key: "profile",
       label: t("profile"),
       action: () =>
-        navigate({
-          to: "store.profile",
-        }),
+        useAccountModal
+          ? modalApi.openModal("accountModal")
+          : navigate({
+              to: "store.profile",
+            }),
     },
     {
       key: "favorites",
@@ -159,6 +168,10 @@ export function AppBar() {
                 {text}
               </Button>
             )}
+          </li>
+          {/* Cart — far end (top-left in RTL) */}
+          <li>
+            <BalasiCartButton />
           </li>
           {/* Mobile hamburger */}
           <li className="md:hidden">

@@ -19,10 +19,18 @@ import { ProductRender } from "src/components/renders/ProductRender/ProductRende
 import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
+import { useAppSelector } from "src/infra";
 import { navigate } from "src/navigation";
 import { formatter } from "src/utils/formatter";
-import { Cart } from "src/widgets/Cart/Cart";
 import { ProductsWidget } from "src/widgets/Products";
+import {
+	BALASI_ORANGE,
+	BalasiCartClear,
+	BalasiCartEmpty,
+	BalasiCartFooter,
+	BalasiCartItemList,
+	BalasiCheckoutCta,
+} from "./cart/BalasiCartParts";
 import { useCatalogAside } from "./useCatalogAside";
 import { CatalogAside } from "./catalog/CatalogAside";
 import { CatalogRowHead } from "./catalog/CatalogRowHead";
@@ -32,6 +40,7 @@ export default function BalasiCatalogPage() {
 	const store = useStore();
 	const cart = useCart();
 	const discounts = useDiscounts();
+	const user = useAppSelector((state) => state.user.user);
 	const { isAsideOpen, toggleAside, closeAside } = useCatalogAside();
 
 	if (!store) return null;
@@ -44,8 +53,21 @@ export default function BalasiCatalogPage() {
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
+	const cartItemCount = (cartCost.items ?? []).reduce((sum, item) => sum + item.amount, 0);
+	const freeDeliveryPrice = store.freeDeliveryPrice ?? 0;
+	const hasItems = !!cartCost.items?.length;
+
+	// Same destination as the floating drawer's CTA.
+	const goToCheckout = () => {
+		if (user?.admin) {
+			navigate({ to: "admin.createOrder" });
+		} else {
+			navigate({ to: "store.checkout" });
+		}
+	};
+
 	return (
-		<div className="min-h-screen bg-[var(--background)]" dir="rtl">
+		<div className="min-h-screen bg-[#ece5d4]" dir="rtl">
 			<div className="flex w-full items-start">
 				{/* Main content — to the RIGHT of the cart in RTL */}
 				<div className="grow min-w-0">
@@ -96,21 +118,45 @@ export default function BalasiCatalogPage() {
 					</ProductsWidget>
 				</div>
 
-				{/* Desktop cart — LAST child → LEFT in RTL. Sticky, not fixed. */}
-				<aside className="hidden xl:flex w-80 shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--surface)]">
-					<div className="grow h-full overflow-auto">
-						<Cart />
-					</div>
-					<div className="p-4 shrink-0 border-t border-[var(--border)]">
-						<Button
-							isDisabled={!cartCost?.items?.length}
-							fullWidth
-							onPress={() => navigate({ to: "store.cart" })}
-							variant="primary"
+				{/* Desktop cart — LAST child → LEFT in RTL. A PINNED version of the
+				    floating cart drawer: identical header band, clear button, item
+				    rows, free-shipping bar, summary and "המשך להזמנה" CTA. Only
+				    difference vs the drawer is that it stays docked (no backdrop /
+				    close button). */}
+				<aside className="hidden xl:flex w-[460px] shrink-0 sticky top-[64px] h-[calc(100vh-64px)] flex-col z-30 border-s border-[var(--border)] bg-[var(--background)]">
+					{/* Dark header band (.dr-head) */}
+					<div className="shrink-0 border-b border-[var(--border)] bg-[var(--foreground)] p-7 text-white">
+						<span
+							className="text-[10px] font-bold uppercase tracking-[0.18em]"
+							style={{ color: BALASI_ORANGE }}
 						>
-							{t("common:goToCart")} {formatter.price(cartCost.cost)}
-						</Button>
+							הסל שלי
+						</span>
+						<h3 className="mt-1 text-[22px] font-black leading-tight tracking-[-0.03em]">
+							{cartItemCount} פריטים
+						</h3>
 					</div>
+
+					{/* Body (.dr-body) — clear + item rows / empty */}
+					<div className="flex-1 overflow-y-auto px-7">
+						{hasItems ? (
+							<>
+								<BalasiCartClear />
+								<BalasiCartItemList items={cartCost.items} />
+							</>
+						) : (
+							<BalasiCartEmpty />
+						)}
+					</div>
+
+					{/* Footer (.dr-foot) — free-shipping + totals + CTA */}
+					{hasItems && (
+						<div className="shrink-0 border-t border-[var(--border)] bg-[var(--surface)] px-7 py-6">
+							<BalasiCartFooter cartCost={cartCost} freeDeliveryPrice={freeDeliveryPrice}>
+								<BalasiCheckoutCta onClick={goToCheckout} />
+							</BalasiCartFooter>
+						</div>
+					)}
 				</aside>
 			</div>
 

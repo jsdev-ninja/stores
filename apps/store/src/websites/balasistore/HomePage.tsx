@@ -1,4 +1,5 @@
 import { useHomeProducts } from "./useHomeProducts";
+import WelcomeBack from "./sections/WelcomeBack";
 import Hero from "./sections/Hero";
 import TrendingStrip from "./sections/TrendingStrip";
 import Bento from "./sections/Bento";
@@ -29,6 +30,7 @@ export default function BalasiHomePage() {
 
 	return (
 		<div className="min-h-screen bg-[var(--background)]" dir="rtl">
+			<WelcomeBack />
 			<Hero products={heroProducts} />
 			<TrendingStrip products={trendingProducts} />
 			<Bento />
