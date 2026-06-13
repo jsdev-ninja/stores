@@ -16,22 +16,9 @@ export { chatbotApi } from "./modules/chatbot";
 export { appInit } from "./modules/application";
 export { getMixpanelData } from "./modules/analytics";
 export { createCompanyClient, migrateProfilesToMultiOrg } from "./modules/customers";
-export {
-  chargeOrder,
-  createPayment,
-  createPaymentRedirect,
-  getPaymentRedirect,
-} from "./modules/payments";
-export {
-  postManualTransaction,
-  captureHypJ5,
-  createHypDirectPaymentLink,
-  createHypCheckoutPayment,
-  recordHypJ5Auth,
-  recordHypDirectPayment,
-  getPaymentLink,
-  postDebitOnDeliveryNoteCreated,
-} from "./modules/ledger";
+// HYP payment flow (incl. legacy createPayment/chargeOrder/createPaymentRedirect/getPaymentRedirect)
+// now lives entirely in the ledger module and is re-exported here.
+export * from "./modules/ledger";
 export { createDeliveryNote, createInvoice } from "./modules/documents";
 export { onSupplierInvoiceCreate } from "./modules/suppliers";
 export { onContactFormSubmit, onLandingLeadCreated } from "./modules/notifications";

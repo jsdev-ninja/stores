@@ -34,5 +34,12 @@ export { recordHypDirectPayment } from "./api/recordHypDirectPayment";
 // Public callable (token only, no auth)
 export { getPaymentLink } from "./api/getPaymentLink";
 
+// Legacy HYP flow (moved here from the former `payments` module — same deployed
+// function names, same behaviour; to be reconciled with the new flow above).
+export { createPayment } from "./api/createPayment";
+export { chargeOrder } from "./api/chargeOrder";
+export { createPaymentRedirect } from "./api/createPaymentRedirect";
+export { getPaymentRedirect } from "./api/getPaymentRedirect";
+
 // Subscribers (wired in functions/src/index.tsx)
 export { postDebitOnDeliveryNoteCreated } from "./subscribers/postDebitOnDeliveryNoteCreated";

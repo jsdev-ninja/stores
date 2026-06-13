@@ -223,6 +223,10 @@ boundaries move.
 ## Phase 2 — Extract `modules/payments-hyp/` (vendor adapter)
 - Move the HYP files (8, **plus the 2 guards if Phase 0 routed them here** per D6 → 10).
   They import `money` and call `money.post()` (never write `transactions` directly).
+- **HYP correctness to verify while in these files** (per `docs/reference/hyp.md`): J5 auth
+  success is **`CCode=700`**, not `0` (only capture returns `0`) — confirm `recordHypJ5Auth`
+  gates on `700`. Always `VERIFY` server-side before marking paid. Dedup on HYP `Id`. These are
+  observations to confirm during the move, not behaviour changes to bundle into the carve PR.
 - **Low-risk:** these files already call `postTransaction` today — Phase 2 changes only the
   import path, not the call graph. No call sites are rewired.
 - Deployed function names unchanged → `apps/store` callers untouched; only
@@ -389,11 +393,15 @@ refresh/double-submit, expired link). Verify: ledger txn written once (idempoten
 `hyp_{Id}`), order → `completed`, no client status write. Then flip balasistore.
 
 **T2-Phase 3 — Backfill stuck orders (data remediation — separate explicit approval).**
-These were already charged; **no new charge** — only record the existing money fact: for each
-affected order, post a `hyp_direct` transaction from its existing `payments/{orderId}` doc
-via `postTransaction` (dedup `hyp_{payment.Id}`) → `markOrderPaidOnTransactionPosted →
-completed`. Scope: scan balasistore for orders with `payments/{orderId}.payment.CCode==0` but
-order still `pending_j5`. Dry-run list → approve → run. Idempotent, safe to re-run.
+Two distinct cases — **split them** (HYP behaviours per `docs/reference/hyp.md`):
+- **Direct-paid (`payment.CCode==0`)** — money WAS taken. **No new charge.** Record the existing
+  fact: post `hyp_direct` from `payments/{orderId}` via `postTransaction` (dedup `hyp_{payment.Id}`)
+  → `markOrderPaidOnTransactionPosted → completed`. *(The two confirmed stuck orders are this case.)*
+- **J5-auth-only (`CCode==700`, never captured)** — only a hold, **no money taken**, and the
+  **hold expires ~5 days** → a late capture is declined. These can NOT be "recorded" as paid;
+  they need a **fresh charge** (or cancel). Identify separately; do not lump with direct-paid.
+- Scope: scan balasistore for orders still `pending_j5` that have a `payments/{orderId}` doc;
+  branch on `CCode`. Dry-run list → approve → run. Idempotent, safe to re-run.
 
 **T2-Phase 4 — Deprecate legacy path.** Remove/disable `onOrderPaid`, legacy
 `createPayment`, and the `payments` status path once all stores are cut over. Keep

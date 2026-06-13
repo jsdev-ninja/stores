@@ -115,7 +115,7 @@ modules/{name}/
 ├── events.ts          event type constants + Zod payload schemas (if the module emits/owns events)
 ├── types.ts           backend-only, module-private types/schemas (only if the module needs them)
 ├── api/               one file per Cloud Function endpoint (callable / https)
-├── triggers/          Firestore doc triggers, scheduled jobs, pub/sub — NOT legacy, the home for all external triggers
+├── triggers/          Firestore doc triggers, scheduled jobs, pub/sub — NOT legacy, the home for all external
 ├── subscribers/       event-bus subscribers (react to events from this or other modules)
 ├── services/          business logic — one operation per file, verb-named
 └── internal/          module-private impl (paths, stores) — MUST NOT be imported from outside the module

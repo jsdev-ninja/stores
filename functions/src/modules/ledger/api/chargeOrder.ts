@@ -3,7 +3,7 @@ import * as functions from "firebase-functions/v1";
 import admin from "firebase-admin";
 import { TPayProtocolResponse, TStorePrivate } from "src/schema";
 import { hypPaymentService } from "../../../services/hypPaymentService";
-import { postTransaction } from "../../ledger/services/postTransaction";
+import { postTransaction } from "../services/postTransaction";
 
 function sumHeshDescItems(items: string[]): number {
   const itemsSum = items.reduce((sum, line) => {
