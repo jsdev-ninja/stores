@@ -384,9 +384,20 @@ first, then balasistore).
 
 **T2-Phase 1 — Wire storefront to the server flow (behind a per-store flag).** Replace
 `createPayment` link creation with `createHypDirectPaymentLink` (direct) / the J5 link
-creator. On redirect, call `recordHypDirectPayment` (or `recordHypJ5Auth`) with the HYP
-params **and the link token**. Delete the client-side order/`payments` writes from
-`onOrderPaid` — the order transition comes only from `markOrderPaidOnTransactionPosted`.
+creator. Delete the client-side order/`payments` writes from `onOrderPaid` — the order
+transition comes only from `markOrderPaidOnTransactionPosted`.
+
+> **DECISION (deferred — "do it later"): make confirmation a server-side `onRequest`
+> redirect, not an `onCall`.** Point HYP's success URL at a Firebase `onRequest` function
+> (not the client `/orderSuccess` page). That function: read HYP params → `verifyHypSignature`
+> (VERIFY) → `postTransaction` (`hyp_direct`/`hyp_j5_auth`) → `res.redirect(302, clientSuccessPage)`.
+> Reuses the existing `recordHypDirectPayment`/`recordHypJ5Auth` bodies; the client
+> `/orderSuccess` becomes display-only. This removes the client from the trust path entirely
+> (confirmation runs even if the customer closes the tab) — strictly better than the `onCall`
+> version. **Open question to resolve first:** how HYP sets the redirect URL (terminal/`Masof`
+> dashboard config vs an `APISign` request param) — we must be able to point it at the function.
+> Risks: cold-start latency (consider `minInstances:1`); always 302 even on a post-VERIFY write
+> hiccup (log + reconcile); idempotent on `hyp_{Id}`; tenant derived from the link token.
 
 **T2-Phase 2 — Parity + cutover.** Test-store checkout end-to-end (success, failure,
 refresh/double-submit, expired link). Verify: ledger txn written once (idempotent
