@@ -163,11 +163,16 @@ export const onTransactionPostedMarkOrderPaid = subscribe(
 				return;
 			}
 
-			// 7. Update ONLY paymentStatus + traceability field
+			// 7. A draft order is one whose payment never completed. Receiving an
+			// inflow payment promotes it to a real, admin-actionable order:
+			// draft → pending. Never downgrade a further-along status.
+			const promoteDraft = order.status === "draft";
+
 			await db.doc(orderPath).set(
 				{
 					paymentStatus: nextStatus,
 					lastPaymentTransactionId: payload.transactionId,
+					...(promoteDraft ? { status: "pending" } : {}),
 				},
 				{ merge: true },
 			);
@@ -179,6 +184,7 @@ export const onTransactionPostedMarkOrderPaid = subscribe(
 				orderId,
 				previousStatus: currentStatus ?? null,
 				nextStatus,
+				promotedDraftToPending: promoteDraft,
 			});
 		} catch (err) {
 			logger.error("markOrderPaidOnTransactionPosted: failed", {
