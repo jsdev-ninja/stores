@@ -369,7 +369,7 @@ export default function AdminDeliveryNotesPage() {
 													<StatusPill status={dnStatus(o)} />
 												</Table.Cell>
 
-												{/* Actions — צפה (open PDF) */}
+												{/* Actions — צפה (open PDF) + הפק חשבונית */}
 												<Table.Cell className="py-3">
 													<div className="flex items-center gap-1.5 justify-end">
 														{pdf ? (
@@ -384,6 +384,24 @@ export default function AdminDeliveryNotesPage() {
 															</a>
 														) : (
 															<span className="text-sm text-[var(--muted)]">—</span>
+														)}
+														{dnNumber(o) !== "—" && !o.invoice && !o.ezInvoice && !!o.ezDeliveryNote?.doc_uuid && (
+															<button
+																type="button"
+																className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
+																onClick={() =>
+																	modalApi.openModal("invoiceDetails", {
+																		selectedOrders: [o],
+																		linkedDeliveryNote: { docUuid: o.ezDeliveryNote?.doc_uuid ?? "", number: dnNumber(o) },
+																		requireAllocation:
+																			(o.cart?.cartTotal ?? 0) >= 25000,
+																		onInvoiceCreated: () => loadDeliveryNotes(),
+																	})
+																}
+															>
+																<Icon icon="lucide:file-text" width={13} height={13} />
+																הפק חשבונית
+															</button>
 														)}
 													</div>
 												</Table.Cell>

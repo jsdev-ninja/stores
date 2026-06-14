@@ -99,6 +99,7 @@ export type Params = {
 	customer_phone?: string;
 	description?: string;
 	parent?: string; // parens docs (1,2,3,4)
+	allocationNumber?: string; // מספר הקצאה — required by EZcount for invoices >= 25,000 ILS
 	cc_emails?: string[];
 	item?: {
 		details: string;

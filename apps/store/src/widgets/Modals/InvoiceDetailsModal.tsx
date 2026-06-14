@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Modal, Input } from "@heroui/react";
+import { Modal, Input, toast } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "src/components/button";
 import { modalApi } from "src/infra/modals";
@@ -13,20 +13,37 @@ type InvoiceDetailsForm = {
 	invoiceDate: string;
 	customerName: string;
 	customerAddress: string;
+	allocationNumber: string;
 };
 
 function formatTimestampToDateString(timestamp: number): string {
 	return new Date(timestamp).toISOString().split("T")[0];
 }
 
+/** Returns today's date as YYYY-MM-DD in Israel timezone (Asia/Jerusalem). */
+function todayIsrael(): string {
+	return Intl.DateTimeFormat("en-CA", {
+		timeZone: "Asia/Jerusalem",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).format(new Date());
+}
+
 export function InvoiceDetailsModal({
 	selectedOrders,
 	onInvoiceCreated,
 	initialInvoiceDate,
+	linkedDeliveryNote,
+	requireAllocation,
 }: {
 	selectedOrders: TOrder[];
 	onInvoiceCreated?: () => void;
 	initialInvoiceDate?: number;
+	/** When set, this invoice is linked to a specific delivery note. */
+	linkedDeliveryNote?: { docUuid: string; number?: string };
+	/** When true, an allocation number input is required (invoices >= ₪25,000). */
+	requireAllocation?: boolean;
 }) {
 	const { t } = useTranslation(["common", "admin"]);
 	const appApi = useAppApi();
@@ -34,9 +51,10 @@ export function InvoiceDetailsModal({
 	const [formData, setFormData] = useState<InvoiceDetailsForm>({
 		invoiceDate: initialInvoiceDate
 			? formatTimestampToDateString(initialInvoiceDate)
-			: new Date().toISOString().split("T")[0],
+			: todayIsrael(),
 		customerName: "",
 		customerAddress: "",
+		allocationNumber: "",
 	});
 	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,6 +111,10 @@ export function InvoiceDetailsModal({
 			newErrors.customerAddress = t("admin:invoiceDetails.errors.addressRequired");
 		}
 
+		if (requireAllocation && !formData.allocationNumber.trim()) {
+			newErrors.allocationNumber = "נדרש מספר הקצאה לחשבוניות מעל ₪25,000";
+		}
+
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
@@ -131,10 +153,29 @@ export function InvoiceDetailsModal({
 						(acc, order) => acc + (order?.cart.cartTotal ?? 0),
 						0
 					),
-					parent: selectedOrders.map((order) => order?.ezDeliveryNote?.doc_uuid).join(","),
+					parent: linkedDeliveryNote
+						? linkedDeliveryNote.docUuid
+						: selectedOrders.map((order) => order?.ezDeliveryNote?.doc_uuid).join(","),
+					...(requireAllocation && formData.allocationNumber.trim()
+						? { allocationNumber: formData.allocationNumber.trim() }
+						: {}),
 					date: formatDateDDMMYYYY(formData.invoiceDate),
 				},
 			});
+
+			if (!res.success) {
+				toast.danger("שגיאה ביצירת חשבונית", {
+					description: (res as any).error ?? "אירעה שגיאה בלתי צפויה",
+				});
+				return;
+			}
+
+			if (!res.data) {
+				toast.danger("שגיאה ביצירת חשבונית", {
+					description: "לא התקבלו נתוני חשבונית מהשרת",
+				});
+				return;
+			}
 
 			if (res.success) {
 				onInvoiceCreated?.();
@@ -200,6 +241,14 @@ export function InvoiceDetailsModal({
 					</Modal.Header>
 					<Modal.Body>
 						<div className="space-y-4">
+							{linkedDeliveryNote && (
+								<div
+									className="flex items-center gap-2 rounded-lg border border-[var(--primary)] bg-[color-mix(in_oklab,var(--primary)_10%,transparent)] px-3 py-2 text-sm font-medium text-[var(--primary)] text-start"
+									dir="rtl"
+								>
+									מקושר לתעודת משלוח {linkedDeliveryNote.number ?? linkedDeliveryNote.docUuid.slice(0, 8)}
+								</div>
+							)}
 							<div className="flex flex-col gap-1">
 								<label className="block text-sm font-medium text-start">
 									{t("admin:invoiceDetails.invoiceDate")}
@@ -247,6 +296,25 @@ export function InvoiceDetailsModal({
 									</p>
 								)}
 							</div>
+							{requireAllocation && (
+								<div className="flex flex-col gap-1">
+									<label className="block text-sm font-medium text-start" dir="rtl">
+										מספר הקצאה (חשבונית ישראל)
+										<span className="text-danger ml-1">*</span>
+									</label>
+									<Input
+										type="number"
+										inputMode="numeric"
+										placeholder="9 ספרות"
+										value={formData.allocationNumber}
+										onChange={(e) => handleChange("allocationNumber", e.target.value)}
+										className="text-start"
+									/>
+									{errors.allocationNumber && (
+										<p className="text-sm text-danger text-start">{errors.allocationNumber}</p>
+									)}
+								</div>
+							)}
 						</div>
 					</Modal.Body>
 					<Modal.Footer>

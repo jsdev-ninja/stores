@@ -4,9 +4,17 @@ import { ezCountService } from "../../../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import admin from "firebase-admin";
 import { FirebaseAPI, TOrder, TOrganization } from "@jsdev_ninja/core";
+import { emitInvoiceCreated } from "../internal/emitInvoiceCreated";
+
+// Israel ITA threshold for חשבונית ישראל (allocation number) mandate.
+// TODO: externalize to config.ts when a config getter is available.
+const ALLOCATION_THRESHOLD_ILS = 25000;
 
 type TData = {
-	params: Parameters<typeof ezCountService.createInvoice>[0];
+	params: Parameters<typeof ezCountService.createInvoice>[0] & {
+		/** חשבונית ישראל allocation number — required when price_total >= 25,000 ILS and parent is set */
+		allocationNumber?: string;
+	};
 	storeId: string;
 	orders: TOrder[];
 };
@@ -28,6 +36,23 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 			storeId,
 			orders,
 		});
+
+		// Compliance gate: when creating an invoice from a delivery note (params.parent
+		// set) and the total meets or exceeds the חשבונית ישראל threshold, an
+		// allocation number is mandatory. Reject before touching EZcount.
+		if (
+			params.parent &&
+			(params.price_total ?? 0) >= ALLOCATION_THRESHOLD_ILS &&
+			!params.allocationNumber
+		) {
+			functionsV2.logger.warn("createInvoice: allocation_required — invoice total >= ILS threshold but no allocationNumber supplied", {
+				price_total: params.price_total,
+				threshold: ALLOCATION_THRESHOLD_ILS,
+				storeId,
+				orderId: orders[0]?.id,
+			});
+			return { success: false, error: "allocation_required" };
+		}
 
 		const storePrivateData: TStorePrivate = (
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()
@@ -81,38 +106,80 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 			date: params.date,
 		});
 
-		if (!res.error) {
-			// batch update orders with invoice data
+		if (!res.error && res.data) {
+			// Narrow: inside this branch res.data is a TSuccess (not null).
+			const ezData = res.data;
+
+			// Build the invoice object to persist. When allocationNumber is provided,
+			// embed it alongside the EZcount response so it's stored on the order doc.
+			const invoiceToPersist = params.allocationNumber
+				? {
+						...ezData,
+						allocationNumber: params.allocationNumber,
+						allocationDate: Date.now(),
+				  }
+				: ezData;
+
+			// Batch update orders with invoice data
 			const batch = admin.firestore().batch();
 			orders.forEach((order) => {
-				batch.update(
-					admin
-						.firestore()
-						.collection(
-							FirebaseAPI.firestore.getPath({
-								collectionName: "orders",
-								companyId: auth?.token.companyId,
-								storeId: auth?.token.storeId ?? "",
-							})
-						)
-						.doc(order.id),
-					{
-						invoice: res.data,
-					}
-				);
+				const orderRef = admin
+					.firestore()
+					.collection(
+						FirebaseAPI.firestore.getPath({
+							collectionName: "orders",
+							companyId: auth?.token.companyId,
+							storeId: auth?.token.storeId ?? "",
+						})
+					)
+					.doc(order.id);
+
+				// When this invoice was created from a single-order delivery note,
+				// mark the embedded delivery note as paid using a dotted-path update
+				// so we don't overwrite the rest of the deliveryNote subobject.
+				if (params.parent && orders.length === 1) {
+					batch.update(orderRef, {
+						invoice: invoiceToPersist,
+						"deliveryNote.status": "paid",
+					});
+				} else {
+					batch.update(orderRef, { invoice: invoiceToPersist });
+				}
 			});
 			await batch.commit();
+
+			// Emit invoice_created event when the invoice was created from a
+			// delivery note (params.parent set). The event drives the ledger
+			// credit subscriber and any future subscribers.
+			if (params.parent) {
+				await emitInvoiceCreated({
+					orderId: orders[0].id,
+					invoiceNumber: ezData.doc_number,
+					invoiceDocUuid: ezData.doc_uuid,
+					priceTotal: price_total,
+					companyId: auth?.token.companyId ?? "",
+					storeId: auth?.token.storeId ?? "",
+					deliveryNoteNumber: orders[0].deliveryNote?.number,
+					organizationId: orders[0].organizationId,
+					allocationNumber: params.allocationNumber,
+				});
+			}
+
 			return {
 				success: true,
 				data: res.data,
 			};
 		}
 
-		console.log("create invoice res", JSON.stringify(res));
+		functionsV2.logger.error("createInvoice: ezcount failure", {
+			error: res.error?.message,
+			storeId,
+			orderIds: orders.map((o) => o.id),
+		});
 
 		return {
-			success: true,
-			data: res.data,
+			success: false as const,
+			error: res.error?.message ?? "ezcount_error",
 		};
 	}
 );
