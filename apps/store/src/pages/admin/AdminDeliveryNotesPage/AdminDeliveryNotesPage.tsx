@@ -394,7 +394,7 @@ export default function AdminDeliveryNotesPage() {
 																		selectedOrders: [o],
 																		linkedDeliveryNote: { docUuid: o.ezDeliveryNote?.doc_uuid ?? "", number: dnNumber(o) },
 																		requireAllocation:
-																			(o.cart?.cartTotal ?? 0) >= 25000,
+																			(o.cart?.cartTotal ?? 0) >= 5000,
 																		onInvoiceCreated: () => loadDeliveryNotes(),
 																	})
 																}

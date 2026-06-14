@@ -42,7 +42,7 @@ export function InvoiceDetailsModal({
 	initialInvoiceDate?: number;
 	/** When set, this invoice is linked to a specific delivery note. */
 	linkedDeliveryNote?: { docUuid: string; number?: string };
-	/** When true, an allocation number input is required (invoices >= ₪25,000). */
+	/** When true, an allocation number input is required (invoices >= ₪5,000). */
 	requireAllocation?: boolean;
 }) {
 	const { t } = useTranslation(["common", "admin"]);
@@ -112,7 +112,7 @@ export function InvoiceDetailsModal({
 		}
 
 		if (requireAllocation && !formData.allocationNumber.trim()) {
-			newErrors.allocationNumber = "נדרש מספר הקצאה לחשבוניות מעל ₪25,000";
+			newErrors.allocationNumber = "נדרש מספר הקצאה לחשבוניות מעל ₪5,000";
 		}
 
 		setErrors(newErrors);

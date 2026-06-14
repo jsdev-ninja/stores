@@ -221,6 +221,78 @@ async function chargeOrder({ order }: { order: TOrder }) {
 	}
 }
 
+// ── New ledger flow (server-side, signature-verified) ──────────────────────
+// Customer J5 checkout: the server loads the order, signs the HYP form, and
+// returns it. Replaces the legacy client-trusting `createPayment`.
+async function createHypCheckoutPayment({
+	orderId,
+	companyId,
+	storeId,
+	isJ5 = true,
+}: {
+	orderId: string;
+	companyId: string;
+	storeId: string;
+	isJ5?: boolean;
+}) {
+	try {
+		const func = httpsCallable(functions, "createHypCheckoutPayment");
+		const response = await func({ orderId, companyId, storeId, isJ5 });
+		return {
+			success: true,
+			data: response.data as {
+				success: boolean;
+				formAction?: string;
+				formFields?: Record<string, string>;
+				error?: string;
+			},
+		};
+	} catch (error: unknown) {
+		const e = error as { code?: string; message?: string; details?: unknown };
+		console.error(e.code, e.message, e.details);
+		return { success: false, data: null };
+	}
+}
+
+// Records a verified J5 authorization from the HYP browser redirect. The server
+// re-verifies the signature with HYP before writing; the order is flipped to
+// paid by the `onTransactionPostedMarkOrderPaid` subscriber — never the client.
+async function recordHypJ5Auth(input: {
+	companyId: string;
+	storeId: string;
+	Id: string;
+	CCode: string;
+	Amount: string;
+	Order: string;
+	Masof: string;
+	UID: string;
+	ACode?: string;
+	Sign?: string;
+	last4?: string;
+	clientName?: string;
+	email?: string;
+	reference: { type: "order"; id: string };
+	rawResponse: Record<string, unknown>;
+	payer?: { organizationId?: string; clientId?: string; billingAccountId?: string };
+}) {
+	try {
+		const func = httpsCallable(functions, "recordHypJ5Auth");
+		const response = await func(input);
+		return {
+			success: true,
+			data: response.data as {
+				success: boolean;
+				transactionId?: string;
+				error?: string;
+			},
+		};
+	} catch (error: unknown) {
+		const e = error as { code?: string; message?: string; details?: unknown };
+		console.error(e.code, e.message, e.details);
+		return { success: false, data: null };
+	}
+}
+
 async function createCompanyClient(company: TCompany) {
 	try {
 		const func = httpsCallable(functions, "createCompanyClient");
@@ -392,6 +464,8 @@ export const api = {
 	init,
 	createCompanyClient,
 	createPayment,
+	createHypCheckoutPayment,
+	recordHypJ5Auth,
 	chargeOrder,
 	createPaymentRedirect,
 	getPaymentRedirect,
