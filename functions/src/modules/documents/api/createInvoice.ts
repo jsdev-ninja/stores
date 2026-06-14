@@ -8,7 +8,7 @@ import { emitInvoiceCreated } from "../internal/emitInvoiceCreated";
 
 // Israel ITA threshold for חשבונית ישראל (allocation number) mandate.
 // TODO: externalize to config.ts when a config getter is available.
-const ALLOCATION_THRESHOLD_ILS = 25000;
+const ALLOCATION_THRESHOLD_ILS = 5000;
 
 type TData = {
 	params: Parameters<typeof ezCountService.createInvoice>[0] & {
