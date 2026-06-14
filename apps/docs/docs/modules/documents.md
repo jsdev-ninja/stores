@@ -24,6 +24,22 @@ Refunds do **not** touch AR. The settlement subscriber acts only on
 `organizationBalance`.
 :::
 
+:::caution Migration status (as of the `ar-organization-balance` refactor)
+The AR ledger is **live and populated**, but the **admin UI is not yet
+repointed** to read it (deferred — "task 9"):
+
+- The legacy budget callables `getBudgetAccount` / `listBudgetAccounts` are
+  **stubbed and return empty**, so org debt currently shows as **₪0** on the
+  existing admin budget/dashboard pages until the UI reads `organizationBalance`.
+- The legacy collections `organizationBudgets`, `orgBalances`, `budgetRecords`
+  are **inert** (no longer written) but intentionally **not deleted**.
+- **Deferred follow-ups:** a cancelled-order AR-reversal path (today a cancelled
+  fulfilled order leaves its accrual in place), and pagination for the reconcile
+  scan before large-tenant production use.
+- **Deploy:** the backend consumes `@jsdev_ninja/core` from the registry, so
+  **core `0.16.0` must be published before functions deploys**.
+:::
+
 :::info Money & time conventions
 EZcount expects **shekels** (floats); we convert at the boundary in
 `ezCountService`. AR amounts are stored as **integer agorot** (1 ILS = 100
@@ -61,15 +77,19 @@ Every row is immutable once written. Key fields:
 
 | Field           | Type    | Notes |
 | --------------- | ------- | ----- |
-| `id`            | string  | Deterministic dedup id — see [Idempotency (AR)](#idempotency-ar). |
+| `id`            | string  | Deterministic dedup id (= `dedupKey`) — see [Idempotency (AR)](#idempotency-ar). |
 | `organizationId`| string  | B2B organization (company). Required — B2C orders are skipped. |
-| `sign`          | `"+"` \| `"-"` | `"+"` = owed increases; `"-"` = owed decreases. |
-| `amount`        | number  | Integer agorot, always positive. |
+| `sign`          | `"+"` \| `"-"` | `"+"` = owed increases (accrual); `"-"` = owed decreases (settlement). |
 | `kind`          | `"accrual"` \| `"settlement"` \| `"adjustment"` | Accrual on DN, settlement on payment. |
-| `source`        | `"delivery_note"` \| `"ledger_payment"` \| `"manual"` | What triggered this entry. |
-| `sourceId`      | string  | ID of the source (deliveryNoteId, transactionId, etc.). |
-| `orderId`       | string  | The order this entry belongs to. |
-| `createdAt`     | number  | Epoch millis. |
+| `amount`        | number  | Integer agorot, always positive (`sign` carries direction). |
+| `currency`      | `"ILS"` | Always ILS. |
+| `source`        | `"delivery_note"` \| `"ledger_payment"` \| `"manual"` \| `"order_reversal"` | What triggered this entry. |
+| `document`      | object? | Source tax doc: `{ type: "delivery_note" \| "invoice", id, number? }`. Present for accruals. |
+| `reference`     | object? | `{ type: "order" \| "transaction" \| "manual", id }` — order id (accrual) or ledger txId (settlement). |
+| `billingAccountId` | string \| null | Optional sub-grouping within an org. |
+| `dedupKey`      | string  | Deterministic dedup key; the doc `id` is derived from it. |
+| `causedByEventId` | string? | Event id when the entry is event-driven (audit / trace). |
+| `createdAt`     | number  | Epoch millis — indexed for date-range queries. |
 | `companyId`, `storeId` | string | Tenant scope. |
 
 ## AR rollup schema (`OrganizationBalanceRollupSchema`)
@@ -111,12 +131,18 @@ createDeliveryNote (api) → emit documents.delivery_note_created
    on the order, and **emits `documents.delivery_note_created`** (inlined, no emit wrapper).
 2. `accrueOnDeliveryNoteCreated` subscribes. If `payload.organizationId` is
    absent → B2C → skip.
-3. The subscriber **re-reads the server order doc** to get the authoritative
-   `organizationId` — it cross-checks the payload value before writing (security).
+3. The subscriber **re-reads the server order doc** and uses its
+   `order.organizationId` as the authoritative value. The event payload's
+   `organizationId` is used only as a B2C early-exit hint and is otherwise
+   ignored — a spoofed payload cannot redirect the accrual.
 4. Amount = `Math.round(order.cart.cartTotal * 100)` (shekels → agorot).
-5. `accrueDebt` calls `writeArEntry` with `sign: "+"`, `kind: "accrual"`,
+5. The dedup id is derived from a **stable server-side delivery-note id**
+   (`order.deliveryNote?.id ?? order.deliveryNote?.number`). If neither is
+   present, the subscriber logs an error and **skips** — it never falls back to
+   `orderId` (that would break idempotency / risk double-accrual).
+6. `accrueDebt` calls `writeArEntry` with `sign: "+"`, `kind: "accrual"`,
    `source: "delivery_note"`, dedup id = `dn_{deliveryNoteId}`.
-6. `writeArEntry` runs a **Firestore transaction**: reads current rollup,
+7. `writeArEntry` runs a **Firestore transaction**: reads current rollup,
    `txn.create(entryRef, ...)` (idempotency gate), `txn.set(rollupRef, ...)`.
    On `ALREADY_EXISTS` → no-op (idempotent replay).
 
@@ -132,12 +158,18 @@ ledger.postTransaction → emit ledger.transaction_posted
 1. `settleOnTransactionPosted` subscribes to `LedgerEventTypes.transactionPosted`.
 2. **Re-reads the stored transaction** from Firestore (payload is routing hint
    only — never trust client-supplied amounts).
-3. Guards (all must pass):
+3. Guards (all must pass; evaluated against the **stored** doc):
+   - `storedTx.type` must be a **received-money** type — one of `hyp_capture`,
+     `hyp_direct`, `manual`. `hyp_j5_auth` (an authorization **hold**, not
+     captured money) and any other type are skipped, so the J5 auth + later
+     capture pair settles AR exactly once, and never before money is captured.
    - `storedTx.direction !== "in"` → skip (refunds do not reduce AR).
    - `storedTx.reference?.type !== "order"` → skip (non-order payment, no AR).
    - `!organizationId` → skip (B2C order).
 4. `settleDebt` calls `writeArEntry` with `sign: "-"`, `kind: "settlement"`,
-   `source: "ledger_payment"`, dedup id = `evt_settleOnTransactionPosted_{eventId}`.
+   `source: "ledger_payment"`, dedup id = `settle_{transactionId}` — keyed on the
+   **transaction id**, not the event id, so event re-delivery / backfill cannot
+   double-settle.
 5. Rollup: `nextSettled += amount`; `owed = max(0, totalAccrued − totalSettled)`;
    `credit = max(0, totalSettled − totalAccrued)`. Over-payments produce `credit > 0`;
    `owed` is always 0 in that case.
@@ -175,10 +207,8 @@ Deterministic dedup ids:
 
 | Source          | Dedup id                                           |
 | --------------- | -------------------------------------------------- |
-| Delivery note accrual | `dn_{deliveryNoteId}`                        |
-| Transaction settlement | `evt_settleOnTransactionPosted_{eventId}`   |
-| Order reversal  | `order_reversal_{orderId}`                         |
-| Manual entry    | `manual_{stableKey}`                               |
+| Delivery note accrual | `dn_{deliveryNoteId}` (stable server-side DN id) |
+| Transaction settlement | `settle_{transactionId}`                    |
 
 ## Events
 
