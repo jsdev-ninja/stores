@@ -19,20 +19,32 @@ export { createCompanyClient, migrateProfilesToMultiOrg } from "./modules/custom
 // HYP payment flow (incl. legacy createPayment/chargeOrder/createPaymentRedirect/getPaymentRedirect)
 // now lives entirely in the ledger module and is re-exported here.
 export * from "./modules/ledger";
-export { createDeliveryNote, createInvoice } from "./modules/documents";
+// Documents module — delivery notes, invoices, and AR (organizationBalance)
+export {
+  createDeliveryNote,
+  createInvoice,
+  // AR subscribers
+  accrueOnDeliveryNoteCreated,
+  settleOnTransactionPosted,
+  // AR reconcile (admin callable + nightly schedule)
+  reconcileOrganizationBalanceCallable,
+  reconcileOrganizationBalanceSchedule,
+  // AR read (admin callable)
+  getOrganizationBalance,
+} from "./modules/documents";
 export { onSupplierInvoiceCreate } from "./modules/suppliers";
 export { onContactFormSubmit, onLandingLeadCreated } from "./modules/notifications";
 export {
+  // Budget callables — getBudgetAccount/listBudgetAccounts/getBudgetTransactions
+  // are STUBBED pending admin UI repoint (task 9). Deployed names kept stable.
   getBudgetAccount,
   listBudgetAccounts,
   getBudgetTransactions,
   markOrderPaid,
   addBudgetManualTransaction,
-  increaseDebtOnOrderPlaced,
-  reduceDebtOnOrderCancelled,
-  reduceDebtOnOrderRefunded,
-  reduceDebtOnTransactionPosted,
+  // Revenue projection subscriber (cash only — AR removed)
   updateProjectionsOnTransactionPosted,
+  // Revenue reconcile callable + nightly schedule
   reconcileBudgetProjections,
   reconcileProjectionsSchedule,
 } from "./modules/budget";

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Table,
   Chip,
@@ -7,9 +7,9 @@ import {
   TextArea,
   Modal,
   ListBox,
+  Input,
 } from "@heroui/react";
 import { Button } from "src/components/button";
-import { Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { navigate, useParams } from "src/navigation";
@@ -17,6 +17,9 @@ import { FirebaseApi } from "src/lib/firebase";
 import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import type { Key } from "react-aria-components";
+import { modalApi } from "src/infra/modals";
+import { useAppApi } from "src/appApi";
+import type { TOrder, TOrganization } from "@jsdev_ninja/core";
 
 type TBudgetAccount = {
   id: string;
@@ -62,21 +65,138 @@ type TBudgetTransaction = {
   createdBy: string;
 };
 
+// ─── Helpers (copied from AdminDeliveryNotesPage) ────────────────────────────
+
+function fmtDate(ms?: number): string {
+  if (!ms) return "—";
+  const v = ms < 1e12 ? ms * 1000 : ms;
+  try {
+    return new Date(v).toLocaleDateString("he-IL");
+  } catch {
+    return "—";
+  }
+}
+
+function fmtMoney(n: number): string {
+  return "₪" + n.toLocaleString("he-IL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function dnNumber(o: TOrder): string {
+  return o.deliveryNote?.number ?? o.ezDeliveryNote?.doc_number ?? "—";
+}
+function dnPdf(o: TOrder): string | undefined {
+  return o.deliveryNote?.link ?? o.ezDeliveryNote?.pdf_link ?? o.ezDeliveryNote?.pdf_link_copy;
+}
+function dnDate(o: TOrder): number {
+  return o.deliveryNote?.date ?? o.date;
+}
+function dnItemCount(o: TOrder): number {
+  return o.deliveryNote?.items?.length ?? o.cart?.items?.length ?? 0;
+}
+function dnTotal(o: TOrder): number {
+  return o.deliveryNote?.total ?? o.cart?.cartTotal ?? 0;
+}
+type DnStatus = "pending" | "paid" | "cancelled";
+function dnStatus(o: TOrder): DnStatus | undefined {
+  return o.deliveryNote?.status;
+}
+
+function KpiCard({ label, value, color }: { label: string; value: string | number; color?: string }) {
+  return (
+    <div className="p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-card)]">
+      <span className="block mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+        {label}
+      </span>
+      <b
+        className="block text-2xl font-extrabold leading-none tracking-tight"
+        style={{ color: color ?? "var(--foreground)" }}
+      >
+        {value}
+      </b>
+    </div>
+  );
+}
+
+const isUnpaid = (o: TOrder) => {
+  const s = dnStatus(o);
+  return s !== "paid" && s !== "cancelled" && !o.invoice && !o.ezInvoice && dnNumber(o) !== "—";
+};
+
+const DEBT_COLUMNS = [
+  { uid: "company", label: "חברה" },
+  { uid: "number", label: "מס׳ תעודה" },
+  { uid: "date", label: "תאריך הנפקה" },
+  { uid: "items", label: "פריטים" },
+  { uid: "total", label: "סכום פתוח" },
+  { uid: "actions", label: "" },
+];
+
 // ─── List page ───────────────────────────────────────────────────────────────
 
 export function AdminBudgetPage() {
-  const { t } = useTranslation(["common", "admin"]);
-  const [accounts, setAccounts] = useState<TBudgetAccount[]>([]);
+  const appApi = useAppApi();
+
+  const [orders, setOrders] = useState<TOrder[]>([]);
+  const [organizations, setOrganizations] = useState<TOrganization[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [companyFilter, setCompanyFilter] = useState("all");
+
+  const loadUnpaidDeliveryNotes = useCallback(async () => {
+    setLoading(true);
+    try {
+      const toDate = Date.now();
+      const fromDate = toDate - 365 * 24 * 60 * 60 * 1000;
+      const result = await appApi.admin.getDeliveryNotes({ fromDate, toDate });
+      if (result?.success) setOrders(result.data || []);
+    } catch (error) {
+      console.error("Failed to load delivery notes:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- appApi stable
 
   useEffect(() => {
-    FirebaseApi.api.listBudgetAccounts()
-      .then((res) => {
-        if (res.success) setAccounts((res.data ?? []) as TBudgetAccount[]);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    loadUnpaidDeliveryNotes();
+  }, [loadUnpaidDeliveryNotes]);
+
+  useEffect(() => {
+    appApi.admin.listOrganizations().then((result) => {
+      if (result?.success) setOrganizations((result.data || []) as TOrganization[]);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
   }, []);
+
+  const orgNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    organizations.forEach((o) => map.set(o.id, o.name));
+    return map;
+  }, [organizations]);
+
+  const companyName = (o: TOrder) =>
+    (o.organizationId && orgNameById.get(o.organizationId)) ||
+    o.deliveryNote?.companyDetails?.name ||
+    "—";
+
+  const unpaid = useMemo(() => orders.filter(isUnpaid), [orders]);
+
+  const kpis = useMemo(() => {
+    const totalDebt = unpaid.reduce((sum, o) => sum + dnTotal(o), 0);
+    return { totalDebt, count: unpaid.length };
+  }, [unpaid]);
+
+  const filtered = useMemo(() => {
+    let list = unpaid;
+    if (companyFilter !== "all") list = list.filter((o) => o.organizationId === companyFilter);
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (o) =>
+          dnNumber(o).toLowerCase().includes(q) || companyName(o).toLowerCase().includes(q)
+      );
+    }
+    return [...list].sort((a, b) => dnDate(b) - dnDate(a));
+  }, [unpaid, companyFilter, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -87,67 +207,163 @@ export function AdminBudgetPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t("admin:budget.title", "ניהול תקציב")}</h1>
+    <div className="space-y-5">
+      <h1 className="text-2xl font-bold">חובות לקוחות</h1>
+
+      {/* KPI strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <KpiCard label='סה"כ חוב פתוח' value={fmtMoney(kpis.totalDebt)} color="var(--danger)" />
+        <KpiCard label="מס׳ תעודות פתוחות" value={kpis.count} />
       </div>
 
-      {accounts.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+      {/* Toolbar */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative">
+          <Icon
+            icon="lucide:search"
+            className="absolute start-2 top-1/2 -translate-y-1/2 text-[var(--muted)] pointer-events-none"
+            width={16}
+            height={16}
+          />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="חיפוש מספר תעודה / חברה..."
+            type="search"
+            aria-label="חיפוש חוב"
+            className="ps-7 w-64"
+          />
+        </div>
+
+        <div className="w-48">
+          <Select
+            selectedKey={companyFilter}
+            onSelectionChange={(k) => setCompanyFilter(k as string)}
+            aria-label="סינון לפי חברה"
+          >
+            <Select.Trigger>
+              <Select.Value />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                <ListBox.Item id="all" textValue="כל החברות">
+                  כל החברות
+                </ListBox.Item>
+                {organizations.map((org) => (
+                  <ListBox.Item key={org.id} id={org.id} textValue={org.name}>
+                    {org.name}
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select>
+        </div>
+      </div>
+
+      {/* Table */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-[var(--muted)]">
           <Icon icon="lucide:wallet" className="mx-auto mb-3 text-4xl" />
-          <p>{t("admin:budget.noAccounts", "אין חובות פתוחים")}</p>
+          <p>אין חובות פתוחים 🎉</p>
         </div>
       ) : (
-        <Table aria-label="budget accounts">
-          <Table.ScrollContainer>
-            <Table.Content>
-              <Table.Header>
-                <Table.Column>{t("common:organization", "ארגון")}</Table.Column>
-                <Table.Column>{t("admin:budget.totalDebits", "סה״כ חיובים")}</Table.Column>
-                <Table.Column>{t("admin:budget.totalCredits", "סה״כ תשלומים")}</Table.Column>
-                <Table.Column>{t("admin:budget.balance", "יתרת חוב")}</Table.Column>
-                <Table.Column>{t("common:actionsLabel", "פעולות")}</Table.Column>
-              </Table.Header>
-              <Table.Body>
-                {accounts.map((acc) => (
-                  <Table.Row key={acc.id} id={acc.id}>
-                    <Table.Cell className="font-medium">{acc.organizationName}</Table.Cell>
-                    <Table.Cell>
-                      <Price price={acc.totalDebits} />
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Price price={acc.totalCredits} />
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Chip
-                        color={acc.balance > 0 ? "danger" : acc.balance < 0 ? "success" : "default"}
-                        variant="soft"
-                      >
-                        <Chip.Label>
-                          <Price price={acc.balance} />
-                        </Chip.Label>
-                      </Chip>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onPress={() =>
-                          navigate({
-                            to: "admin.budgetOrganization",
-                            params: { organizationId: acc.organizationId },
-                          })
-                        }
-                      >
-                        {t("common:view", "צפה")}
-                      </Button>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Content>
-          </Table.ScrollContainer>
-        </Table>
+        <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] overflow-hidden">
+          <Table variant="secondary">
+            <Table.ScrollContainer>
+              <Table.Content
+                aria-label="Unpaid delivery notes"
+                className="min-w-[860px] [&>thead>tr]:border-b [&>thead>tr]:border-[var(--border)] [&>tbody>tr]:border-b [&>tbody>tr]:border-[var(--border)] [&>tbody>tr:last-child]:border-0 [&>tbody>tr:hover]:bg-[var(--background)] [&>tbody>tr]:transition-colors"
+              >
+                <Table.Header>
+                  {DEBT_COLUMNS.map((col) => (
+                    <Table.Column
+                      key={col.uid}
+                      isRowHeader={col.uid === "number"}
+                      className="text-[11px] font-bold uppercase tracking-wide text-[var(--foreground)] py-3"
+                      style={{ backgroundColor: "var(--default)", borderRadius: 0 }}
+                    >
+                      {col.label}
+                    </Table.Column>
+                  ))}
+                </Table.Header>
+                <Table.Body>
+                  {filtered.map((o) => {
+                    const pdf = dnPdf(o);
+                    return (
+                      <Table.Row key={o.id}>
+                        {/* חברה */}
+                        <Table.Cell className="py-3">
+                          <span className="text-sm text-[var(--foreground)]">{companyName(o)}</span>
+                        </Table.Cell>
+
+                        {/* מס׳ תעודה */}
+                        <Table.Cell className="py-3">
+                          <span className="font-semibold text-sm text-[var(--foreground)]">
+                            {dnNumber(o)}
+                          </span>
+                        </Table.Cell>
+
+                        {/* תאריך הנפקה */}
+                        <Table.Cell className="py-3">
+                          <span className="text-sm text-[var(--muted)]">{fmtDate(dnDate(o))}</span>
+                        </Table.Cell>
+
+                        {/* פריטים */}
+                        <Table.Cell className="py-3">
+                          <span className="text-sm text-[var(--muted)]">{dnItemCount(o)} פריטים</span>
+                        </Table.Cell>
+
+                        {/* סכום פתוח */}
+                        <Table.Cell className="py-3">
+                          <span className="text-sm font-bold" style={{ color: "var(--danger)" }}>
+                            {fmtMoney(dnTotal(o))}
+                          </span>
+                        </Table.Cell>
+
+                        {/* פעולות */}
+                        <Table.Cell className="py-3">
+                          <div className="flex items-center gap-1.5 justify-end">
+                            {pdf ? (
+                              <a
+                                href={pdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                              >
+                                <Icon icon="lucide:eye" width={13} height={13} />
+                                צפה
+                              </a>
+                            ) : (
+                              <span className="text-sm text-[var(--muted)]">—</span>
+                            )}
+                            {dnNumber(o) !== "—" && !o.invoice && !o.ezInvoice && !!o.ezDeliveryNote?.doc_uuid && (
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
+                                onClick={() =>
+                                  modalApi.openModal("invoiceDetails", {
+                                    selectedOrders: [o],
+                                    linkedDeliveryNote: { docUuid: o.ezDeliveryNote?.doc_uuid ?? "", number: dnNumber(o) },
+                                    requireAllocation: (o.cart?.cartTotal ?? 0) >= 5000,
+                                    onInvoiceCreated: () => loadUnpaidDeliveryNotes(),
+                                  })
+                                }
+                              >
+                                <Icon icon="lucide:file-text" width={13} height={13} />
+                                הפק חשבונית
+                              </button>
+                            )}
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table.Content>
+            </Table.ScrollContainer>
+          </Table>
+        </div>
       )}
     </div>
   );

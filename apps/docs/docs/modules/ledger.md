@@ -7,14 +7,25 @@ title: Ledger
 
 `functions/src/modules/ledger`
 
-The **single source of truth for all money movement** in the store. Every
+The **single source of truth for all real money movement** in the store. Every
 successful financial event is recorded as an append-only `Transaction`
 document — the authoritative record of what money moved, when, how much, and
 why. Existing records are never mutated; only new facts are appended.
 
+:::caution Pure cash — AR lives in documents
+As of the `ar-organization-balance` refactor, the ledger is **pure cash only**.
+The concepts `delivery_note`, `invoice`, `credit_note`, `adjustment`,
+`kind: debit`, and `direction: "none"` have been **removed**. Accounts-receivable
+accruals now live in the `documents` module's `organizationBalance` entry ledger.
+
+Dependency direction after this change:
+- `documents` subscribes to `ledger.transaction_posted` to settle AR.
+- The ledger has **zero** dependency on documents, orders, or AR concepts.
+:::
+
 :::info Money & time conventions
 Amounts are integer **agorot** (1 ILS = 100 agorot) and always positive;
-direction (`in`/`out`/`none`) carries the sign. Timestamps are epoch **millis**.
+`direction` (`in`/`out`) carries the sign. Timestamps are epoch **millis**.
 Currency is always `"ILS"`. HYP converts to/from shekels at the boundary.
 :::
 
@@ -37,14 +48,12 @@ events become rows. Key fields (`TransactionSchema`):
 
 | Field         | Notes                                                                                   |
 | ------------- | --------------------------------------------------------------------------------------- |
-| `kind`        | `credit` (money in / owed-reduced) or `debit` (owed-increased accrual). Default `credit`. |
-| `type`        | See [Transaction types](#transaction-types).                                            |
+| `type`        | See [Transaction types](#transaction-types). Cash only.                                 |
 | `amount`      | Integer agorot, always positive.                                                        |
 | `currency`    | Always `"ILS"`.                                                                         |
-| `direction`   | `in` = received, `out` = refund, `none` = accrual (debits move no cash).                |
+| `direction`   | `in` = received by the store, `out` = refund.                                           |
 | `reference`   | Optional `{ type: order \| refund \| adjustment, id }`.                                 |
-| `document`    | Source doc for a debit `{ type: delivery_note \| invoice \| credit_note, id, number? }`. |
-| `payer`       | `{ organizationId?, clientId?, billingAccountId? }` — who owes / paid.                   |
+| `payer`       | `{ organizationId?, clientId?, billingAccountId? }` — who paid.                         |
 | `hyp`         | Gateway detail: `masof`, `paymentToken?`, `ccode?`, `hypTransactionId?`, `last4?`, full `rawResponse`, `capturedFromTransactionId?`. |
 | `clientName`, `email` | Customer identity captured at auth, reused by capture.                          |
 | `actor`       | `user` (admin), `customer`, or `system`.                                                |
@@ -55,19 +64,14 @@ events become rows. Key fields (`TransactionSchema`):
 
 ### Transaction types
 
-Two families — **credits** (money in / refunds out) and **debits**
-(accounts-receivable accruals with no cash movement):
+Cash only — four payment instruments:
 
-| Type            | Family | When written                                                     |
-| --------------- | ------ | ---------------------------------------------------------------- |
-| `manual`        | credit | Admin records external money (cash, bank transfer).              |
-| `hyp_direct`    | credit | HYP direct payment link completed (`recordHypDirectPayment`).    |
-| `hyp_j5_auth`   | credit | HYP J5 authorization recorded by the customer's browser.         |
-| `hyp_capture`   | credit | J5 hold captured server-side via `captureHypJ5`.                 |
-| `delivery_note` | debit  | Delivery note issued on credit terms.                            |
-| `invoice`       | debit  | Invoice issued on credit terms.                                  |
-| `credit_note`   | debit  | Credit note.                                                     |
-| `adjustment`    | debit  | Manual balance adjustment.                                       |
+| Type            | When written                                                     |
+| --------------- | ---------------------------------------------------------------- |
+| `manual`        | Admin records external money (cash, bank transfer).              |
+| `hyp_direct`    | HYP direct payment link completed (`recordHypDirectPayment`).    |
+| `hyp_j5_auth`   | HYP J5 authorization recorded by the customer's browser.         |
+| `hyp_capture`   | J5 hold captured server-side via `captureHypJ5`.                 |
 
 ## Idempotency
 
@@ -88,10 +92,16 @@ double-emitting. The doc id is derived from a deterministic `dedupKey`:
 `postTransaction` writes the transaction doc **and** emits
 `ledger.transaction_posted` in a single Firestore transaction — if the write
 commits, the event is guaranteed emitted. Payload (`TransactionPostedPayload`)
-forwards `transactionId`, `kind`, `type`, `amount`, `direction`, `reference?`,
-and `payer?` so downstream subscribers (e.g. budget/balance projections) act
-without a second read. Legacy subscribers act only on `direction: "in"`, so
-`none` debits are safely ignored by the old path.
+forwards `transactionId`, `type`, `amount`, `direction` (`in`|`out`), `reference?`,
+and `payer?` so downstream subscribers act without a second read.
+
+Subscribers of `ledger.transaction_posted`:
+
+| Subscriber                                      | Module      | Purpose                            |
+| ----------------------------------------------- | ----------- | ---------------------------------- |
+| `updateProjectionsOnTransactionPosted`          | `budget`    | Revenue rollup (cash reporting)    |
+| `settleOnTransactionPosted`                     | `documents` | AR settlement (reduce org owed)    |
+| `onTransactionPostedMarkOrderPaid`              | `orders`    | Update order paymentStatus         |
 
 ## Public surface
 
@@ -115,8 +125,6 @@ storefront/admin are migrated:
 | `createPayment`              | 🟥     | `onCall` | legacy link create — live today       |
 | `createPaymentRedirect`      | 🟥     | `onCall` | legacy admin link — live today        |
 | `getPaymentRedirect`         | 🟥     | `onCall` | legacy fetch redirect link — live today |
-
-Subscriber: `postDebitOnDeliveryNoteCreated` (wired in `functions/src/index.tsx`).
 
 ## HYP payment flows
 

@@ -25,8 +25,6 @@ const TRANSACTION_TYPE_TO_PAYMENT_STATUS: Partial<
 	hyp_capture: "completed",
 	hyp_direct: "completed",
 	manual: "completed",
-	// Debit types (delivery_note/invoice/...) have direction "none" and never
-	// reach the mapping — the direction guard returns first. Left unmapped.
 };
 
 /**

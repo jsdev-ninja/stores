@@ -4,7 +4,8 @@ import { ezCountService } from "../../../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import admin from "firebase-admin";
 import { FirebaseAPI, TOrder, TOrganization } from "@jsdev_ninja/core";
-import { emitInvoiceCreated } from "../internal/emitInvoiceCreated";
+import { emitEvent } from "../../../platform/eventBus";
+import { DocumentEventTypes, DocumentInvoiceCreatedPayload } from "../events";
 
 // Israel ITA threshold for חשבונית ישראל (allocation number) mandate.
 // TODO: externalize to config.ts when a config getter is available.
@@ -149,19 +150,34 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 			await batch.commit();
 
 			// Emit invoice_created event when the invoice was created from a
-			// delivery note (params.parent set). The event drives the ledger
-			// credit subscriber and any future subscribers.
+			// delivery note (params.parent set). Note: this event has NO AR effect —
+			// debt was already accrued at delivery-note creation. The event is kept
+			// for tax/reporting consumers only (e.g. notifications, audit logs).
 			if (params.parent) {
-				await emitInvoiceCreated({
-					orderId: orders[0].id,
-					invoiceNumber: ezData.doc_number,
-					invoiceDocUuid: ezData.doc_uuid,
-					priceTotal: price_total,
+				const invoiceAmount = Math.round(price_total * 100); // shekels → agorot
+				await emitEvent<DocumentInvoiceCreatedPayload>({
+					type: DocumentEventTypes.invoiceCreated,
+					source: "documents",
 					companyId: auth?.token.companyId ?? "",
 					storeId: auth?.token.storeId ?? "",
-					deliveryNoteNumber: orders[0].deliveryNote?.number,
-					organizationId: orders[0].organizationId,
-					allocationNumber: params.allocationNumber,
+					actorId: "system",
+					payload: {
+						orderId: orders[0].id,
+						invoiceNumber: ezData.doc_number,
+						invoiceDocUuid: ezData.doc_uuid,
+						amount: invoiceAmount,
+						companyId: auth?.token.companyId ?? "",
+						storeId: auth?.token.storeId ?? "",
+						...(orders[0].deliveryNote?.number
+							? { deliveryNoteNumber: orders[0].deliveryNote.number }
+							: {}),
+						...(orders[0].organizationId
+							? { organizationId: orders[0].organizationId }
+							: {}),
+						...(params.allocationNumber
+							? { allocationNumber: params.allocationNumber }
+							: {}),
+					},
 				});
 			}
 

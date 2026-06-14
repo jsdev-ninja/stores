@@ -20,6 +20,16 @@ All paths are built with `FirebaseAPI.firestore.getPath`. Shape:
 | `paymentLinks`          | Short-lived HYP signed forms (48h TTL). Single-use.        |
 | `duplicateChargeAlerts` | Flagged double-charges for the same order.                 |
 
+## Pure-Cash Design (post ar-organization-balance refactor)
+
+The ledger is **pure cash only**. It records only real money movement. The concepts
+`delivery_note`, `invoice`, `credit_note`, `adjustment`, `kind: debit`, and
+`direction: "none"` have been **removed**. Accounts-receivable accruals now live in the
+`documents` module's `organizationBalance` entry ledger (see `modules/documents/README.md`).
+
+Dependency direction: `documents` subscribes to `ledger.transaction_posted` to settle AR.
+The ledger has zero dependency on documents, orders, or AR concepts.
+
 ## Transaction Model
 
 - **Append-only**: no `status`, no `updatedAt`. Only successful events become rows.

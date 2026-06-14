@@ -2,21 +2,18 @@ import admin from "firebase-admin";
 import { logger } from "firebase-functions/v2";
 import { z } from "zod";
 import {
-	orgBalancePath,
 	revenueRollupPath,
 	projectionIdempotencyPath,
 } from "../internal/paths";
 import { getJerusalemDateParts } from "../internal/dateParts";
 import {
-	OrgBalanceSchema,
 	RevenueRollupSchema,
 	BudgetIdempotencyMarkerSchema,
-	TOrgBalance,
 	TRevenueRollup,
 } from "../types";
 
 // ---------------------------------------------------------------------------
-// Input — one posted ledger transaction projected into the read-models.
+// Input — one posted cash ledger transaction projected into revenue read-models.
 // All authoritative values come from the STORED transaction doc (the caller
 // re-reads it), never the event payload.
 // ---------------------------------------------------------------------------
@@ -27,20 +24,11 @@ const ApplyLedgerProjectionInputSchema = z.object({
 	/** The event id that produced this transaction — the idempotency key. */
 	eventId: z.string().min(1),
 	transactionId: z.string().min(1),
-	kind: z.enum(["credit", "debit"]),
-	type: z.enum([
-		"manual",
-		"hyp_direct",
-		"hyp_j5_auth",
-		"hyp_capture",
-		"delivery_note",
-		"invoice",
-		"credit_note",
-		"adjustment",
-	]),
+	/** Cash types only — AR accruals are handled by the documents module. */
+	type: z.enum(["manual", "hyp_direct", "hyp_j5_auth", "hyp_capture"]),
 	/** Integer agorot, always positive */
 	amount: z.number().int().positive(),
-	direction: z.enum(["in", "out", "none"]),
+	direction: z.enum(["in", "out"]),
 	/** null for B2C / no-organization transactions */
 	organizationId: z.string().nullable(),
 	/** epoch millis — buckets the revenue rollup by Jerusalem month */
@@ -52,13 +40,15 @@ export type ApplyLedgerProjectionInput = z.infer<
 >;
 
 // ---------------------------------------------------------------------------
-// applyLedgerProjection — the ONLY writer of orgBalances + revenueRollups
+// applyLedgerProjection — the ONLY writer of revenueRollups
+//
+// AR (orgBalances) has been removed from this service. It now lives in
+// documents/services/accrueDebt.ts + settleDebt.ts.
 // ---------------------------------------------------------------------------
 
 /**
- * Atomically projects one posted ledger transaction into:
- *   - orgBalances/{orgId}     (accounts-receivable: owed = Σdebits − Σcredits-in, ≥0)
- *   - revenueRollups/{ym}     (money in/out by month, byMethod, byOrg)
+ * Atomically projects one posted cash ledger transaction into:
+ *   - revenueRollups/{ym}  (money in/out by month, byMethod, byOrg)
  *
  * Idempotent: claims projectionIdempotency/{eventId} via .create() inside the
  * transaction; a replayed event is a no-op.
@@ -77,11 +67,6 @@ export async function applyLedgerProjection(
 	const markerRef = db.doc(
 		projectionIdempotencyPath(input.companyId, input.storeId, input.eventId),
 	);
-	const orgRef = input.organizationId
-		? db.doc(
-				orgBalancePath(input.companyId, input.storeId, input.organizationId),
-		  )
-		: null;
 	const revenueRef = db.doc(
 		revenueRollupPath(input.companyId, input.storeId, yearMonth),
 	);
@@ -93,9 +78,8 @@ export async function applyLedgerProjection(
 		expiresAt: now + TTL_MS,
 	});
 
-	const isCreditIn = input.kind === "credit" && input.direction === "in";
-	const isCreditOut = input.kind === "credit" && input.direction === "out";
-	const isDebit = input.kind === "debit";
+	const isCreditIn = input.direction === "in";
+	const isCreditOut = input.direction === "out";
 
 	let applied = false;
 
@@ -108,47 +92,10 @@ export async function applyLedgerProjection(
 				return;
 			}
 
-			const orgSnap = orgRef ? await txn.get(orgRef) : null;
 			const revenueSnap = await txn.get(revenueRef);
 
 			// ── COMPUTE ──
-			// Org balance (accounts receivable) — only for org-scoped transactions.
-			let nextOrg: TOrgBalance | null = null;
-			if (orgRef && input.organizationId) {
-				const existing = orgSnap?.exists
-					? (orgSnap.data() as TOrgBalance)
-					: null;
-				const owed = existing?.owed ?? 0;
-				const totalDebits = existing?.totalDebits ?? 0;
-				const totalCredits = existing?.totalCredits ?? 0;
-
-				let nextOwed = owed;
-				let nextDebits = totalDebits;
-				let nextCredits = totalCredits;
-
-				if (isDebit) {
-					nextOwed = owed + input.amount;
-					nextDebits = totalDebits + input.amount;
-				} else if (isCreditIn) {
-					nextOwed = Math.max(0, owed - input.amount); // clamp ≥ 0
-					nextCredits = totalCredits + input.amount;
-				}
-				// credit/out (refund) leaves AR untouched in Phase 1 (a compensating
-				// debit, if needed, is posted explicitly — see budget-redesign.md §3).
-
-				nextOrg = OrgBalanceSchema.parse({
-					organizationId: input.organizationId,
-					owed: nextOwed,
-					totalDebits: nextDebits,
-					totalCredits: nextCredits,
-					currency: "ILS",
-					updatedAt: now,
-					companyId: input.companyId,
-					storeId: input.storeId,
-				});
-			}
-
-			// Revenue rollup — only money flow (credits). Debits are accruals, not revenue.
+			// Revenue rollup — only money flow (in/out cash). No AR/debit logic here.
 			let nextRevenue: TRevenueRollup | null = null;
 			if (isCreditIn || isCreditOut) {
 				const existing = revenueSnap.exists
@@ -188,7 +135,6 @@ export async function applyLedgerProjection(
 
 			// ── WRITES ──
 			txn.create(markerRef, marker); // throws ALREADY_EXISTS on concurrent dup
-			if (orgRef && nextOrg) txn.set(orgRef, nextOrg);
 			if (nextRevenue) txn.set(revenueRef, nextRevenue);
 
 			applied = true;
@@ -209,7 +155,6 @@ export async function applyLedgerProjection(
 	logger.info("budget.applyLedgerProjection.applied", {
 		eventId: input.eventId,
 		transactionId: input.transactionId,
-		kind: input.kind,
 		type: input.type,
 		amount: input.amount,
 		organizationId: input.organizationId,

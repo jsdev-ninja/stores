@@ -5,14 +5,12 @@
 export {
 	TransactionSchema,
 	TransactionTypeSchema,
-	TransactionKindSchema,
 	PaymentLinkSchema,
 	DuplicateChargeAlertSchema,
 } from "./types";
 export type {
 	Transaction,
 	TransactionType,
-	TransactionKind,
 	PaymentLink,
 	DuplicateChargeAlert,
 } from "./types";
@@ -45,5 +43,6 @@ export { getPaymentLink } from "./api/getPaymentLink";            // ✅ fetch a
 // --- Manual admin entry (no HYP) ---
 export { postManualTransaction } from "./api/postManualTransaction"; // ✅ admin records money taken outside HYP
 
-// Subscribers (wired in functions/src/index.tsx)
-export { postDebitOnDeliveryNoteCreated } from "./subscribers/postDebitOnDeliveryNoteCreated";
+// AR accrual on delivery note: previously postDebitOnDeliveryNoteCreated lived here.
+// It has been DELETED — accrual now lives in documents/subscribers/accrueOnDeliveryNoteCreated.ts.
+// No subscribers re-exported from the ledger module.

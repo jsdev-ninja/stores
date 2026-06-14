@@ -7,39 +7,230 @@ title: Documents
 
 `functions/src/modules/documents`
 
-Owns issuance of customer-facing **tax documents** — delivery notes (תעודת משלוח)
-and tax invoices (חשבונית מס) — by delegating to **EZcount** and persisting the
-returned doc shape onto the source `Order`. Documents are **not** ledger
-transactions; this module never touches money balances. The ledger module
-subscribes to events fired here when it needs to accrue debt.
+Owns two distinct responsibilities:
 
-:::info Document storage convention
-Delivery notes and invoices are **embedded on the source `Order` document**
-(`order.deliveryNote`, `order.invoice`, plus the EZcount mirror fields
-`order.ezDeliveryNote`, `order.ezInvoice`). There are **no** `deliveryNotes`
-or `invoices` Firestore collections of their own. Reads always go through the
-order.
+1. **Tax-document issuance** — delivery notes (תעודת משלוח) and tax invoices
+   (חשבונית מס) via EZcount.
+2. **Accounts-receivable (AR) ledger** — append-only `organizationBalance` entry
+   ledger + per-org rollup cache, tracking how much each B2B organization owes.
+
+:::info AR model — delivery-note-first
+AR is accrued **once, at delivery-note creation**. Invoices have **no balance
+effect** — `documents.invoice_created` is still emitted for billing milestones
+(notification, accounting export) but nothing in AR consumes it.
+
+Refunds do **not** touch AR. The settlement subscriber acts only on
+`direction: "in"`. An outflow (`direction: "out"`) writes nothing to
+`organizationBalance`.
 :::
 
 :::info Money & time conventions
 EZcount expects **shekels** (floats); we convert at the boundary in
-`ezCountService`. Event payloads forwarded to the ledger carry **integer
-agorot**. Dates sent to EZcount are `DD/MM/YYYY`; everything stored internally
-is epoch **millis**.
+`ezCountService`. AR amounts are stored as **integer agorot** (1 ILS = 100
+agorot); `Math.round(shekels * 100)` at every boundary. Timestamps are epoch
+**millis**.
 :::
 
 ## Collections
 
-There are no module-owned collections. Documents live inside orders, scoped per
-`{companyId}/{storeId}/orders/{orderId}`. Paths are built via
-`FirebaseAPI.firestore.getPath`.
+All paths are tenant-scoped and built with
+`FirebaseAPI.firestore.getPath` — shape `{companyId}/{storeId}/{collectionName}/{docId}`.
 
-| Field on `Order` | Source | Purpose |
-| ---------------- | ------ | ------- |
-| `deliveryNote`   | local schema (`packages/core/lib/entities/DeliveryNote.ts`) | Canonical DN state (`status: pending \| paid \| cancelled`, items, totals). |
-| `ezDeliveryNote` | EZcount response | `doc_uuid`, `doc_number`, `pdf_link`, `success`, raw EZcount data. |
-| `invoice`        | local schema (`packages/core/lib/entities/Invoice.ts`) | Tax invoice state (status, items, totals, `allocationNumber?`, `allocationDate?`). |
-| `ezInvoice`      | EZcount response (legacy mirror) | `doc_uuid`, `doc_number`, `pdf_link`. |
+### Tax-document storage (embedded on order)
+
+Tax documents live on the source `Order` document — there are no standalone
+`deliveryNotes` or `invoices` Firestore collections.
+
+| Field on `Order`  | Source  | Purpose |
+| ----------------- | ------- | ------- |
+| `deliveryNote`    | `packages/core/lib/entities/DeliveryNote.ts` | Canonical DN state (`status: pending \| paid \| cancelled`, items, totals). |
+| `ezDeliveryNote`  | EZcount response | `doc_uuid`, `doc_number`, `pdf_link`, `success`, raw EZcount data. |
+| `invoice`         | `packages/core/lib/entities/Invoice.ts` | Tax invoice state (status, items, totals, `allocationNumber?`, `allocationDate?`). |
+| `ezInvoice`       | EZcount response (legacy mirror) | `doc_uuid`, `doc_number`, `pdf_link`. |
+
+### AR collections (module-owned)
+
+| Collection                  | Path                                                          | Purpose |
+| --------------------------- | ------------------------------------------------------------- | ------- |
+| `organizationBalance`       | `{companyId}/{storeId}/organizationBalance/{entryId}`         | Append-only AR entry ledger. One row per accrual or settlement event. |
+| `organizationBalanceRollup` | `{companyId}/{storeId}/organizationBalanceRollup/{organizationId}` | Per-org running total. A projection; rebuilt by reconcile. |
+
+## AR entry ledger schema (`OrganizationBalanceEntrySchema`)
+
+Every row is immutable once written. Key fields:
+
+| Field           | Type    | Notes |
+| --------------- | ------- | ----- |
+| `id`            | string  | Deterministic dedup id — see [Idempotency (AR)](#idempotency-ar). |
+| `organizationId`| string  | B2B organization (company). Required — B2C orders are skipped. |
+| `sign`          | `"+"` \| `"-"` | `"+"` = owed increases; `"-"` = owed decreases. |
+| `amount`        | number  | Integer agorot, always positive. |
+| `kind`          | `"accrual"` \| `"settlement"` \| `"adjustment"` | Accrual on DN, settlement on payment. |
+| `source`        | `"delivery_note"` \| `"ledger_payment"` \| `"manual"` | What triggered this entry. |
+| `sourceId`      | string  | ID of the source (deliveryNoteId, transactionId, etc.). |
+| `orderId`       | string  | The order this entry belongs to. |
+| `createdAt`     | number  | Epoch millis. |
+| `companyId`, `storeId` | string | Tenant scope. |
+
+## AR rollup schema (`OrganizationBalanceRollupSchema`)
+
+One doc per organization, doc id = `organizationId`:
+
+| Field           | Type   | Notes |
+| --------------- | ------ | ----- |
+| `organizationId`| string | Org identity. |
+| `owed`          | number | Integer agorot currently owed. `max(0, totalAccrued − totalSettled)`. Always ≥ 0. |
+| `credit`        | number | Integer agorot overpaid. `max(0, totalSettled − totalAccrued)`. Always ≥ 0. Visible to admins — not client-spendable. |
+| `totalAccrued`  | number | Sum of all `"+"` entries. |
+| `totalSettled`  | number | Sum of all `"-"` entries. |
+| `updatedAt`     | number | Epoch millis of last write. |
+| `companyId`, `storeId` | string | Tenant scope. |
+
+:::info Credit — overpayment visibility only
+`credit = max(0, totalSettled − totalAccrued)`. When an org pays more than it has
+accrued, the surplus is tracked here so admins can see it. A later delivery-note
+accrual naturally nets against the credit (standard AR) — that is expected behaviour,
+**not** the client spending credit. No checkout / "use credit" mechanism exists;
+`credit` is visibility only. At most one of `{owed, credit}` is non-zero at any
+time. Both fields use the identical formula in the incremental writer
+(`organizationBalanceStore.ts`) and the reconcile service
+(`reconcileOrganizationBalance.ts`) so the live rollup and nightly reconcile always
+agree.
+:::
+
+## Accrual flow
+
+```
+createDeliveryNote (api) → emit documents.delivery_note_created
+    → accrueOnDeliveryNoteCreated (subscriber)
+        → accrueDebt (service)
+            → organizationBalanceStore.writeArEntry (internal)
+```
+
+1. `createDeliveryNote` issues the DN via EZcount, persists `ezDeliveryNote`
+   on the order, and **emits `documents.delivery_note_created`** (inlined, no emit wrapper).
+2. `accrueOnDeliveryNoteCreated` subscribes. If `payload.organizationId` is
+   absent → B2C → skip.
+3. The subscriber **re-reads the server order doc** to get the authoritative
+   `organizationId` — it cross-checks the payload value before writing (security).
+4. Amount = `Math.round(order.cart.cartTotal * 100)` (shekels → agorot).
+5. `accrueDebt` calls `writeArEntry` with `sign: "+"`, `kind: "accrual"`,
+   `source: "delivery_note"`, dedup id = `dn_{deliveryNoteId}`.
+6. `writeArEntry` runs a **Firestore transaction**: reads current rollup,
+   `txn.create(entryRef, ...)` (idempotency gate), `txn.set(rollupRef, ...)`.
+   On `ALREADY_EXISTS` → no-op (idempotent replay).
+
+## Settlement flow
+
+```
+ledger.postTransaction → emit ledger.transaction_posted
+    → settleOnTransactionPosted (subscriber)
+        → settleDebt (service)
+            → organizationBalanceStore.writeArEntry (internal)
+```
+
+1. `settleOnTransactionPosted` subscribes to `LedgerEventTypes.transactionPosted`.
+2. **Re-reads the stored transaction** from Firestore (payload is routing hint
+   only — never trust client-supplied amounts).
+3. Guards (all must pass):
+   - `storedTx.direction !== "in"` → skip (refunds do not reduce AR).
+   - `storedTx.reference?.type !== "order"` → skip (non-order payment, no AR).
+   - `!organizationId` → skip (B2C order).
+4. `settleDebt` calls `writeArEntry` with `sign: "-"`, `kind: "settlement"`,
+   `source: "ledger_payment"`, dedup id = `evt_settleOnTransactionPosted_{eventId}`.
+5. Rollup: `nextSettled += amount`; `owed = max(0, totalAccrued − totalSettled)`;
+   `credit = max(0, totalSettled − totalAccrued)`. Over-payments produce `credit > 0`;
+   `owed` is always 0 in that case.
+
+## Invoice — no AR effect
+
+`createInvoice` still emits `documents.invoice_created` (for notification /
+accounting / ITA reporting). **No AR subscriber consumes this event.** Debt
+was already accrued at DN creation. Do not subscribe to `invoice_created` for
+AR purposes.
+
+## Reconcile service
+
+`reconcileOrganizationBalance(params)` scans the `organizationBalance` entry
+ledger, re-aggregates per org (`Σ "+" - Σ "-"`), and optionally batch-writes
+corrected rollup docs.
+
+- `apply: false` → dry run, returns report only.
+- `apply: true` → batch.set() corrected rollup docs; zeroes orphaned rollup
+  docs (org has a rollup but no entries).
+- Returns `{ orgs, driftedOrgs }` — `driftedOrgs` is the subset where
+  computed ≠ cached rollup.
+
+**The reconcile service reads the entry ledger only** — it does not scan
+the `transactions` collection.
+
+## Idempotency (AR)
+
+`organizationBalanceStore.writeArEntry` uses `txn.create()` inside a Firestore
+transaction. Duplicate deliveries throw `ALREADY_EXISTS` (gRPC 6) → caught,
+returns `{ written: false, reason: "already_exists" }`. The caller treats this
+as a no-op.
+
+Deterministic dedup ids:
+
+| Source          | Dedup id                                           |
+| --------------- | -------------------------------------------------- |
+| Delivery note accrual | `dn_{deliveryNoteId}`                        |
+| Transaction settlement | `evt_settleOnTransactionPosted_{eventId}`   |
+| Order reversal  | `order_reversal_{orderId}`                         |
+| Manual entry    | `manual_{stableKey}`                               |
+
+## Events
+
+`events.ts` owns the type constants and Zod payload schemas.
+
+| Event                              | When fired |
+| ---------------------------------- | ---------- |
+| `documents.delivery_note_created`  | After `createDeliveryNote` succeeds. Triggers AR accrual. |
+| `documents.invoice_created`        | After `createInvoice` succeeds (single-DN flow). No AR effect. |
+
+### `documents.delivery_note_created` payload
+
+```ts
+{
+  orderId: string;
+  deliveryNoteId?: string;
+  deliveryNoteNumber?: string;
+  organizationId?: string;       // absent = B2C — AR skipped
+  clientId?: string;
+  billingAccountId?: string | null;
+  total?: number;                // shekels (order.cart.cartTotal)
+  vat?: number;                  // shekels (order.cart.cartVat)
+  currency?: "ILS";
+  createdAt?: number;            // epoch millis
+  createdBy?: string;
+}
+```
+
+Subscribers of `documents.delivery_note_created`:
+
+| Subscriber                      | Module      | Purpose |
+| --------------------------------| ----------- | ------- |
+| `accrueOnDeliveryNoteCreated`   | `documents` | AR accrual (B2B only) |
+
+### `documents.invoice_created` payload
+
+```ts
+{
+  orderId: string;
+  invoiceNumber: string;         // EZcount doc_number
+  invoiceDocUuid: string;        // EZcount doc_uuid
+  amount: number;                // integer agorot
+  companyId: string;
+  storeId: string;
+  deliveryNoteNumber?: string;
+  organizationId?: string;
+  allocationNumber?: string;
+}
+```
+
+No AR subscriber consumes this event today. Intended future consumers:
+notification (email/PDF), accounting export, ITA reporting.
 
 ## EZcount integration
 
@@ -55,7 +246,7 @@ deterministic `transaction_id` for idempotency.
 | `400`         | קבלה (receipt)                       |
 
 The `parent` field on EZcount links a new document to one or more source
-documents. It accepts **doc UUIDs**, comma-separated (up to 4) — **not** the
+documents. It accepts **doc UUIDs**, comma-separated (up to 4) — **not**
 human-readable doc numbers. Passing a number returns
 `errNum 1002: doc parent not found:<number>`.
 
@@ -63,32 +254,15 @@ human-readable doc numbers. Passing a number returns
 
 `index.ts` is the only public surface.
 
-| Endpoint            | Type     | Auth          | Purpose                                                      |
-| ------------------- | -------- | ------------- | ------------------------------------------------------------ |
-| `createDeliveryNote`| `onCall` | admin claim   | Issue a DN for an order; persist `ezDeliveryNote` + emit event. |
-| `createInvoice`     | `onCall` | admin claim   | Issue a tax invoice. Two modes — see [Invoice flows](#invoice-flows). |
-
-## Events
-
-`events.ts` owns the type constants and Zod payload schemas.
-
-| Event                          | When fired                                                                 |
-| ------------------------------ | -------------------------------------------------------------------------- |
-| `documents.delivery_note_created` | After `createDeliveryNote` succeeds and persists the EZcount response.   |
-| `documents.invoice_created`       | After `createInvoice` succeeds in the **single-DN flow** (see below).    |
-
-Emit helpers live under `internal/` (`emitDeliveryNoteCreated.ts`,
-`emitInvoiceCreated.ts`) — they only translate units (shekels → agorot) and
-forward to the event bus.
-
-Cross-module subscribers (live elsewhere):
-
-| Subscriber                              | Lives in     | Reacts to                          |
-| --------------------------------------- | ------------ | ---------------------------------- |
-| `postDebitOnDeliveryNoteCreated`        | `modules/ledger` | `documents.delivery_note_created` |
-
-The documents module itself **subscribes to nothing** and **emits no ledger
-transactions**. Money belongs to the ledger.
+| Endpoint                          | Type         | Auth         | Purpose |
+| --------------------------------- | ------------ | ------------ | ------- |
+| `createDeliveryNote`              | `onCall`     | admin claim  | Issue a DN; persist `ezDeliveryNote`; emit event (triggers AR accrual). |
+| `createInvoice`                   | `onCall`     | admin claim  | Issue a tax invoice (see [Invoice flows](#invoice-flows)). |
+| `getOrganizationBalance`          | `onCall`     | admin claim  | Read rollup + filtered entry list for one org. |
+| `reconcileOrganizationBalanceCallable` | `onCall` | admin claim  | Admin-triggered reconcile (dry-run or apply). |
+| `accrueOnDeliveryNoteCreated`     | subscriber   | internal     | AR accrual on DN. |
+| `settleOnTransactionPosted`       | subscriber   | internal     | AR settlement on payment. |
+| `reconcileOrganizationBalanceSchedule` | scheduled | system      | Nightly reconcile (04:00 Asia/Jerusalem). |
 
 ## Invoice flows
 
@@ -104,8 +278,7 @@ orders are billed onto one consolidated tax invoice.
 - `params.parent = orders.map(o => o.ezDeliveryNote.doc_uuid).join(",")`
 - `orders.length > 1` is the common case (single is legal too).
 - After EZcount returns: each order gets `order.invoice = ezData` in one batch.
-- **No** `documents.invoice_created` event is emitted (rollup semantics differ
-  per-order; downstream subscribers shouldn't assume a 1:1 mapping).
+- **No** `documents.invoice_created` event is emitted.
 
 ### Single-DN (single-order) — new flow
 
@@ -114,98 +287,60 @@ Used by `AdminDeliveryNotesPage`'s per-row "הפק חשבונית" action.
 - `params.parent = order.ezDeliveryNote.doc_uuid` (one uuid, not joined)
 - `orders.length === 1`
 - After EZcount returns, in a single batch:
-  - `order.invoice = ezData` (with `allocationNumber` + `allocationDate`
-    embedded when supplied)
-  - `order.deliveryNote.status = "paid"` — written via dotted-path so the
-    rest of `deliveryNote` is preserved
-- `documents.invoice_created` event is emitted with the payload below.
-
-Both flows share the same callable, same EZcount client, same idempotency.
+  - `order.invoice = ezData`
+  - `order.deliveryNote.status = "paid"` (dotted-path, rest of `deliveryNote` preserved)
+- `documents.invoice_created` event is emitted. **No AR effect.**
 
 ## Compliance gates (single-DN flow only)
 
-Israeli ITA חשבונית ישראל ("Israeli Invoice") mandates an **allocation
-number** for invoices at or above the threshold (currently ₪5,000).
+Israeli ITA חשבונית ישראל mandates an **allocation number** for invoices at or
+above the threshold (currently ₪5,000). `createInvoice` enforces server-side:
+when `orders.length === 1`, `params.parent` is set, `price_total >= ALLOCATION_THRESHOLD_ILS`,
+and `!params.allocationNumber` → returns `{ success: false, error: "allocation_required" }`
+before touching EZcount.
 
-`createInvoice` enforces server-side: when `orders.length === 1` and
-`params.parent` is set and `price_total >= ALLOCATION_THRESHOLD_ILS` and
-`!params.allocationNumber` → returns
-`{ success: false, error: "allocation_required" }` **before** touching EZcount.
-
-The admin UI (`InvoiceDetailsModal` with `requireAllocation` prop) mirrors the
-check: it shows a numeric input and refuses to submit when empty.
-
-The constant `ALLOCATION_THRESHOLD_ILS = 25000` lives in `createInvoice.ts`
-with a TODO to externalize once a config getter exists.
-
-## `documents.invoice_created` payload
-
-```ts
-{
-  orderId: string;
-  invoiceNumber: string;          // EZcount doc_number
-  invoiceDocUuid: string;         // EZcount doc_uuid
-  amount: number;                 // integer agorot (converted from shekels at emit)
-  companyId: string;
-  storeId: string;
-  deliveryNoteNumber?: string;    // human-readable DN number from order.deliveryNote
-  organizationId?: string;        // B2B identity
-  allocationNumber?: string;      // ITA חשבונית ישראל allocation, when supplied
-}
-```
-
-Anyone subscribing should:
-
-- Treat the event as **a billing milestone only** — money owed already accrued
-  at DN time (ledger DEBIT). Do **not** credit the ledger from this event.
-- Skip when `organizationId` is absent (B2C orders carry no AR).
-- Dedup via `evt_{subscriberName}_{eventId}` per the project's idempotency
-  convention.
-
-Today no subscriber consumes it. Likely future consumers: notification
-(email/PDF send), accounting export, ITA reporting.
-
-## Idempotency
-
-The single writer for both flows is `createInvoice` itself. Idempotency:
-
-| Layer | Mechanism |
-| ----- | --------- |
-| EZcount | Deterministic `transaction_id = "invoice:" + sha256(orderIds).slice(0, 36)`. Retries return the same EZcount doc. |
-| Firestore | The batch update is keyed on the order id; reissuing the same orders writes the same fields. |
-| Event | One emit per successful invoice; subscriber-side dedup handles redelivery. |
+`ALLOCATION_THRESHOLD_ILS = 25000` (agorot) — TODO: externalize to config once
+a config getter exists.
 
 ## Error surfaces
 
 `createInvoice` returns:
 
-| Shape                                                  | When                                                                 |
-| ------------------------------------------------------ | -------------------------------------------------------------------- |
-| `{ success: true,  data: TEzInvoice }`                 | EZcount returned a valid doc; batch + (single-DN) event committed.   |
-| `{ success: false, error: "allocation_required" }`     | Compliance gate (single-DN flow only).                               |
-| `{ success: false, error: <ezcount errMsg> }`          | EZcount rejected (e.g. `doc parent not found:…` if `parent` was wrong). |
-
-Frontend (`InvoiceDetailsModal`) shows the error via `toast.danger(...)` on
-any `!success`; does **not** write the order doc or close the modal in that
-case.
+| Shape                                              | When |
+| -------------------------------------------------- | ---- |
+| `{ success: true, data: TEzInvoice }`              | EZcount returned a valid doc. |
+| `{ success: false, error: "allocation_required" }` | Compliance gate (single-DN flow). |
+| `{ success: false, error: <ezcount errMsg> }`      | EZcount rejected. |
 
 ## Tenant scope
 
-`createInvoice` reads `companyId`/`storeId` from the auth claim
+All callables read `companyId`/`storeId` from auth claims
 (`auth.token.companyId` / `auth.token.storeId`). All Firestore paths use
-`FirebaseAPI.firestore.getPath({ companyId, storeId, collectionName: "orders" })`.
-EZcount credentials live at `STORES/{storeId}/private/data` and are never logged.
+`FirebaseAPI.firestore.getPath(...)`. EZcount credentials live at
+`STORES/{storeId}/private/data` and are never logged.
 
 ## Files
 
 ```
 modules/documents/
-├── index.ts                                     public surface
-├── events.ts                                    type constants + payload schemas
+├── index.ts                                        public surface
+├── events.ts                                       event type constants + payload schemas
 ├── api/
-│   ├── createDeliveryNote.ts                    DN issuance
-│   └── createInvoice.ts                         tax-invoice issuance (both flows)
+│   ├── createDeliveryNote.ts                       DN issuance
+│   ├── createInvoice.ts                            tax-invoice issuance (both flows)
+│   ├── getOrganizationBalance.ts                   AR balance read (rollup + entries)
+│   └── reconcileOrganizationBalance.ts             admin reconcile callable
+├── services/
+│   ├── accrueDebt.ts                               write "+" entry for a delivery note
+│   ├── settleDebt.ts                               write "-" entry for a payment
+│   └── reconcileOrganizationBalance.ts             scan ledger, rebuild rollups
+├── subscribers/
+│   ├── accrueOnDeliveryNoteCreated.ts              reacts to documents.delivery_note_created
+│   └── settleOnTransactionPosted.ts                reacts to ledger.transaction_posted
+├── triggers/
+│   └── reconcileOrganizationBalanceSchedule.ts     nightly 04:00 Asia/Jerusalem
 └── internal/
-    ├── emitDeliveryNoteCreated.ts               emit helper
-    └── emitInvoiceCreated.ts                    emit helper (single-DN flow)
+    ├── docIds.ts                                   deterministic dedup id builders
+    ├── organizationBalanceStore.ts                 ONLY writer of AR entries + rollup
+    └── paths.ts                                    Firestore path builders (module-private)
 ```

@@ -1,5 +1,10 @@
 # Money — spec + plans (the one doc)
 
+> **Note (2026-06-14):** The ledger module is now **pure cash only** — AR (accounts-receivable)
+> accruals and settlements live in the `documents` module's `organizationBalance` entry ledger,
+> per plan `docs/plans/ar-organization-balance.md`. The sections below remain valid for the
+> cash-ledger spec but do not describe the AR model.
+
 Status: DRAFT for review (Philip). No code yet.
 Everything money-related lives here, in two tracks:
 - **Track 1 — money-core extraction** (sections A–C): spec, deferred decisions, refactor plan.

@@ -47,31 +47,13 @@ export const BudgetRollupSchema = z.object({
 export type TBudgetRollup = z.infer<typeof BudgetRollupSchema>;
 
 // ---------------------------------------------------------------------------
-// Budget redesign — ledger-derived projection read-models (Phase 1)
+// Budget redesign — revenue rollups (Phase 1, cash-only)
 // These are CACHES rebuildable from the ledger; never the source of truth.
-// Written only by applyLedgerProjection, alongside the legacy model (dual-write).
+// Written only by applyLedgerProjection (revenue-only path).
+//
+// OrgBalanceSchema has been REMOVED from this module. AR is now owned by
+// the documents module (OrganizationBalanceRollup from @jsdev_ninja/core).
 // ---------------------------------------------------------------------------
-
-/**
- * Accounts-receivable balance per organization.
- * owed = Σ(debits) − Σ(credits, money in), clamped ≥ 0.
- */
-export const OrgBalanceSchema = z.object({
-	organizationId: z.string().min(1),
-	/** Integer agorot, clamped ≥ 0 */
-	owed: z.number().int(),
-	/** Integer agorot, lifetime sum of debit accruals */
-	totalDebits: z.number().int(),
-	/** Integer agorot, lifetime sum of credit (money-in) applied to this org */
-	totalCredits: z.number().int(),
-	currency: z.literal("ILS"),
-	/** epoch millis */
-	updatedAt: z.number().int().positive(),
-	companyId: z.string().min(1),
-	storeId: z.string().min(1),
-});
-
-export type TOrgBalance = z.infer<typeof OrgBalanceSchema>;
 
 /**
  * Revenue rollup per calendar month (Asia/Jerusalem). Doc id = yearMonth.

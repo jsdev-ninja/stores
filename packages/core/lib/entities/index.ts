@@ -17,3 +17,4 @@ export * from "./Payment";
 export * from "./Supplier";
 export * from "./SupplierInvoice";
 export * from "./Budget";
+export * from "./OrganizationBalance";

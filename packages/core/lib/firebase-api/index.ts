@@ -29,6 +29,8 @@ export const storeCollections = {
 	transactions: "transactions",
 	paymentLinks: "paymentLinks",
 	duplicateChargeAlerts: "duplicateChargeAlerts",
+	organizationBalance: "organizationBalance",
+	organizationBalanceRollup: "organizationBalanceRollup",
 } as const;
 
 export const FirestoreApi = {
