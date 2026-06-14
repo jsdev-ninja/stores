@@ -237,10 +237,6 @@ function CheckoutPage() {
 							submitHypForm(payment.data.formAction, payment.data.formFields);
 							return;
 						}
-						if (payment?.data?.paymentLink) {
-							window.location.href = payment.data.paymentLink;
-							return;
-						}
 						navigate({ to: "store.paymentPending" });
 					} finally {
 						setIsSubmitting(false);

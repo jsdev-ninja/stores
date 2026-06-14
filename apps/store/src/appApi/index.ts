@@ -1787,8 +1787,42 @@ export const useAppApi = () => {
           return;
         }
 
-        // todo handle duplicate payment and page refresh
+        // J5 checkout result → record server-side. The server re-verifies the HYP
+        // signature, writes the hyp_j5_auth ledger transaction (idempotent on the
+        // HYP Id), and the onTransactionPostedMarkOrderPaid subscriber flips the
+        // order to pending_j5 → the client no longer writes order/payment status.
+        // (A J5 result carries the payment token UID; direct admin-link payments
+        // don't — those still use the legacy client write until the #2 cutover.)
+        const isJ5Result =
+          !!payment.UID &&
+          !!payment.Masof &&
+          (payment.CCode === "0" || payment.CCode === "700");
 
+        if (isJ5Result) {
+          const res = await FirebaseApi.api.recordHypJ5Auth({
+            companyId,
+            storeId,
+            Id: payment.Id,
+            CCode: payment.CCode,
+            Amount: payment.Amount,
+            Order: payment.Order,
+            Masof: payment.Masof,
+            UID: payment.UID,
+            ACode: payment.ACode,
+            Sign: payment.Sign,
+            reference: { type: "order", id: payment.Order },
+            rawResponse: payment,
+          });
+          logger({
+            message: "client record hyp j5 auth",
+            severity: "INFO",
+            payment: res,
+            userId: user.uid,
+          });
+          return;
+        }
+
+        // Legacy fallback — direct/external (no J5 token). Pending #2 cutover.
         await FirebaseApi.firestore.setV2<Partial<TOrder>>({
           collection: FirebaseAPI.firestore.getPath({
             collectionName: "orders",
@@ -2042,8 +2076,13 @@ export const useAppApi = () => {
           return;
         }
 
-        const payment: any = await FirebaseApi.api.createPayment({
-          order: { ...order, client: undefined },
+        // New flow: the server loads the order and signs the HYP form (amount and
+        // ownership are enforced server-side). The order must already be written to
+        // Firestore — checkout/user-orders write it before calling this.
+        const payment = await FirebaseApi.api.createHypCheckoutPayment({
+          orderId: order.id,
+          companyId: order.companyId,
+          storeId: order.storeId,
           isJ5,
         });
         logger({

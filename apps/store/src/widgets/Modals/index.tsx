@@ -47,15 +47,21 @@ export const modals = {
 		selectedOrders,
 		onInvoiceCreated,
 		initialInvoiceDate,
+		linkedDeliveryNote,
+		requireAllocation,
 	}: {
 		selectedOrders: TOrder[];
 		onInvoiceCreated?: () => void;
 		initialInvoiceDate?: number;
+		linkedDeliveryNote?: { docUuid: string; number?: string };
+		requireAllocation?: boolean;
 	}) => (
 		<InvoiceDetailsModal
 			selectedOrders={selectedOrders}
 			onInvoiceCreated={onInvoiceCreated}
 			initialInvoiceDate={initialInvoiceDate}
+			linkedDeliveryNote={linkedDeliveryNote}
+			requireAllocation={requireAllocation}
 		/>
 	),
 	createDeliveryNote: ({ onDeliveryNoteCreated }: { onDeliveryNoteCreated?: () => void }) => (

@@ -114,8 +114,6 @@ function OrderItem({ order }: { order: TOrder }) {
 									setLoading(false);
 									if (payment?.data?.formAction && payment?.data?.formFields) {
 										submitHypForm(payment.data.formAction, payment.data.formFields);
-									} else if (payment?.data?.paymentLink) {
-										window.location.href = payment.data.paymentLink;
 									}
 								} catch (error) {
 									setLoading(false);
