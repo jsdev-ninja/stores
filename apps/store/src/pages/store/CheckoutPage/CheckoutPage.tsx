@@ -12,6 +12,8 @@ import { submitHypForm } from "src/lib/payment/submitHypForm";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
 import BalasiCheckoutLayout from "src/websites/balasistore/CheckoutLayout";
+import { EmptyState } from "src/components/EmptyState/EmptyState";
+import EmptyCartImg from "../../../assets/empty-cart.svg";
 import { z } from "zod";
 
 
@@ -40,7 +42,7 @@ const checkoutSchema = z.object({
 type TCheckout = z.infer<typeof checkoutSchema>;
 
 function CheckoutPage() {
-	const { t } = useTranslation(["common", "checkout"]);
+	const { t } = useTranslation(["common", "checkout", "cart"]);
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -121,8 +123,23 @@ function CheckoutPage() {
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
-	if (cartData.isReady && !cart) {
-		return null;
+	// Cart is closed or has no items (e.g. the order was already placed and the
+	// user navigated back to checkout) — show an empty state, not a blank page.
+	if (cartData.isReady && (!cart || (cart.items?.length ?? 0) === 0)) {
+		return (
+			<div className="flex min-h-[60vh] w-full items-center justify-center p-4">
+				<EmptyState
+					size="md"
+					img={EmptyCartImg}
+					title={t("cart:emptyState.title")}
+					description={t("cart:emptyState.description")}
+					action={{
+						title: t("common:backToStore", "חזרה לחנות"),
+						onClick: () => navigate({ to: "store" }),
+					}}
+				/>
+			</div>
+		);
 	}
 
 	// Balasi storefront gets a dedicated checkout LAYOUT (markup only). The
