@@ -10,20 +10,13 @@ import { navigate } from "src/navigation";
 
 const ORANGE = "var(--brand-secondary)"; // design --pop (#e8804a)
 
-const RANK_GRADIENTS: Record<number, string> = {
-	1: "linear-gradient(135deg,#d4a217,#9a6f1d)",
-	2: "linear-gradient(135deg,#aaa,#666)",
-	3: "linear-gradient(135deg,#cd7f32,#8b4513)",
-};
-
 type Props = { products: TProduct[] };
 
 function getProductName(product: TProduct): string {
 	return product.name.find((l) => l.lang === "he")?.value ?? product.name[0]?.value ?? "";
 }
 
-function TrendingCard({ product, rank }: { product: TProduct; rank: number }) {
-	const rankBg = RANK_GRADIENTS[rank] ?? "var(--foreground)";
+function TrendingCard({ product }: { product: TProduct }) {
 	const name = getProductName(product);
 	const price = formatter.price(product.price);
 
@@ -34,15 +27,6 @@ function TrendingCard({ product, rank }: { product: TProduct; rank: number }) {
 			className="flex flex-shrink-0 flex-col overflow-hidden rounded-sm border border-[var(--border)] bg-[var(--surface)] p-[18px_18px_16px] transition-all duration-[250ms] hover:-translate-y-1 hover:border-[var(--foreground)] hover:shadow-[0_12px_32px_rgba(26,26,23,0.10)]"
 			style={{ width: "220px", position: "relative" }}
 		>
-			{/* Rank badge */}
-			<span
-				className="absolute top-3.5 end-3.5 flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-black leading-none text-white"
-				style={{ background: rankBg }}
-				aria-label={`מקום ${rank}`}
-			>
-				{rank}
-			</span>
-
 			<div className="mb-3.5 flex h-[64px] items-center justify-center">
 				<Product product={product}>
 					<div className="h-[64px] w-[64px] overflow-hidden rounded">
@@ -108,8 +92,8 @@ export default function TrendingStrip({ products }: Props) {
 
 				{/* Rail */}
 				<div className="flex gap-[18px] overflow-x-auto pb-6 [scrollbar-width:thin]" style={{ scrollBehavior: "smooth" }}>
-					{products.map((product, i) => (
-						<TrendingCard key={product.id} product={product} rank={i + 1} />
+					{products.map((product) => (
+						<TrendingCard key={product.id} product={product} />
 					))}
 				</div>
 			</div>
