@@ -226,9 +226,15 @@ function AdminHomePage() {
 	const recentOrders = useMemo(() => orders.slice(0, 5), [orders]);
 
 	const topCustomers = useMemo(() => {
+		const startOfMonth = new Date();
+		startOfMonth.setDate(1);
+		startOfMonth.setHours(0, 0, 0, 0);
+		const monthCutoff = startOfMonth.getTime();
 		const revenueByOrg = new Map<string, { name: string; total: number }>();
 		for (const o of orders) {
 			if (!o.organizationId) continue;
+			if (o.status === "cancelled") continue;
+			if ((o.date ?? 0) < monthCutoff) continue;
 			const name =
 				o.client?.companyName ??
 				o.client?.displayName ??
@@ -400,7 +406,7 @@ function AdminHomePage() {
 			</div>
 
 			{/* Top customers — REAL */}
-			<CardBlock title="טופ 5 לקוחות (סך הכנסות מצטבר)">
+			<CardBlock title="טופ 5 לקוחות (הכנסות החודש)">
 				<div className="divide-y divide-[var(--border)]">
 					{topCustomers.length === 0 ? (
 						<p className="px-5 py-6 text-sm text-center text-[var(--muted)]">אין נתונים</p>
