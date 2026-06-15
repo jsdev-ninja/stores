@@ -34,8 +34,8 @@ graph LR
   E2[cancelOrder service]
   E3[refundOrder service]
   E4[postTransaction service]
-  E5[emitDeliveryNoteCreated]
-  E6[emitInvoiceCreated]
+  E5[createDeliveryNote — inline emit]
+  E6[createInvoice — inline emit]
 
   %% events
   OP(("order.placed"))
@@ -47,14 +47,12 @@ graph LR
 
   %% subscribers
   S1[cart: closeCartOnOrderPlaced]
-  S2[budget: increaseDebtOnOrderPlaced]
-  S3[budget: reduceDebtOnOrderCancelled]
-  S4[budget: reduceDebtOnOrderRefunded]
   S5[orders: markOrderPaidOnTransactionPosted]
-  S6[budget: reduceDebtOnTransactionPosted]
+  S6[documents: settleOnTransactionPosted]
   S7[budget: updateProjectionsOnTransactionPosted]
-  S8[ledger: postDebitOnDeliveryNoteCreated]
-  S9[no subscribers yet]
+  S8[documents: accrueOnDeliveryNoteCreated]
+  N1[no subscribers — AR reversal deferred]
+  N2[no subscribers yet]
 
   E1 --> OP
   E2 --> OC
@@ -64,14 +62,13 @@ graph LR
   E6 --> IC
 
   OP --> S1
-  OP --> S2
-  OC --> S3
-  OR --> S4
+  OC --> N1
+  OR --> N1
   TP --> S5
   TP --> S6
   TP --> S7
   DNC --> S8
-  IC --> S9
+  IC --> N2
 
   classDef emitter fill:#fff4e6,stroke:#e8884e,color:#5b3711
   classDef event fill:#e6f1ff,stroke:#3b75c4,color:#0e2649
@@ -80,9 +77,22 @@ graph LR
 
   class E1,E2,E3,E4,E5,E6 emitter
   class OP,OC,OR,TP,DNC,IC event
-  class S1,S2,S3,S4,S5,S6,S7,S8 subscriber
-  class S9 none
+  class S1,S5,S6,S7,S8 subscriber
+  class N1,N2 none
 ```
+
+:::info Money flow after the `ar-organization-balance` refactor
+The **ledger** is pure cash (real money in/out). **Accounts-receivable** (B2B
+debt) lives in the **documents** module:
+
+- Debt is accrued **at delivery-note creation** (`documents: accrueOnDeliveryNoteCreated`),
+  **not** at order placement — `budget: increaseDebtOnOrderPlaced` was removed.
+- Debt is settled when real money is received
+  (`documents: settleOnTransactionPosted` on `ledger.transaction_posted`).
+- `budget` now only projects **revenue rollups** from cash.
+
+See the [Documents](/modules/documents) and [Budget](/modules/budget) module pages.
+:::
 
 ## How the bus works
 
@@ -147,20 +157,29 @@ Subscribers should be idempotent because Firestore delivers
 - **Ledger writes** — `postTransaction` derives the doc id from a
   deterministic `dedupKey` (`evt_{subscriberName}_{eventId}`). A duplicate
   delivery hits `ALREADY_EXISTS` and is treated as a no-op.
-- **Per-business-key markers** — `reduceDebtOnOrderReversed` uses
-  `order_reversal_{orderId}` so that even if both `order.cancelled` AND
-  `order.refunded` fire for the same order, only the first one applies.
+- **Per-business-key markers** — AR entries use a stable business id rather
+  than the event id: accrual = `dn_{deliveryNoteId}` (one entry per delivery
+  note), settlement = `settle_{transactionId}` (one entry per payment, so a
+  re-delivered `transaction_posted` cannot double-settle).
 
 ## Event catalog
 
-| Event                                     | Emitted by                                                | Subscribers                                                                                              |
-| ----------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `order.placed`                            | `orders/triggers/onOrderCreated.ts`                       | `cart: closeCartOnOrderPlaced` · `budget: increaseDebtOnOrderPlaced`                                     |
-| `order.cancelled`                         | `orders/services/cancelOrder.ts`                          | `budget: reduceDebtOnOrderCancelled`                                                                     |
-| `order.refunded`                          | `orders/services/refundOrder.ts`                          | `budget: reduceDebtOnOrderRefunded`                                                                      |
-| `ledger.transaction_posted`               | `ledger/services/postTransaction.ts`                      | `orders: markOrderPaidOnTransactionPosted` · `budget: reduceDebtOnTransactionPosted` · `budget: updateProjectionsOnTransactionPosted` |
-| `documents.delivery_note_created`         | `documents/internal/emitDeliveryNoteCreated.ts`           | `ledger: postDebitOnDeliveryNoteCreated`                                                                 |
-| `documents.invoice_created`               | `documents/internal/emitInvoiceCreated.ts`                | _none yet_                                                                                               |
+| Event                             | Emitted by                                                | Subscribers                                                                                                          |
+| --------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `order.placed`                    | `orders/triggers/onOrderCreated.ts`                       | `cart: closeCartOnOrderPlaced`                                                                                       |
+| `order.cancelled`                 | `orders/services/cancelOrder.ts`                          | _none_ — AR reversal deferred (see note below)                                                                      |
+| `order.refunded`                  | `orders/services/refundOrder.ts`                          | _none_ — AR reversal deferred                                                                                        |
+| `ledger.transaction_posted`       | `ledger/services/postTransaction.ts`                      | `orders: markOrderPaidOnTransactionPosted` · `documents: settleOnTransactionPosted` · `budget: updateProjectionsOnTransactionPosted` |
+| `documents.delivery_note_created` | `appApi/index.ts` (`createDeliveryNote`, inline emit)     | `documents: accrueOnDeliveryNoteCreated`                                                                             |
+| `documents.invoice_created`       | `documents/api/createInvoice.ts` (inline emit)            | _none_ (billing milestone only — no AR effect)                                                                      |
+
+:::warning Orphaned events (deferred work)
+`order.cancelled` and `order.refunded` are still emitted but currently have
+**no subscribers** — the old `budget` reversal handlers were removed with the
+AR refactor and a documents-side reversal hasn't been built yet. Today a
+cancelled/refunded order that was already fulfilled (delivery note issued)
+**leaves its AR accrual in place**. This is a known, tracked follow-up.
+:::
 
 ## Per-event detail
 
@@ -179,13 +198,19 @@ storefront/admin.
 | `total`           | number?    | Order total (shekels).                             |
 | `status`          | string?    |                                                    |
 | `paymentType`     | string?    | `manual`, `hyp_direct`, `hyp_j5_auth`, …           |
-| `organizationId`  | string?    | B2B only — drives debt accrual.                    |
+| `organizationId`  | string?    | B2B only.                                          |
 | `customerEmail`   | string?    |                                                    |
 
 **Subscribers**
 
 - `cart: closeCartOnOrderPlaced` (`cart/subscribers/closeCartOnOrderPlaced.ts`) — closes the cart referenced by `cartId` so the customer starts fresh.
-- `budget: increaseDebtOnOrderPlaced` (`budget/subscribers/increaseDebtOnOrderPlaced.ts`) — accrues outstanding debt for the placing organization (B2B path).
+
+:::note Debt no longer accrues here
+Before the AR refactor, `budget: increaseDebtOnOrderPlaced` created B2B debt the
+moment an order was placed. That subscriber was **removed** — debt now accrues
+later, at **delivery-note creation**, on the fulfilled amount (orders change
+after picking/editing/cancelling, so placement was the wrong anchor).
+:::
 
 ### `order.cancelled`
 
@@ -195,9 +220,8 @@ the order to `cancelled`.
 **Payload** (`OrderCancelledPayload`): `orderId`, `organizationId?`,
 `clientId?`, `total?`, `reason?`, `cancelledAt?`, `cancelledBy?`.
 
-**Subscribers**
-
-- `budget: reduceDebtOnOrderCancelled` (`budget/subscribers/reduceDebtOnOrderReversed.ts`) — reverses the original debt by reading the matching `debt_increase` budget record. Per-order dedup means `cancelled` AND `refunded` together still reverse exactly once.
+**Subscribers** — _none_. AR reversal on cancellation is a deferred follow-up
+(see the orphaned-events warning above).
 
 ### `order.refunded`
 
@@ -208,9 +232,8 @@ order refunded.
 `clientId?`, `refundedAmount?`, `originalTotal?`, `reason?`, `refundedAt?`,
 `refundedBy?`.
 
-**Subscribers**
-
-- `budget: reduceDebtOnOrderRefunded` (`budget/subscribers/reduceDebtOnOrderReversed.ts`) — same shared handler as `order.cancelled`, same `order_reversal_{orderId}` dedup key.
+**Subscribers** — _none_. Refunds do not touch AR (a refund is a cash event;
+AR reversal is deferred).
 
 ### `ledger.transaction_posted`
 
@@ -224,28 +247,22 @@ event leaks.
 | Field          | Type                                              | Notes                                          |
 | -------------- | ------------------------------------------------- | ---------------------------------------------- |
 | `transactionId`| string                                            | Required.                                      |
-| `kind`         | `credit` \| `debit`                               | Defaults to `credit` for legacy events.        |
-| `type`         | one of 8 ledger types                             | See [Ledger transaction types](/modules/ledger#transaction-types). |
+| `type`         | `manual` \| `hyp_direct` \| `hyp_j5_auth` \| `hyp_capture` | Cash only — see [Ledger transaction types](/modules/ledger#transaction-types). |
 | `amount`       | integer agorot, positive                          |                                                |
-| `direction`    | `in` \| `out` \| `none`                           | `none` = debit accrual (no cash movement).     |
+| `direction`    | `in` \| `out`                                     | `in` = received, `out` = refund. (No `none` — the ledger is pure cash.) |
 | `reference`    | `{ type: order \| refund \| adjustment, id }`?    |                                                |
-| `payer`        | `{ organizationId?, clientId?, billingAccountId? }`? | Forwarded so subscribers don't re-read the transaction. |
+| `payer`        | `{ organizationId?, clientId?, billingAccountId? }`? | Routing hint; AR settlement re-reads the stored transaction. |
 
 **Subscribers**
 
-- `orders: markOrderPaidOnTransactionPosted` (`orders/subscribers/markOrderPaidOnTransactionPosted.ts`) — flips the related order's `paymentStatus` when a credit transaction lands.
-- `budget: reduceDebtOnTransactionPosted` (`budget/subscribers/reduceDebtOnTransactionPosted.ts`) — applies `credit + direction: "in"` against the payer's outstanding debt.
-- `budget: updateProjectionsOnTransactionPosted` (`budget/subscribers/updateProjectionsOnTransactionPosted.ts`) — refreshes budget projections.
-
-:::note Legacy filter
-Legacy subscribers act only on `direction: "in"`, so `none` debits (delivery
-notes, invoices, credit notes, adjustments) are safely ignored.
-:::
+- `orders: markOrderPaidOnTransactionPosted` (`orders/subscribers/markOrderPaidOnTransactionPosted.ts`) — flips the related order's `paymentStatus` when a payment lands.
+- `documents: settleOnTransactionPosted` (`documents/subscribers/settleOnTransactionPosted.ts`) — reduces a B2B org's AR. Acts only on **received-money** types (`hyp_capture`, `hyp_direct`, `manual`) with `direction: "in"` and a `payer.organizationId`; re-reads the stored transaction (payload is a routing hint only). `hyp_j5_auth` (an authorization hold) and refunds are skipped.
+- `budget: updateProjectionsOnTransactionPosted` (`budget/subscribers/updateProjectionsOnTransactionPosted.ts`) — updates the cash **revenue rollups** (revenue reporting only — no AR/debt).
 
 ### `documents.delivery_note_created`
 
-**Emitted from** `documents/internal/emitDeliveryNoteCreated.ts` after a
-delivery note is created.
+**Emitted inline** by `createDeliveryNote` (`appApi/index.ts`) after a delivery
+note is issued via EZcount and persisted on the order. No `emit*` wrapper.
 
 **Payload** (`DocumentDeliveryNoteCreatedPayload`): `orderId`,
 `deliveryNoteId?`, `deliveryNoteNumber?`, `organizationId?`, `clientId?`,
@@ -254,20 +271,21 @@ delivery note is created.
 
 **Subscribers**
 
-- `ledger: postDebitOnDeliveryNoteCreated` (`ledger/subscribers/postDebitOnDeliveryNoteCreated.ts`) — posts a `delivery_note` debit transaction (accrual on credit terms).
+- `documents: accrueOnDeliveryNoteCreated` (`documents/subscribers/accrueOnDeliveryNoteCreated.ts`) — accrues B2B AR (`organizationBalance`). Re-reads the server order doc for the authoritative org + amount; B2C (no org) is skipped. Dedup id = `dn_{deliveryNoteId}`.
 
 ### `documents.invoice_created`
 
-**Emitted from** `documents/internal/emitInvoiceCreated.ts` after an invoice
-is created (with `deliveryNoteNumber` set when it was created from a
-delivery note).
+**Emitted inline** by `createInvoice` (`documents/api/createInvoice.ts`) on the
+single-DN flow (with `deliveryNoteNumber` set when created from a delivery
+note). No `emit*` wrapper.
 
 **Payload** (`DocumentInvoiceCreatedPayload`): `orderId`, `invoiceNumber`,
 `invoiceDocUuid`, `amount` (integer agorot), `companyId`, `storeId`,
 `deliveryNoteNumber?`, `organizationId?`, `allocationNumber?`.
 
-**Subscribers** — _none yet_. The event is emitted for future consumers
-(e.g. tax reporting, customer email).
+**Subscribers** — _none_. An invoice is a billing milestone with **no AR
+effect** (debt was already accrued at the delivery note). Intended future
+consumers: tax reporting, customer email.
 
 ## Conventions
 
@@ -277,9 +295,11 @@ delivery note).
   (logged, not retried).
 - **Event types live next to the module that owns them.** Never put an
   event type in a consumer module.
-- **No `emit*.ts` wrapper services.** Inline `emitEvent(…)` at the call
-  site. The two `documents/internal/emit…` files are the exception because
-  they encapsulate parameter shaping shared by multiple callers.
+- **No `emit*.ts` wrapper services.** Inline `emitEvent(…)` at the call site
+  (e.g. `createDeliveryNote` in `appApi/index.ts`, `createInvoice` in the
+  documents module). The former `documents/internal/emitDeliveryNoteCreated.ts`
+  and `emitInvoiceCreated.ts` wrappers were removed.
 - **One subscriber, one file, one job.** Subscriber filenames are
   `{verb}On{EventName}.ts` and each subscriber owns its dedup key. Multiple
   effects of the same event = multiple subscribers, not one fat handler.
+```
