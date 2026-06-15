@@ -1,43 +1,54 @@
 /**
- * Personalized "welcome back" greeting band — shown only to a logged-in
- * (non-anonymous) customer at the top of the Balasi storefront home.
+ * Personalized "welcome back" greeting band — shown to a logged-in
+ * (non-anonymous) Balasi customer at the top of every storefront page
+ * (rendered site-wide from StoreLayout).
  * Mirrors the original Balasi design's return-visitor banner.
- * UI-only, theme tokens; no business logic.
+ *
+ * Dismiss is in-memory only: the X collapses the band to a small reopen
+ * pill, and a full page refresh brings the greeting back.
+ * UI-only, theme tokens; no business logic. Returns null for non-Balasi stores.
  */
 
 import { useState } from "react";
 import { useUser } from "src/domains/user";
+import { useStore } from "src/domains/Store";
 import { navigate } from "src/navigation";
 import { modalApi } from "src/infra/modals";
 
 const ORANGE = "var(--brand-secondary)"; // design --pop
 
-const DISMISS_KEY = "balasi_welcome_dismissed";
-
-function wasDismissed() {
-	try {
-		return sessionStorage.getItem(DISMISS_KEY) === "1";
-	} catch {
-		return false;
-	}
-}
+const isBalasiStore = (id?: string) => id === "balasistore_store" || id === "tester_store";
 
 export default function WelcomeBack() {
+	const store = useStore();
 	const user = useUser();
-	const [hidden, setHidden] = useState(wasDismissed);
+	const [hidden, setHidden] = useState(false);
 
 	const isLoggedIn = !!user && !user.isAnonymous;
-	if (!isLoggedIn || hidden) return null;
+	if (!isBalasiStore(store?.id) || !isLoggedIn) return null;
 
 	const name = user.displayName || user.email?.split("@")[0] || "";
 
-	function dismiss() {
-		try {
-			sessionStorage.setItem(DISMISS_KEY, "1");
-		} catch {
-			/* ignore */
-		}
-		setHidden(true);
+	// Collapsed: a small pill the customer can click to bring the greeting back
+	// (without refreshing). A refresh resets `hidden` and shows the full band.
+	if (hidden) {
+		return (
+			<div
+				className="flex justify-center px-6 py-1.5"
+				style={{ background: "linear-gradient(135deg, var(--foreground), #0f4421)" }}
+				dir="rtl"
+			>
+				<button
+					type="button"
+					onClick={() => setHidden(false)}
+					aria-label="הצג שוב את הודעת הפתיחה"
+					className="flex cursor-pointer items-center gap-1.5 border-0 bg-transparent px-2 py-1 text-[12px] font-medium text-white/70 hover:text-white"
+				>
+					<span aria-hidden>👋</span>
+					ברוך שובך
+				</button>
+			</div>
+		);
 	}
 
 	return (
@@ -77,7 +88,7 @@ export default function WelcomeBack() {
 
 			<button
 				type="button"
-				onClick={dismiss}
+				onClick={() => setHidden(true)}
 				aria-label="סגור"
 				className="cursor-pointer border-0 bg-transparent px-[6px] text-[18px] leading-none text-white/60 hover:text-white"
 			>
