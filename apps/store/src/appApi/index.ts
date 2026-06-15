@@ -1850,7 +1850,10 @@ export const useAppApi = () => {
           return;
         }
 
-        // Legacy fallback — external-payment stores only (no HYP charge here).
+        // External-payment stores only (no HYP charge here): mark the order paid.
+        // The legacy write-only `payments` doc and originalAmount/actualAmount fields
+        // are dropped — they had no readers; the ledger `transactions` collection is
+        // the source of truth for money facts.
         await FirebaseApi.firestore.setV2<Partial<TOrder>>({
           collection: FirebaseAPI.firestore.getPath({
             collectionName: "orders",
@@ -1859,25 +1862,7 @@ export const useAppApi = () => {
           }),
           doc: {
             id: payment.Order,
-            paymentStatus:
-              store?.paymentType === "external" ? "external" : "pending_j5",
-            originalAmount: payment.Amount,
-            actualAmount: payment.Amount,
-          },
-        });
-        await FirebaseApi.firestore.createV2({
-          collection: FirebaseAPI.firestore.getPath({
-            collectionName: "payments",
-            companyId,
-            storeId,
-          }),
-          doc: {
-            id: payment.Order,
-            payment,
-            date: Date.now(),
-            storeId: store.id,
-            companyId: companyId,
-            userId: user.uid,
+            paymentStatus: "external",
           },
         });
       },

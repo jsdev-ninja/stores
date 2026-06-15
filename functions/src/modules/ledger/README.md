@@ -93,6 +93,17 @@ Dedup key format by source:
 5. Client calls `recordHypDirectPayment` with the redirect params + token.
 6. Server VERIFY-gates (calls HYP VERIFY), consumes the single-use link, writes `hyp_direct`.
 
+#### Live admin payment link (tokenless variant)
+
+The admin UI today creates payment links via the legacy `createPaymentRedirect`
+(`isJ5: false`, stored in the root `paymentRedirects` collection). The HYP redirect
+back from this flow carries `Order` but **no link token**. In this case the storefront
+calls `recordHypDirectPayment` **without** a `token`: the server resolves the order from
+the verified `Order` field + tenant input and writes `hyp_direct` (no single-use link to
+consume — idempotency relies on the `hyp_{Id}` dedup key). Integrity is identical to the
+token flow: HYP VERIFY + `Masof` cross-check gate the write. The order is then flipped to
+`completed` by `onTransactionPostedMarkOrderPaid` — the client never writes the status.
+
 ### J5 (Deferred Capture) — Customer Checkout Flow
 
 1. Customer submits the checkout form; client writes the order to Firestore first.
