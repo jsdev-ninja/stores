@@ -73,12 +73,12 @@ export default function TrendingStrip({ products }: Props) {
 							className="mb-2 block text-[11.5px] font-extrabold uppercase tracking-[0.14em]"
 							style={{ color: ORANGE }}
 						>
-							🔥 פופולרי השבוע
+							✨ מבחר השבוע
 						</div>
 						<h2
 							className="text-[clamp(28px,3.6vw,44px)] font-extrabold leading-tight tracking-tight text-[var(--foreground)]"
 						>
-							המוצרים שמשרדים מזמינים הכי הרבה
+							מוצרים נבחרים בשבילכם
 						</h2>
 					</div>
 					<a
