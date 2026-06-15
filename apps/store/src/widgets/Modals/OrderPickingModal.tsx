@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Input } from "@heroui/react";
 import algoliasearch from "algoliasearch/lite";
@@ -24,6 +24,80 @@ function itemUnitPrice(it: TCartItemProduct): number {
 }
 function itemName(it: TCartItemProduct): string {
 	return it.product.name?.[0]?.value || "—";
+}
+
+// Weight/measured products (kg, gram, liter, ml) are picked by a fractional
+// amount (e.g. 1.25 kg); only "unit" products are whole-number. Missing
+// priceType falls back to unit behaviour. Mirrors the weight handling in
+// OrderEditModal so picking can capture the actually-weighed amount.
+const WEIGHT_STEP = 0.5;
+const WEIGHT_MIN = 0.01;
+
+function isWeightProduct(p: TProduct): boolean {
+	const type = p.priceType?.type;
+	return !!type && type !== "unit";
+}
+function isWeightItem(it: TCartItemProduct): boolean {
+	return isWeightProduct(it.product);
+}
+// Round to 3 decimals to keep weights clean and avoid float drift.
+function roundQty(n: number): number {
+	return Math.round(n * 1000) / 1000;
+}
+
+/**
+ * Quantity field that accepts a typed decimal weight (e.g. "1.25"). A plain
+ * controlled number input drops a trailing "." on each keystroke, so this keeps
+ * a local text buffer while focused and commits a clamped number on blur. The
+ * +/- buttons drive `value` from the parent, which re-syncs the text when idle.
+ * Same component as OrderEditModal.
+ */
+function QtyInput({
+	value,
+	weight,
+	onCommit,
+}: {
+	value: number;
+	weight: boolean;
+	onCommit: (n: number) => void;
+}) {
+	const [text, setText] = useState(String(value));
+	const [focused, setFocused] = useState(false);
+
+	useEffect(() => {
+		if (!focused) setText(String(value));
+	}, [value, focused]);
+
+	function commit() {
+		const min = weight ? WEIGHT_MIN : 1;
+		const parsed = parseFloat(text);
+		let next = Number.isFinite(parsed) ? parsed : min;
+		next = weight ? roundQty(next) : Math.round(next);
+		next = Math.max(min, next);
+		onCommit(next);
+		setText(String(next));
+	}
+
+	return (
+		<input
+			type="text"
+			inputMode="decimal"
+			value={text}
+			onClick={(e) => e.stopPropagation()}
+			onFocus={() => setFocused(true)}
+			onChange={(e) => {
+				const raw = e.target.value;
+				// Allow only digits and a single decimal point while typing.
+				if (!/^\d*\.?\d*$/.test(raw)) return;
+				setText(raw);
+			}}
+			onBlur={() => {
+				setFocused(false);
+				commit();
+			}}
+			className="w-12 text-center text-sm font-bold bg-white rounded-full outline-none"
+		/>
+	);
 }
 
 /**
@@ -84,13 +158,50 @@ export function OrderPickingModal({
 		setSearchResults([]);
 	}
 
+	// Picked quantity for the main line — weight products accept a decimal.
+	function setQty(idx: number, amount: number) {
+		setItems((prev) =>
+			prev.map((it, i) => {
+				if (i !== idx) return it;
+				const min = isWeightItem(it) ? WEIGHT_MIN : 1;
+				const next = isWeightItem(it) ? roundQty(amount) : Math.round(amount);
+				return { ...it, amount: Math.max(min, next) };
+			}),
+		);
+	}
+	function changeQty(idx: number, delta: number) {
+		setItems((prev) =>
+			prev.map((it, i) => {
+				if (i !== idx) return it;
+				const min = isWeightItem(it) ? WEIGHT_MIN : 1;
+				return { ...it, amount: Math.max(min, roundQty(it.amount + delta)) };
+			}),
+		);
+	}
+
 	function setSubQty(idx: number, amount: number) {
 		setItems((prev) =>
-			prev.map((it, i) =>
-				i === idx && it.substitutedWith
-					? { ...it, substitutedWith: { ...it.substitutedWith, amount: Math.max(1, amount) } }
-					: it,
-			),
+			prev.map((it, i) => {
+				if (i !== idx || !it.substitutedWith) return it;
+				const weight = isWeightProduct(it.substitutedWith.product);
+				const min = weight ? WEIGHT_MIN : 1;
+				const next = weight ? roundQty(amount) : Math.round(amount);
+				return {
+					...it,
+					substitutedWith: { ...it.substitutedWith, amount: Math.max(min, next) },
+				};
+			}),
+		);
+	}
+	function changeSubQty(idx: number, delta: number) {
+		setItems((prev) =>
+			prev.map((it, i) => {
+				if (i !== idx || !it.substitutedWith) return it;
+				const weight = isWeightProduct(it.substitutedWith.product);
+				const min = weight ? WEIGHT_MIN : 1;
+				const next = Math.max(min, roundQty(it.substitutedWith.amount + delta));
+				return { ...it, substitutedWith: { ...it.substitutedWith, amount: next } };
+			}),
 		);
 	}
 
@@ -261,8 +372,8 @@ export function OrderPickingModal({
 														{itemName(it)}
 													</div>
 													<div className="text-xs text-gray-500">
-														{it.product.brand} · {t("ordersPage:picking.qty", "כמות")}: {it.amount} ·{" "}
-														{formatter.price(itemUnitPrice(it))}
+														{it.product.brand} · {formatter.price(itemUnitPrice(it))}
+														{isWeightItem(it) ? ` / ${it.product.priceType?.type}` : ""}
 													</div>
 												</div>
 											</div>
@@ -274,6 +385,38 @@ export function OrderPickingModal({
 														: formatter.price(itemUnitPrice(it) * it.amount)}
 											</div>
 										</div>
+
+										{/* Picked quantity — weight products (kg/gram/...) accept a typed
+										    decimal and step by 0.5; unit products step by 1. Hidden for
+										    missing/substituted (substitute has its own qty below). */}
+										{it.status !== "missing" && it.status !== "substituted" && (
+											<div className="mt-3 flex items-center gap-2">
+												<span className="text-sm text-gray-600">
+													{t("ordersPage:picking.qty", "כמות")}:
+												</span>
+												<div className="inline-flex items-center rounded-full bg-gray-100 p-0.5">
+													<button
+														type="button"
+														onClick={() => changeQty(idx, isWeightItem(it) ? -WEIGHT_STEP : -1)}
+														className="h-7 w-7 rounded-full bg-white font-bold"
+													>
+														−
+													</button>
+													<QtyInput
+														value={it.amount}
+														weight={isWeightItem(it)}
+														onCommit={(n) => setQty(idx, n)}
+													/>
+													<button
+														type="button"
+														onClick={() => changeQty(idx, isWeightItem(it) ? WEIGHT_STEP : 1)}
+														className="h-7 w-7 rounded-full bg-white font-bold"
+													>
+														+
+													</button>
+												</div>
+											</div>
+										)}
 
 										<div className="mt-3 flex gap-2">
 											{statusBtn(idx, "delivered", "✓ נלקט", "border-[#1b7a3d] bg-[#e3f2e8] text-[#155f30]")}
@@ -291,13 +434,37 @@ export function OrderPickingModal({
 														</span>
 														<label className="text-sm flex items-center gap-2">
 															{t("ordersPage:picking.subQty", "כמות תחליף")}:
-															<Input
-																type="number"
-																min={1}
-																value={String(it.substitutedWith.amount)}
-																onChange={(e) => setSubQty(idx, Number(e.target.value))}
-																className="w-20"
-															/>
+															<div className="inline-flex items-center rounded-full bg-gray-100 p-0.5">
+																<button
+																	type="button"
+																	onClick={() =>
+																		changeSubQty(
+																			idx,
+																			isWeightProduct(it.substitutedWith!.product) ? -WEIGHT_STEP : -1,
+																		)
+																	}
+																	className="h-7 w-7 rounded-full bg-white font-bold"
+																>
+																	−
+																</button>
+																<QtyInput
+																	value={it.substitutedWith.amount}
+																	weight={isWeightProduct(it.substitutedWith.product)}
+																	onCommit={(n) => setSubQty(idx, n)}
+																/>
+																<button
+																	type="button"
+																	onClick={() =>
+																		changeSubQty(
+																			idx,
+																			isWeightProduct(it.substitutedWith!.product) ? WEIGHT_STEP : 1,
+																		)
+																	}
+																	className="h-7 w-7 rounded-full bg-white font-bold"
+																>
+																	+
+																</button>
+															</div>
 														</label>
 														<button
 															type="button"
