@@ -1,116 +1,65 @@
-# Plan: sell by unit, bill by actual weight
+# Plan: sell by unit, show price per kg, bill by actual weight
 
-**Status:** Planned — not implemented. Awaiting Philip's approval (core schema + payment-capture change). Requested by David (owner).
+**Status:** Planned — not implemented. Awaiting Philip's approval. Requested by David (owner).
 
-**Goal:** Produce like watermelon, melon, cabbage is **chosen by the customer in whole units**, but **billed by the actual weighed weight** captured in the store at fulfillment. The customer never types a weight and never sees an estimated price; the final price on the card and on the invoice is the real weighed total.
+> This doc was rewritten to match exactly what David asked for. Earlier drafts prescribed payment/J5 changes — **ignore those**. See "Payment" below: the existing J5 flow is **not** to be touched.
 
----
-
-## Customer experience (agreed with David)
-
-The customer side is **units only** — there is no weight input anywhere for the shopper. The number they pick is always a count of items. The weight is entered later by store staff at weighing.
-
-**1. Product card**
-- Badge: **נמכר במשקל**.
-- Price line: `₪4.90 לק״ג · מחיר סופי לפי שקילה`.
-- Quantity selector shows the unit word glued to the number — `3 יחידות`, never a bare `3`.
-- One-line explainer: *"בוחרים כמה אבטיחים רוצים. כל אבטיח נשקל בנפרד, והתשלום לפי המשקל בפועל."*
-
-**2. Cart line**
-- Repeats the message: `אבטיח · 3 יחידות · נשקל · ₪4.90 לק״ג`.
-
-**3. Checkout (credit-card / J5 customers)**
-- *"מאחר שהמוצר נשקל, נבצע תפיסת מסגרת זמנית בכרטיס. החיוב בפועל יתבצע רק לאחר השקילה, לפי המשקל המדויק."*
-
-**4. Order confirmation**
-- *"הסכום הסופי יעודכן לאחר שקילת המוצרים הנשקלים, ויישלח אליך בחשבונית."*
-
-**5. Invoice / delivery note**
-- The weighed item appears in the **same table and format** as every other product — no special styling. The only difference: the "כמות" column shows the weight (e.g. `4.30 ק״ג`) and the line total is `weight × price-per-kg`.
-
-Design principle: never show a bare number; always attach "יחידות" on the customer side and "ק״ג" on the document side, so units and weight never collide in one field.
+**Goal:** Produce like watermelon, melon, cabbage that the customer **chooses in whole units**, with the **price shown per kg**, and is **billed by the actual weighed weight** entered in the store at fulfillment.
 
 ---
 
-## Payment — rides on the existing J5 flow (key finding)
+## What David confirmed he wants
 
-The store already uses **HYP J5 pre-authorization**, and the existing capture infrastructure already supports capturing a **different (lower) amount** than was held. This makes the feature small and low-risk on the payment side.
+**1. Customer picks by units, price shown per kg** (this is the core ask)
+- Quantity selector is whole **units** only — `− 3 יחידות +`. The unit word is glued to the number, never a bare `3`. No weight field for the customer.
+- Price is displayed **per kg**: `₪4.90 לק״ג`.
+- Small badge on the product: **נמכר במשקל**.
+- **No estimated price** is shown to the customer.
 
-**Credit-card customers (`paymentType: "j5"`):**
-1. Checkout places a J5 **hold** (`createHypCheckoutPayment` sets `J5:"True"`).
-2. Store weighs each item and enters the actual weight.
-3. On approval, **capture the real weighed total** (≤ hold) and release the surplus.
+(Reference mockup David approved: watermelon card — `נמכר במשקל` badge, `₪4.90 לק״ג`, and a `− 3 יחידות +` unit stepper.)
 
-The hold amount is computed from **average unit weight + a safety buffer (~15–20%)**, so the real weighed total almost always falls *inside* the hold. This is deliberate because of the J5 rule below.
+**2. Cart line** — same message repeated: `אבטיח · 3 יחידות · ₪4.90 לק״ג`.
 
-**On-account customers (הקפה, `paymentType: "external"`):**
-- No payment at order time — delivery note now, billed later by the real weighed total. **No change needed; works today.**
+**3. Invoice / delivery note** — the weighed item appears in the **same table and format** as every other product, no special styling. The only difference: the "כמות" column shows the actual weight (e.g. `4.30 ק״ג`) and the line total is `weight × price-per-kg`.
 
-### Hard J5 constraint
-A J5 capture can **never** charge more than was authorized. That is exactly why we hold `avg + buffer` and only capture *downward* to the real weight. Capturing down always works; capturing up does not.
-
-> The existing J5 hold/capture behavior stays as-is — this feature does **not** change current J5 logic, it only uses the capture's existing ability to settle a (lower) real amount within the hold.
+Design principle: never show a bare number — "יחידות" on the customer side, "ק״ג" on the document — so units and weight never collide in one field.
 
 ---
 
-## Current state
+## Payment — DO NOT change the existing J5 flow
 
-- **Product** (`packages/core/lib/entities/Product.ts`): has `priceType { type: "unit"|"kg"|"gram"|"liter"|"ml", value }` and an informational `weight { value, unit }`. There is **no** "sold by unit, billed by weight" mode and **no** average-unit-weight used for pricing/hold.
-- **Pricing**: line total is always `amount × price` (`getCartCost` / `sumHeshDescItems`). `amount` is whole for unit products, fractional for weight products. No weight factor beyond that.
-- **J5**: `createHypCheckoutPayment` (hold), `recordHypJ5Auth` (record auth), `captureHypJ5` (capture — currently forces `actualAmount === originalAmount`), legacy `chargeOrder` (can send a different current-items total). `hypPaymentService.chargeJ5Transaction` already takes separate `originalAmount` / `actualAmount`.
-- **Order** (`Order.ts`): `originalAmount` / `actualAmount` fields exist but are not populated through this flow today.
+David's instruction: **leave the current payment/J5 flow exactly as it is.** This feature must not modify J5 hold/capture behavior.
+
+Open question for Philip (NOT to be decided by the owner): for a product that the customer picks by units but is priced per kg, what amount should the order/charge use at checkout, given the final amount is only known after weighing? This needs Philip's call on the cleanest way to fit it to the current flow — this doc does not prescribe a solution.
+
+On-account (הקפה) customers are unaffected either way: it's a delivery note, billed later by the real weighed total.
+
+---
+
+## Current state (for Philip)
+
+- **Product** (`packages/core/lib/entities/Product.ts`): has `priceType { type: "unit"|"kg"|... , value }` and an informational `weight { value, unit }`. No "pick by unit, price per kg, bill by weight" mode today.
+- **Pricing**: line total is always `amount × price` (`getCartCost` / `sumHeshDescItems`). For a unit pick at a per-kg price this would mis-compute — part of the open question above.
 - **Documents**: `Invoice.tsx` / `DeliveryNote.tsx` render `amount` with no unit label.
-- **Admin edit** (`OrderEditModal.tsx`): already supports decimal-weight entry per line and recomputes `cart.cartTotal`.
+- **Admin edit** (`OrderEditModal.tsx`): already supports decimal-weight entry per line and recomputes `cart.cartTotal` — likely where the actual weighed weight gets entered.
 
 ---
 
-## Changes
+## What this needs (high level, for Philip to scope)
 
-### 1. Core schema (`@jsdev_ninja/core` — `Product.ts`) — additive, backward-compatible
-Add an explicit mode + the average unit weight used to size the J5 hold:
-```ts
-// "unit" = today's behavior; "unit_billed_by_weight" = pick units, charge by weighed weight
-sellMode: z.enum(["unit", "unit_billed_by_weight"]).optional(), // default "unit"
-avgUnitWeight: z.object({ value: z.number().positive(), unit: z.enum(["kg", "gram"]) }).optional(),
-```
-`priceType.type` stays `"kg"` for these products (price is per-kg); `sellMode` is what flips the UI to a unit picker and the billing to weight.
+1. A way to mark a product as **"pick by units, price per kg, bill by weight"** (small additive flag on `Product` in `@jsdev_ninja/core`).
+2. Storefront: unit picker + per-kg price + `נמכר במשקל` badge + cart copy (no estimated price).
+3. A place to enter the **actual weight** per line at fulfillment (the order-edit / picking screen already does decimal weights).
+4. Invoice / delivery note: show the weight in the quantity column for these lines, same format as the rest.
+5. Decide how this fits the existing payment flow **without changing J5** (the open question above).
 
-### 2. Cart item (`Cart.ts`) — capture the weighed result
-Add to `CartItemProductSchema` (optional → backward-compatible):
-```ts
-actualWeight: z.number().positive().nullable().optional(), // entered at weighing, per the line
-```
-
-### 3. Storefront UI
-- Product card + cart: unit picker (whole numbers), `נמכר במשקל` badge, per-kg price, explainer copy (above).
-- No estimated price shown to the customer.
-
-### 4. J5 hold sizing
-At checkout, for `sellMode === "unit_billed_by_weight"` lines, size the hold contribution as
-`units × avgUnitWeight × pricePerKg × (1 + buffer)`; other lines unchanged.
-
-### 5. Weighing → final capture
-- At fulfillment (reuse the existing decimal-weight entry in `OrderEditModal` / picking), store `actualWeight` per line and recompute the line total as `actualWeight × pricePerKg`.
-- Capture the recomputed (real) total via `captureHypJ5`, wiring `actualAmount` = real total (≤ hold) instead of forcing it equal to the hold.
-
-### 6. Documents
-- `Invoice.tsx` / `DeliveryNote.tsx`: for weighed lines, show the weight in the quantity column (`4.30 ק״ג`) and `weight × price-per-kg` as the total — identical formatting to other lines.
-
----
-
-## Open decisions
-1. **Core schema change OK?** Additive/optional and backward-compatible, but it lives in `@jsdev_ninja/core`, so it needs the version bump + all consumers (`apps/store`, `functions`) green.
-2. **Buffer size** for the J5 hold (15%? 20%?) — trade-off between rejected cards and over-holding.
-3. **Capture path:** wire `captureHypJ5` to settle the real (lower) weighed amount within the existing hold. No change to current J5 hold/capture behavior is intended — owner confirmed the J5 flow is fine as-is.
-4. **avgUnitWeight source** — entered per product in admin, or a sensible default per category?
+## Open decisions (for Philip)
+1. Additive `@jsdev_ninja/core` schema change → version bump + consumers (`apps/store`, `functions`) green.
+2. How the checkout/charge amount is determined for these products, fitting the existing J5 flow as-is.
 
 ## Key files
-- `packages/core/lib/entities/Product.ts` — `sellMode`, `avgUnitWeight`
-- `packages/core/lib/entities/Cart.ts` — `CartItemProductSchema.actualWeight`
+- `packages/core/lib/entities/Product.ts` — product flag
 - `packages/core/lib/utils/index.ts` — `getCartCost` / weighed line total
-- `apps/store/src/...` product card + cart — unit picker + copy
-- `functions/src/modules/ledger/api/createHypCheckoutPayment.ts` — hold sizing
-- `functions/src/modules/ledger/api/captureHypJ5.ts` — capture real weighed amount
-- `functions/src/services/hypPaymentService/index.ts` — `chargeJ5Transaction(originalAmount, actualAmount)`
+- `apps/store/src/...` product card + cart — unit picker + per-kg price + copy
 - `apps/store/src/widgets/Modals/OrderEditModal.tsx` — actual-weight entry at fulfillment
 - `functions/src/services/documents/templates/{Invoice,DeliveryNote}.tsx` — weighed-line display
