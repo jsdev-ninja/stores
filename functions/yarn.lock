@@ -1617,7 +1617,7 @@
   resolved "https://registry.yarnpkg.com/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz#9299f82874bab9e4c7f9c48d865becbfe8d6907c"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@jsdev_ninja/core@^0.16.0":
+"@jsdev_ninja/core@^0.17.0":
   version "0.16.0"
   resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.16.0.tgz#e3ac3e8554bac8198c0f5a0256ea0682c69badef"
   integrity sha512-Vi3fns6lC8dK5eG+L/SuRcWpH9QDPwcBVne+vfGP6aK9VvR/ndzIUNCAl19t3lhrYqaHa0BKah9zY8RfApLqrg==

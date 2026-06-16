@@ -185,12 +185,14 @@ function AdminHomePage() {
 		appApi.admin.getStoreOrders().then((res) => {
 			if (res?.data) setOrders(res.data);
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
 	}, []);
 
 	useEffect(() => {
 		appApi.admin.getStoreClients().then((res) => {
 			if (res?.success) setClients(res.data);
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
 	}, []);
 
 	useEffect(() => {

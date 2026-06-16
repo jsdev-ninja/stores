@@ -19,7 +19,7 @@ import { Price } from "src/components/Price";
 import type { Key } from "react-aria-components";
 import { modalApi } from "src/infra/modals";
 import { useAppApi } from "src/appApi";
-import type { TOrder, TOrganization } from "@jsdev_ninja/core";
+import type { TOrganization } from "@jsdev_ninja/core";
 import type { OpenInvoiceRow } from "src/lib/firebase/api";
 
 type TBudgetAccount = {
@@ -366,6 +366,7 @@ export function AdminBudgetOrganizationPage() {
     if (!organizationId) return;
     setLoading(true);
     try {
+      // eslint-disable-next-line compat/compat -- op_mini is not a real target
       const [accRes, txRes] = await Promise.all([
         FirebaseApi.api.getBudgetAccount(organizationId),
         FirebaseApi.api.getBudgetTransactions(organizationId, billingAccountId || undefined),

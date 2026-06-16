@@ -143,9 +143,9 @@ export function RecordInvoicePaymentModal({ row, onPaymentRecorded }: Props) {
                   </label>
                   <Input
                     value={fmtMoney(row.total)}
-                    isDisabled
+                    disabled
                     aria-label="סכום ששולם"
-                    classNames={{ inputWrapper: "opacity-70 cursor-not-allowed" }}
+                    className="opacity-70 cursor-not-allowed"
                   />
                   <p className="text-xs text-[var(--muted)]">תשלום חלקי לא נתמך כרגע</p>
                 </div>
