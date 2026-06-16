@@ -34,7 +34,11 @@ const config: Config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'he'],
+    localeConfigs: {
+      en: {label: 'English', direction: 'ltr', htmlLang: 'en'},
+      he: {label: 'עברית', direction: 'rtl', htmlLang: 'he'},
+    },
   },
 
   presets: [
@@ -73,6 +77,10 @@ const config: Config = {
           sidebarId: 'tutorialSidebar',
           position: 'left',
           label: 'Docs',
+        },
+        {
+          type: 'localeDropdown',
+          position: 'right',
         },
         {
           href: 'https://github.com/jsdev-ninja/stores',
