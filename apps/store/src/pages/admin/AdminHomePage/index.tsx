@@ -94,49 +94,6 @@ function KpiCard({
 	);
 }
 
-function MockKpiCard({
-	label,
-	value,
-	trend,
-	tone,
-	icon,
-	color,
-}: {
-	label: string;
-	value: string;
-	trend: string;
-	tone: Tone;
-	icon: string;
-	color: string;
-}) {
-	return (
-		<div className="relative flex items-center gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
-			<div
-				className="grid place-items-center size-12 rounded-xl shrink-0"
-				style={{ backgroundColor: softBg(color), color }}
-			>
-				<Icon icon={icon} width={22} height={22} />
-			</div>
-			<div className="flex-1 min-w-0">
-				<span className="flex items-center gap-2 mb-1.5">
-					<span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
-						{label}
-					</span>
-					<Chip size="sm" variant="soft" color="warning">
-						<Chip.Label>MOCK</Chip.Label>
-					</Chip>
-				</span>
-				<b className="block text-2xl font-extrabold leading-none tracking-tight text-[var(--foreground)]">
-					{value}
-				</b>
-				<span className="block mt-1.5 text-[11.5px] font-medium" style={{ color: TONE_COLOR[tone] }}>
-					{trend}
-				</span>
-			</div>
-		</div>
-	);
-}
-
 function CardBlock({
 	title,
 	action,
@@ -225,6 +182,37 @@ function AdminHomePage() {
 		return clients.filter((c) => (c.createdDate ?? 0) >= cutoff).length;
 	}, [clients]);
 
+	const monthlyRevenue = useMemo(() => {
+		const startOfThisMonth = new Date();
+		startOfThisMonth.setDate(1);
+		startOfThisMonth.setHours(0, 0, 0, 0);
+		const thisMonthCutoff = startOfThisMonth.getTime();
+
+		const startOfLastMonth = new Date(startOfThisMonth);
+		startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
+		const lastMonthCutoff = startOfLastMonth.getTime();
+
+		let thisMonth = 0;
+		let lastMonth = 0;
+		for (const o of orders) {
+			if (o.status === "cancelled") continue;
+			const date = o.date ?? 0;
+			const total = o.cart?.cartTotal ?? 0;
+			if (date >= thisMonthCutoff) thisMonth += total;
+			else if (date >= lastMonthCutoff) lastMonth += total;
+		}
+
+		const pctChange =
+			lastMonth > 0 ? Math.round(((thisMonth - lastMonth) / lastMonth) * 100) : null;
+
+		return { thisMonth, pctChange };
+	}, [orders]);
+
+	const revenueTrend =
+		monthlyRevenue.pctChange === null
+			? "לעומת החודש שעבר"
+			: `${monthlyRevenue.pctChange >= 0 ? "↗ +" : "↘ "}${monthlyRevenue.pctChange}% מהחודש שעבר`;
+
 	const recentOrders = useMemo(() => orders.slice(0, 5), [orders]);
 
 	const topCustomers = useMemo(() => {
@@ -265,12 +253,12 @@ function AdminHomePage() {
 		<div className="space-y-5">
 			{/* KPI cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-				{/* Monthly revenue — MOCK */}
-				<MockKpiCard
+				{/* Monthly revenue — REAL */}
+				<KpiCard
 					label="הכנסות החודש"
-					value="₪48,250"
-					trend="↗ +14% מהחודש שעבר"
-					tone="up"
+					value={orders.length === 0 ? "—" : formatRevenue(monthlyRevenue.thisMonth)}
+					trend={revenueTrend}
+					tone={monthlyRevenue.pctChange !== null && monthlyRevenue.pctChange < 0 ? "down" : "up"}
 					icon="lucide:banknote"
 					color="var(--accent)"
 				/>
