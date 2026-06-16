@@ -49,7 +49,7 @@ The hold amount is computed from **average unit weight + a safety buffer (~15–
 ### Hard J5 constraint
 A J5 capture can **never** charge more than was authorized. That is exactly why we hold `avg + buffer` and only capture *downward* to the real weight. Capturing down always works; capturing up does not.
 
-> **Related existing-behavior question flagged separately** (David raised it): when an admin **adds items** to an order after the J5 hold, the active capture path (`captureHypJ5.ts`) appears to capture the **original** authorized amount, so items added above the hold may not be collected. This is a pre-existing concern, not introduced by this feature, but it shares the same root constraint — see "Open decisions".
+> The existing J5 hold/capture behavior stays as-is — this feature does **not** change current J5 logic, it only uses the capture's existing ability to settle a (lower) real amount within the hold.
 
 ---
 
@@ -101,9 +101,8 @@ At checkout, for `sellMode === "unit_billed_by_weight"` lines, size the hold con
 ## Open decisions
 1. **Core schema change OK?** Additive/optional and backward-compatible, but it lives in `@jsdev_ninja/core`, so it needs the version bump + all consumers (`apps/store`, `functions`) green.
 2. **Buffer size** for the J5 hold (15%? 20%?) — trade-off between rejected cards and over-holding.
-3. **Capture path:** wire `captureHypJ5` to capture the real (lower) weighed amount. Confirm this is the live path and that legacy `chargeOrder` is retired, so behavior is unambiguous.
-4. **Pre-existing "added items above hold" gap** — fix together with this (cap-aware capture / top-up) or keep separate? (Flagged for investigation.)
-5. **avgUnitWeight source** — entered per product in admin, or a sensible default per category?
+3. **Capture path:** wire `captureHypJ5` to settle the real (lower) weighed amount within the existing hold. No change to current J5 hold/capture behavior is intended — owner confirmed the J5 flow is fine as-is.
+4. **avgUnitWeight source** — entered per product in admin, or a sensible default per category?
 
 ## Key files
 - `packages/core/lib/entities/Product.ts` — `sellMode`, `avgUnitWeight`
