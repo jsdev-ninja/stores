@@ -44,7 +44,7 @@ function CartRow({ item }: { item: CartLine }) {
 				    so the image's `h-full`/object-contain resolves against the box's
 				    definite 60px height — otherwise tall portrait product shots
 				    overflow the square and get clipped top/bottom. */}
-				<div className="flex size-[60px] items-center justify-center overflow-hidden bg-[var(--foreground)]">
+				<div className="flex size-[60px] items-center justify-center overflow-hidden bg-white">
 					<Product.Image />
 				</div>
 
