@@ -2518,6 +2518,18 @@ export const useAppApi = () => {
         return await FirebaseApi.auth.login(data.email, data.password);
       },
 
+      resetPassword: async (data: { email: string }) => {
+        if (!isValidStoreData) return;
+
+        mixPanelApi.track("AUTH_USER_RESET_PASSWORD", {
+          storeId: store.id,
+          companyId: companyId,
+          userEmail: data.email,
+          tenantId: store.tenantId,
+        });
+        return await FirebaseApi.auth.resetPassword(data.email);
+      },
+
       logout: async () => {
         if (!isValid) return;
 
