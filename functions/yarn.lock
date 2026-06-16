@@ -1618,9 +1618,9 @@
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
 "@jsdev_ninja/core@^0.17.0":
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.16.0.tgz#e3ac3e8554bac8198c0f5a0256ea0682c69badef"
-  integrity sha512-Vi3fns6lC8dK5eG+L/SuRcWpH9QDPwcBVne+vfGP6aK9VvR/ndzIUNCAl19t3lhrYqaHa0BKah9zY8RfApLqrg==
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.17.0.tgz#fd8cd1da97e123b42e74f65cb741eaa0d08e1e13"
+  integrity sha512-GY/r7FvUguzl+NCu0yKDaU2LM4jTzFGsJBd0/09QiXjpQOAu1S8sqxotoQE07X7NJJz2JaOnWPbVZ3Ilpqf8JQ==
   dependencies:
     zod "^3.23.8"
 
