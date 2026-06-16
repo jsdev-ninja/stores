@@ -9,14 +9,22 @@ title: Customer Debts (חובות לקוחות)
 **File:** `apps/store/src/pages/admin/AdminBudgetPage/AdminBudgetPage.tsx`
 **Drill-through:** `admin.budgetOrganization` (same file, separate export — see [Per-organization ledger](#per-organization-ledger))
 
-The list of every **unpaid delivery note** so the store owner can see who owes
-money and convert any DN into an invoice in one click.
+The list of every **unpaid invoice** so the store owner can see who owes
+money and record a payment in one click. Each recorded payment writes a
+manual ledger transaction, issues an EZcount receipt linked to the
+invoice, and marks the invoice as paid on the order doc.
 
 :::tip Why this matters
-A delivery note is a credit-terms accrual — the customer has received goods
-but hasn't paid. Until an invoice is issued and paid, the value of that DN is
-**open debt**. This page is the operator's daily worklist for chasing that
-debt.
+A delivery note alone is informational. A formal **invoice** issued on
+credit terms is the actual receivable. Until a receipt is issued, the
+invoice is **open debt**. This page is the operator's daily worklist for
+collecting on that debt.
+:::
+
+:::caution Single full payment per invoice (this iteration)
+Partial payments are **not yet supported**. The "סכום ששולם" field in the
+modal is locked to the full invoice total. A future iteration will add
+partial-payment support — see [Out of scope](#out-of-scope).
 :::
 
 ## What you see
@@ -26,15 +34,15 @@ debt.
 │ חובות לקוחות                                                       │
 ├────────────────────────────────────────────────────────────────────┤
 │ ┌────────────────────┐ ┌────────────────────┐                      │
-│ │ סה"כ חוב פתוח      │ │ מס׳ תעודות פתוחות  │                      │
+│ │ סה"כ חוב פתוח      │ │ מס׳ חשבוניות פתוחות│                      │
 │ │ ₪ ##,###.##        │ │ #                  │                      │
 │ └────────────────────┘ └────────────────────┘                      │
 ├────────────────────────────────────────────────────────────────────┤
 │ [search]  [company filter ▼]                                       │
 ├────────────────────────────────────────────────────────────────────┤
-│ חברה │ מס׳ תעודה │ תאריך הנפקה │ פריטים │ סכום פתוח │ פעולות       │
-│ ─────┼───────────┼─────────────┼────────┼───────────┼──────────── │
-│ row  │ row       │ row         │ row    │ row       │ [👁] [📄+]   │
+│ חברה │ מס׳ חשבונית │ תאריך הנפקה │ סכום │ פעולות                  │
+│ ─────┼─────────────┼─────────────┼──────┼───────────────────────── │
+│ row  │ row         │ row         │ row  │ [👁 PDF] [רישום תשלום]   │
 └────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -42,149 +50,166 @@ debt.
 
 | Element | Source | Notes |
 | --- | --- | --- |
-| **סה"כ חוב פתוח** KPI | sum of `dnTotal(o)` across all unpaid rows | not the filtered subset — total openness |
-| **מס׳ תעודות פתוחות** KPI | count of unpaid rows | |
-| **Search** | client-side over DN number + company name | |
-| **Company filter** | populated from `appApi.admin.listOrganizations()` | |
-| Row → **חברה** | `companyName(o)` — `orgNameById.get(o.organizationId)` → falls back to `o.deliveryNote?.companyDetails?.name` → `—` | |
-| Row → **מס׳ תעודה** | `dnNumber(o)` — `o.deliveryNote?.number` or `o.ezDeliveryNote?.doc_number` | |
-| Row → **תאריך הנפקה** | `fmtDate(dnDate(o))` (Hebrew locale) | |
-| Row → **פריטים** | `dnItemCount(o)` — DN items length, falls back to cart items length | |
-| Row → **סכום פתוח** | `fmtMoney(dnTotal(o))` (orange/danger color) — `o.deliveryNote?.total` or `o.cart?.cartTotal` | money is stored in shekels for legacy records — no agorot conversion here |
-| **👁 צפה** | direct link to `dnPdf(o)` — `deliveryNote.link` or `ezDeliveryNote.pdf_link` | |
-| **📄+ הפק חשבונית** | opens the `invoiceDetails` modal | gated — see [Create-invoice action](#create-invoice-action) |
+| **סה"כ חוב פתוח** KPI | sum of `row.total` across all open-invoice rows | shekels |
+| **מס׳ חשבוניות פתוחות** KPI | count of open-invoice rows | |
+| **Search** | client-side over `invoiceNumber` + `organizationName ?? customerName` | tolerant of undefined fields |
+| **Company filter** | populated from `appApi.admin.listOrganizations()` | filters by `row.organizationId` |
+| Row → **חברה** | `row.organizationName ?? row.customerName ?? "—"` | `organizationName` is currently always undefined from the backend; falls back to `customerName` from the EZcount payload |
+| Row → **מס׳ חשבונית** | `row.invoiceNumber` (EZcount doc_number) | |
+| Row → **תאריך הנפקה** | `row.issueDate` (epoch millis) | Hebrew locale |
+| Row → **סכום** | `row.total` (shekels) | danger/orange color |
+| **👁** | external link to `row.invoicePdfLink` | EZcount-hosted PDF |
+| **רישום תשלום** | opens the [`RecordInvoicePaymentModal`](#record-payment-modal) | |
 
-**Sort:** newest DN first (`dnDate(b) - dnDate(a)`).
+**Sort:** newest invoice first (`issueDate desc`).
 
 **Empty state:** wallet icon + `אין חובות פתוחים 🎉`.
 
 ## How it works
 
-### 1. Fetch
+### 1. Fetch open invoices
 
 ```ts
-appApi.admin.getDeliveryNotes({
-  fromDate: Date.now() - 365 * 24 * 60 * 60 * 1000,  // 12 months back
-  toDate:   Date.now(),
+appApi.admin.getOpenInvoices()
+// Returns: { success: true, data: OpenInvoiceRow[] } | { success: false, error }
+```
+
+Backend file: `functions/src/modules/documents/api/getOpenInvoices.ts`
+
+The endpoint queries Firestore `orders` scoped to the active store and
+company. A row is "open" iff it has an EZcount invoice (`ezInvoice.success
+=== true`) AND `invoicePaidAt` is unset.
+
+Each `OpenInvoiceRow` is enriched server-side with `invoiceNumber`,
+`invoicePdfLink`, `issueDate`, `total`, and customer/organization fields.
+
+:::info `organizationName` is currently always undefined
+The backend skips the extra `organizations` Firestore read for now. The
+page falls back to `customerName` from the EZcount `calculatedData`. A
+follow-up will batch-read organizations and populate this field.
+:::
+
+### 2. Record a payment
+
+```ts
+appApi.admin.recordInvoicePayment({
+  orderId,
+  paymentMethod: "cash" | "check" | "bank_transfer" | "credit_card",
+  paymentDate: <epoch millis>,
+  note?: string,
+  idempotencyKey: `inv-pay-${orderId}`,
 })
 ```
 
-The endpoint queries Firestore `orders` scoped to the active store and
-company (`storeId`, `companyId`), filtered to `ezDeliveryNote.success === true`
-and `date` within the range, sorted by `date desc`.
+Backend file: `functions/src/modules/documents/api/recordInvoicePayment.ts`
 
-The 12-month window is the only cap. DNs older than 12 months still unpaid
-will not appear here — they're rare in practice but worth knowing if a tenant
-carries old debt.
+What it does, atomically (from the caller's perspective):
 
-### 2. Filter to unpaid
+1. **Tenant check** — verifies the order belongs to the caller's
+   companyId/storeId. Failure → `tenant_mismatch`.
+2. **Idempotency** — if `invoicePaidAt` is already set, returns the
+   existing receipt with `success: true`. Re-submits are no-ops.
+3. **Posts a `manual` ledger transaction** via `postManualTransaction`:
+   - `amount`: invoice total × 100 (integer agorot)
+   - `reference: { type: "invoice", id: invoiceUuid }` — the `"invoice"`
+     reference type is new in this iteration; postManualTransaction now
+     verifies the invoice's tenant via `verifyInvoiceBelongsToTenant`
+   - `payer`: organizationId + clientId + billingAccountId from the order
+   - `idempotencyKey`: `inv-pay-{orderId}`
+4. **Calls EZcount** to create a `RECEIPT` (DOC_TYPE = 400) linked to the
+   invoice as `parent: invoiceUuid`. The payment line carries the
+   payment-method code (cash=1, check=2, bank_transfer=3, credit_card=4
+   per `services/ezCountService/paymentTypes.ts`).
+5. **Marks the order paid** — sets `invoicePaidAt` to `paymentDate` and
+   stores the EZcount receipt response on `o.ezReceipt`. Same shape as
+   `o.ezInvoice`.
+
+If EZcount fails AFTER the ledger write succeeded, the endpoint returns
+`{ success: false, code: "ezcount_failed" }` but the ledger transaction
+stays. The next call (same `idempotencyKey`) dedups the ledger write and
+retries the receipt.
+
+### 3. Record-payment modal
+
+File: `apps/store/src/widgets/Modals/RecordInvoicePaymentModal.tsx`
+Registered as `modalApi.openModal("recordInvoicePayment", { row, onPaymentRecorded })`.
+
+Visible summary:
+
+- **לקוח** — `row.customerName ?? row.organizationName`
+- **סכום החשבונית** — `row.total` (₪)
+- **שולם עד כה** — ₪0 (no partial payments this iteration)
+- **יתרה לתשלום** — equals `row.total`
+
+Form:
+
+| Field | Default | Notes |
+| --- | --- | --- |
+| סכום ששולם | invoice total | **Read-only** — locked to the invoice total. Hint: `תשלום חלקי לא נתמך כרגע` |
+| תאריך תשלום | today | HTML `<input type="date">` |
+| אמצעי תשלום | המחאה / שיק | Dropdown: מזומן · המחאה / שיק · העברה בנקאית · כרטיס אשראי |
+| הערה | empty | Optional textarea |
+
+On submit → calls `recordInvoicePayment`. On `success: true` → toast
+`תשלום נרשם בהצלחה — קבלה {receipt.doc_number} הופקה`, closes modal,
+parent re-fetches the list (the paid row disappears).
+
+### Error codes mapped to UI strings
+
+| Code | Hebrew message shown inline |
+| --- | --- |
+| `invoice_missing` | חשבונית לא נמצאה |
+| `already_paid` | החשבונית כבר שולמה (modal closes, list reloads) |
+| `ezcount_failed` | החיוב נשמר אבל יצירת הקבלה נכשלה. נסה שוב מאוחר יותר. |
+| `ledger_failed` | שמירת התשלום נכשלה. נסה שוב. |
+| `tenant_mismatch` | אין הרשאה לחשבונית הזו. |
+| `amount_mismatch` | אי התאמה בסכום. |
+
+## Schema additions
+
+`@jsdev_ninja/core` bumped `0.16.0 → 0.17.0`. Two additive fields on
+`TOrder`:
 
 ```ts
-const isUnpaid = (o: TOrder) => {
-  const s = dnStatus(o);
-  return s !== "paid"
-    && s !== "cancelled"
-    && !o.invoice          // no legacy invoice
-    && !o.ezInvoice        // no EZcount invoice
-    && dnNumber(o) !== "—";
-};
+invoicePaidAt?: number;    // epoch millis; set when admin records full payment
+ezReceipt?: EzInvoice;     // EZcount receipt response — same shape as ezInvoice
 ```
 
-A DN counts as **unpaid** when its status is anything other than `paid` or
-`cancelled` AND no invoice (legacy or EZcount) has been issued yet AND a
-delivery-note number actually exists.
-
-:::caution EZcount-only DNs
-`dnStatus(o)` reads from `o.deliveryNote?.status` — EZcount-only DNs (no
-embedded `deliveryNote` object) return `undefined`. The filter deliberately
-accepts `undefined` as "not paid" so EZcount-only DNs appear here. This is
-the inverse of the original implementation, which required `"pending"` and
-silently dropped EZcount-only records.
-:::
-
-### 3. Render
-
-Client computes:
-
-- **KPIs** from the unfiltered unpaid set (`unpaid`)
-- **Table rows** from the company / search-filtered subset (`filtered`)
-
-Reload happens on mount and after any successful invoice creation.
-
-## Create-invoice action
-
-The **הפק חשבונית** button only renders when ALL of:
-
-```ts
-dnNumber(o) !== "—"
-&& !o.invoice
-&& !o.ezInvoice
-&& !!o.ezDeliveryNote?.doc_uuid
-```
-
-The `doc_uuid` gate is what limits this to EZcount-managed DNs — the modal
-needs that uuid to call EZcount and create an invoice linked to the DN.
-
-When clicked, opens the shared `invoiceDetails` modal with:
-
-```ts
-{
-  selectedOrders: [o],
-  linkedDeliveryNote: {
-    docUuid: o.ezDeliveryNote?.doc_uuid ?? "",
-    number:  dnNumber(o),
-  },
-  requireAllocation: (o.cart?.cartTotal ?? 0) >= 5000,
-  onInvoiceCreated:  () => loadUnpaidDeliveryNotes(),
-}
-```
-
-- `requireAllocation` — Israeli law (`חשבונית ישראל`) requires an allocation
-  number for invoices ≥ ₪5,000. The modal enforces this.
-- `onInvoiceCreated` — re-fetches the 12-month window and re-applies the
-  unpaid filter. The successfully-invoiced row disappears.
-
-The modal itself is shared with `AdminDeliveryNotesPage` — same payload, same
-behavior. See `apps/store/src/pages/admin/AdminDeliveryNotesPage/AdminDeliveryNotesPage.tsx`
-for the reference implementation.
+Plus a new `"invoice"` value in the `reference.type` union of `TTransaction`
+and `TransactionPostedPayload`. Existing callers using `"order"` /
+`"refund"` / `"adjustment"` are unaffected.
 
 ## Per-organization ledger
 
 The `admin.budgetOrganization` route renders `AdminBudgetOrganizationPage`
-(exported from the same file). It is **not** part of the customer-debts list
-flow — it predates this page and shows the per-org transaction ledger with:
-
-- One row per `delivery_note` / `payment_received` / `credit_note` transaction
-- Billing-account filter
-- Manual credit-note / debit-note creation modal
-- Running balance summary
-
-Accessed from elsewhere in the admin app (the previous Budget list used to
-link there with a "צפה" button). The route still works.
+(exported from the same file). It is **not** part of the customer-debts
+list flow — it predates this page and shows the per-org transaction
+ledger with delivery notes, payments, and credit notes, plus a manual
+credit-note / debit-note creation modal. Untouched by this iteration.
 
 ## Money & time conventions
 
-- **Money** — legacy data is stored in **shekels** (not agorot) for
-  `dnTotal` / `cart.cartTotal`. The helpers display it directly. New money
-  fields per the project rule should be agorot — but this page reads
-  pre-existing fields.
-- **Time** — `o.date` and `o.deliveryNote.date` are epoch millis. `fmtDate`
-  handles both seconds and millis (`< 1e12` → seconds) for safety.
+- **Money**: invoice totals are stored as **shekels** (legacy data). The
+  page displays them as-is via `fmtMoney`. The backend converts to integer
+  agorot only at the `postManualTransaction` boundary.
+- **Time**: epoch millis everywhere. The EZcount call formats to DD/MM/YYYY
+  at the boundary, mirroring `createInvoice` / `createDeliveryNote`.
 
-## Out of scope (deliberate non-features)
+## Out of scope (deliberate)
 
-- ❌ No aging buckets (0-30 / 31-60 / 60+) — no `dueDate` math
-- ❌ No reminder action — sending the customer a reminder is not part of this
-  page
-- ❌ No bulk-create-invoice for multiple DNs
-- ❌ No per-customer roll-up — that view lives on the org ledger page
+This iteration deliberately excludes:
 
-These were deliberate scope decisions. If they come back into scope, the
-demo at `demo/balasi-store-site-2026-06-12/admin.html` (DEBTS VIEW) has
-references for an aging-bucket UI.
+- ❌ **Partial payments** — modal is locked to the full invoice total
+- ❌ **Reminders** — no "send reminder" action
+- ❌ **Aging buckets / due dates** — no `dueDate` math, no 0-30 / 31-60 columns
+- ❌ **Org-level AR settlement on invoice payments** — `documents.settleOnTransactionPosted` currently only handles `reference.type === "order"`. Invoice-typed transactions DO write to the ledger and DO close the invoice, but the per-organization AR balance (used elsewhere) won't reduce until the subscriber is extended. Follow-up tracked in [docs/plans/customer-debts-page-payments.md](https://github.com/jsdev-ninja/stores/blob/main/docs/plans/customer-debts-page-payments.md) §2.5.
+- ❌ **Supplier invoices** — this page is customer-facing only
+- ❌ **Bulk pay** — one invoice at a time
 
 ## Related
 
-- **Delivery notes page** (`admin.deliveryNotes` route, `AdminDeliveryNotesPage.tsx`) — same data shape, full month-by-month view including paid DNs. Reference implementation for the helpers used here.
-- [Ledger module](/modules/ledger) — the append-only money source of truth, where invoice payments land
-- [Event system](/architecture/event-system) — `documents.delivery_note_created` and `documents.invoice_created` events fire when DNs and invoices are created
+- **Delivery notes page** (`admin.deliveryNotes`, `AdminDeliveryNotesPage.tsx`) — companion view: month-by-month delivery notes with status pills and create-invoice action.
+- [Ledger module](/modules/ledger) — the append-only money source of truth; receives the manual transaction this page writes.
+- [Event system](/architecture/event-system) — `documents.invoice_created` fires when an invoice is created (no AR effect today). The recorded payment fires `ledger.transaction_posted`, picked up by `documents: settleOnTransactionPosted` (today only for `reference.type === "order"`).
+- Backend: `functions/src/modules/documents/api/recordInvoicePayment.ts` · `getOpenInvoices.ts`
+- Receipt service: `functions/src/services/ezCountService/index.ts` (`createReceipt`, `DOC_TYPE.RECEIPT = 400`)

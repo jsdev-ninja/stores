@@ -31,6 +31,9 @@ export {
   reconcileOrganizationBalanceSchedule,
   // AR read (admin callable)
   getOrganizationBalance,
+  // Invoice payment callables
+  getOpenInvoices,
+  recordInvoicePayment,
 } from "./modules/documents";
 export { onSupplierInvoiceCreate } from "./modules/suppliers";
 export { onContactFormSubmit, onLandingLeadCreated } from "./modules/notifications";

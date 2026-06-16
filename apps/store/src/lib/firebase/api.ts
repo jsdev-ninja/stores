@@ -411,12 +411,77 @@ async function addBudgetManualTransaction(params: {
 async function postManualTransaction(params: {
 	amount: number; // integer agorot
 	idempotencyKey: string;
-	reference?: { type: "order" | "refund" | "adjustment"; id: string };
+	// "invoice" added to support admin payment recording against a specific invoice.
+	reference?: { type: "order" | "refund" | "adjustment" | "invoice"; id: string };
 	payer?: { organizationId?: string; clientId?: string; billingAccountId?: string };
 }) {
 	const func = httpsCallable(functions, "postManualTransaction");
 	const res = await func(params);
 	return res.data as { success: boolean; transactionId?: string; error?: string };
+}
+
+/** Shape returned by getOpenInvoices for a single unpaid invoice row. */
+export type OpenInvoiceRow = {
+	orderId: string;
+	invoiceUuid: string;
+	invoiceNumber: string;
+	invoicePdfLink: string;
+	issueDate: number; // epoch millis
+	total: number; // shekels (ILS)
+	displayName: string; // REQUIRED — name that appears on the invoice; backend excludes nameless rows
+	organizationId?: string; // kept for company-filter dropdown, not for display
+};
+
+/**
+ * Admin: list all orders with an unpaid invoice for the active store.
+ * Returns orders where ezInvoice.success == true AND neither invoicePaidAt
+ * nor ezReceipt is set. Sorted newest first.
+ */
+async function getOpenInvoices(params?: { fromDate?: number; toDate?: number }) {
+	const func = httpsCallable(functions, "getOpenInvoices");
+	const res = await func(params ?? {});
+	return res.data as { success: boolean; data?: OpenInvoiceRow[]; error?: string };
+}
+
+type PaymentMethod = "cash" | "check" | "bank_transfer" | "credit_card";
+
+type RecordInvoicePaymentParams = {
+	orderId: string;
+	paymentMethod: PaymentMethod;
+	paymentDate: number; // epoch millis
+	note?: string;
+	/**
+	 * Idempotency key. Convention: `inv-pay-{orderId}`.
+	 * Deterministic key means double-clicks are no-ops — single full payment per invoice.
+	 */
+	idempotencyKey: string;
+};
+
+type RecordInvoicePaymentResult =
+	| { success: true; receipt: { doc_uuid: string; pdf_link: string; doc_number: string } }
+	| {
+			success: false;
+			error: string;
+			code:
+				| "invoice_missing"
+				| "already_paid"
+				| "ezcount_failed"
+				| "ledger_failed"
+				| "tenant_mismatch"
+				| "amount_mismatch";
+	  };
+
+/**
+ * Admin: record a full payment against an open invoice.
+ * Creates an EZcount receipt and marks the invoice paid on the order doc.
+ * Partial payments are NOT supported — this always pays the full invoice total.
+ */
+async function recordInvoicePayment(
+	params: RecordInvoicePaymentParams,
+): Promise<RecordInvoicePaymentResult> {
+	const func = httpsCallable(functions, "recordInvoicePayment");
+	const res = await func(params);
+	return res.data as RecordInvoicePaymentResult;
 }
 
 type TOrganizationAction = {
@@ -481,4 +546,6 @@ export const api = {
 	postManualTransaction,
 	getOrganizationActions,
 	createProduct,
+	getOpenInvoices,
+	recordInvoicePayment,
 };

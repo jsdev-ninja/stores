@@ -1,6 +1,8 @@
 import * as functions from "firebase-functions/v1";
 import { logger } from "firebase-functions/v2";
 import { z } from "zod";
+import admin from "firebase-admin";
+import { FirebaseAPI } from "@jsdev_ninja/core";
 import { postTransaction } from "../services/postTransaction";
 
 const InputSchema = z.object({
@@ -9,7 +11,9 @@ const InputSchema = z.object({
 	idempotencyKey: z.string().min(1).max(200),
 	reference: z
 		.object({
-			type: z.enum(["order", "refund", "adjustment"]),
+			// "invoice" routes the transaction to a specific EZcount invoice.
+			// The id is the EZcount doc_uuid of the invoice.
+			type: z.enum(["order", "refund", "adjustment", "invoice"]),
 			id: z.string().min(1),
 		})
 		.optional(),
@@ -23,6 +27,58 @@ const InputSchema = z.object({
 		})
 		.optional(),
 });
+
+/**
+ * Verify that `invoiceUuid` (EZcount doc_uuid) belongs to the caller's tenant.
+ *
+ * Security invariant: a client must not be able to post a payment against an
+ * invoice that belongs to a different company or store. We look up the order by
+ * `ezInvoice.doc_uuid` within the caller's tenant-scoped collection path and
+ * reject if no match is found.
+ *
+ * Returns the orderId when found, or null when the invoice does not belong to
+ * this tenant (caller should reject with tenant_mismatch).
+ */
+async function verifyInvoiceBelongsToTenant(
+	companyId: string,
+	storeId: string,
+	invoiceUuid: string,
+): Promise<string | null> {
+	const db = admin.firestore();
+	const ordersPath = FirebaseAPI.firestore.getPath({
+		companyId,
+		storeId,
+		collectionName: "orders",
+	});
+
+	// Try ezInvoice.doc_uuid first (primary — new EZcount flow).
+	const ezSnap = await db
+		.collection(ordersPath)
+		.where("companyId", "==", companyId)
+		.where("storeId", "==", storeId)
+		.where("ezInvoice.doc_uuid", "==", invoiceUuid)
+		.limit(1)
+		.get();
+
+	if (!ezSnap.empty) {
+		return ezSnap.docs[0].id;
+	}
+
+	// Fallback: legacy o.invoice.id field (older stores).
+	const legacySnap = await db
+		.collection(ordersPath)
+		.where("companyId", "==", companyId)
+		.where("storeId", "==", storeId)
+		.where("invoice.id", "==", invoiceUuid)
+		.limit(1)
+		.get();
+
+	if (!legacySnap.empty) {
+		return legacySnap.docs[0].id;
+	}
+
+	return null;
+}
 
 /**
  * Admin records an external money movement (cash, bank transfer, etc.).
@@ -63,6 +119,27 @@ export const postManualTransaction = functions.https.onCall(
 			}
 
 			const input = parsed.data;
+
+			// Security: when reference.type === "invoice", verify the invoice
+			// belongs to the caller's tenant before posting any transaction.
+			// This prevents a malicious admin from crediting their tenant's ledger
+			// against an invoice that belongs to a different store/company.
+			if (input.reference?.type === "invoice") {
+				const orderId = await verifyInvoiceBelongsToTenant(
+					companyId,
+					storeId,
+					input.reference.id,
+				);
+				if (!orderId) {
+					logger.error("ledger.postManualTransaction.invoiceNotFound", {
+						uid,
+						invoiceUuid: input.reference.id,
+						companyId,
+						storeId,
+					});
+					return { success: false, error: "invoice_not_found" };
+				}
+			}
 
 			// Normalize nullable payer fields to undefined — the downstream
 			// Transaction schema uses optional (not nullable) strings.

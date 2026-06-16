@@ -614,6 +614,35 @@ export const useAppApi = () => {
           sort: [{ name: "date", value: "desc" }],
         });
       },
+      /**
+       * List all open (unpaid) invoices for the current store.
+       * Each row is an order that has an EZcount invoice and no recorded payment.
+       * Auth guard is enforced server-side (admin custom claim).
+       */
+      getOpenInvoices: async (params?: { fromDate?: number; toDate?: number }) => {
+        if (!isValidAdmin) return;
+        const { api } = await import("src/lib/firebase/api");
+        return await api.getOpenInvoices(params);
+      },
+
+      /**
+       * Record a full payment against an open invoice.
+       * Creates an EZcount receipt (doc_type 400) and marks the invoice paid on the order.
+       * Partial payments are NOT supported — always pays the full invoice total.
+       * Auth guard is enforced server-side (admin custom claim).
+       */
+      recordInvoicePayment: async (params: {
+        orderId: string;
+        paymentMethod: "cash" | "check" | "bank_transfer" | "credit_card";
+        paymentDate: number;
+        note?: string;
+        idempotencyKey: string;
+      }) => {
+        if (!isValidAdmin) return;
+        const { api } = await import("src/lib/firebase/api");
+        return await api.recordInvoicePayment(params);
+      },
+
       createDeliveryNote: async (
         order: TOrder,
         options?: {
