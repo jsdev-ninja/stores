@@ -34,6 +34,19 @@ BUGS (from structure audit)
 - `organizations/{orgId}/actions` is top-level (no company/store prefix). Should be `{companyId}/{storeId}/organizations/{orgId}/actions` so rules can enforce store isolation. Currently any store could read another store's org actions if it guessed the orgId.
 - **🟡 `postManualTransaction` lacks tenant-ownership check for `reference.type === "order"`.** The `"invoice"` branch was secured during the customer-debts/recordInvoicePayment work (`functions/src/modules/ledger/api/postManualTransaction.ts` — `verifyInvoiceBelongsToTenant`), but the older `"order"` branch still trusts the client-supplied `reference.id` without verifying the referenced order belongs to the caller's `companyId`/`storeId`. Theoretical IDOR — an admin who knows another store's order id could post a manual transaction against it. Low practical risk (requires guessing or harvesting an order id from another tenant + admin claim) but real. Fix: add `verifyOrderBelongsToTenant(orderId, companyId, storeId)` mirroring the invoice check, before posting. Deferred from the customer-debts iteration to keep scope tight.
 
+## Auth & tenant docs — open questions to confirm
+
+The `apps/docs/docs/architecture/auth.md` page was written based on code reading; the following claims need owner confirmation before the doc can be marked authoritative:
+
+1. **Customer tenant resolution.** Doc claims that for customer-facing callables (e.g. `recordHypDirectPayment`), the backend derives `companyId`/`storeId` from the entity (e.g. the order doc) rather than from `request.data` or token claims (customers have none). Confirm this is the canonical pattern; flag any customer-facing endpoints that still accept `companyId`/`storeId` in the payload.
+2. **Anonymous → email signup.** Doc claims `linkWithCredential` preserves the `uid` and therefore the cart. Confirm whether the `tenantId` binding is also preserved automatically, or whether re-binding is needed after linking. Any known edge cases.
+3. **One-store-per-admin.** Doc claims admins are scoped to exactly one `(companyId, storeId)` because custom claims hold a single tuple, and cross-store access requires a second user under that store's Firebase tenant. Confirm this is intentional, not a TODO.
+4. **Roles beyond `admin: true`.** Doc lists only the binary admin flag. Confirm there are no other roles in use (manager, viewer, owner, support) today, and whether any are planned.
+5. **"VERIFY-gated" as a third auth category.** Doc classifies `recordHypJ5Auth`/`recordHypDirectPayment` as a category distinct from admin-only and customer-owned-entity, because the integrity check is the HYP VERIFY round-trip, not a token claim or strict entity ownership. Confirm the framing is right, or whether they should be folded into "customer-owned-entity with an extra integrity check."
+6. **Admin `TProfile` document.** Doc is silent on whether admin users get a `TProfile` doc at `{companyId}/{storeId}/profiles/{uid}` like customers do, or whether admins exist only as Firebase Auth accounts within the store's tenant. Confirm and add to the doc.
+
+Update `apps/docs/docs/architecture/auth.md` once answers are in.
+
 EVENT BUS FOLLOWUPS
 
 - Event Bus: add dead-letter pattern with max-attempt tracking. Current `retry: true` retries for 7 days on permanent errors.
