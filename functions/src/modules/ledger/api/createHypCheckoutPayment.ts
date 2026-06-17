@@ -6,6 +6,7 @@ import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { TStorePrivate } from "src/schema";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import { sanitizeFormFields } from "../internal/sanitizeFormFields";
+import { buildFulfilledHeshDescItems } from "../internal/fulfilledHeshDescItems";
 
 const InputSchema = z.object({
 	orderId: z.string().min(1),
@@ -110,21 +111,7 @@ export const createHypCheckoutPayment = functions.https.onCall(
 
 			// Amount comes from the order loaded server-side, never from client input.
 			// order.cart.cartTotal is in shekels (e.g. 150.50) — HYP expects shekels.
-			const VAT_RATE = 18;
-			const isVatIncluded = order.storeOptions?.isVatIncludedInPrice ?? false;
-			const postVatPrice = (base: number, hasVat: boolean): number =>
-				!isVatIncluded && hasVat ? base * (1 + VAT_RATE / 100) : base;
-
-			const DELIVERY_NAME = "משלוח";
-			const items = (order.cart.items ?? []).map((item) => {
-				const price = postVatPrice(item.finalPrice ?? 0, !!item.product.vat).toFixed(2);
-				const sku = (item.product.sku ?? "").trim();
-				const name = (item.product.name[0]?.value ?? "").trim();
-				return `[${sku}~${name}~${item.amount}~${price}]`;
-			});
-			if (order.cart.deliveryPrice) {
-				items.push(`[0~${DELIVERY_NAME}~1~${order.cart.deliveryPrice.toFixed(2)}]`);
-			}
+			const items = buildFulfilledHeshDescItems(order);
 
 			// Amount must equal HYP's own per-line sum of the heshDesc lines.
 			const amountShekels = sumHeshDescItems(items);

@@ -4,6 +4,7 @@ import admin from "firebase-admin";
 import { TPayProtocolResponse, TStorePrivate } from "src/schema";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import { postTransaction } from "../services/postTransaction";
+import { buildFulfilledHeshDescItems } from "../internal/fulfilledHeshDescItems";
 
 function sumHeshDescItems(items: string[]): number {
   const itemsSum = items.reduce((sum, line) => {
@@ -106,26 +107,7 @@ export const chargeOrder = functions.https.onCall(
         // todo
       }
 
-      const VAT_RATE = 18;
-      const DELIVERY_NAME = "משלוח";
-      const isVatIncluded = order.storeOptions?.isVatIncludedInPrice ?? false;
-      const postVatPrice = (base: number, hasVat: boolean) =>
-        !isVatIncluded && hasVat ? base * (1 + VAT_RATE / 100) : base;
-      const _items = order.cart.items;
-      const items = _items.map((item) => {
-        const price = postVatPrice(
-          item.finalPrice ?? 0,
-          !!item.product.vat,
-        ).toFixed(2);
-        const sku = (item.product.sku ?? "").trim();
-        const name = (item.product.name[0]?.value ?? "").trim();
-        return `[${sku}~${name}~${item.amount}~${price}]`;
-      });
-      if (order.cart.deliveryPrice) {
-        items.push(
-          `[0~${DELIVERY_NAME}~1~${order.cart.deliveryPrice.toFixed(2)}]`,
-        );
-      }
+      const items = buildFulfilledHeshDescItems(order);
 
       // Amount sent to HYP must equal HYP's own sum of the heshDesc lines.
       const adjustedAmount = sumHeshDescItems(items);

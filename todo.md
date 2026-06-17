@@ -34,6 +34,31 @@ BUGS (from structure audit)
 - `organizations/{orgId}/actions` is top-level (no company/store prefix). Should be `{companyId}/{storeId}/organizations/{orgId}/actions` so rules can enforce store isolation. Currently any store could read another store's org actions if it guessed the orgId.
 - **🟡 `postManualTransaction` lacks tenant-ownership check for `reference.type === "order"`.** The `"invoice"` branch was secured during the customer-debts/recordInvoicePayment work (`functions/src/modules/ledger/api/postManualTransaction.ts` — `verifyInvoiceBelongsToTenant`), but the older `"order"` branch still trusts the client-supplied `reference.id` without verifying the referenced order belongs to the caller's `companyId`/`storeId`. Theoretical IDOR — an admin who knows another store's order id could post a manual transaction against it. Low practical risk (requires guessing or harvesting an order id from another tenant + admin claim) but real. Fix: add `verifyOrderBelongsToTenant(orderId, companyId, storeId)` mirroring the invoice check, before posting. Deferred from the customer-debts iteration to keep scope tight.
 
+## Refactor: drop `status: "draft"` from new orders
+
+**Goal:** checkout should create orders with `status: "pending"` instead of `"draft"`. The `paymentStatus` field already carries the "paid / not paid" signal — `status` should be the fulfillment lifecycle, not the payment state. Today the two are entangled (a `draft` order = "not paid yet"), which is what we're untangling.
+
+**Why deferred:** can't be done as a 1-line change. Multiple downstream consumers gate behavior on `status === "draft"` and will misbehave if checkout creates `pending` while the rest still expects `draft`. Confirmed during research session.
+
+**Required changes (don't ship piecemeal):**
+
+1. `apps/store/src/pages/store/CheckoutPage/CheckoutPage.tsx:193` — change `status: "draft"` → `status: "pending"`
+2. `apps/store/src/widgets/Modals/OrderDetailsModal.tsx:217` — **Approve** button currently shows for any `status === "pending"`. After the change, unpaid orders are also pending, so add `paymentStatus === "completed"` (or whatever the paid state is) to the gate, otherwise admins can approve unpaid orders → delivery note → accrued AR for goods the customer never paid for.
+3. `apps/store/src/widgets/Modals/OrderDetailsModal.tsx:232` — **Create payment link** button currently gates on `status === "draft"`. Switch to `paymentStatus === "pending"` so the link can still be sent to a customer who placed an order but didn't finish paying.
+4. `apps/store/src/widgets/Modals/OrderDetailsModal.tsx:194-198` — **Edit** button check `status === "pending" || status === "draft"` simplifies to `status === "pending"` (still covers both cases since drafts won't exist for new orders).
+5. `functions/src/modules/orders/subscribers/markOrderPaidOnTransactionPosted.ts:167` — `promoteDraft` branch becomes dead for new orders but **keep it** to migrate historical draft orders that come in via payment. Add a comment that it's a legacy-data migration path.
+6. `apps/store/src/pages/admin/Orders/AdminOrdersPage.tsx:63,67` + `apps/store/src/pages/admin/AdminHomePage/index.tsx:29` — `ACTIVE_STATUSES` includes `"draft"`. Keep it to surface historical drafts; once they're all migrated, remove `"draft"` and clean up the schema enum too.
+7. `apps/store/src/domains/Order/index.ts:26` — filter `status == "draft" && paymentStatus === "pending"` — re-think; probably becomes `paymentStatus === "pending"` alone.
+
+**Historical `draft` orders in production:**
+- Do NOT backfill — leave them as `draft`. The promote-on-payment logic in step 5 handles them naturally if they ever get paid. The Edit / Create-payment-link buttons still work because their guards include `draft`.
+- Eventually (months later, after the population is small) consider a one-shot backfill + drop `"draft"` from the `OrderSchema` enum.
+
+**Scope NOT touched:**
+- `cart.status` — has its own `"active" | "draft" | "completed"` enum, different concept (a cart in the middle of editing vs a placed order)
+- `SupplierInvoice.status` — `"draft" | "completed"` is the supplier-invoice WIP/finalized state, unrelated to orders
+- Schema enum on `OrderSchema.status` — keep `"draft"` in the union for historical reads
+
 ## Auth & tenant docs — open questions to confirm
 
 The `apps/docs/docs/architecture/auth.md` page was written based on code reading; the following claims need owner confirmation before the doc can be marked authoritative:
