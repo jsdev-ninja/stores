@@ -85,6 +85,23 @@ export function AdminInventoryCertificatePage() {
 	// Keyed by `${rowId}:${field}`. Cleared on blur so the display normalizes.
 	const [rawNumericInputs, setRawNumericInputs] = useState<Record<string, string>>({});
 
+	// Per-row catalog status, set by the SKU lookup: "found" = the SKU already
+	// exists as a product, "new" = no product with this SKU exists yet (so the
+	// owner must add it via Add Product for it to appear on the site),
+	// "loading" = lookup in progress. Keyed by rowId.
+	const [skuStatus, setSkuStatus] = useState<Record<string, "loading" | "found" | "new">>({});
+
+	const setRowSkuStatus = (rowId: string, status: "loading" | "found" | "new" | null) => {
+		setSkuStatus((prev) => {
+			if (status === null) {
+				const next = { ...prev };
+				delete next[rowId];
+				return next;
+			}
+			return { ...prev, [rowId]: status };
+		});
+	};
+
 	// Load suppliers on mount
 	useEffect(() => {
 		const loadSuppliers = async () => {
@@ -200,6 +217,7 @@ export function AdminInventoryCertificatePage() {
 		try {
 			const response = await appApi.system.getProductById({ id: sku });
 			if (response?.success && response.data) {
+				setRowSkuStatus(rowId, "found");
 				const product: TProduct = response.data;
 				setRows((prevRows) => {
 					return prevRows.map((row) => {
@@ -227,9 +245,16 @@ export function AdminInventoryCertificatePage() {
 						return row;
 					});
 				});
+			} else {
+				// No product exists with this SKU — flag the row as a new product
+				// that must be added to the catalog to appear on the site.
+				setRowSkuStatus(rowId, "new");
 			}
 		} catch (error) {
 			console.error("Failed to load product by SKU:", error);
+			// On a lookup error we can't tell whether the product exists; clear the
+			// status rather than wrongly flagging the row as new.
+			setRowSkuStatus(rowId, null);
 		}
 	};
 
@@ -268,10 +293,16 @@ export function AdminInventoryCertificatePage() {
 		});
 
 		// If SKU field changed, debounce and load product
-		if (field === "sku" && value && value.trim() !== "") {
-			skuDebounceTimers.current[id] = setTimeout(() => {
-				loadProductBySku(id, value);
-			}, 1000);
+		if (field === "sku") {
+			if (value && value.trim() !== "") {
+				setRowSkuStatus(id, "loading");
+				skuDebounceTimers.current[id] = setTimeout(() => {
+					loadProductBySku(id, value);
+				}, 1000);
+			} else {
+				// SKU cleared — drop any previous catalog status for this row.
+				setRowSkuStatus(id, null);
+			}
 		}
 	};
 
@@ -329,6 +360,7 @@ export function AdminInventoryCertificatePage() {
 	};
 
 	const removeRow = (id: string) => {
+		setRowSkuStatus(id, null);
 		setRows((prevRows) => {
 			const filtered = prevRows.filter((row) => row.id !== id);
 			// Update row numbers
@@ -476,6 +508,13 @@ export function AdminInventoryCertificatePage() {
 			.filter((item): item is NonNullable<typeof item> => item !== null);
 	}, [supplierInvoice.rows]);
 
+	// Rows whose SKU was looked up and found NOT to exist in the catalog.
+	// These are new products the owner must add via "Add Product" so they
+	// appear on the site — the supplier invoice itself never creates products.
+	const newProductRows = useMemo(() => {
+		return (supplierInvoice.rows || []).filter((row) => skuStatus[row.id] === "new");
+	}, [supplierInvoice.rows, skuStatus]);
+
 	// Calculate totals for summary
 	const invoiceSummary = useMemo(() => {
 		const rows = supplierInvoice.rows || [];
@@ -540,6 +579,7 @@ export function AdminInventoryCertificatePage() {
 			supplier: undefined,
 		});
 		setDraftId(null);
+		setSkuStatus({});
 	};
 
 	// Save the current in-progress invoice as a draft. Does NOT update product
@@ -575,6 +615,15 @@ export function AdminInventoryCertificatePage() {
 		setSupplierInvoice(draft);
 		setDraftId(draft.id);
 		setActiveTab("create");
+		// Recompute catalog status for the draft's rows so the "new product"
+		// markers reflect the current catalog (the status isn't persisted).
+		setSkuStatus({});
+		(draft.rows || []).forEach((row) => {
+			if (row.sku && row.sku.trim() !== "") {
+				setRowSkuStatus(row.id, "loading");
+				loadProductBySku(row.id, row.sku);
+			}
+		});
 	};
 
 	const handleDeleteDraft = async (id: string) => {
@@ -764,6 +813,17 @@ export function AdminInventoryCertificatePage() {
 					</div>
 				</div>
 
+				{newProductRows.length > 0 && (
+					<div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-800">
+						<Icon icon="lucide:alert-triangle" className="mt-0.5 shrink-0 text-amber-500" />
+						<span className="text-[14px] leading-[22px]">
+							{t("common:inventoryCertificatePage.newProductsWarning", {
+								count: newProductRows.length,
+							})}
+						</span>
+					</div>
+				)}
+
 				<div className="overflow-x-auto">
 					<Table aria-label="Inventory certificate items table" className="shadow-none border border-gray-300">
 						<Table.ScrollContainer>
@@ -793,15 +853,32 @@ export function AdminInventoryCertificatePage() {
 												<div className="text-[14px] px-2 min-w-[50px]">{row.rowNumber}</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
-												<Input
-													value={row.sku}
-													onChange={(e) => updateRow(row.id, "sku", e.target.value)}
-													onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
-													aria-label={`${t("common:sku")} ${t(
-														"common:inventoryCertificatePage.rowNumber"
-													)} ${row.rowNumber}`}
-													className="h-8 w-full bg-white text-[14px]"
-												/>
+												<div className="flex flex-col gap-1 px-1 py-1">
+													<Input
+														value={row.sku}
+														onChange={(e) => updateRow(row.id, "sku", e.target.value)}
+														onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
+														aria-label={`${t("common:sku")} ${t(
+															"common:inventoryCertificatePage.rowNumber"
+														)} ${row.rowNumber}`}
+														className="h-8 w-full bg-white text-[14px]"
+													/>
+													{skuStatus[row.id] === "new" && (
+														<span
+															title={t("common:inventoryCertificatePage.newProductHint")}
+															className="inline-flex w-fit items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-700"
+														>
+															<Icon icon="lucide:alert-triangle" className="text-[12px]" />
+															{t("common:inventoryCertificatePage.newProductBadge")}
+														</span>
+													)}
+													{skuStatus[row.id] === "found" && (
+														<span className="inline-flex w-fit items-center gap-1 rounded bg-green-100 px-1.5 py-0.5 text-[11px] font-medium text-green-700">
+															<Icon icon="lucide:check" className="text-[12px]" />
+															{t("common:inventoryCertificatePage.existingProductBadge")}
+														</span>
+													)}
+												</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<Input
@@ -1019,6 +1096,30 @@ export function AdminInventoryCertificatePage() {
 									{t("common:inventoryCertificatePage.noProductsToUpdate")}
 								</p>
 							)}
+
+							{/* New products that don't exist in the catalog yet */}
+							{newProductRows.length > 0 && (
+								<div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
+									<div className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
+										<Icon icon="lucide:alert-triangle" className="text-amber-500" />
+										{t("common:inventoryCertificatePage.newProductsModalTitle")}
+									</div>
+									<p className="mb-3 text-[13px] leading-[20px] text-amber-700">
+										{t("common:inventoryCertificatePage.newProductsWarning", {
+											count: newProductRows.length,
+										})}
+									</p>
+									<ul className="list-disc space-y-1 pr-5 text-[14px] text-amber-900">
+										{newProductRows.map((row) => (
+											<li key={row.id}>
+												<span className="font-medium">{row.sku}</span>
+												{row.itemName ? ` — ${row.itemName}` : ""}
+											</li>
+										))}
+									</ul>
+								</div>
+							)}
+
 							{/* Summary Section */}
 							<div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
 								<h3 className="text-lg font-semibold text-gray-900 mb-3">
