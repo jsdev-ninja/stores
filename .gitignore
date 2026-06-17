@@ -71,3 +71,4 @@ typings/
 # Node.js dependency directory
 node_modules
 .fallow/
+.gstack/

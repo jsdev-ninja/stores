@@ -31,6 +31,7 @@ import { useAppDispatch } from "src/infra";
 import AdminOrdersPage from "../Orders/AdminOrdersPage";
 import AdminOrderPageNew from "../Orders/AdminOrderPageNew";
 import AdminOrderPickPage from "../Orders/AdminOrderPickPage";
+import AdminProblemOrdersPage from "../AdminProblemOrdersPage/AdminProblemOrdersPage";
 
 
 export default function AdminLayout() {
@@ -140,6 +141,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.deliveryNotes">
 						<AdminDeliveryNotesPage />
+					</Route>
+					<Route name="admin.problemOrders">
+						<AdminProblemOrdersPage />
 					</Route>
 					<Route name="admin.inventoryCertificate">
 						<AdminInventoryCertificatePage />

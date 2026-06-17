@@ -351,7 +351,7 @@ export const useAppApi = () => {
           id,
         });
       },
-      getStoreOrders: async () => {
+      getStoreOrders: async (options?: { limit?: number }) => {
         if (!isValidAdmin) return;
 
         return FirebaseApi.firestore.listV2<TOrder>({
@@ -373,6 +373,7 @@ export const useAppApi = () => {
             },
           ],
           sort: [{ name: "date", value: "desc" }],
+          ...(options?.limit !== undefined ? { limitCount: options.limit } : {}),
         });
       },
       subscribeToOrders: (callback: (orders: TOrder[]) => void) => {
