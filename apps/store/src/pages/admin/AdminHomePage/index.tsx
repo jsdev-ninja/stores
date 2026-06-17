@@ -6,6 +6,7 @@ import { useAppApi } from "src/appApi";
 import { FirebaseApi } from "src/lib/firebase";
 import type { TOrder } from "@jsdev_ninja/core";
 import type { TProfile } from "@jsdev_ninja/core";
+import type { TProduct } from "@jsdev_ninja/core";
 
 type Tone = "up" | "down" | "flat";
 
@@ -28,12 +29,20 @@ const STATUS: Record<string, { color: ChipProps["color"]; label: string }> = {
 
 const ACTIVE_STATUSES: TOrder["status"][] = ["pending", "processing", "in_delivery", "draft"];
 
-const LOW_STOCK: { name: string; left: string }[] = [
-	{ name: 'קפה שחור טחון 1 ק"ג', left: "4 יח'" },
-	{ name: "חלב סויה 1 ל'", left: "7 יח'" },
-	{ name: "סוכר חום 500 גר'", left: "9 יח'" },
-	{ name: "מפיות נייר (50)", left: "12 יח'" },
-];
+// Products with stock at or below this quantity are surfaced as "low stock".
+const LOW_STOCK_THRESHOLD = 10;
+
+const STOCK_UNIT_LABEL: Record<string, string> = {
+	piece: "יח'",
+	kg: 'ק"ג',
+	gram: "גר'",
+	liter: "ל'",
+	ml: 'מ"ל',
+};
+
+function productName(p: TProduct): string {
+	return p.name.find((l) => l.lang === "he")?.value ?? p.name[0]?.value ?? p.sku;
+}
 
 function softBg(color: string, pct = 14) {
 	return `color-mix(in oklab, ${color} ${pct}%, transparent)`;
@@ -136,6 +145,7 @@ function AdminHomePage() {
 
 	const [orders, setOrders] = useState<TOrder[]>([]);
 	const [clients, setClients] = useState<TProfile[]>([]);
+	const [products, setProducts] = useState<TProduct[]>([]);
 	const [openDebtTotal, setOpenDebtTotal] = useState<number | null>(null);
 
 	useEffect(() => {
@@ -148,6 +158,13 @@ function AdminHomePage() {
 	useEffect(() => {
 		appApi.admin.getStoreClients().then((res) => {
 			if (res?.success) setClients(res.data);
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
+	}, []);
+
+	useEffect(() => {
+		appApi.admin.listProducts().then((res) => {
+			if (res?.success) setProducts(res.data);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
 	}, []);
@@ -214,6 +231,13 @@ function AdminHomePage() {
 			: `${monthlyRevenue.pctChange >= 0 ? "↗ +" : "↘ "}${monthlyRevenue.pctChange}% מהחודש שעבר`;
 
 	const recentOrders = useMemo(() => orders.slice(0, 5), [orders]);
+
+	const lowStockProducts = useMemo(() => {
+		return products
+			.filter((p) => p.stock != null && p.stock.quantity <= LOW_STOCK_THRESHOLD)
+			.sort((a, b) => (a.stock?.quantity ?? 0) - (b.stock?.quantity ?? 0))
+			.slice(0, 6);
+	}, [products]);
 
 	const topCustomers = useMemo(() => {
 		const startOfMonth = new Date();
@@ -369,28 +393,29 @@ function AdminHomePage() {
 					</div>
 				</CardBlock>
 
-				{/* Low stock — MOCK */}
+				{/* Low stock — REAL */}
 				<CardBlock
 					title="מוצרים במלאי קטן"
-					titleBadge={
-						<Chip size="sm" variant="soft" color="warning">
-							<Chip.Label>MOCK</Chip.Label>
-						</Chip>
-					}
 					action={<ViewAllLink to="admin.products">לניהול מלאי ←</ViewAllLink>}
 				>
 					<div className="divide-y divide-[var(--border)]">
-						{LOW_STOCK.map((p) => (
-							<div key={p.name} className="flex items-center justify-between gap-3 px-5 py-3">
-								<span className="text-sm text-[var(--foreground)]">{p.name}</span>
-								<span
-									className="text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap"
-									style={{ backgroundColor: softBg("var(--warning)", 16), color: "var(--warning)" }}
-								>
-									{p.left}
-								</span>
-							</div>
-						))}
+						{lowStockProducts.length === 0 ? (
+							<p className="px-5 py-6 text-sm text-center text-[var(--muted)]">
+								אין מוצרים במלאי קטן
+							</p>
+						) : (
+							lowStockProducts.map((p) => (
+								<div key={p.id} className="flex items-center justify-between gap-3 px-5 py-3">
+									<span className="text-sm text-[var(--foreground)]">{productName(p)}</span>
+									<span
+										className="text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap"
+										style={{ backgroundColor: softBg("var(--warning)", 16), color: "var(--warning)" }}
+									>
+										{p.stock?.quantity ?? 0} {STOCK_UNIT_LABEL[p.stock?.unit ?? "piece"] ?? ""}
+									</span>
+								</div>
+							))
+						)}
 					</div>
 				</CardBlock>
 			</div>
