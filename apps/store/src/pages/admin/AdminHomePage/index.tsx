@@ -6,6 +6,7 @@ import { useAppApi } from "src/appApi";
 import { FirebaseApi } from "src/lib/firebase";
 import type { TOrder } from "@jsdev_ninja/core";
 import type { TProfile } from "@jsdev_ninja/core";
+import type { TProduct } from "@jsdev_ninja/core";
 
 type Tone = "up" | "down" | "flat";
 
@@ -28,12 +29,20 @@ const STATUS: Record<string, { color: ChipProps["color"]; label: string }> = {
 
 const ACTIVE_STATUSES: TOrder["status"][] = ["pending", "processing", "in_delivery", "draft"];
 
-const LOW_STOCK: { name: string; left: string }[] = [
-	{ name: 'קפה שחור טחון 1 ק"ג', left: "4 יח'" },
-	{ name: "חלב סויה 1 ל'", left: "7 יח'" },
-	{ name: "סוכר חום 500 גר'", left: "9 יח'" },
-	{ name: "מפיות נייר (50)", left: "12 יח'" },
-];
+// Products with stock at or below this quantity are surfaced as "low stock".
+const LOW_STOCK_THRESHOLD = 10;
+
+const STOCK_UNIT_LABEL: Record<string, string> = {
+	piece: "יח'",
+	kg: 'ק"ג',
+	gram: "גר'",
+	liter: "ל'",
+	ml: 'מ"ל',
+};
+
+function productName(p: TProduct): string {
+	return p.name.find((l) => l.lang === "he")?.value ?? p.name[0]?.value ?? p.sku;
+}
 
 function softBg(color: string, pct = 14) {
 	return `color-mix(in oklab, ${color} ${pct}%, transparent)`;
@@ -94,49 +103,6 @@ function KpiCard({
 	);
 }
 
-function MockKpiCard({
-	label,
-	value,
-	trend,
-	tone,
-	icon,
-	color,
-}: {
-	label: string;
-	value: string;
-	trend: string;
-	tone: Tone;
-	icon: string;
-	color: string;
-}) {
-	return (
-		<div className="relative flex items-center gap-3.5 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)] shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]">
-			<div
-				className="grid place-items-center size-12 rounded-xl shrink-0"
-				style={{ backgroundColor: softBg(color), color }}
-			>
-				<Icon icon={icon} width={22} height={22} />
-			</div>
-			<div className="flex-1 min-w-0">
-				<span className="flex items-center gap-2 mb-1.5">
-					<span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
-						{label}
-					</span>
-					<Chip size="sm" variant="soft" color="warning">
-						<Chip.Label>MOCK</Chip.Label>
-					</Chip>
-				</span>
-				<b className="block text-2xl font-extrabold leading-none tracking-tight text-[var(--foreground)]">
-					{value}
-				</b>
-				<span className="block mt-1.5 text-[11.5px] font-medium" style={{ color: TONE_COLOR[tone] }}>
-					{trend}
-				</span>
-			</div>
-		</div>
-	);
-}
-
 function CardBlock({
 	title,
 	action,
@@ -179,6 +145,7 @@ function AdminHomePage() {
 
 	const [orders, setOrders] = useState<TOrder[]>([]);
 	const [clients, setClients] = useState<TProfile[]>([]);
+	const [products, setProducts] = useState<TProduct[]>([]);
 	const [openDebtTotal, setOpenDebtTotal] = useState<number | null>(null);
 
 	useEffect(() => {
@@ -191,6 +158,13 @@ function AdminHomePage() {
 	useEffect(() => {
 		appApi.admin.getStoreClients().then((res) => {
 			if (res?.success) setClients(res.data);
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
+	}, []);
+
+	useEffect(() => {
+		appApi.admin.listProducts().then((res) => {
+			if (res?.success) setProducts(res.data);
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
 	}, []);
@@ -225,7 +199,45 @@ function AdminHomePage() {
 		return clients.filter((c) => (c.createdDate ?? 0) >= cutoff).length;
 	}, [clients]);
 
+	const monthlyRevenue = useMemo(() => {
+		const startOfThisMonth = new Date();
+		startOfThisMonth.setDate(1);
+		startOfThisMonth.setHours(0, 0, 0, 0);
+		const thisMonthCutoff = startOfThisMonth.getTime();
+
+		const startOfLastMonth = new Date(startOfThisMonth);
+		startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
+		const lastMonthCutoff = startOfLastMonth.getTime();
+
+		let thisMonth = 0;
+		let lastMonth = 0;
+		for (const o of orders) {
+			if (o.status === "cancelled") continue;
+			const date = o.date ?? 0;
+			const total = o.cart?.cartTotal ?? 0;
+			if (date >= thisMonthCutoff) thisMonth += total;
+			else if (date >= lastMonthCutoff) lastMonth += total;
+		}
+
+		const pctChange =
+			lastMonth > 0 ? Math.round(((thisMonth - lastMonth) / lastMonth) * 100) : null;
+
+		return { thisMonth, pctChange };
+	}, [orders]);
+
+	const revenueTrend =
+		monthlyRevenue.pctChange === null
+			? "לעומת החודש שעבר"
+			: `${monthlyRevenue.pctChange >= 0 ? "↗ +" : "↘ "}${monthlyRevenue.pctChange}% מהחודש שעבר`;
+
 	const recentOrders = useMemo(() => orders.slice(0, 5), [orders]);
+
+	const lowStockProducts = useMemo(() => {
+		return products
+			.filter((p) => p.stock != null && p.stock.quantity <= LOW_STOCK_THRESHOLD)
+			.sort((a, b) => (a.stock?.quantity ?? 0) - (b.stock?.quantity ?? 0))
+			.slice(0, 6);
+	}, [products]);
 
 	const topCustomers = useMemo(() => {
 		const startOfMonth = new Date();
@@ -265,12 +277,12 @@ function AdminHomePage() {
 		<div className="space-y-5">
 			{/* KPI cards */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-				{/* Monthly revenue — MOCK */}
-				<MockKpiCard
+				{/* Monthly revenue — REAL */}
+				<KpiCard
 					label="הכנסות החודש"
-					value="₪48,250"
-					trend="↗ +14% מהחודש שעבר"
-					tone="up"
+					value={orders.length === 0 ? "—" : formatRevenue(monthlyRevenue.thisMonth)}
+					trend={revenueTrend}
+					tone={monthlyRevenue.pctChange !== null && monthlyRevenue.pctChange < 0 ? "down" : "up"}
 					icon="lucide:banknote"
 					color="var(--accent)"
 				/>
@@ -381,28 +393,29 @@ function AdminHomePage() {
 					</div>
 				</CardBlock>
 
-				{/* Low stock — MOCK */}
+				{/* Low stock — REAL */}
 				<CardBlock
 					title="מוצרים במלאי קטן"
-					titleBadge={
-						<Chip size="sm" variant="soft" color="warning">
-							<Chip.Label>MOCK</Chip.Label>
-						</Chip>
-					}
 					action={<ViewAllLink to="admin.products">לניהול מלאי ←</ViewAllLink>}
 				>
 					<div className="divide-y divide-[var(--border)]">
-						{LOW_STOCK.map((p) => (
-							<div key={p.name} className="flex items-center justify-between gap-3 px-5 py-3">
-								<span className="text-sm text-[var(--foreground)]">{p.name}</span>
-								<span
-									className="text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap"
-									style={{ backgroundColor: softBg("var(--warning)", 16), color: "var(--warning)" }}
-								>
-									{p.left}
-								</span>
-							</div>
-						))}
+						{lowStockProducts.length === 0 ? (
+							<p className="px-5 py-6 text-sm text-center text-[var(--muted)]">
+								אין מוצרים במלאי קטן
+							</p>
+						) : (
+							lowStockProducts.map((p) => (
+								<div key={p.id} className="flex items-center justify-between gap-3 px-5 py-3">
+									<span className="text-sm text-[var(--foreground)]">{productName(p)}</span>
+									<span
+										className="text-xs font-bold px-2 py-1 rounded-md whitespace-nowrap"
+										style={{ backgroundColor: softBg("var(--warning)", 16), color: "var(--warning)" }}
+									>
+										{p.stock?.quantity ?? 0} {STOCK_UNIT_LABEL[p.stock?.unit ?? "piece"] ?? ""}
+									</span>
+								</div>
+							))
+						)}
 					</div>
 				</CardBlock>
 			</div>
