@@ -130,6 +130,9 @@ export const routes = {
 			budgetOrganization: {
 				path: "/budget/:organizationId",
 			},
+			customerInvoices: {
+				path: "/customer-invoices",
+			},
 		},
 	},
 	superAdmin: {

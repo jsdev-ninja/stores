@@ -24,6 +24,7 @@ import AdminDeliveryNotesPage from "../AdminDeliveryNotesPage/AdminDeliveryNotes
 import { AdminInventoryCertificatePage } from "../AdminInventoryCertificatePage";
 import { AdminInventoryCertificateDetailPage } from "../AdminInventoryCertificateDetailPage";
 import { AdminBudgetPage, AdminBudgetOrganizationPage } from "../AdminBudgetPage/AdminBudgetPage";
+import AdminCustomerInvoicesPage from "../AdminCustomerInvoicesPage/AdminCustomerInvoicesPage";
 import { useAppApi } from "src/appApi";
 import { OrganizationSlice } from "src/domains/Organization";
 import { useAppDispatch } from "src/infra";
@@ -156,6 +157,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.budgetOrganization">
 						<AdminBudgetOrganizationPage />
+					</Route>
+					<Route name="admin.customerInvoices">
+						<AdminCustomerInvoicesPage />
 					</Route>
 				</main>
 			</div>

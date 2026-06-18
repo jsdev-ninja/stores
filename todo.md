@@ -72,6 +72,20 @@ The `apps/docs/docs/architecture/auth.md` page was written based on code reading
 
 Update `apps/docs/docs/architecture/auth.md` once answers are in.
 
+## Partial payments on invoices (deferred)
+
+The Customer Debts page (`recordInvoicePayment`) currently supports a **single full payment** per invoice only — the amount is locked to the invoice total. The demo (`demo/balasi-store-site-2026-06-12`) supports partial payments: a customer pays ₪200 of a ₪545 invoice, balance ₪345, status `חלקי` (partial), and can pay the rest later.
+
+To support partial payments we need:
+- Track `paidAmount` accrued on the invoice (or derive it from the sum of ledger transactions referencing that invoiceUuid — append-only, more correct than a mutable field). Decision needed: derived vs stored.
+- `recordInvoicePayment` accepts an `amount` param (≤ outstanding), instead of forcing the full total. Validate `0 < amount ≤ outstanding`.
+- The receipt (EZcount RECEIPT 400) reflects the partial amount paid, not the invoice total.
+- Invoice "is paid" signal becomes `paidAmount >= invoiceTotal` rather than `invoicePaidAt` presence. The `getOpenInvoices` filter changes accordingly (outstanding > 0).
+- A 4-state status: `שולם` (paid) / `חלקי` (partial) / `פתוח` (open) / (optionally `באיחור` if due-date work lands). Demo's `invoiceStatusPill` (admin.js:7229) is the reference.
+- UI: the RecordInvoicePaymentModal unlocks the amount field (currently disabled), defaults to outstanding, shows "שולם עד כה" / "יתרה" live.
+
+Deferred by explicit owner decision to keep the first iteration simple. Revisit after the invoices-list + bulk-billing work lands.
+
 EVENT BUS FOLLOWUPS
 
 - Event Bus: add dead-letter pattern with max-attempt tracking. Current `retry: true` retries for 7 days on permanent errors.

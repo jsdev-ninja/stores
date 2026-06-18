@@ -73,6 +73,11 @@ const navItems = [
     icon: "lucide:receipt",
   },
   {
+    labelKey: "nav.customerInvoices",
+    path: "admin.customerInvoices" as RouteKeys<typeof routes>,
+    icon: "lucide:file-text",
+  },
+  {
     labelKey: "nav.budget",
     path: "admin.budget" as RouteKeys<typeof routes>,
     icon: "lucide:wallet",
