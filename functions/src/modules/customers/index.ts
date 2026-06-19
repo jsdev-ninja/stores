@@ -7,4 +7,5 @@ export const customersModule = {
 };
 
 export { createCompanyClient } from "./api/createCompany";
+export { deleteClient } from "./api/deleteClient";
 export { migrateProfilesToMultiOrg } from "./api/migrateProfiles";

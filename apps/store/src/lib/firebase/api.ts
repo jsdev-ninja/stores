@@ -308,6 +308,19 @@ async function createCompanyClient(company: TCompany) {
 	}
 }
 
+async function deleteClient(clientId: string) {
+	try {
+		const func = httpsCallable(functions, "deleteClient");
+		const response = await func({ clientId });
+		return response.data as { success: boolean; authDeleted?: boolean; error?: string };
+	} catch (error: any) {
+		const code = error.code;
+		const message = error.message;
+		console.error("deleteClient failed", code, message);
+		return { success: false as const, error: message ?? "unknown" };
+	}
+}
+
 async function createDeliveryNote({
 	order,
 	options,
@@ -528,6 +541,7 @@ async function createProduct(product: TNewProduct): Promise<CreateProductResult>
 export const api = {
 	init,
 	createCompanyClient,
+	deleteClient,
 	createPayment,
 	createHypCheckoutPayment,
 	recordHypJ5Auth,
