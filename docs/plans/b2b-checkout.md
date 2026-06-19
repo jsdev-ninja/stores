@@ -130,20 +130,42 @@ the matching UI input + shows it read-only in the admin order view. Small and is
     each `{ id, number, name }`.
   - The active org + its accounts are already in the store:
     `state.userOrganization.activeOrganization` / `.organizations` (`CheckoutPage.tsx:54–55`).
-  **Proposed work (store-only, no core bump):**
-  1. Replace the hardcoded `<select>` with a real one populated from
-     `activeOrganization.billingAccounts` (label `${number} — ${name}`). Show the true count in
-     the caption; hide/disable only when the org has 0–1 accounts.
-  2. Register it with the checkout form and persist the chosen account into `order.billingAccount`
-     on placement (currently `order.billingAccount` is never set).
-  3. Show the selected account read-only in the admin order view.
   > **Why this still needs Philip (not owner-shippable):** it writes a new field onto the order at
   > placement and is billing/payment-adjacent (which account the invoice is issued against) — i.e.
   > business logic, not a pure UI/text change. Low regression risk (additive, optional field that
   > already exists), but it must not ship without developer sign-off per CLAUDE.md.
-  > **Decisions for Philip:** (a) default selection when the customer has >1 account — first/“ראשי”,
-  > or last-used? (b) is `billingAccount` required for B2B customers, or optional? (c) should the
-  > admin order view + invoice generation actually consume `order.billingAccount` downstream?
+
+  **✅ Owner decisions locked (David, 2026-06-19) — Philip delegated all business decisions to David
+  ("business decision handled by david", PR #87):**
+  - **Default = the "ראשי" (main) account, always** — preselect it, but the customer can change it.
+  - **Required** — a B2B customer must have a billing account on the order; block placement if none
+    is chosen. (`order.billingAccount` becomes effectively required for org customers.)
+  - **Show everywhere** — the chosen account must appear on the **invoice** and on the **admin order
+    screen**, and drive which account is billed downstream.
+
+  This splits cleanly into two pieces:
+
+  **T10a — Selector wiring (within what Philip OK'd; no core schema change).**
+  1. Replace the hardcoded `<select>` with a real one from `activeOrganization.billingAccounts`
+     (label `${number} — ${name}`), preselecting the "ראשי" account. Caption shows the true count;
+     hide only when the org has ≤1 account.
+  2. Register it with the checkout form; make it required for org customers; persist into
+     `order.billingAccount` on placement.
+  3. Show it read-only in the admin order view **and** carry it onto the generated invoice /
+     downstream billing.
+
+  **T10b — Remember the customer's preferred default account (NEW scope — needs Philip's tech OK).**
+  David also wants the customer to be able to set, once, which account is *always* their default for
+  future orders. That means persisting a **per-user preference** — a new field on the customer's
+  profile/org membership (e.g. `Profile.preferredBillingAccountId` or on the org link). That is a
+  **core-schema change** (`@jsdev_ninja/core`) → version bump + redeploy, and was **not** in the
+  spec Philip reviewed. **Flagged for Philip** to confirm where the preference is stored before we
+  build it. Until then, T10a defaults to "ראשי" every time (the customer can still change it per
+  order) — which already satisfies the day-one need.
+
+  > **➡️ Asks for Philip (this PR):** (1) OK to proceed with **T10a** as scoped (no core bump)?
+  > (2) For **T10b**, where should the per-customer preferred-default account live —
+  > `Profile.preferredBillingAccountId`, or on the org-membership link?
 
 ### Track C — Auto-create organization (depends on T3+T4)
 - **T8 — `upsertOrganizationFromOrder` service (no trigger yet).** Pure function: given an order
