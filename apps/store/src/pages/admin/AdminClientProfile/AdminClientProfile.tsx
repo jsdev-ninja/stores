@@ -744,8 +744,14 @@ export default function AdminClientProfile() {
     }
   }
 
-  function removeProfile() {
-    // TODO: Implement profile removal logic
+  async function removeProfile() {
+    if (!clientId) return;
+    const result = await appApi.admin.deleteClient(clientId);
+    if (result?.success) {
+      navigate({ to: "admin.users" });
+    } else {
+      console.error("Failed to remove client:", result);
+    }
   }
 
   useEffect(() => {

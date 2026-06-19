@@ -749,6 +749,27 @@ export const useAppApi = () => {
 
         return result;
       },
+      deleteClient: async (clientId: string) => {
+        if (!isValidAdmin) return;
+
+        const result = await FirebaseApi.firestore.remove({
+          id: clientId,
+          collectionName: FirebaseAPI.firestore.getPath({
+            collectionName: "profiles",
+            storeId,
+            companyId,
+          }),
+        });
+
+        logger({
+          message: "delete client profile",
+          severity: result.success ? "INFO" : "ERROR",
+          result,
+          clientId,
+        });
+
+        return result;
+      },
       getStoreClients: async () => {
         if (!isValidAdmin) return;
         return FirebaseApi.firestore.listV2<TProfile>({
