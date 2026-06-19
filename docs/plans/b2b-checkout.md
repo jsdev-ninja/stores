@@ -118,6 +118,33 @@ the matching UI input + shows it read-only in the admin order view. Small and is
 > Each T3–T7: 1 core PR (schema) + 1 store PR (wire UI + admin display), or one small PR if
 > trivial. Bump core version + update both consumers (`apps/store`, `functions`) per CLAUDE.md.
 
+- **T10 — Wire the "מספר לקוח" (billing-account) selector.** ⬅️ **Requested by David (owner), 2026-06-19.**
+  **Bug as seen by owner:** at checkout, a customer who belongs to a company with *several*
+  customer/account numbers cannot pick which account to bill — the "מספר לקוח" dropdown is dead.
+  **Root cause:** the selector in `apps/store/src/websites/balasistore/CheckoutLayout.tsx`
+  (lines ~125–133) is **VISUAL-ONLY** — a single hardcoded `<option>C-NEW-9 — חשבון ראשי</option>`,
+  `disabled`, with a static "1 חשבון רשום בחברה שלכם" caption. It was never wired.
+  **Good news — no core schema change needed for this one:**
+  - `Order` already has `billingAccount: BillingAccountSchema.optional()` (`Order.ts:77`).
+  - `Organization` already has `billingAccounts: TBillingAccount[]` (`Organization.ts:17`),
+    each `{ id, number, name }`.
+  - The active org + its accounts are already in the store:
+    `state.userOrganization.activeOrganization` / `.organizations` (`CheckoutPage.tsx:54–55`).
+  **Proposed work (store-only, no core bump):**
+  1. Replace the hardcoded `<select>` with a real one populated from
+     `activeOrganization.billingAccounts` (label `${number} — ${name}`). Show the true count in
+     the caption; hide/disable only when the org has 0–1 accounts.
+  2. Register it with the checkout form and persist the chosen account into `order.billingAccount`
+     on placement (currently `order.billingAccount` is never set).
+  3. Show the selected account read-only in the admin order view.
+  > **Why this still needs Philip (not owner-shippable):** it writes a new field onto the order at
+  > placement and is billing/payment-adjacent (which account the invoice is issued against) — i.e.
+  > business logic, not a pure UI/text change. Low regression risk (additive, optional field that
+  > already exists), but it must not ship without developer sign-off per CLAUDE.md.
+  > **Decisions for Philip:** (a) default selection when the customer has >1 account — first/“ראשי”,
+  > or last-used? (b) is `billingAccount` required for B2B customers, or optional? (c) should the
+  > admin order view + invoice generation actually consume `order.billingAccount` downstream?
+
 ### Track C — Auto-create organization (depends on T3+T4)
 - **T8 — `upsertOrganizationFromOrder` service (no trigger yet).** Pure function: given an order
   with companyName+taxId, find-or-create the tenant-scoped `Organization` (idempotent
