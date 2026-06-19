@@ -190,7 +190,7 @@ function CheckoutPage() {
 							userId: user.uid,
 							companyId: store.companyId,
 							storeId: store.id,
-							status: "draft",
+							status: "pending",
 							paymentStatus: store.paymentType === "external" ? "external" : "pending",
 							client: _profile,
 							organizationId: profileOrganization?.id,

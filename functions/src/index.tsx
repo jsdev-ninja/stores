@@ -13,6 +13,7 @@ export const uiLogs = functionsV2.https.onCall((opts) => {
 });
 
 export { chatbotApi } from "./modules/chatbot";
+export { detectFridgeProducts } from "./modules/fridgeScan";
 export { appInit } from "./modules/application";
 export { getMixpanelData } from "./modules/analytics";
 export { createCompanyClient, migrateProfilesToMultiOrg } from "./modules/customers";

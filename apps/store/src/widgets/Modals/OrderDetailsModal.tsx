@@ -36,6 +36,10 @@ const itemPillStyles = {
 	replaced: "bg-[#fff7e0] text-[#7a5a15] border border-[#d4a217]",
 	deliveredInstead: "bg-[#e3f2e8] text-[#155f30] border border-[#1b7a3d]",
 } as const;
+// Payment statuses that mean the order is financially secured and safe to approve.
+// An order that is still "pending" payment (unpaid or failed) must not be approvable.
+const APPROVABLE_PAYMENT_STATUSES: string[] = ["pending_j5", "completed", "external"];
+
 function ItemPill({
 	variant,
 	children,
@@ -215,8 +219,10 @@ export function OrderDetailsModal({
 				</Button>,
 			);
 		}
-		// Approve — only for a pending order.
-		if (order.status === "pending") {
+		// Approve — only for a pending order whose payment is secured
+		// (J5 hold authorized, already completed, or external terms). An unpaid or
+		// failed "pending" order must not be approvable.
+		if (order.status === "pending" && APPROVABLE_PAYMENT_STATUSES.includes(order.paymentStatus ?? "")) {
 			els.push(
 				<Button
 					key="approve"
@@ -229,9 +235,10 @@ export function OrderDetailsModal({
 				</Button>,
 			);
 		}
-		// Create payment link — for a draft order (J5 payment not completed) so the
-		// admin can send the customer a link to finish paying. Not for external orders.
-		if (order.status === "draft" && order.paymentType !== "external") {
+		// Create payment link — for a J5 order whose payment hasn't completed
+		// (paymentStatus is still "pending") so the admin can send the customer a link
+		// to finish paying.
+		if (order.paymentType === "j5" && order.paymentStatus === "pending") {
 			els.push(
 				<Button
 					key="createPaymentLink"
