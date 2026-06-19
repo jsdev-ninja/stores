@@ -37,6 +37,8 @@ const checkoutSchema = z.object({
 		.optional(),
 	poNumber: z.string().optional(),
 	outOfStockPolicy: z.enum(["substitute", "remove"]).optional(),
+	// Selected billing account (by id) for B2B customers whose org has several accounts.
+	billingAccountId: z.string().optional(),
 });
 
 type TCheckout = z.infer<typeof checkoutSchema>;
@@ -171,6 +173,8 @@ function CheckoutPage() {
 					},
 					poNumber: "",
 					outOfStockPolicy: "substitute",
+					// Default to the org's main (first) account; the customer can change it below.
+					billingAccountId: profileOrganization?.billingAccounts?.[0]?.id ?? "",
 				}}
 				onError={(errors) => {
 					console.warn("errors", errors);
@@ -181,6 +185,13 @@ function CheckoutPage() {
 					setIsSubmitting(true);
 
 					try {
+						// Resolve the chosen billing account (B2B). Default to the org's main
+						// (first) account when nothing was picked, so an org order always carries one.
+						const orgBillingAccounts = profileOrganization?.billingAccounts ?? [];
+						const billingAccount =
+							orgBillingAccounts.find((a) => a.id === values.billingAccountId) ??
+							orgBillingAccounts[0];
+
 						const newOrder: TOrder = {
 							type: "Order",
 							// Deterministic ID = cart.id → idempotent across rage-clicks, page refresh, multi-tab.
@@ -194,6 +205,7 @@ function CheckoutPage() {
 							paymentStatus: store.paymentType === "external" ? "external" : "pending",
 							client: _profile,
 							organizationId: profileOrganization?.id,
+							billingAccount: billingAccount ?? undefined,
 							cart: {
 								id: cart.id,
 								items: cartCost.items,
@@ -266,6 +278,7 @@ function CheckoutPage() {
 						minDate={minDate}
 						maxDate={maxDate}
 						isSubmitting={isSubmitting}
+						billingAccounts={profileOrganization?.billingAccounts ?? []}
 					/>
 				) : (
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
