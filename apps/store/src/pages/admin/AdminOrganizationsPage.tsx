@@ -642,6 +642,8 @@ type LedgerModalProps = {
 function LedgerModal({ state, onClose }: LedgerModalProps) {
 	const appApi = useAppApi();
 	const [ledgerTab, setLedgerTab] = useState<LedgerTab>("all");
+	// "all" = show every account; otherwise the selected billing account id
+	const [selectedAccountId, setSelectedAccountId] = useState<string>("all");
 	const [deliveryNotes, setDeliveryNotes] = useState<TOrder[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedDnIds, setSelectedDnIds] = useState<Set<string>>(new Set());
@@ -675,17 +677,30 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 	useEffect(() => {
 		if (state.kind !== "open") return;
 		setLedgerTab("all");
+		setSelectedAccountId("all");
 		setDeliveryNotes([]);
 		setSelectedDnIds(new Set());
 		loadDeliveryNotes(state.org.id);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- run once per modal open (keyed on state)
 	}, [state]);
 
-	const dnTotalSum = deliveryNotes.reduce((sum, o) => sum + dnTotal(o), 0);
+	// Billing accounts on the company. When a customer has more than one,
+	// we show an account selector so the ledger can be viewed per account.
+	const billingAccounts: TBillingAccount[] = org?.billingAccounts ?? [];
+	const hasMultipleAccounts = billingAccounts.length > 1;
+
+	// The notes shown after applying the selected-account filter. Each delivery
+	// note carries the billing account it was placed against (order.billingAccount).
+	const accountNotes =
+		selectedAccountId === "all"
+			? deliveryNotes
+			: deliveryNotes.filter((o) => o.billingAccount?.id === selectedAccountId);
+
+	const dnTotalSum = accountNotes.reduce((sum, o) => sum + dnTotal(o), 0);
 
 	// Only delivery notes that haven't been invoiced yet can go into a new invoice.
-	const invoiceableNotes = deliveryNotes.filter((o) => !dnInvoiceNumber(o));
-	const selectedNotes = deliveryNotes.filter((o) => selectedDnIds.has(o.id));
+	const invoiceableNotes = accountNotes.filter((o) => !dnInvoiceNumber(o));
+	const selectedNotes = accountNotes.filter((o) => selectedDnIds.has(o.id));
 	const allInvoiceableSelected =
 		invoiceableNotes.length > 0 &&
 		invoiceableNotes.every((o) => selectedDnIds.has(o.id));
@@ -703,6 +718,12 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 		});
 	}
 
+	function selectAccount(accountId: string) {
+		setSelectedAccountId(accountId);
+		// Clear selection so we never hold notes hidden by the active filter.
+		setSelectedDnIds(new Set());
+	}
+
 	function handleCreateConsolidatedInvoice() {
 		if (selectedNotes.length === 0) return;
 		// Reuse the existing invoice-creation modal + backend exactly as the
@@ -718,7 +739,7 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 
 	const LEDGER_TABS: { key: LedgerTab; label: string }[] = [
 		{ key: "all", label: "הכל" },
-		{ key: "dn", label: `תעודות משלוח (${deliveryNotes.length})` },
+		{ key: "dn", label: `תעודות משלוח (${accountNotes.length})` },
 		{ key: "inv", label: "חשבוניות (0)" },
 		{ key: "rcp", label: "קבלות (0)" },
 		{ key: "crd", label: "זיכויים (0)" },
@@ -735,6 +756,44 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 					</Modal.Header>
 					<Modal.Body>
 						<div className="flex flex-col gap-4">
+							{/* Account selector — shown when the customer has more than
+							    one billing account, so the ledger can be viewed per account. */}
+							{hasMultipleAccounts && (
+								<div className="flex flex-wrap items-center gap-1.5">
+									<button
+										type="button"
+										onClick={() => selectAccount("all")}
+										className={[
+											"px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors",
+											selectedAccountId === "all"
+												? "bg-[var(--accent)] text-white border-[var(--accent)]"
+												: "bg-[var(--surface)] text-[var(--muted)] border-[var(--border)] hover:text-[var(--foreground)]",
+										].join(" ")}
+									>
+										כל החשבונות
+									</button>
+									{billingAccounts.map((acc) => {
+										const active = selectedAccountId === acc.id;
+										return (
+											<button
+												key={acc.id}
+												type="button"
+												onClick={() => selectAccount(acc.id)}
+												className={[
+													"px-3 py-1.5 rounded-lg text-sm font-semibold border transition-colors",
+													active
+														? "bg-[var(--accent)] text-white border-[var(--accent)]"
+														: "bg-[var(--surface)] text-[var(--muted)] border-[var(--border)] hover:text-[var(--foreground)]",
+												].join(" ")}
+											>
+												{acc.name}
+												<span className="ms-1.5 opacity-70 font-normal">{acc.number}</span>
+											</button>
+										);
+									})}
+								</div>
+							)}
+
 							{/* Customer header strip */}
 							<div
 								className="grid grid-cols-2 gap-4 p-4 rounded-xl border border-[var(--border)]"
@@ -743,7 +802,13 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 								<div className="flex flex-col gap-2 text-sm">
 									<div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
 										<span className="text-[var(--muted)]">מספר לקוח</span>
-										<b className="text-[var(--foreground)]">—</b>
+										<b className="text-[var(--foreground)]">
+											{selectedAccountId !== "all"
+												? (billingAccounts.find((a) => a.id === selectedAccountId)?.number ?? "—")
+												: billingAccounts.length > 0
+													? billingAccounts.map((a) => a.number).join(" / ")
+													: "—"}
+										</b>
 										<span className="text-[var(--muted)]">ח.פ</span>
 										<b className="text-[var(--foreground)]">
 											{org?.companyNumber ?? "—"}
@@ -809,7 +874,7 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 										className="mx-auto h-6 w-6 animate-spin"
 									/>
 								</div>
-							) : showDeliveryNotes && deliveryNotes.length > 0 ? (
+							) : showDeliveryNotes && accountNotes.length > 0 ? (
 								<div className="flex flex-col gap-2">
 									{invoiceableNotes.length > 0 && (
 										<div className="flex items-center gap-2 px-1 text-sm text-[var(--muted)]">
@@ -845,7 +910,7 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 											</tr>
 										</thead>
 										<tbody>
-											{deliveryNotes.map((o) => {
+											{accountNotes.map((o) => {
 												const pdf = dnPdf(o);
 												const invoiceNumber = dnInvoiceNumber(o);
 												const invoiced = Boolean(invoiceNumber);
