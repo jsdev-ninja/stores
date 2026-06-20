@@ -19,6 +19,11 @@ export const OrganizationSchema = z.object({
 	companyNumber: z.string().optional(),
 	address: AddressSchema.optional(),
 	groupId: z.string().optional(),
+	// Contact / billing details (admin-managed, optional — see company-edit-like-demo plan)
+	phone: z.string().optional(),
+	email: z.string().optional(),
+	notes: z.string().optional(),
+	freeShipping: z.boolean().optional(),
 });
 
 export const NewOrganizationSchema = OrganizationSchema.omit({ id: true });
