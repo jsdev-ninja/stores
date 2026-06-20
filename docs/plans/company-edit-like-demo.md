@@ -72,10 +72,18 @@ The "חברה חדשה" path seeds a default branch + a default account automati
 1. **Schema ownership** — `branches` and the richer `billingAccounts` live on
    `Organization` in `@jsdev_ninja/core`. Confirm shape + version bump + update both
    consumers (`apps/store`, `functions`).
-2. **payTerms / net30** — the demo offers "שוטף + 30". David previously said net30 is
-   **not** wanted (see `b2b-checkout.md`). Confirm whether to include it here.
-3. **Category restriction on accounts** — keep or drop? It implies enforcement at order
-   time (out of scope of pure editing).
+2. **payTerms — DECIDED (David):** Include configurable payment terms on the account
+   (שוטף+30, שוטף+15, אשראי/מזומן, etc.). **Admin-only** — this is a field the admin
+   (David) sets and sees on the company/account; **the customer must NOT see or choose
+   payment terms anywhere** (not in checkout, not in their profile). It is purely an
+   internal billing attribute. (This refines the earlier "no net30" note in
+   `b2b-checkout.md`: net terms ARE wanted now, but strictly admin-side.) Open sub-question
+   for Philip: fixed list vs. free-form day count.
+3. **Category restriction on accounts — DECIDED (David):** Include it. The admin can
+   optionally toggle "הגבל חשבון לקטגוריות" per account and pick allowed categories
+   (demo `editAccount` `restricted` + `allowedCategories`). Note for Philip: this implies
+   **enforcement at order time** (block/route disallowed items) — needs a decision on how
+   strict and where it's enforced, beyond the editing UI.
 4. **Edit entry point** — replace the detail-page navigation with the modal, or open the
    modal from the row and keep the detail page reachable for orders/invoices/history?
    (Pure replacement = regression on existing management.)
