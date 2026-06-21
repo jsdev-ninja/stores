@@ -198,6 +198,7 @@ export const resources = {
 				draftSaved: "הטיוטה נשמרה",
 				continueEditing: "המשך עריכה",
 				deleteDraft: "מחק טיוטה",
+				productNotInSystem: "מוצר לא קיים במערכת",
 			},
 			namePlaceholder: "הכנס שם ארגון",
 			discountPercentagePlaceholder: "הכנס אחוז הנחה",
