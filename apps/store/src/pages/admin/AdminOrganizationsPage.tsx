@@ -14,7 +14,12 @@ import {
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
 import { TOrganization, TBillingAccount, TOrder } from "@jsdev_ninja/core";
-import type { TPaymentType, TPaymentTerms, TCategory } from "@jsdev_ninja/core";
+import type {
+	TPaymentType,
+	TPaymentTerms,
+	TCategory,
+	TBranch,
+} from "@jsdev_ninja/core";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -196,6 +201,28 @@ function accountToForm(account: TBillingAccount): AccountFormFields {
 	};
 }
 
+type BranchFormFields = {
+	label: string;
+	address: string;
+	phone: string;
+	isPrimary: boolean;
+};
+
+type BranchEditorState = { id: string | null; form: BranchFormFields };
+
+function blankBranchForm(): BranchFormFields {
+	return { label: "", address: "", phone: "", isPrimary: false };
+}
+
+function branchToForm(branch: TBranch): BranchFormFields {
+	return {
+		label: branch.label ?? "",
+		address: branch.address ?? "",
+		phone: branch.phone ?? "",
+		isPrimary: branch.isPrimary ?? false,
+	};
+}
+
 type CompanyModalFormState = {
 	name: string;
 	companyNumber: string;
@@ -253,6 +280,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 	const [accountError, setAccountError] = useState<string | null>(null);
 	const [categories, setCategories] = useState<FlatCategory[]>([]);
 
+	// ── Branches management (live local copy persisted via updateOrganization) ──
+	const [branches, setBranches] = useState<TBranch[]>([]);
+	const [branchEditor, setBranchEditor] = useState<BranchEditorState | null>(
+		null,
+	);
+	const [branchSaving, setBranchSaving] = useState(false);
+	const [branchError, setBranchError] = useState<string | null>(null);
+
 	// Reset form, tab, and error whenever the modal opens with a new org
 	useEffect(() => {
 		if (state.kind === "open") {
@@ -260,6 +295,9 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 			setAccounts(state.org?.billingAccounts ?? []);
 			setAccountEditor(null);
 			setAccountError(null);
+			setBranches(state.org?.branches ?? []);
+			setBranchEditor(null);
+			setBranchError(null);
 			setTab("details");
 			setSaveError(null);
 		}
@@ -365,9 +403,75 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 		});
 	}
 
+	// ── Branches handlers ──
+	async function persistBranches(next: TBranch[]): Promise<boolean> {
+		if (!org) return false;
+		setBranchError(null);
+		setBranchSaving(true);
+		try {
+			const result = await appApi.admin.updateOrganization({
+				...org,
+				branches: next,
+			});
+			if (result?.success) {
+				setBranches(next);
+				onSaved?.();
+				return true;
+			}
+			setBranchError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} catch {
+			setBranchError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} finally {
+			setBranchSaving(false);
+		}
+	}
+
+	async function handleSaveBranch() {
+		if (!branchEditor) return;
+		const f = branchEditor.form;
+		if (!f.label.trim()) {
+			setBranchError("נא למלא שם סניף");
+			return;
+		}
+		const payload: TBranch = {
+			id: branchEditor.id ?? `b${Date.now()}`,
+			label: f.label.trim(),
+			address: f.address.trim() || undefined,
+			phone: f.phone.trim() || undefined,
+			isPrimary: f.isPrimary,
+		};
+		let next: TBranch[];
+		if (branchEditor.id) {
+			next = branches.map((b) => (b.id === branchEditor.id ? payload : b));
+		} else {
+			next = [...branches, payload];
+		}
+		if (payload.isPrimary) {
+			next = next.map((b) =>
+				b.id === payload.id ? b : { ...b, isPrimary: false },
+			);
+		}
+		const ok = await persistBranches(next);
+		if (ok) setBranchEditor(null);
+	}
+
+	async function handleDeleteBranch(id: string) {
+		if (!window.confirm("למחוק את הסניף? פעולה זו לא תמחק הזמנות עבר.")) return;
+		await persistBranches(branches.filter((b) => b.id !== id));
+	}
+
+	function setBranchField(patch: Partial<BranchFormFields>) {
+		setBranchError(null);
+		setBranchEditor((prev) =>
+			prev ? { ...prev, form: { ...prev.form, ...patch } } : prev,
+		);
+	}
+
 	const TABS: { key: CompanyTab; label: string; badge?: number }[] = [
 		{ key: "details", label: "פרטי חברה" },
-		{ key: "branches", label: "🏢 סניפים", badge: 0 },
+		{ key: "branches", label: "🏢 סניפים", badge: branches.length },
 		{ key: "accounts", label: "💳 חשבונות", badge: billingAccounts.length },
 		{ key: "users", label: "👥 משתמשים מורשים", badge: 0 },
 	];
@@ -649,8 +753,8 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 							</div>
 						)}
 
-						{/* ── Branches Tab — no data, empty state ── */}
-						{!isNew && tab === "branches" && (
+						{/* ── Branches Tab — full CRUD ── */}
+						{!isNew && tab === "branches" && !branchEditor && (
 							<div className="flex flex-col gap-4">
 								<div
 									className="flex items-start gap-3 p-3 rounded-lg text-sm"
@@ -658,13 +762,153 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 								>
 									<span className="text-xl mt-0.5">🏢</span>
 									<p>
-										<b>סניפים</b> — חברה יכולה לכלול כמה משרדים פיזיים, כל סניף עם כתובת וטלפון משלו.
+										<b>סניפים</b> — חברה יכולה לכלול כמה משרדים פיזיים, כל סניף עם
+										כתובת וטלפון משלו. ההזמנות יישלחו לכתובת הסניף שנבחר.
 									</p>
 								</div>
-								<div className="py-8 text-center text-[var(--muted)]">
-									<p className="text-4xl mb-3">🏢</p>
-									<p className="font-semibold">אין סניפים מוגדרים</p>
-									<p className="text-sm mt-1">הוספת סניפים תהיה זמינה בעתיד</p>
+								{branchError && (
+									<p className="text-xs text-[var(--danger)]">{branchError}</p>
+								)}
+								{branches.length === 0 ? (
+									<div className="py-8 text-center text-[var(--muted)]">
+										<p className="text-4xl mb-3">🏢</p>
+										<p className="font-semibold">אין סניפים מוגדרים</p>
+									</div>
+								) : (
+									<div className="flex flex-col gap-2">
+										{branches.map((branch) => (
+											<div
+												key={branch.id}
+												className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--background)]"
+											>
+												<div
+													className="w-9 h-9 rounded-full grid place-items-center text-lg flex-shrink-0"
+													style={{ backgroundColor: softBg("var(--info)", 16) }}
+												>
+													🏢
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="font-semibold text-sm text-[var(--foreground)] flex items-center gap-1.5">
+														{branch.label}
+														{branch.isPrimary && (
+															<BadgePill color="var(--success)">ראשי</BadgePill>
+														)}
+													</p>
+													<p className="text-xs text-[var(--muted)] mt-0.5">
+														{branch.address || "—"} · {branch.phone || "—"}
+													</p>
+												</div>
+												<div className="flex items-center gap-1.5 flex-none">
+													<button
+														type="button"
+														onClick={() =>
+															setBranchEditor({
+																id: branch.id,
+																form: branchToForm(branch),
+															})
+														}
+														className="px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+													>
+														עריכה
+													</button>
+													{branches.length > 1 && (
+														<button
+															type="button"
+															onClick={() => handleDeleteBranch(branch.id)}
+															className="w-7 h-7 grid place-items-center rounded border border-[var(--border)] text-[var(--danger)] bg-[var(--surface)] hover:border-[var(--danger)] transition-colors"
+															aria-label={`מחק ${branch.label}`}
+														>
+															<Icon icon="lucide:x" width={13} height={13} />
+														</button>
+													)}
+												</div>
+											</div>
+										))}
+									</div>
+								)}
+								<div>
+									<Button
+										variant="primary"
+										onPress={() =>
+											setBranchEditor({ id: null, form: blankBranchForm() })
+										}
+									>
+										<Icon icon="lucide:plus" width={14} height={14} />
+										הוסף סניף
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* ── Branches Tab — add/edit form ── */}
+						{!isNew && tab === "branches" && branchEditor && (
+							<div className="flex flex-col gap-4">
+								<div className="grid grid-cols-2 gap-x-4 gap-y-4">
+									<div className="flex flex-col gap-1 col-span-2">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											שם הסניף <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={branchEditor.form.label}
+											onChange={(e) => setBranchField({ label: e.target.value })}
+											placeholder="לדוגמה: סניף ת״א — דיזנגוף"
+										/>
+									</div>
+									<div className="flex flex-col gap-1 col-span-2">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											כתובת מלאה
+										</label>
+										<Input
+											value={branchEditor.form.address}
+											onChange={(e) => setBranchField({ address: e.target.value })}
+											placeholder="רחוב, מספר, עיר"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											טלפון
+										</label>
+										<Input
+											value={branchEditor.form.phone}
+											onChange={(e) => setBranchField({ phone: e.target.value })}
+											placeholder="טלפון"
+										/>
+									</div>
+								</div>
+
+								<label className="flex items-center gap-2.5 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={branchEditor.form.isPrimary}
+										onChange={(e) => setBranchField({ isPrimary: e.target.checked })}
+										className="w-[18px] h-[18px] cursor-pointer"
+									/>
+									<span className="text-sm text-[var(--foreground)]">סניף ראשי</span>
+								</label>
+
+								{branchError && (
+									<p className="text-xs text-[var(--danger)]">{branchError}</p>
+								)}
+
+								<div className="flex items-center justify-end gap-2 pt-1">
+									<Button
+										variant="ghost"
+										onPress={() => {
+											setBranchEditor(null);
+											setBranchError(null);
+										}}
+										isDisabled={branchSaving}
+									>
+										ביטול
+									</Button>
+									<Button
+										variant="primary"
+										onPress={handleSaveBranch}
+										isPending={branchSaving}
+										isDisabled={branchSaving}
+									>
+										{branchEditor.id ? "שמור שינויים" : "הוסף סניף"}
+									</Button>
 								</div>
 							</div>
 						)}
