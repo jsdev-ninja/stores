@@ -518,6 +518,21 @@ export function AdminInventoryCertificatePage() {
 			.filter((item): item is NonNullable<typeof item> => item !== null);
 	}, [supplierInvoice.rows]);
 
+	// Rows whose SKU was not found in the system — shown in the save modal as
+	// new products that will need to be created.
+	const productsNotInSystem = useMemo(() => {
+		return (supplierInvoice.rows || [])
+			.filter((row) => row.sku && notFoundSkuRows[row.id])
+			.map((row) => ({
+				id: row.id,
+				sku: row.sku,
+				itemName: row.itemName,
+				purchasePrice: row.purchasePrice,
+				price: row.price,
+				profitPercentage: row.profitPercentage,
+			}));
+	}, [supplierInvoice.rows, notFoundSkuRows]);
+
 	// Calculate totals for summary
 	const invoiceSummary = useMemo(() => {
 		const rows = supplierInvoice.rows || [];
@@ -1072,6 +1087,62 @@ export function AdminInventoryCertificatePage() {
 								<p className="text-gray-500 text-center py-4">
 									{t("common:inventoryCertificatePage.noProductsToUpdate")}
 								</p>
+							)}
+
+							{/* Products not found in the system (will need to be created) */}
+							{productsNotInSystem.length > 0 && (
+								<div className="mt-4 mb-4">
+									<div className="flex items-center gap-1 text-red-600 font-medium mb-2">
+										<Icon icon="lucide:alert-triangle" className="shrink-0" />
+										{t("common:inventoryCertificatePage.newProductsTitle")}
+									</div>
+									<div className="overflow-x-auto">
+										<Table aria-label="New products table" className="shadow-none border border-red-300">
+											<Table.ScrollContainer>
+												<Table.Content>
+													<Table.Header>
+														<Table.Column isRowHeader className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:sku")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.itemName")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.purchasePriceIn")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.salesPriceFrom")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.profitPercent")}
+														</Table.Column>
+													</Table.Header>
+													<Table.Body items={productsNotInSystem}>
+														{(item) => (
+															<Table.Row id={item.id}>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	<div className="font-medium">{item.sku}</div>
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	{item.itemName || "-"}
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	₪ {item.purchasePrice.toFixed(2)}
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	₪ {item.price.toFixed(2)}
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	{item.profitPercentage.toFixed(2)}%
+																</Table.Cell>
+															</Table.Row>
+														)}
+													</Table.Body>
+												</Table.Content>
+											</Table.ScrollContainer>
+										</Table>
+									</div>
+								</div>
 							)}
 							{/* Summary Section */}
 							<div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">

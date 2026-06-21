@@ -199,6 +199,7 @@ export const resources = {
 				continueEditing: "המשך עריכה",
 				deleteDraft: "מחק טיוטה",
 				productNotInSystem: "מוצר לא קיים במערכת",
+				newProductsTitle: "מוצרים חדשים שלא קיימים במערכת (צריך להכניס):",
 			},
 			namePlaceholder: "הכנס שם ארגון",
 			discountPercentagePlaceholder: "הכנס אחוז הנחה",
