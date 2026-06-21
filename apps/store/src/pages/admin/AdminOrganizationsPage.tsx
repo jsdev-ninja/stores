@@ -14,7 +14,7 @@ import {
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
 import { TOrganization, TBillingAccount, TOrder } from "@jsdev_ninja/core";
-import type { TPaymentType } from "@jsdev_ninja/core";
+import type { TPaymentType, TPaymentTerms, TCategory } from "@jsdev_ninja/core";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -45,6 +45,40 @@ const PAYMENT_TYPE_LABEL: Record<TPaymentType, string> = {
 function paymentTypeLabel(pt: TPaymentType | undefined): string {
 	if (!pt) return "—";
 	return PAYMENT_TYPE_LABEL[pt] ?? pt;
+}
+
+// Payment TERMS (account-level, admin-only) → Hebrew label
+const PAYMENT_TERMS_LABEL: Record<TPaymentTerms, string> = {
+	credit: "אשראי / מזומן",
+	net15: "שוטף + 15",
+	net30: "שוטף + 30",
+	net60: "שוטף + 60",
+	net90: "שוטף + 90",
+};
+const PAYMENT_TERMS_OPTIONS: TPaymentTerms[] = [
+	"credit",
+	"net15",
+	"net30",
+	"net60",
+	"net90",
+];
+function payTermsLabel(pt: TPaymentTerms | undefined): string {
+	if (!pt) return "—";
+	return PAYMENT_TERMS_LABEL[pt] ?? pt;
+}
+
+// Flatten the category tree into a flat [{id, name}] list for the restriction picker
+type FlatCategory = { id: string; name: string };
+function flattenCategories(nodes: TCategory[] | undefined): FlatCategory[] {
+	const out: FlatCategory[] = [];
+	const walk = (list: TCategory[] | undefined) => {
+		(list ?? []).forEach((c) => {
+			out.push({ id: c.id, name: c.locales?.[0]?.value ?? c.id });
+			walk(c.children);
+		});
+	};
+	walk(nodes);
+	return out;
 }
 
 function formatAddress(org: TOrganization): string {
@@ -126,6 +160,42 @@ type CompanyTab = "details" | "branches" | "accounts" | "users";
 
 // ─── Sub-components: Company Modal ──────────────────────────────────────────
 
+type AccountFormFields = {
+	name: string;
+	number: string;
+	payTerms: TPaymentTerms;
+	creditLimit: string;
+	isPrimary: boolean;
+	restricted: boolean;
+	allowedCategories: string[];
+};
+
+type AccountEditorState = { id: string | null; form: AccountFormFields };
+
+function blankAccountForm(): AccountFormFields {
+	return {
+		name: "",
+		number: "",
+		payTerms: "credit",
+		creditLimit: "0",
+		isPrimary: false,
+		restricted: false,
+		allowedCategories: [],
+	};
+}
+
+function accountToForm(account: TBillingAccount): AccountFormFields {
+	return {
+		name: account.name ?? "",
+		number: account.number ?? "",
+		payTerms: account.payTerms ?? "credit",
+		creditLimit: account.creditLimit != null ? String(account.creditLimit) : "0",
+		isPrimary: account.isPrimary ?? false,
+		restricted: account.restricted ?? false,
+		allowedCategories: account.allowedCategories ?? [],
+	};
+}
+
 type CompanyModalFormState = {
 	name: string;
 	companyNumber: string;
@@ -174,21 +244,126 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 	const [isSaving, setIsSaving] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
 
+	// ── Accounts management (live local copy persisted via updateOrganization) ──
+	const [accounts, setAccounts] = useState<TBillingAccount[]>([]);
+	const [accountEditor, setAccountEditor] = useState<AccountEditorState | null>(
+		null,
+	);
+	const [accountSaving, setAccountSaving] = useState(false);
+	const [accountError, setAccountError] = useState<string | null>(null);
+	const [categories, setCategories] = useState<FlatCategory[]>([]);
+
 	// Reset form, tab, and error whenever the modal opens with a new org
 	useEffect(() => {
 		if (state.kind === "open") {
 			setForm(buildFormState(state.org));
+			setAccounts(state.org?.billingAccounts ?? []);
+			setAccountEditor(null);
+			setAccountError(null);
 			setTab("details");
 			setSaveError(null);
 		}
 	}, [state]);
+
+	// Load categories once when the modal opens (needed for account restriction)
+	useEffect(() => {
+		if (state.kind !== "open") return;
+		let active = true;
+		appApi.system?.getStoreCategories?.().then((res: any) => {
+			if (active) setCategories(flattenCategories(res?.data?.categories));
+		});
+		return () => {
+			active = false;
+		};
+	}, [state, appApi]);
 
 	const isOpen = state.kind === "open";
 	const org = state.kind === "open" ? state.org : null;
 	const isNew = org === null;
 	const title = isNew ? "חברה חדשה" : `עריכת חברה — ${org?.name}`;
 
-	const billingAccounts: TBillingAccount[] = org?.billingAccounts ?? [];
+	const billingAccounts: TBillingAccount[] = accounts;
+
+	// Persist the whole org with a new billingAccounts array
+	async function persistAccounts(next: TBillingAccount[]): Promise<boolean> {
+		if (!org) return false;
+		setAccountError(null);
+		setAccountSaving(true);
+		try {
+			const result = await appApi.admin.updateOrganization({
+				...org,
+				billingAccounts: next,
+			});
+			if (result?.success) {
+				setAccounts(next);
+				onSaved?.();
+				return true;
+			}
+			setAccountError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} catch {
+			setAccountError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} finally {
+			setAccountSaving(false);
+		}
+	}
+
+	async function handleSaveAccount() {
+		if (!accountEditor) return;
+		const f = accountEditor.form;
+		if (!f.name.trim() || !f.number.trim()) {
+			setAccountError("נא למלא שם תיוג ומספר לקוח");
+			return;
+		}
+		const payload: TBillingAccount = {
+			id: accountEditor.id ?? `a${Date.now()}`,
+			name: f.name.trim(),
+			number: f.number.trim(),
+			payTerms: f.payTerms,
+			creditLimit: Number(f.creditLimit) || 0,
+			isPrimary: f.isPrimary,
+			restricted: f.restricted,
+			allowedCategories: f.restricted ? f.allowedCategories : [],
+		};
+		let next: TBillingAccount[];
+		if (accountEditor.id) {
+			next = accounts.map((a) => (a.id === accountEditor.id ? payload : a));
+		} else {
+			next = [...accounts, payload];
+		}
+		// Enforce a single primary
+		if (payload.isPrimary) {
+			next = next.map((a) =>
+				a.id === payload.id ? a : { ...a, isPrimary: false },
+			);
+		}
+		const ok = await persistAccounts(next);
+		if (ok) setAccountEditor(null);
+	}
+
+	async function handleDeleteAccount(id: string) {
+		if (!window.confirm("למחוק את החשבון? לא תהיה השפעה על חשבוניות עבר.")) return;
+		await persistAccounts(accounts.filter((a) => a.id !== id));
+	}
+
+	function setAccountField(patch: Partial<AccountFormFields>) {
+		setAccountError(null);
+		setAccountEditor((prev) =>
+			prev ? { ...prev, form: { ...prev.form, ...patch } } : prev,
+		);
+	}
+
+	function toggleAllowedCategory(id: string) {
+		setAccountEditor((prev) => {
+			if (!prev) return prev;
+			const has = prev.form.allowedCategories.includes(id);
+			const allowedCategories = has
+				? prev.form.allowedCategories.filter((c) => c !== id)
+				: [...prev.form.allowedCategories, id];
+			return { ...prev, form: { ...prev.form, allowedCategories } };
+		});
+	}
 
 	const TABS: { key: CompanyTab; label: string; badge?: number }[] = [
 		{ key: "details", label: "פרטי חברה" },
@@ -494,8 +669,8 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 							</div>
 						)}
 
-						{/* ── Accounts Tab — show real billing accounts ── */}
-						{!isNew && tab === "accounts" && (
+						{/* ── Accounts Tab — full CRUD on billing accounts ── */}
+						{!isNew && tab === "accounts" && !accountEditor && (
 							<div className="flex flex-col gap-4">
 								<div
 									className="flex items-start gap-3 p-3 rounded-lg text-sm"
@@ -503,9 +678,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 								>
 									<span className="text-xl mt-0.5">💳</span>
 									<p>
-										<b>חשבונות (מספרי לקוח)</b> — חשבונות הלקוח המשמשים לחיוב.
+										<b>חשבונות (מספרי לקוח)</b> — לחברה יכולים להיות כמה חשבונות נפרדים,
+										כל אחד עם מספר לקוח, תנאי תשלום ומסגרת אשראי משלו. אפשר גם להגביל
+										חשבון לקטגוריות מסוימות.
 									</p>
 								</div>
+								{accountError && (
+									<p className="text-xs text-[var(--danger)]">{accountError}</p>
+								)}
 								{billingAccounts.length === 0 ? (
 									<div className="py-8 text-center text-[var(--muted)]">
 										<p className="text-4xl mb-3">💳</p>
@@ -525,17 +705,236 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 													💳
 												</div>
 												<div className="flex-1 min-w-0">
-													<p className="font-semibold text-sm text-[var(--foreground)]">
+													<p className="font-semibold text-sm text-[var(--foreground)] flex items-center gap-1.5">
 														{account.name}
+														{account.isPrimary && (
+															<BadgePill color="var(--success)">ראשי</BadgePill>
+														)}
 													</p>
 													<p className="text-xs text-[var(--muted)] mt-0.5">
-														{account.number}
+														<b className="text-[var(--foreground)]">{account.number}</b>
+														{" · "}
+														{payTermsLabel(account.payTerms)}
+														{" · מסגרת ₪"}
+														{(account.creditLimit ?? 0).toLocaleString()}
 													</p>
+													{account.restricted && (
+														<div className="mt-1">
+															<BadgePill color="var(--warning)" icon="lucide:lock">
+																מוגבל:{" "}
+																{(account.allowedCategories ?? [])
+																	.map(
+																		(id) =>
+																			categories.find((c) => c.id === id)?.name ?? id,
+																	)
+																	.join(", ") || "ללא קטגוריות"}
+															</BadgePill>
+														</div>
+													)}
+												</div>
+												<div className="flex items-center gap-1.5 flex-none">
+													<button
+														type="button"
+														onClick={() =>
+															setAccountEditor({
+																id: account.id,
+																form: accountToForm(account),
+															})
+														}
+														className="px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+													>
+														עריכה
+													</button>
+													{billingAccounts.length > 1 && (
+														<button
+															type="button"
+															onClick={() => handleDeleteAccount(account.id)}
+															className="w-7 h-7 grid place-items-center rounded border border-[var(--border)] text-[var(--danger)] bg-[var(--surface)] hover:border-[var(--danger)] transition-colors"
+															aria-label={`מחק ${account.name}`}
+														>
+															<Icon icon="lucide:x" width={13} height={13} />
+														</button>
+													)}
 												</div>
 											</div>
 										))}
 									</div>
 								)}
+								<div>
+									<Button
+										variant="primary"
+										onPress={() =>
+											setAccountEditor({ id: null, form: blankAccountForm() })
+										}
+									>
+										<Icon icon="lucide:plus" width={14} height={14} />
+										הוסף חשבון נוסף
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* ── Accounts Tab — add/edit form ── */}
+						{!isNew && tab === "accounts" && accountEditor && (
+							<div className="flex flex-col gap-4">
+								<div className="grid grid-cols-2 gap-x-4 gap-y-4">
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											שם תיוג <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={accountEditor.form.name}
+											onChange={(e) => setAccountField({ name: e.target.value })}
+											placeholder="לדוגמה: חשבון מזון"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											מספר לקוח <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={accountEditor.form.number}
+											onChange={(e) => setAccountField({ number: e.target.value })}
+											placeholder="C-1010"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											תנאי תשלום
+										</label>
+										<Select
+											selectedKey={accountEditor.form.payTerms}
+											onSelectionChange={(k) =>
+												setAccountField({ payTerms: k as TPaymentTerms })
+											}
+											aria-label="תנאי תשלום"
+										>
+											<Select.Trigger>
+												<Select.Value />
+												<Select.Indicator />
+											</Select.Trigger>
+											<Select.Popover>
+												<ListBox>
+													{PAYMENT_TERMS_OPTIONS.map((pt) => (
+														<ListBox.Item key={pt} id={pt} textValue={PAYMENT_TERMS_LABEL[pt]}>
+															{PAYMENT_TERMS_LABEL[pt]}
+														</ListBox.Item>
+													))}
+												</ListBox>
+											</Select.Popover>
+										</Select>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											מסגרת אשראי (₪)
+										</label>
+										<Input
+											type="number"
+											value={accountEditor.form.creditLimit}
+											onChange={(e) =>
+												setAccountField({ creditLimit: e.target.value })
+											}
+											placeholder="0"
+											min="0"
+										/>
+									</div>
+								</div>
+
+								<label className="flex items-center gap-2.5 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={accountEditor.form.isPrimary}
+										onChange={(e) => setAccountField({ isPrimary: e.target.checked })}
+										className="w-[18px] h-[18px] cursor-pointer"
+									/>
+									<span className="text-sm text-[var(--foreground)]">
+										סמן כחשבון ראשי (ברירת המחדל בעת הזמנה)
+									</span>
+								</label>
+
+								<div className="border-t border-dashed border-[var(--border)] pt-4">
+									<label className="flex items-start gap-2.5 cursor-pointer">
+										<input
+											type="checkbox"
+											checked={accountEditor.form.restricted}
+											onChange={(e) =>
+												setAccountField({ restricted: e.target.checked })
+											}
+											className="w-[18px] h-[18px] mt-0.5 cursor-pointer"
+										/>
+										<span>
+											<b className="block text-sm text-[var(--foreground)]">
+												הגבל חשבון לקטגוריות מסוימות
+											</b>
+											<span className="text-xs text-[var(--muted)]">
+												לדוגמה: חשבון "פירות וירקות בלבד" שיאפשר רק קטגוריה זו.
+											</span>
+										</span>
+									</label>
+									{accountEditor.form.restricted && (
+										<div className="mt-3">
+											{categories.length === 0 ? (
+												<p className="text-xs text-[var(--muted)]">אין קטגוריות להצגה</p>
+											) : (
+												<div className="flex flex-wrap gap-2">
+													{categories.map((c) => {
+														const active =
+															accountEditor.form.allowedCategories.includes(c.id);
+														return (
+															<button
+																key={c.id}
+																type="button"
+																onClick={() => toggleAllowedCategory(c.id)}
+																className={[
+																	"px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors",
+																	active
+																		? "border-[var(--accent)] text-[var(--accent)]"
+																		: "border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]",
+																].join(" ")}
+																style={
+																	active
+																		? { backgroundColor: softBg("var(--accent)") }
+																		: undefined
+																}
+															>
+																{c.name}
+															</button>
+														);
+													})}
+												</div>
+											)}
+											<p className="text-[11px] text-[var(--muted)] mt-2">
+												ניתן לסמן יותר מקטגוריה אחת. אם לא תסומן אף קטגוריה וההגבלה
+												פעילה — החשבון לא יאפשר אף מוצר.
+											</p>
+										</div>
+									)}
+								</div>
+
+								{accountError && (
+									<p className="text-xs text-[var(--danger)]">{accountError}</p>
+								)}
+
+								<div className="flex items-center justify-end gap-2 pt-1">
+									<Button
+										variant="ghost"
+										onPress={() => {
+											setAccountEditor(null);
+											setAccountError(null);
+										}}
+										isDisabled={accountSaving}
+									>
+										ביטול
+									</Button>
+									<Button
+										variant="primary"
+										onPress={handleSaveAccount}
+										isPending={accountSaving}
+										isDisabled={accountSaving}
+									>
+										{accountEditor.id ? "שמור שינויים" : "הוסף חשבון"}
+									</Button>
+								</div>
 							</div>
 						)}
 
@@ -569,14 +968,16 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 						<Button variant="ghost" onPress={onClose} isDisabled={isSaving}>
 							סגירה
 						</Button>
-						<Button
-							variant="primary"
-							onPress={handleSave}
-							isPending={isSaving}
-							isDisabled={isSaving || !form.name.trim()}
-						>
-							{isNew ? "שמור" : "שמור פרטים"}
-						</Button>
+						{(isNew || tab === "details") && (
+							<Button
+								variant="primary"
+								onPress={handleSave}
+								isPending={isSaving}
+								isDisabled={isSaving || !form.name.trim()}
+							>
+								{isNew ? "שמור" : "שמור פרטים"}
+							</Button>
+						)}
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>
