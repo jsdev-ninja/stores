@@ -903,6 +903,7 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 												<th className="px-3 py-2 text-start font-bold">סוג</th>
 												<th className="px-3 py-2 text-start font-bold">מס׳ תעודה</th>
 												<th className="px-3 py-2 text-start font-bold">תאריך</th>
+												<th className="px-3 py-2 text-start font-bold">חשבון</th>
 												<th className="px-3 py-2 text-start font-bold">פריטים</th>
 												<th className="px-3 py-2 text-start font-bold">סה"כ</th>
 												<th className="px-3 py-2 text-start font-bold">חשבונית</th>
@@ -957,6 +958,11 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 															{fmtDate(dnDate(o))}
 														</td>
 														<td className="px-3 py-2 text-[var(--muted)]">
+															{o.billingAccount
+																? `${o.billingAccount.name}${o.billingAccount.number ? ` (${o.billingAccount.number})` : ""}`
+																: "—"}
+														</td>
+														<td className="px-3 py-2 text-[var(--muted)]">
 															{dnItemCount(o)} פריטים
 														</td>
 														<td className="px-3 py-2 font-bold text-[var(--foreground)]">
@@ -995,7 +1001,7 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 										</tbody>
 										<tfoot>
 											<tr className="border-t border-[var(--border)] bg-[var(--background)] font-bold">
-												<td className="px-3 py-2 text-[var(--muted)]" colSpan={5}>
+												<td className="px-3 py-2 text-[var(--muted)]" colSpan={6}>
 													סך תעודות משלוח
 												</td>
 												<td className="px-3 py-2 text-[var(--foreground)]" colSpan={3}>
