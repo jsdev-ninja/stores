@@ -26,6 +26,16 @@ export const BillingAccountSchema = z.object({
 	allowedCategories: z.array(z.string()).optional(),
 });
 
+// A physical branch / office of the organization (admin-managed, optional).
+export const BranchSchema = z.object({
+	id: z.string(),
+	label: z.string(),
+	address: z.string().optional(),
+	phone: z.string().optional(),
+	isPrimary: z.boolean().optional(),
+});
+export type TBranch = z.infer<typeof BranchSchema>;
+
 // client organization for clients
 export const OrganizationSchema = z.object({
 	id: z.string(),
@@ -42,6 +52,7 @@ export const OrganizationSchema = z.object({
 	email: z.string().optional(),
 	notes: z.string().optional(),
 	freeShipping: z.boolean().optional(),
+	branches: z.array(BranchSchema).optional(),
 });
 
 export const NewOrganizationSchema = OrganizationSchema.omit({ id: true });
