@@ -129,24 +129,34 @@ type CompanyTab = "details" | "branches" | "accounts" | "users";
 type CompanyModalFormState = {
 	name: string;
 	companyNumber: string;
+	phone: string;
+	email: string;
 	city: string;
 	street: string;
 	streetNumber: string;
+	zip: string;
 	paymentType: TPaymentType;
 	discountPercentage: string;
 	nameOnInvoice: string;
+	notes: string;
+	freeShipping: boolean;
 };
 
 function buildFormState(org: TOrganization | null): CompanyModalFormState {
 	return {
 		name: org?.name ?? "",
 		companyNumber: org?.companyNumber ?? "",
+		phone: org?.phone ?? "",
+		email: org?.email ?? "",
 		city: org?.address?.city ?? "",
 		street: org?.address?.street ?? "",
 		streetNumber: org?.address?.streetNumber ?? "",
+		zip: org?.address?.zip ?? "",
 		paymentType: org?.paymentType ?? "j5",
 		discountPercentage: org?.discountPercentage != null ? String(org.discountPercentage) : "",
 		nameOnInvoice: org?.nameOnInvoice ?? "",
+		notes: org?.notes ?? "",
+		freeShipping: org?.freeShipping ?? false,
 	};
 }
 
@@ -187,7 +197,10 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 		{ key: "users", label: "👥 משתמשים מורשים", badge: 0 },
 	];
 
-	function handleFieldChange(field: keyof CompanyModalFormState, value: string) {
+	function handleFieldChange(
+		field: keyof CompanyModalFormState,
+		value: string | boolean,
+	) {
 		setSaveError(null);
 		setForm((prev) => ({ ...prev, [field]: value }));
 	}
@@ -200,6 +213,7 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 				city: form.city,
 				street: form.street,
 				streetNumber: form.streetNumber,
+				zip: form.zip || undefined,
 			};
 			const discountPercentage = form.discountPercentage.trim()
 				? Number(form.discountPercentage)
@@ -209,10 +223,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 				const payload = {
 					name: form.name,
 					companyNumber: form.companyNumber || undefined,
+					phone: form.phone || undefined,
+					email: form.email || undefined,
 					address,
 					paymentType: form.paymentType,
 					discountPercentage,
 					nameOnInvoice: form.nameOnInvoice || undefined,
+					notes: form.notes || undefined,
+					freeShipping: form.freeShipping,
 					billingAccounts: [],
 				};
 				const result = await appApi.admin.createOrganization(payload);
@@ -227,10 +245,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 					...org!,
 					name: form.name,
 					companyNumber: form.companyNumber || undefined,
+					phone: form.phone || undefined,
+					email: form.email || undefined,
 					address,
 					paymentType: form.paymentType,
 					discountPercentage,
 					nameOnInvoice: form.nameOnInvoice || undefined,
+					notes: form.notes || undefined,
+					freeShipping: form.freeShipping,
 				};
 				const result = await appApi.admin.updateOrganization(payload);
 				if (result?.success) {
@@ -317,6 +339,27 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 								</div>
 								<div className="flex flex-col gap-1">
 									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										טלפון ראשי
+									</label>
+									<Input
+										value={form.phone}
+										onChange={(e) => handleFieldChange("phone", e.target.value)}
+										placeholder="טלפון"
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										דוא"ל ראשי
+									</label>
+									<Input
+										type="email"
+										value={form.email}
+										onChange={(e) => handleFieldChange("email", e.target.value)}
+										placeholder="email@example.com"
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
 										עיר
 									</label>
 									<Input
@@ -343,6 +386,16 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 										value={form.streetNumber}
 										onChange={(e) => handleFieldChange("streetNumber", e.target.value)}
 										placeholder="מספר"
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										מיקוד
+									</label>
+									<Input
+										value={form.zip}
+										onChange={(e) => handleFieldChange("zip", e.target.value)}
+										placeholder="מיקוד"
 									/>
 								</div>
 								<div className="flex flex-col gap-1">
@@ -389,6 +442,34 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 										onChange={(e) => handleFieldChange("nameOnInvoice", e.target.value)}
 										placeholder="שם כפי שיופיע בחשבונית"
 									/>
+								</div>
+								<div className="flex flex-col gap-1 col-span-2">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										הערות כלליות
+									</label>
+									<textarea
+										value={form.notes}
+										onChange={(e) => handleFieldChange("notes", e.target.value)}
+										rows={2}
+										placeholder="הערות פנימיות על הלקוח"
+										className="w-full border border-[var(--border)] rounded-lg p-2.5 text-sm bg-[var(--background)] text-[var(--foreground)] resize-y focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+									/>
+								</div>
+								<div className="col-span-2">
+									<label className="flex items-start gap-2.5 cursor-pointer p-3 rounded-lg border border-[var(--border)] bg-[var(--background)]">
+										<input
+											type="checkbox"
+											checked={form.freeShipping}
+											onChange={(e) => handleFieldChange("freeShipping", e.target.checked)}
+											className="w-[18px] h-[18px] mt-0.5 flex-none cursor-pointer"
+										/>
+										<span>
+											<b className="block text-sm text-[var(--foreground)]">פטור מדמי משלוח</b>
+											<span className="text-xs text-[var(--muted)]">
+												לא יתווספו דמי משלוח להזמנות של לקוח זה — גם כשההזמנה נמוכה מסף משלוח חינם.
+											</span>
+										</span>
+									</label>
 								</div>
 							</div>
 						)}
