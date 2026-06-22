@@ -4,6 +4,7 @@ import { FirebaseAPI, TOrganization } from "@jsdev_ninja/core";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { TCart } from "src/domains/cart";
+import { Icon } from "src/components";
 
 export function OrgPicker() {
 	const actions = useStoreActions();
@@ -54,12 +55,30 @@ export function OrgPicker() {
 		setIsConfirmOpen(false);
 	};
 
+	const hasActive = !!activeOrganization;
+
 	return (
 		<>
 			<Dropdown>
 				<Dropdown.Trigger>
-					<Button variant="ghost" size="sm">
-						{activeOrganization?.name ?? "בחר ארגון"}
+					<Button
+						variant={hasActive ? "secondary" : "primary"}
+						size="sm"
+						className="gap-1.5"
+						aria-label={hasActive ? `ארגון נבחר: ${activeOrganization?.name}` : "בחר ארגון"}
+					>
+						<Icon name="building" size="sm" />
+						{hasActive ? (
+							<span className="flex items-baseline gap-1">
+								<span className="opacity-70 text-xs font-normal">ארגון:</span>
+								<span className="font-medium max-w-[10rem] truncate">
+									{activeOrganization?.name}
+								</span>
+							</span>
+						) : (
+							<span className="font-medium">בחר ארגון</span>
+						)}
+						<Icon name="chevronDown" size="sm" />
 					</Button>
 				</Dropdown.Trigger>
 				<Dropdown.Popover>
