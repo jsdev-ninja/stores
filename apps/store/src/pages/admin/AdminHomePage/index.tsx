@@ -244,23 +244,29 @@ function AdminHomePage() {
 		startOfMonth.setDate(1);
 		startOfMonth.setHours(0, 0, 0, 0);
 		const monthCutoff = startOfMonth.getTime();
-		const revenueByOrg = new Map<string, { name: string; total: number }>();
+		const revenueByCustomer = new Map<string, { key: string; name: string; total: number }>();
 		for (const o of orders) {
 			if (!o.organizationId) continue;
 			if (o.status === "cancelled") continue;
 			if ((o.date ?? 0) < monthCutoff) continue;
-			const name =
-				o.client?.companyName ??
-				o.client?.displayName ??
-				o.organizationId;
-			const existing = revenueByOrg.get(o.organizationId);
+			const companyName = (o.companyName ?? o.client?.companyName ?? "").trim();
+			const taxId = (o.companyNumber ?? "").replace(/\D/g, "");
+			// Group a customer by ח.פ when present, otherwise by company name — so the
+			// same company isn't split into separate rows by stale internal org ids.
+			const key = taxId
+				? `tax:${taxId}`
+				: companyName
+					? `name:${companyName.toLowerCase()}`
+					: `org:${o.organizationId}`;
+			const name = companyName || (o.client?.displayName ?? "").trim() || o.organizationId;
+			const existing = revenueByCustomer.get(key);
 			if (existing) {
 				existing.total += o.cart?.cartTotal ?? 0;
 			} else {
-				revenueByOrg.set(o.organizationId, { name, total: o.cart?.cartTotal ?? 0 });
+				revenueByCustomer.set(key, { key, name, total: o.cart?.cartTotal ?? 0 });
 			}
 		}
-		return Array.from(revenueByOrg.values())
+		return Array.from(revenueByCustomer.values())
 			.sort((a, b) => b.total - a.total)
 			.slice(0, 5);
 	}, [orders]);
@@ -427,7 +433,7 @@ function AdminHomePage() {
 						<p className="px-5 py-6 text-sm text-center text-[var(--muted)]">אין נתונים</p>
 					) : (
 						topCustomers.map((c, i) => (
-							<div key={c.name} className="flex items-center gap-3 px-5 py-3">
+							<div key={c.key} className="flex items-center gap-3 px-5 py-3">
 								<span
 									className="grid place-items-center size-7 rounded-full text-xs font-bold shrink-0"
 									style={{ backgroundColor: softBg("var(--accent)"), color: "var(--accent)" }}
