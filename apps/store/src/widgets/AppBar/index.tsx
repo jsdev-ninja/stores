@@ -103,10 +103,12 @@ export function AppBar() {
     <header className="border-b border-default-200 dark:border-default-700 bg-background">
       <nav className="flex items-center justify-between gap-4 h-16 px-4 mx-auto">
         {/* Brand */}
-        <div className="flex items-center gap-2  px-5 h-16 shrink-0 border-b border-white/10">
+        <div className="flex items-center gap-3 px-5 h-16 shrink-0 border-b border-white/10">
           <div className="h-full w-40">
             <WebsiteLogo />
           </div>
+          {/* Organization picker — prominent, next to the brand */}
+          <OrgPicker />
         </div>
 
         {/* Desktop nav links */}
@@ -126,9 +128,6 @@ export function AppBar() {
 
         {/* End actions */}
         <ul className="flex items-center gap-2 list-none m-0 p-0">
-          <li>
-            <OrgPicker />
-          </li>
           <li>
             {!!user && !user.isAnonymous ? (
               <Dropdown>
