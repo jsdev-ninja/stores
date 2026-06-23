@@ -1,4 +1,5 @@
 import { TOrder, TEzDeliveryNote, getCartCost } from "@jsdev_ninja/core";
+import { PaymentMethod, toEzCountPaymentType } from "./paymentTypes";
 import axios from "axios";
 import { logger } from "../../core";
 
@@ -69,6 +70,26 @@ type Params = {
 };
 
 type InvoiceParams = Omit<Params, "doc_type">;
+
+/**
+ * Parameters for creating a receipt (doc_type 400 / קבלה).
+ *
+ * Differences from invoice params:
+ * - `parent` is REQUIRED — a receipt MUST reference the invoice it acknowledges.
+ * - `payment` is REQUIRED — receipts represent a real payment event.
+ * - `paymentMethod` is the caller-supplied enum (cash | check | bank_transfer | credit_card),
+ *   mapped internally to the EZcount payment_type integer.
+ * - `item[]` is optional for receipts (Israeli receipts are payment acknowledgments,
+ *   not goods listings). We don't forward items in this iteration.
+ */
+type ReceiptParams = Omit<Params, "doc_type" | "payment"> & {
+	/** Required: links receipt to its parent invoice by EZcount doc_uuid. */
+	parent: string;
+	/** Required: the payment method used by the payer. */
+	paymentMethod: PaymentMethod;
+	/** Invoice total in shekels (ILS). Used as payment_sum. */
+	paymentSumIls: number;
+};
 
 export async function createDocument(params: Params) {
 	try {
@@ -251,5 +272,41 @@ export const ezCountService = {
 			console.error(error.message);
 			return { error, data: null };
 		}
+	},
+
+	/**
+	 * Create an EZcount receipt (doc_type 400 / קבלה) linked to an invoice.
+	 *
+	 * Israeli receipts are payment acknowledgments — they reference the invoice via
+	 * `parent` and carry a payment line. Item lines are not required or forwarded.
+	 *
+	 * The `parent` field (invoice doc_uuid) is mandatory: EZcount will reject the
+	 * request if parent is absent for a receipt.
+	 */
+	async createReceipt(params: ReceiptParams) {
+		const paymentType = toEzCountPaymentType(params.paymentMethod);
+
+		return createDocument({
+			doc_type: DOC_TYPE.RECEIPT,
+			url: params.url,
+			api_key: params.api_key,
+			transaction_id: params.transaction_id,
+			customer_name: params.customer_name,
+			customer_email: params.customer_email,
+			customer_address: params.customer_address,
+			customer_phone: params.customer_phone,
+			description: params.description,
+			parent: params.parent,
+			customer_crn: params.customer_crn,
+			cc_emails: params.cc_emails,
+			date: params.date,
+			// No item[] lines for receipts — this is a payment acknowledgment only.
+			payment: [
+				{
+					payment_type: paymentType,
+					payment_sum: params.paymentSumIls,
+				},
+			],
+		});
 	},
 };

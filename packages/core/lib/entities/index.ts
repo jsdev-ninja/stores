@@ -13,6 +13,7 @@ export * from "./Discount";
 export * from "./Organization";
 export * from "./OrganizationGroup";
 export * from "./DeliveryNote";
+export * from "./Invoice";
 export * from "./Payment";
 export * from "./Supplier";
 export * from "./SupplierInvoice";

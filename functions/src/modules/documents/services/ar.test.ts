@@ -385,11 +385,12 @@ describe("settleOnTransactionPosted subscriber", () => {
 		const referenceType = (stored.reference as { type: string })?.type;
 		const organizationId = (stored.payer as { organizationId?: string } | undefined)?.organizationId;
 
-		// Mirror the subscriber's guard logic
+		// Mirror the subscriber's guard logic (keep in sync with settleOnTransactionPosted.ts)
 		const RECEIVED_MONEY_TYPES = new Set(["hyp_capture", "hyp_direct", "manual"]);
+		const SETTLED_REFERENCE_TYPES = new Set(["order", "invoice"]);
 		if (!RECEIVED_MONEY_TYPES.has(type)) return { skipped: "type" as const };
 		if (direction !== "in") return { skipped: "direction" as const };
-		if (referenceType !== "order") return { skipped: "reference" as const };
+		if (!SETTLED_REFERENCE_TYPES.has(referenceType ?? "")) return { skipped: "reference" as const };
 		if (!organizationId) return { skipped: "b2c" as const };
 
 		await settleDebt({
@@ -446,6 +447,47 @@ describe("settleOnTransactionPosted subscriber", () => {
 		const result = await runSubscriber("tx-man");
 		expect(result?.skipped).toBeNull();
 		expect(fake.docs.get(rollupPath())).toMatchObject({ totalSettled: 3000 });
+	});
+
+	it("settles AR on manual with reference.type 'invoice' (recordInvoicePayment flow)", async () => {
+		// This is the fix for the gap where manual transactions posted by
+		// recordInvoicePayment() were silently skipped because reference.type was
+		// "invoice" rather than "order". Both are now in SETTLED_REFERENCE_TYPES.
+		fake.docs.set(txPath("tx-inv"), {
+			id: "tx-inv",
+			type: "manual",
+			direction: "in",
+			amount: 7500,
+			currency: "ILS",
+			reference: { type: "invoice", id: "invoice-uuid-1" },
+			payer: { organizationId: ORG },
+			dedupKey: "idem_inv-pay-order-1",
+			createdAt: Date.now(),
+			companyId: C,
+			storeId: S,
+		});
+		const result = await runSubscriber("tx-inv");
+		expect(result?.skipped).toBeNull();
+		expect(fake.docs.get(rollupPath())).toMatchObject({ totalSettled: 7500 });
+	});
+
+	it("skips unknown reference types (not order or invoice)", async () => {
+		fake.docs.set(txPath("tx-unknown-ref"), {
+			id: "tx-unknown-ref",
+			type: "manual",
+			direction: "in",
+			amount: 1000,
+			currency: "ILS",
+			reference: { type: "refund", id: "something" },
+			payer: { organizationId: ORG },
+			dedupKey: "idem_unknown",
+			createdAt: Date.now(),
+			companyId: C,
+			storeId: S,
+		});
+		const result = await runSubscriber("tx-unknown-ref");
+		expect(result?.skipped).toBe("reference");
+		expect(fake.docs.get(rollupPath())).toBeUndefined();
 	});
 
 	it("settlement dedup: same transactionId is idempotent (FIX 4)", async () => {

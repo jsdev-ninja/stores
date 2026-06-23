@@ -20,7 +20,9 @@ export const TransactionPostedPayload = z.object({
 	direction: z.enum(["in", "out"]),
 	reference: z
 		.object({
-			type: z.enum(["order", "refund", "adjustment"]),
+			// "invoice" mirrors the TransactionSchema extension —
+			// subscribers filtering by reference.type will see this value.
+			type: z.enum(["order", "refund", "adjustment", "invoice"]),
 			id: z.string().min(1),
 		})
 		.optional(),

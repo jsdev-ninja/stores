@@ -22,6 +22,7 @@ import ClientOrderPage from "./ClientOrderPage";
 import { ProductsWidget } from "src/widgets/Products";
 import { ChatbotFeature } from "src/features/chatbot";
 import { useProfile } from "src/domains/profile";
+import WelcomeBack from "src/websites/balasistore/sections/WelcomeBack";
 
 export default function StoreLayout() {
 	const appApi = useAppApi();
@@ -58,6 +59,7 @@ export default function StoreLayout() {
 		<ProductsWidget>
 			<div className="flex flex-col">
 				<AppBar />
+				<WelcomeBack />
 				<main className="page-with-header flex flex-col">
 					<Route name="store" index>
 						<HomePage />

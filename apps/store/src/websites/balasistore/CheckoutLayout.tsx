@@ -6,17 +6,18 @@
  * field that is actually submitted, so the data submitted and the payment flow
  * are 100% unchanged. No business/payment/schema logic here.
  *
- * Matches the owner's new "פרטי המשלוח" B2B mockup (5 sections). The new B2B
- * elements (company number selector, company name, tax id, contact role, PO,
- * payment-method choice, out-of-stock policy, consent) are VISUAL-ONLY in this
- * phase — they are plain elements NOT registered with the form, so they neither
- * persist nor affect validation. Wiring + persistence land in Phase 2/3 once the
- * Order schema + payment work is approved. See docs/plans/b2b-checkout.md.
+ * Matches the owner's new "פרטי המשלוח" B2B mockup (5 sections). The
+ * billing-account selector ("מספר לקוח") IS wired — it persists into
+ * `order.billingAccount` (T10a). The remaining new B2B elements (payment-method
+ * choice, out-of-stock policy, consent) are still VISUAL-ONLY in this phase —
+ * plain elements NOT registered with the form, so they neither persist nor
+ * affect validation. Wiring + persistence land in later phases once the Order
+ * schema + payment work is approved. See docs/plans/b2b-checkout.md.
  */
 
 import { ReactNode } from "react";
 import { TFunction } from "i18next";
-import { getCartCost, TOrder } from "@jsdev_ninja/core";
+import { getCartCost, TBillingAccount, TOrder } from "@jsdev_ninja/core";
 import { Form } from "src/components/Form";
 import { Button } from "src/components/button";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
@@ -37,6 +38,8 @@ type Props = {
 	minDate: string;
 	maxDate: string;
 	isSubmitting: boolean;
+	/** The active org's billing accounts. Empty for non-B2B customers. */
+	billingAccounts: TBillingAccount[];
 };
 
 function SectionHead({ num, title }: { num: string; title: string }) {
@@ -82,8 +85,16 @@ function VisualField({
 	);
 }
 
-export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting }: Props) {
+export default function BalasiCheckoutLayout({
+	t,
+	minDate,
+	maxDate,
+	isSubmitting,
+	billingAccounts,
+}: Props) {
 	const tomorrow = minDate;
+	const { register } = useFormContext();
+	const hasBillingAccounts = billingAccounts.length > 0;
 
 	return (
 		<div dir="rtl">
@@ -122,15 +133,29 @@ export default function BalasiCheckoutLayout({ t, minDate, maxDate, isSubmitting
 					<Section>
 						<SectionHead num="01" title="פרטי לקוח" />
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-							{/* VISUAL-ONLY: customer-number / billing-account selector (Phase 2) */}
-							<VisualField label="מספר לקוח" hint="(לפי החברה שלכם)">
-								<select className={FIELD_CLASS} defaultValue="main" disabled>
-									<option value="main">C-NEW-9 — חשבון ראשי (ראשי)</option>
-								</select>
-								<span className="text-[12px] text-[var(--muted)]">
-									1 חשבון רשום בחברה שלכם
-								</span>
-							</VisualField>
+							{/* WIRED: billing-account selector → order.billingAccount.
+							    Shown only for B2B customers whose org has accounts. Defaults to
+							    the main (first) account; a single account renders read-only. */}
+							{hasBillingAccounts && (
+								<VisualField label="מספר לקוח" hint="(לפי החברה שלכם)">
+									<select
+										className={FIELD_CLASS}
+										disabled={billingAccounts.length === 1}
+										{...register("billingAccountId")}
+									>
+										{billingAccounts.map((account) => (
+											<option key={account.id} value={account.id}>
+												{account.number} — {account.name}
+											</option>
+										))}
+									</select>
+									<span className="text-[12px] text-[var(--muted)]">
+										{billingAccounts.length === 1
+											? "חשבון אחד רשום בחברה שלכם"
+											: `${billingAccounts.length} חשבונות רשומים בחברה שלכם`}
+									</span>
+								</VisualField>
+							)}
 
 							{/* WIRED: company name → order.companyName */}
 							<Form.Input<TOrder>

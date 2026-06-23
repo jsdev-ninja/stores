@@ -115,6 +115,9 @@ export const routes = {
 			deliveryNotes: {
 				path: "/delivery-notes",
 			},
+			problemOrders: {
+				path: "/problem-orders",
+			},
 			inventoryCertificate: {
 				path: "/inventory-certificate",
 			},
@@ -126,6 +129,9 @@ export const routes = {
 			},
 			budgetOrganization: {
 				path: "/budget/:organizationId",
+			},
+			customerInvoices: {
+				path: "/customer-invoices",
 			},
 		},
 	},

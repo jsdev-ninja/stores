@@ -3,6 +3,7 @@ import * as functions from "firebase-functions/v1";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
+import { buildFulfilledHeshDescItems } from "../internal/fulfilledHeshDescItems";
 
 // HYP/EzCount recomputes each heshDesc line as `qty × price`, rounds it the way
 // the raw float naturally rounds (= toFixed(2)), then sums. `Amount` MUST equal
@@ -30,22 +31,7 @@ export const createPayment = functions.https.onCall(async (data: { order: TOrder
 		const storeId = order.storeId;
 		functions.logger.info("createPayment: store", { storeId });
 
-		// todo
-		const VAT_RATE = 18;
-		const DELIVERY_NAME = "משלוח";
-		const isVatIncluded = order.storeOptions?.isVatIncludedInPrice ?? false;
-		const postVatPrice = (base: number, hasVat: boolean) =>
-			!isVatIncluded && hasVat ? base * (1 + VAT_RATE / 100) : base;
-		const _items = order.cart.items;
-		const items = _items.map((item) => {
-			const price = postVatPrice(item.finalPrice ?? 0, !!item.product.vat).toFixed(2);
-			const sku = (item.product.sku ?? "").trim();
-			const name = (item.product.name[0]?.value ?? "").trim();
-			return `[${sku}~${name}~${item.amount}~${price}]`;
-		});
-		if (order.cart.deliveryPrice) {
-			items.push(`[0~${DELIVERY_NAME}~1~${order.cart.deliveryPrice.toFixed(2)}]`);
-		}
+		const items = buildFulfilledHeshDescItems(order);
 
 		const storePrivateData: TStorePrivate = (
 			await admin.firestore().collection(`STORES/${storeId}/private`).doc("data").get()

@@ -19,7 +19,8 @@ import { Price } from "src/components/Price";
 import type { Key } from "react-aria-components";
 import { modalApi } from "src/infra/modals";
 import { useAppApi } from "src/appApi";
-import type { TOrder, TOrganization } from "@jsdev_ninja/core";
+import type { TOrganization } from "@jsdev_ninja/core";
+import type { OpenInvoiceRow } from "src/lib/firebase/api";
 
 type TBudgetAccount = {
   id: string;
@@ -65,7 +66,7 @@ type TBudgetTransaction = {
   createdBy: string;
 };
 
-// ─── Helpers (copied from AdminDeliveryNotesPage) ────────────────────────────
+// ─── Helpers (verbatim from AdminDeliveryNotesPage) ──────────────────────────
 
 function fmtDate(ms?: number): string {
   if (!ms) return "—";
@@ -79,26 +80,6 @@ function fmtDate(ms?: number): string {
 
 function fmtMoney(n: number): string {
   return "₪" + n.toLocaleString("he-IL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function dnNumber(o: TOrder): string {
-  return o.deliveryNote?.number ?? o.ezDeliveryNote?.doc_number ?? "—";
-}
-function dnPdf(o: TOrder): string | undefined {
-  return o.deliveryNote?.link ?? o.ezDeliveryNote?.pdf_link ?? o.ezDeliveryNote?.pdf_link_copy;
-}
-function dnDate(o: TOrder): number {
-  return o.deliveryNote?.date ?? o.date;
-}
-function dnItemCount(o: TOrder): number {
-  return o.deliveryNote?.items?.length ?? o.cart?.items?.length ?? 0;
-}
-function dnTotal(o: TOrder): number {
-  return o.deliveryNote?.total ?? o.cart?.cartTotal ?? 0;
-}
-type DnStatus = "pending" | "paid" | "cancelled";
-function dnStatus(o: TOrder): DnStatus | undefined {
-  return o.deliveryNote?.status;
 }
 
 function KpiCard({ label, value, color }: { label: string; value: string | number; color?: string }) {
@@ -117,17 +98,11 @@ function KpiCard({ label, value, color }: { label: string; value: string | numbe
   );
 }
 
-const isUnpaid = (o: TOrder) => {
-  const s = dnStatus(o);
-  return s !== "paid" && s !== "cancelled" && !o.invoice && !o.ezInvoice && dnNumber(o) !== "—";
-};
-
-const DEBT_COLUMNS = [
+const INVOICE_COLUMNS = [
   { uid: "company", label: "חברה" },
-  { uid: "number", label: "מס׳ תעודה" },
+  { uid: "number", label: 'מס׳ חשבונית' },
   { uid: "date", label: "תאריך הנפקה" },
-  { uid: "items", label: "פריטים" },
-  { uid: "total", label: "סכום פתוח" },
+  { uid: "total", label: "סכום" },
   { uid: "actions", label: "" },
 ];
 
@@ -136,29 +111,25 @@ const DEBT_COLUMNS = [
 export function AdminBudgetPage() {
   const appApi = useAppApi();
 
-  const [orders, setOrders] = useState<TOrder[]>([]);
+  const [rows, setRows] = useState<OpenInvoiceRow[]>([]);
   const [organizations, setOrganizations] = useState<TOrganization[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [companyFilter, setCompanyFilter] = useState("all");
 
-  const loadUnpaidDeliveryNotes = useCallback(async () => {
+  const loadInvoices = useCallback(async () => {
     setLoading(true);
     try {
-      const toDate = Date.now();
-      const fromDate = toDate - 365 * 24 * 60 * 60 * 1000;
-      const result = await appApi.admin.getDeliveryNotes({ fromDate, toDate });
-      if (result?.success) setOrders(result.data || []);
-    } catch (error) {
-      console.error("Failed to load delivery notes:", error);
+      const result = await appApi.admin.getOpenInvoices();
+      if (result?.success) setRows(result.data ?? []);
     } finally {
       setLoading(false);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- appApi stable
 
   useEffect(() => {
-    loadUnpaidDeliveryNotes();
-  }, [loadUnpaidDeliveryNotes]);
+    loadInvoices();
+  }, [loadInvoices]);
 
   useEffect(() => {
     appApi.admin.listOrganizations().then((result) => {
@@ -167,36 +138,29 @@ export function AdminBudgetPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- appApi stable
   }, []);
 
-  const orgNameById = useMemo(() => {
-    const map = new Map<string, string>();
-    organizations.forEach((o) => map.set(o.id, o.name));
-    return map;
-  }, [organizations]);
-
-  const companyName = (o: TOrder) =>
-    (o.organizationId && orgNameById.get(o.organizationId)) ||
-    o.deliveryNote?.companyDetails?.name ||
-    "—";
-
-  const unpaid = useMemo(() => orders.filter(isUnpaid), [orders]);
-
   const kpis = useMemo(() => {
-    const totalDebt = unpaid.reduce((sum, o) => sum + dnTotal(o), 0);
-    return { totalDebt, count: unpaid.length };
-  }, [unpaid]);
+    const totalDebt = rows.reduce((sum, r) => sum + r.total, 0);
+    return { totalDebt, count: rows.length };
+  }, [rows]);
 
   const filtered = useMemo(() => {
-    let list = unpaid;
-    if (companyFilter !== "all") list = list.filter((o) => o.organizationId === companyFilter);
+    let list = rows;
+
+    if (companyFilter !== "all") {
+      list = list.filter((r) => r.organizationId === companyFilter);
+    }
+
     const q = search.trim().toLowerCase();
     if (q) {
-      list = list.filter(
-        (o) =>
-          dnNumber(o).toLowerCase().includes(q) || companyName(o).toLowerCase().includes(q)
-      );
+      list = list.filter((r) => {
+        const num = r.invoiceNumber.toLowerCase();
+        const name = r.displayName.toLowerCase();
+        return num.includes(q) || name.includes(q);
+      });
     }
-    return [...list].sort((a, b) => dnDate(b) - dnDate(a));
-  }, [unpaid, companyFilter, search]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    return [...list].sort((a, b) => b.issueDate - a.issueDate);
+  }, [rows, companyFilter, search]);
 
   if (loading) {
     return (
@@ -213,7 +177,7 @@ export function AdminBudgetPage() {
       {/* KPI strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <KpiCard label='סה"כ חוב פתוח' value={fmtMoney(kpis.totalDebt)} color="var(--danger)" />
-        <KpiCard label="מס׳ תעודות פתוחות" value={kpis.count} />
+        <KpiCard label="מס׳ חשבוניות פתוחות" value={kpis.count} />
       </div>
 
       {/* Toolbar */}
@@ -228,7 +192,7 @@ export function AdminBudgetPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="חיפוש מספר תעודה / חברה..."
+            placeholder="חיפוש מספר חשבונית / חברה..."
             type="search"
             aria-label="חיפוש חוב"
             className="ps-7 w-64"
@@ -272,11 +236,11 @@ export function AdminBudgetPage() {
           <Table variant="secondary">
             <Table.ScrollContainer>
               <Table.Content
-                aria-label="Unpaid delivery notes"
-                className="min-w-[860px] [&>thead>tr]:border-b [&>thead>tr]:border-[var(--border)] [&>tbody>tr]:border-b [&>tbody>tr]:border-[var(--border)] [&>tbody>tr:last-child]:border-0 [&>tbody>tr:hover]:bg-[var(--background)] [&>tbody>tr]:transition-colors"
+                aria-label="Open invoices"
+                className="min-w-[700px] [&>thead>tr]:border-b [&>thead>tr]:border-[var(--border)] [&>tbody>tr]:border-b [&>tbody>tr]:border-[var(--border)] [&>tbody>tr:last-child]:border-0 [&>tbody>tr:hover]:bg-[var(--background)] [&>tbody>tr]:transition-colors"
               >
                 <Table.Header>
-                  {DEBT_COLUMNS.map((col) => (
+                  {INVOICE_COLUMNS.map((col) => (
                     <Table.Column
                       key={col.uid}
                       isRowHeader={col.uid === "number"}
@@ -288,72 +252,58 @@ export function AdminBudgetPage() {
                   ))}
                 </Table.Header>
                 <Table.Body>
-                  {filtered.map((o) => {
-                    const pdf = dnPdf(o);
+                  {filtered.map((row) => {
                     return (
-                      <Table.Row key={o.id}>
+                      <Table.Row key={row.orderId}>
                         {/* חברה */}
                         <Table.Cell className="py-3">
-                          <span className="text-sm text-[var(--foreground)]">{companyName(o)}</span>
+                          <span className="text-sm text-[var(--foreground)]">{row.displayName}</span>
                         </Table.Cell>
 
-                        {/* מס׳ תעודה */}
+                        {/* מס׳ חשבונית */}
                         <Table.Cell className="py-3">
                           <span className="font-semibold text-sm text-[var(--foreground)]">
-                            {dnNumber(o)}
+                            {row.invoiceNumber}
                           </span>
                         </Table.Cell>
 
                         {/* תאריך הנפקה */}
                         <Table.Cell className="py-3">
-                          <span className="text-sm text-[var(--muted)]">{fmtDate(dnDate(o))}</span>
+                          <span className="text-sm text-[var(--muted)]">{fmtDate(row.issueDate)}</span>
                         </Table.Cell>
 
-                        {/* פריטים */}
-                        <Table.Cell className="py-3">
-                          <span className="text-sm text-[var(--muted)]">{dnItemCount(o)} פריטים</span>
-                        </Table.Cell>
-
-                        {/* סכום פתוח */}
+                        {/* סכום */}
                         <Table.Cell className="py-3">
                           <span className="text-sm font-bold" style={{ color: "var(--danger)" }}>
-                            {fmtMoney(dnTotal(o))}
+                            {fmtMoney(row.total)}
                           </span>
                         </Table.Cell>
 
                         {/* פעולות */}
                         <Table.Cell className="py-3">
                           <div className="flex items-center gap-1.5 justify-end">
-                            {pdf ? (
-                              <a
-                                href={pdf}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-                              >
-                                <Icon icon="lucide:eye" width={13} height={13} />
-                                צפה
-                              </a>
-                            ) : (
-                              <span className="text-sm text-[var(--muted)]">—</span>
-                            )}
-                            {dnNumber(o) !== "—" && !o.invoice && !o.ezInvoice && !!o.ezDeliveryNote?.doc_uuid && (
-                              <button
-                                type="button"
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
-                                onClick={() =>
-                                  modalApi.openModal("invoiceDetails", {
-                                    selectedOrders: [o],
-                                    linkedDeliveryNote: { docUuid: o.ezDeliveryNote?.doc_uuid ?? "", number: dnNumber(o) },
-                                    requireAllocation: (o.cart?.cartTotal ?? 0) >= 5000,
-                                    onInvoiceCreated: () => loadUnpaidDeliveryNotes(),
-                                  })
-                                }
-                              >
-                                <Icon icon="lucide:file-text" width={13} height={13} />
-                                הפק חשבונית
-                              </button>
-                            )}
+                            <a
+                              href={row.invoicePdfLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+                            >
+                              <Icon icon="lucide:eye" width={13} height={13} />
+                              צפה
+                            </a>
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
+                              onClick={() =>
+                                modalApi.openModal("recordInvoicePayment", {
+                                  row,
+                                  onPaymentRecorded: () => loadInvoices(),
+                                })
+                              }
+                            >
+                              <Icon icon="lucide:circle-dollar-sign" width={13} height={13} />
+                              רישום תשלום
+                            </button>
                           </div>
                         </Table.Cell>
                       </Table.Row>
@@ -416,6 +366,7 @@ export function AdminBudgetOrganizationPage() {
     if (!organizationId) return;
     setLoading(true);
     try {
+      // eslint-disable-next-line compat/compat -- op_mini is not a real target
       const [accRes, txRes] = await Promise.all([
         FirebaseApi.api.getBudgetAccount(organizationId),
         FirebaseApi.api.getBudgetTransactions(organizationId, billingAccountId || undefined),
