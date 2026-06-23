@@ -13,7 +13,13 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
-import { TOrganization, TBillingAccount, TOrder } from "@jsdev_ninja/core";
+import {
+	TOrganization,
+	TBillingAccount,
+	TOrder,
+	TOrganizationBalanceEntry,
+	TOrganizationBalanceRollup,
+} from "@jsdev_ninja/core";
 import type {
 	TPaymentType,
 	TPaymentTerms,
@@ -1371,6 +1377,9 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 	// "all" = show every account; otherwise the selected billing account id
 	const [selectedAccountId, setSelectedAccountId] = useState<string>("all");
 	const [deliveryNotes, setDeliveryNotes] = useState<TOrder[]>([]);
+	// AR balance: O(1) rollup cache + the append-only debit/credit entry ledger.
+	const [rollup, setRollup] = useState<TOrganizationBalanceRollup | null>(null);
+	const [entries, setEntries] = useState<TOrganizationBalanceEntry[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedDnIds, setSelectedDnIds] = useState<Set<string>>(new Set());
 	const isOpen = state.kind === "open";
@@ -1400,13 +1409,30 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi is re-created each render but stable in behavior
 	}, []);
 
+	// Pull the AR rollup + entry ledger for this org (read-only, admin-gated).
+	const loadBalance = useCallback(async (orgId: string) => {
+		try {
+			const result = await appApi.admin.getOrganizationBalance({ organizationId: orgId });
+			if (result?.success && result.data) {
+				setRollup(result.data.rollup);
+				setEntries(result.data.entries);
+			}
+		} catch (error) {
+			console.error("Failed to load organization balance:", error);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- appApi is re-created each render but stable in behavior
+	}, []);
+
 	useEffect(() => {
 		if (state.kind !== "open") return;
 		setLedgerTab("all");
 		setSelectedAccountId("all");
 		setDeliveryNotes([]);
+		setRollup(null);
+		setEntries([]);
 		setSelectedDnIds(new Set());
 		loadDeliveryNotes(state.org.id);
+		loadBalance(state.org.id);
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- run once per modal open (keyed on state)
 	}, [state]);
 
@@ -1423,6 +1449,25 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 			: deliveryNotes.filter((o) => o.billingAccount?.id === selectedAccountId);
 
 	const dnTotalSum = accountNotes.reduce((sum, o) => sum + dnTotal(o), 0);
+
+	// Financial summary (agorot). For "all accounts" use the authoritative O(1)
+	// rollup cache when present; for a single account derive from its entries.
+	const accountEntries =
+		selectedAccountId === "all"
+			? entries
+			: entries.filter((e) => e.billingAccountId === selectedAccountId);
+	const derivedAccrued = accountEntries
+		.filter((e) => e.sign === "+")
+		.reduce((s, e) => s + e.amount, 0);
+	const derivedSettled = accountEntries
+		.filter((e) => e.sign === "-")
+		.reduce((s, e) => s + e.amount, 0);
+	const useRollup = selectedAccountId === "all" && rollup !== null;
+	const totalAccruedAg = useRollup ? rollup!.totalAccrued : derivedAccrued;
+	const totalSettledAg = useRollup ? rollup!.totalSettled : derivedSettled;
+	const owedAg = useRollup ? rollup!.owed : Math.max(0, derivedAccrued - derivedSettled);
+	// Show real figures only once balance data has loaded; otherwise keep the "—" placeholder.
+	const hasBalance = rollup !== null || entries.length > 0;
 
 	// Only delivery notes that haven't been invoiced yet can go into a new invoice.
 	const invoiceableNotes = accountNotes.filter((o) => !dnInvoiceNumber(o));
@@ -1555,17 +1600,19 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 								>
 									<div className="flex justify-between">
 										<span className="text-[var(--muted)]">סך חשבוניות</span>
-										<b>—</b>
+										<b>{hasBalance ? fmtMoney(totalAccruedAg / 100) : "—"}</b>
 									</div>
 									<div className="flex justify-between">
 										<span className="text-[var(--muted)]">סך תשלומים</span>
-										<b>—</b>
+										<b>{hasBalance ? fmtMoney(totalSettledAg / 100) : "—"}</b>
 									</div>
 									<div
 										className="flex justify-between pt-1.5 mt-1 border-t border-[var(--border)] font-bold"
 									>
 										<span>יתרה לתשלום</span>
-										<b className="text-[var(--muted)]">—</b>
+										<b className={hasBalance && owedAg > 0 ? "text-[var(--danger,#dc2626)]" : "text-[var(--muted)]"}>
+											{hasBalance ? fmtMoney(owedAg / 100) : "—"}
+										</b>
 									</div>
 								</div>
 							</div>
