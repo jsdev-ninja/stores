@@ -1,17 +1,20 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
-import { AddressSchema, getCartCost, TOrder, TProfile } from "@jsdev_ninja/core";
+import { AddressSchema, getCartCost, TOrder, TOrganization, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { submitHypForm } from "src/lib/payment/submitHypForm";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
 import BalasiCheckoutLayout from "src/websites/balasistore/CheckoutLayout";
+import { EmptyState } from "src/components/EmptyState/EmptyState";
+import EmptyCartImg from "../../../assets/empty-cart.svg";
 import { z } from "zod";
 
 
@@ -35,12 +38,42 @@ const checkoutSchema = z.object({
 		.optional(),
 	poNumber: z.string().optional(),
 	outOfStockPolicy: z.enum(["substitute", "remove"]).optional(),
+	// Selected billing account (by id) for B2B customers whose org has several accounts.
+	billingAccountId: z.string().optional(),
 });
 
 type TCheckout = z.infer<typeof checkoutSchema>;
 
+/**
+ * Keeps the org-derived checkout fields in sync when the customer switches the
+ * active organization (the "מזמינים עבור" picker). react-hook-form reads
+ * `defaultValues` only once on mount, so without this the company name / ח.פ /
+ * name-on-invoice / billing account stay stuck on the previously selected org.
+ * Skips the first run — the initial population is handled by `defaultValues`.
+ */
+function SyncOrgFields({ organization }: { organization: TOrganization | null }) {
+	const { setValue } = useFormContext();
+	const orgId = organization?.id;
+	const isFirstRun = useRef(true);
+
+	useEffect(() => {
+		if (isFirstRun.current) {
+			isFirstRun.current = false;
+			return;
+		}
+		// On an explicit org switch, the selected company's own details win.
+		setValue("companyName", organization?.name ?? "");
+		setValue("companyNumber", organization?.companyNumber ?? "");
+		setValue("nameOnInvoice", organization?.nameOnInvoice ?? "");
+		setValue("billingAccountId", organization?.billingAccounts?.[0]?.id ?? "");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [orgId]);
+
+	return null;
+}
+
 function CheckoutPage() {
-	const { t } = useTranslation(["common", "checkout"]);
+	const { t } = useTranslation(["common", "checkout", "cart"]);
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -121,8 +154,23 @@ function CheckoutPage() {
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
-	if (cartData.isReady && !cart) {
-		return null;
+	// Cart is closed or has no items (e.g. the order was already placed and the
+	// user navigated back to checkout) — show an empty state, not a blank page.
+	if (cartData.isReady && (!cart || (cart.items?.length ?? 0) === 0)) {
+		return (
+			<div className="flex min-h-[60vh] w-full items-center justify-center p-4">
+				<EmptyState
+					size="md"
+					img={EmptyCartImg}
+					title={t("cart:emptyState.title")}
+					description={t("cart:emptyState.description")}
+					action={{
+						title: t("common:backToStore", "חזרה לחנות"),
+						onClick: () => navigate({ to: "store" }),
+					}}
+				/>
+			</div>
+		);
 	}
 
 	// Balasi storefront gets a dedicated checkout LAYOUT (markup only). The
@@ -154,6 +202,8 @@ function CheckoutPage() {
 					},
 					poNumber: "",
 					outOfStockPolicy: "substitute",
+					// Default to the org's main (first) account; the customer can change it below.
+					billingAccountId: profileOrganization?.billingAccounts?.[0]?.id ?? "",
 				}}
 				onError={(errors) => {
 					console.warn("errors", errors);
@@ -164,6 +214,13 @@ function CheckoutPage() {
 					setIsSubmitting(true);
 
 					try {
+						// Resolve the chosen billing account (B2B). Default to the org's main
+						// (first) account when nothing was picked, so an org order always carries one.
+						const orgBillingAccounts = profileOrganization?.billingAccounts ?? [];
+						const billingAccount =
+							orgBillingAccounts.find((a) => a.id === values.billingAccountId) ??
+							orgBillingAccounts[0];
+
 						const newOrder: TOrder = {
 							type: "Order",
 							// Deterministic ID = cart.id → idempotent across rage-clicks, page refresh, multi-tab.
@@ -177,6 +234,7 @@ function CheckoutPage() {
 							paymentStatus: store.paymentType === "external" ? "external" : "pending",
 							client: _profile,
 							organizationId: profileOrganization?.id,
+							billingAccount: billingAccount ?? undefined,
 							cart: {
 								id: cart.id,
 								items: cartCost.items,
@@ -238,22 +296,20 @@ function CheckoutPage() {
 							submitHypForm(payment.data.formAction, payment.data.formFields);
 							return;
 						}
-						if (payment?.data?.paymentLink) {
-							window.location.href = payment.data.paymentLink;
-							return;
-						}
 						navigate({ to: "store.paymentPending" });
 					} finally {
 						setIsSubmitting(false);
 					}
 				}}
 			>
+				<SyncOrgFields organization={profileOrganization} />
 				{isBalasi ? (
 					<BalasiCheckoutLayout
 						t={t}
 						minDate={minDate}
 						maxDate={maxDate}
 						isSubmitting={isSubmitting}
+						billingAccounts={profileOrganization?.billingAccounts ?? []}
 					/>
 				) : (
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">

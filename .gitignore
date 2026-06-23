@@ -11,6 +11,9 @@ lerna-debug.log*
 packages/core/dist
 migration-new-ui
 
+# one-off script exports (contain prod customer PII — never commit)
+packages/scripts/output/
+
 
 # parcel cache
 .parcel-cache
@@ -67,3 +70,5 @@ typings/
 
 # Node.js dependency directory
 node_modules
+.fallow/
+.gstack/

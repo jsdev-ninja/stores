@@ -1,9 +1,20 @@
-# Money Core — spec + extraction plan
+# Money — spec + plans (the one doc)
+
+> **Note (2026-06-14):** The ledger module is now **pure cash only** — AR (accounts-receivable)
+> accruals and settlements live in the `documents` module's `organizationBalance` entry ledger,
+> per plan `docs/plans/ar-organization-balance.md`. The sections below remain valid for the
+> cash-ledger spec but do not describe the AR model.
 
 Status: DRAFT for review (Philip). No code yet.
-One doc: (A) what the money module must be, (B) deferred design decisions, (C) the
-refactor plan to get there. Related but separate track: the payment-confirmation bug
-cutover in `docs/plans/payment-confirmation-fix.md`.
+Everything money-related lives here, in two tracks:
+- **Track 1 — money-core extraction** (sections A–C): spec, deferred decisions, refactor plan.
+  *Phase 0 done + gate-approved; holding before Phase 1.*
+- **Track 2 — payment-confirmation cutover & backfill** (section D): fix the `pending_j5`
+  bug by moving the storefront onto the server-side ledger flow, then backfill stuck paid
+  orders. *Drafted, not started.*
+
+Order of execution is flexible: Track 2 fixes a live prod bug and can go first; once both
+land, the storefront paid path is `payments-hyp → money.post()` — consistent either way.
 
 ---
 
@@ -217,6 +228,10 @@ boundaries move.
 ## Phase 2 — Extract `modules/payments-hyp/` (vendor adapter)
 - Move the HYP files (8, **plus the 2 guards if Phase 0 routed them here** per D6 → 10).
   They import `money` and call `money.post()` (never write `transactions` directly).
+- **HYP correctness to verify while in these files** (per `docs/reference/hyp.md`): J5 auth
+  success is **`CCode=700`**, not `0` (only capture returns `0`) — confirm `recordHypJ5Auth`
+  gates on `700`. Always `VERIFY` server-side before marking paid. Dedup on HYP `Id`. These are
+  observations to confirm during the move, not behaviour changes to bundle into the carve PR.
 - **Low-risk:** these files already call `postTransaction` today — Phase 2 changes only the
   import path, not the call graph. No call sites are rewired.
 - Deployed function names unchanged → `apps/store` callers untouched; only
@@ -280,10 +295,9 @@ boundaries move.
   gets its own plan **before** any further money-core freezing. Flag planted now; do not scope
   until PH is actually real — nobody should freeze around `ILS` believing it's permanent.
 - `balance()` / `reverse()` first-class ops (D1, D3) — later track.
-- Reconciliation feature (D5) — with the payment-confirmation cutover.
+- Reconciliation feature (D5) — sequenced with Track 2 (section D).
 - Legacy-budget retirement (`organizationBudgets`/`budgetRecords`).
-- Payment-confirmation cutover (`docs/plans/payment-confirmation-fix.md`) — once both land,
-  storefront paid path goes `payments-hyp → money.post()`, consistent with this layering.
+- Payment-confirmation cutover — **Track 2, section D below** (same doc).
 
 ## Risks
 | Risk | Mitigation |
@@ -297,8 +311,132 @@ boundaries move.
 | Feature bypasses `post()` and writes `transactions` directly | Phase-4 CI Check 2 fails any `transactions` write outside `modules/money/` |
 | Big-bang PR | one module per PR, tests green each |
 
-## Definition of done
+## Definition of done (Track 1)
 `modules/money/` imports nothing from `modules/*`, owns `transactions` + `transaction_posted`;
 all HYP code in `payments-hyp/` calling `money.post()`; delivery-note billing in `billing/`;
 CI blocks money→feature imports **and** any `transactions` write outside `money/`;
 zero behavior/path/event/function-name/doc-shape changes; tests green.
+
+---
+
+# D. Track 2 — Payment-confirmation cutover & backfill
+
+Status: DRAFT, not started. Fixes a live prod bug.
+
+## TL;DR
+
+Paid orders are stuck at `status: pending` / `paymentStatus: pending_j5` because the
+**storefront checkout still runs the legacy client-side payment path**, while the
+**correct server-side, signature-verified, ledger-integrated path already exists and is
+deployed but is never called**. The fix is primarily a **migration/cutover**, plus a
+one-time **backfill** of already-paid orders. Very little net-new code.
+
+Live evidence (prod `jsdev-stores-prod`, `balasistore_company/balasistore_store`):
+`hbYRg7vlLsn3ySQcbYXI` (1,334.48 ₪) and `RgyCzLGlIVmZYglhWlfW` (3,364.08 ₪) — both
+paid 2026-05-20 (HYP `CCode=0`, `errMsg=תקין`), still `pending_j5`. Also recorded in
+`TODO.md` → BUGS.
+
+## Problems
+
+**P1 — Order status written client-side from unsigned HYP params (security + correctness).**
+`OrderSuccessPage.tsx` reads `window.location.href` query params (HYP redirect) and calls
+client-side `appApi.onOrderPaid(payment)` (`apps/store/src/appApi/index.ts:~1628`), which
+writes the order doc directly. The HYP `Sign` is never verified — order/payment state is set
+from spoofable URL params (OWASP A01/A08).
+
+**P2 — Direct-link payment success never transitions the order to paid (THE bug).**
+`onOrderPaid` hard-codes `paymentStatus: store.paymentType === "external" ? "external" :
+"pending_j5"` and `status: "pending"` on **every** return — even a successful direct charge
+(`CCode=0`). Nothing else flips a direct-link order to `completed` (only the J5 capture path
+does). No guarded `authorized → paid` transition; the success result is ignored.
+
+**P3 — Dual-write with no atomicity and no compensation.** `onOrderPaid` does two sequential
+client writes (order doc, then `payments/{orderId}` doc). A crash between them — or an
+order-write failure after money was taken — leaves money captured with no consistent order
+state, and no compensation path.
+
+**P4 — Two competing sources of truth for money.** Legacy direct payments live in
+`{c}/{s}/payments/{orderId}`; the new flow records money in the ledger
+`{c}/{s}/transactions`. Today they diverge — the ledger has nothing for these orders.
+
+**P5 — Already-paid-but-pending orders need remediation (data).** At least the two orders
+above; likely more. These customers **were charged**; the orders never reflected it.
+
+Out of scope here (tracked in `TODO.md`): Firestore security-rules rewrite (the `if true`
+catchall); `emit()` call-site outbox audit.
+
+## Target flow (reuse what exists — do NOT build new)
+
+**Direct charge:** `createHypDirectPaymentLink` (server: single-use link + HYP URL) →
+customer pays on HYP → redirect → **`recordHypDirectPayment`** (server: VERIFY `Sign`,
+cross-check `Masof`, post `hyp_direct` idempotent on `hyp_{Id}`, consume link) →
+**`markOrderPaidOnTransactionPosted`** maps `hyp_direct → completed`.
+
+**J5 (auth + capture):** J5 link → **`recordHypJ5Auth`** (`hyp_j5_auth` → `pending_j5`) →
+admin approve → **`captureHypJ5`** (`hyp_capture` → `completed`).
+
+All deployed under `functions/src/modules/ledger/api/` (→ `payments-hyp/` after Track 1) and
+exported in `functions/src/index.tsx`. The storefront simply isn't calling them.
+
+## Phases
+
+**T2-Phase 0 — Discovery / confirm (no code).** Map every client call site of the legacy
+path: `OrderSuccessPage`, `PayRedirectPage` (`usePayRedirectPage.ts`), `AdminOrderPageNew.tsx`
+(`createPaymentRedirect`), `appApi.onOrderPaid`, `api.ts` `createPayment` /
+`createPaymentRedirect` / `getPaymentRedirect`. Confirm the **direct-vs-J5 discriminator**
+(store config? link-record field? `SpType`?). Decide rollout unit (per-store flag; test store
+first, then balasistore).
+
+**T2-Phase 1 — Wire storefront to the server flow (behind a per-store flag).** Replace
+`createPayment` link creation with `createHypDirectPaymentLink` (direct) / the J5 link
+creator. Delete the client-side order/`payments` writes from `onOrderPaid` — the order
+transition comes only from `markOrderPaidOnTransactionPosted`.
+
+> **DECISION (deferred — "do it later"): make confirmation a server-side `onRequest`
+> redirect, not an `onCall`.** Point HYP's success URL at a Firebase `onRequest` function
+> (not the client `/orderSuccess` page). That function: read HYP params → `verifyHypSignature`
+> (VERIFY) → `postTransaction` (`hyp_direct`/`hyp_j5_auth`) → `res.redirect(302, clientSuccessPage)`.
+> Reuses the existing `recordHypDirectPayment`/`recordHypJ5Auth` bodies; the client
+> `/orderSuccess` becomes display-only. This removes the client from the trust path entirely
+> (confirmation runs even if the customer closes the tab) — strictly better than the `onCall`
+> version. **Open question to resolve first:** how HYP sets the redirect URL (terminal/`Masof`
+> dashboard config vs an `APISign` request param) — we must be able to point it at the function.
+> Risks: cold-start latency (consider `minInstances:1`); always 302 even on a post-VERIFY write
+> hiccup (log + reconcile); idempotent on `hyp_{Id}`; tenant derived from the link token.
+
+**T2-Phase 2 — Parity + cutover.** Test-store checkout end-to-end (success, failure,
+refresh/double-submit, expired link). Verify: ledger txn written once (idempotent
+`hyp_{Id}`), order → `completed`, no client status write. Then flip balasistore.
+
+**T2-Phase 3 — Backfill stuck orders (data remediation — separate explicit approval).**
+Two distinct cases — **split them** (HYP behaviours per `docs/reference/hyp.md`):
+- **Direct-paid (`payment.CCode==0`)** — money WAS taken. **No new charge.** Record the existing
+  fact: post `hyp_direct` from `payments/{orderId}` via `postTransaction` (dedup `hyp_{payment.Id}`)
+  → `markOrderPaidOnTransactionPosted → completed`. *(The two confirmed stuck orders are this case.)*
+- **J5-auth-only (`CCode==700`, never captured)** — only a hold, **no money taken**, and the
+  **hold expires ~5 days** → a late capture is declined. These can NOT be "recorded" as paid;
+  they need a **fresh charge** (or cancel). Identify separately; do not lump with direct-paid.
+- Scope: scan balasistore for orders still `pending_j5` that have a `payments/{orderId}` doc;
+  branch on `CCode`. Dry-run list → approve → run. Idempotent, safe to re-run.
+
+**T2-Phase 4 — Deprecate legacy path.** Remove/disable `onOrderPaid`, legacy
+`createPayment`, and the `payments` status path once all stores are cut over. Keep
+`payments` docs read-only for history; the ledger is the single source of truth.
+
+## Risks & decisions needed
+
+1. **Discriminator (direct vs J5)** must be unambiguous before T2-Phase 1 — store config,
+   link-record field, or HYP `SpType`. Decide in T2-Phase 0.
+2. **Backfill = recording money facts, not charging.** Confirm recording an already-captured
+   HYP payment into the ledger is acceptable, and that completing these orders won't
+   auto-trigger an unwanted side effect (e.g. a second delivery note / invoice). **Verify the
+   order→completed subscribers before running.**
+3. **No double-charge/double-record:** rely on `hyp_{Id}` dedup; never post without it.
+4. **Deploy gate:** functions + store deploys need explicit approval (no auto-deploy).
+5. **Other stores:** confirm pecanis (`external`) and tester (`j5`) unaffected before
+   touching shared code paths.
+
+## Sequencing & pipeline
+T2-Phase 0 → review gate → Phases 1–2 on a **test store** → review gate → balasistore
+cutover → review gate → Phase 3 backfill (separate explicit approval) → Phase 4 cleanup.
+Per repo rules (bug + refactor): coder → code-reviewer → security-auditor → ship.

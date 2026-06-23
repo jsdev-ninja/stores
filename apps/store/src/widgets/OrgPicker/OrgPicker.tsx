@@ -4,6 +4,7 @@ import { FirebaseAPI, TOrganization } from "@jsdev_ninja/core";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { TCart } from "src/domains/cart";
+import { Icon } from "src/components";
 
 export function OrgPicker() {
 	const actions = useStoreActions();
@@ -54,30 +55,67 @@ export function OrgPicker() {
 		setIsConfirmOpen(false);
 	};
 
+	const hasActive = !!activeOrganization;
+
 	return (
 		<>
-			<Dropdown>
-				<Dropdown.Trigger>
-					<Button variant="ghost" size="sm">
-						{activeOrganization?.name ?? "בחר ארגון"}
-					</Button>
-				</Dropdown.Trigger>
-				<Dropdown.Popover>
-					<Dropdown.Menu
-						aria-label="בחירת ארגון"
-						selectedKeys={activeOrganization ? new Set([activeOrganization.id]) : new Set()}
-						selectionMode="single"
-						onAction={(key) => handleSelect(key as string)}
-						items={organizations}
+			{/* Prominent centered banner — impossible to miss for multi-org customers */}
+			<div
+				className={`w-full border-b ${
+					hasActive
+						? "bg-default-100 border-default-200"
+						: "bg-primary-50 border-primary-200"
+				}`}
+			>
+				<div className="mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-2.5 text-center">
+					<span
+						className={`flex items-center gap-1.5 text-sm font-medium ${
+							hasActive ? "text-default-700" : "text-primary-700"
+						}`}
 					>
-						{(org) => (
-							<Dropdown.Item id={org.id} textValue={org.name}>
-								{org.name}
-							</Dropdown.Item>
-						)}
-					</Dropdown.Menu>
-				</Dropdown.Popover>
-			</Dropdown>
+						<Icon name="building" size="sm" />
+						{hasActive ? "מזמינים עבור:" : "יש לבחור ארגון לפני שמתחילים בהזמנה"}
+					</span>
+					<Dropdown>
+						<Dropdown.Trigger>
+							<Button
+								variant={hasActive ? "secondary" : "primary"}
+								size="sm"
+								className="gap-1.5"
+								aria-label={
+									hasActive ? `ארגון נבחר: ${activeOrganization?.name}` : "בחר ארגון"
+								}
+							>
+								{hasActive ? (
+									<span className="font-medium max-w-[14rem] truncate">
+										{activeOrganization?.name}
+									</span>
+								) : (
+									<span className="font-medium">בחר ארגון</span>
+								)}
+								<Icon name="chevronDown" size="sm" />
+							</Button>
+						</Dropdown.Trigger>
+						<Dropdown.Popover>
+							<Dropdown.Menu
+								aria-label="בחירת ארגון"
+								selectedKeys={
+									activeOrganization ? new Set([activeOrganization.id]) : new Set()
+								}
+								selectionMode="single"
+								onAction={(key) => handleSelect(key as string)}
+								items={organizations}
+							>
+								{(org) => (
+									<Dropdown.Item id={org.id} textValue={org.name}>
+										{org.name}
+									</Dropdown.Item>
+								)}
+							</Dropdown.Menu>
+						</Dropdown.Popover>
+					</Dropdown>
+				</div>
+			</div>
 
 			<Modal.Backdrop
 				isOpen={isConfirmOpen}

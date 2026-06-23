@@ -15,6 +15,8 @@ export const EzInvoiceSchema = z.object({
 	date: z.number().optional(),
 });
 
+export type TEzInvoice = z.infer<typeof EzInvoiceSchema>;
+
 export const InvoiceSchema = z.object({
 	id: z.string().min(1, "ID is required"),
 	number: z.string().min(1, "Number is required"),

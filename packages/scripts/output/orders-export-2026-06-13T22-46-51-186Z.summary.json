@@ -1,0 +1,28 @@
+{
+  "exportedAt": "2026-06-13T22:46:53.786Z",
+  "outPath": "/Users/philbro/workspace/@jsdev-store/packages/scripts/output/orders-export-2026-06-13T22-46-51-186Z.ndjson",
+  "total": 283,
+  "nonCanonicalPaths": 0,
+  "stores": 4,
+  "byStatus": {
+    "cancelled": 31,
+    "completed": 124,
+    "draft": 25,
+    "delivered": 67,
+    "pending": 23,
+    "in_delivery": 8,
+    "canceled": 3,
+    "(none)": 2
+  },
+  "byPaymentType": {
+    "external": 74,
+    "j5": 71,
+    "(none)": 138
+  },
+  "byStore": {
+    "balasistore_company/balasistore_store": 179,
+    "pecanis_company/pecanis_store": 62,
+    "tester_company/tester2-store": 1,
+    "tester_company/tester_store": 41
+  }
+}

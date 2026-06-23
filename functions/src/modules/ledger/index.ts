@@ -5,14 +5,12 @@
 export {
 	TransactionSchema,
 	TransactionTypeSchema,
-	TransactionKindSchema,
 	PaymentLinkSchema,
 	DuplicateChargeAlertSchema,
 } from "./types";
 export type {
 	Transaction,
 	TransactionType,
-	TransactionKind,
 	PaymentLink,
 	DuplicateChargeAlert,
 } from "./types";
@@ -21,18 +19,30 @@ export type {
 export { LedgerEventTypes, TransactionPostedPayload } from "./events";
 export type { TransactionPostedPayload as TTransactionPostedPayload } from "./events";
 
-// Admin callables (require admin custom claim + token-derived tenant)
-export { postManualTransaction } from "./api/postManualTransaction";
-export { captureHypJ5 } from "./api/captureHypJ5";
-export { createHypDirectPaymentLink } from "./api/createHypDirectPaymentLink";
+// ===========================================================================
+// HYP payment callables — grouped by flow. Two implementations coexist:
+//   ✅ CANONICAL = the target (server-side, signature-verified). Built + deployed.
+//   🟥 LEGACY    = what the storefront/admin ACTUALLY call today. To be retired
+//                  once the storefront/admin are repointed to the canonical ones.
+// ===========================================================================
 
-// Customer-facing callables (VERIFY-gated or ownership-gated, no admin claim required)
-export { createHypCheckoutPayment } from "./api/createHypCheckoutPayment";
-export { recordHypJ5Auth } from "./api/recordHypJ5Auth";
-export { recordHypDirectPayment } from "./api/recordHypDirectPayment";
+// --- J5 flow (authorize hold, then capture) ---
+export { recordHypJ5Auth } from "./api/recordHypJ5Auth";          // ✅ record an auth (server)
+export { captureHypJ5 } from "./api/captureHypJ5";                // ✅ capture the hold (admin)
+export { chargeOrder } from "./api/chargeOrder";                  // 🟥 LEGACY capture (admin) — live today
 
-// Public callable (token only, no auth)
-export { getPaymentLink } from "./api/getPaymentLink";
+// --- Direct payment (immediate charge) ---
+export { createHypDirectPaymentLink } from "./api/createHypDirectPaymentLink"; // ✅ admin makes a link
+export { createHypCheckoutPayment } from "./api/createHypCheckoutPayment";     // ✅ customer checkout link
+export { recordHypDirectPayment } from "./api/recordHypDirectPayment";         // ✅ record the result (server, VERIFY)
+export { createPayment } from "./api/createPayment";              // 🟥 LEGACY link create — live today
+export { createPaymentRedirect } from "./api/createPaymentRedirect"; // 🟥 LEGACY admin link — live today
+export { getPaymentRedirect } from "./api/getPaymentRedirect";    // 🟥 LEGACY fetch redirect link — live today
+export { getPaymentLink } from "./api/getPaymentLink";            // ✅ fetch a link by token
 
-// Subscribers (wired in functions/src/index.tsx)
-export { postDebitOnDeliveryNoteCreated } from "./subscribers/postDebitOnDeliveryNoteCreated";
+// --- Manual admin entry (no HYP) ---
+export { postManualTransaction } from "./api/postManualTransaction"; // ✅ admin records money taken outside HYP
+
+// AR accrual on delivery note: previously postDebitOnDeliveryNoteCreated lived here.
+// It has been DELETED — accrual now lives in documents/subscribers/accrueOnDeliveryNoteCreated.ts.
+// No subscribers re-exported from the ledger module.

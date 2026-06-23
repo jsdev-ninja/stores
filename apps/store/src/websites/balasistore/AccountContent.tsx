@@ -145,7 +145,12 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 					<div className="flex overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
 						<Stat label="הזמנות החודש" value={ordersThisMonth} accent={GREEN} />
 						<span className="w-px self-stretch bg-[var(--border)]" aria-hidden />
-						<Stat label="מועדפים" value={favorites.length} accent={ORANGE} />
+						<Stat
+							label="מועדפים"
+							value={favorites.length}
+							accent={ORANGE}
+							onClick={() => go("store.favoritesProducts")}
+						/>
 						<span className="w-px self-stretch bg-[var(--border)]" aria-hidden />
 						<Stat label="סה״כ הזמנות" value={orders.length} accent={GREEN} />
 					</div>
@@ -241,17 +246,44 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 	);
 }
 
-function Stat({ label, value, accent }: { label: string; value: number; accent: string }) {
-	return (
-		<div className="flex-1 px-2 py-4 text-center">
+function Stat({
+	label,
+	value,
+	accent,
+	onClick,
+}: {
+	label: string;
+	value: number;
+	accent: string;
+	onClick?: () => void;
+}) {
+	const content = (
+		<>
 			<div className="text-[12px] font-semibold tracking-[0.02em] text-[var(--muted)]">
 				{label}
 			</div>
 			<div className="mt-1.5 text-[28px] font-black leading-none" style={{ color: accent }}>
 				{value}
 			</div>
-		</div>
+		</>
 	);
+
+	if (onClick) {
+		return (
+			<button
+				type="button"
+				onClick={onClick}
+				className="flex-1 cursor-pointer px-2 py-4 text-center transition-colors hover:bg-[var(--default)]"
+			>
+				{content}
+				<div className="mt-1 text-[11px] font-semibold" style={{ color: accent }}>
+					צפייה ›
+				</div>
+			</button>
+		);
+	}
+
+	return <div className="flex-1 px-2 py-4 text-center">{content}</div>;
 }
 
 function QuickAction({
