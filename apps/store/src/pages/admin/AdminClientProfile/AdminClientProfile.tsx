@@ -264,7 +264,7 @@ const ClientProfileForm = ({ profile, onSubmit, onRefresh }: ClientProfileFormPr
       organizationIds: profile.organizationIds,
       organizationId: profile.organizationId,
     }));
-  }, [profile.organizationIds, profile.organizationId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [profile.organizationIds, profile.organizationId]);
 
   const handleChange = (field: keyof TProfile, value: string | string[] | null) => {
     setFormData((prev) => ({
