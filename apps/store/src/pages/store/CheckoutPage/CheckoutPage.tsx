@@ -191,8 +191,10 @@ function CheckoutPage() {
 					email: profile?.email ?? "",
 					phone: profile?.phoneNumber ?? "",
 					clientComment: "",
-					// B2B prefill (auto-fill from profile/organization where available)
-					companyName: profile?.companyName ?? profileOrganization?.name ?? "",
+					// B2B prefill — when an org is active, ALL company details derive from
+					// it (name + ח.פ + invoice name) so they stay consistent on org switch.
+					// Falls back to the profile's company name only for non-org customers.
+					companyName: profileOrganization?.name ?? profile?.companyName ?? "",
 					companyNumber: profileOrganization?.companyNumber ?? "",
 					contact: {
 						fullName: profile?.displayName ?? "",
