@@ -763,6 +763,24 @@ export const useAppApi = () => {
 
         return result;
       },
+      deleteClient: async (clientId: string) => {
+        if (!isValidAdmin) return;
+
+        // Fully delete the client: profile doc + Firebase Auth user. This must
+        // run server-side (Admin SDK), so we call the backend callable rather
+        // than removing the Firestore doc directly. Org membership lives on the
+        // profile, so deleting the profile also clears it.
+        const result = await FirebaseApi.api.deleteClient(clientId);
+
+        logger({
+          message: "delete client",
+          severity: result.success ? "INFO" : "ERROR",
+          result,
+          clientId,
+        });
+
+        return result;
+      },
       getStoreClients: async () => {
         if (!isValidAdmin) return;
         return FirebaseApi.firestore.listV2<TProfile>({
