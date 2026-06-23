@@ -14,7 +14,12 @@ import {
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
 import { TOrganization, TBillingAccount, TOrder } from "@jsdev_ninja/core";
-import type { TPaymentType } from "@jsdev_ninja/core";
+import type {
+	TPaymentType,
+	TPaymentTerms,
+	TCategory,
+	TBranch,
+} from "@jsdev_ninja/core";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -45,6 +50,40 @@ const PAYMENT_TYPE_LABEL: Record<TPaymentType, string> = {
 function paymentTypeLabel(pt: TPaymentType | undefined): string {
 	if (!pt) return "—";
 	return PAYMENT_TYPE_LABEL[pt] ?? pt;
+}
+
+// Payment TERMS (account-level, admin-only) → Hebrew label
+const PAYMENT_TERMS_LABEL: Record<TPaymentTerms, string> = {
+	credit: "אשראי / מזומן",
+	net15: "שוטף + 15",
+	net30: "שוטף + 30",
+	net60: "שוטף + 60",
+	net90: "שוטף + 90",
+};
+const PAYMENT_TERMS_OPTIONS: TPaymentTerms[] = [
+	"credit",
+	"net15",
+	"net30",
+	"net60",
+	"net90",
+];
+function payTermsLabel(pt: TPaymentTerms | undefined): string {
+	if (!pt) return "—";
+	return PAYMENT_TERMS_LABEL[pt] ?? pt;
+}
+
+// Flatten the category tree into a flat [{id, name}] list for the restriction picker
+type FlatCategory = { id: string; name: string };
+function flattenCategories(nodes: TCategory[] | undefined): FlatCategory[] {
+	const out: FlatCategory[] = [];
+	const walk = (list: TCategory[] | undefined) => {
+		(list ?? []).forEach((c) => {
+			out.push({ id: c.id, name: c.locales?.[0]?.value ?? c.id });
+			walk(c.children);
+		});
+	};
+	walk(nodes);
+	return out;
 }
 
 function formatAddress(org: TOrganization): string {
@@ -126,27 +165,95 @@ type CompanyTab = "details" | "branches" | "accounts" | "users";
 
 // ─── Sub-components: Company Modal ──────────────────────────────────────────
 
+type AccountFormFields = {
+	name: string;
+	number: string;
+	payTerms: TPaymentTerms;
+	creditLimit: string;
+	isPrimary: boolean;
+	restricted: boolean;
+	allowedCategories: string[];
+};
+
+type AccountEditorState = { id: string | null; form: AccountFormFields };
+
+function blankAccountForm(): AccountFormFields {
+	return {
+		name: "",
+		number: "",
+		payTerms: "credit",
+		creditLimit: "0",
+		isPrimary: false,
+		restricted: false,
+		allowedCategories: [],
+	};
+}
+
+function accountToForm(account: TBillingAccount): AccountFormFields {
+	return {
+		name: account.name ?? "",
+		number: account.number ?? "",
+		payTerms: account.payTerms ?? "credit",
+		creditLimit: account.creditLimit != null ? String(account.creditLimit) : "0",
+		isPrimary: account.isPrimary ?? false,
+		restricted: account.restricted ?? false,
+		allowedCategories: account.allowedCategories ?? [],
+	};
+}
+
+type BranchFormFields = {
+	label: string;
+	address: string;
+	phone: string;
+	isPrimary: boolean;
+};
+
+type BranchEditorState = { id: string | null; form: BranchFormFields };
+
+function blankBranchForm(): BranchFormFields {
+	return { label: "", address: "", phone: "", isPrimary: false };
+}
+
+function branchToForm(branch: TBranch): BranchFormFields {
+	return {
+		label: branch.label ?? "",
+		address: branch.address ?? "",
+		phone: branch.phone ?? "",
+		isPrimary: branch.isPrimary ?? false,
+	};
+}
+
 type CompanyModalFormState = {
 	name: string;
 	companyNumber: string;
+	phone: string;
+	email: string;
 	city: string;
 	street: string;
 	streetNumber: string;
+	zip: string;
 	paymentType: TPaymentType;
 	discountPercentage: string;
 	nameOnInvoice: string;
+	notes: string;
+	freeShipping: boolean;
 };
 
 function buildFormState(org: TOrganization | null): CompanyModalFormState {
 	return {
 		name: org?.name ?? "",
 		companyNumber: org?.companyNumber ?? "",
+		phone: org?.phone ?? "",
+		email: org?.email ?? "",
 		city: org?.address?.city ?? "",
 		street: org?.address?.street ?? "",
 		streetNumber: org?.address?.streetNumber ?? "",
+		zip: org?.address?.zip ?? "",
 		paymentType: org?.paymentType ?? "j5",
 		discountPercentage: org?.discountPercentage != null ? String(org.discountPercentage) : "",
 		nameOnInvoice: org?.nameOnInvoice ?? "",
+		notes: org?.notes ?? "",
+		freeShipping: org?.freeShipping ?? false,
 	};
 }
 
@@ -164,30 +271,215 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 	const [isSaving, setIsSaving] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
 
+	// ── Accounts management (live local copy persisted via updateOrganization) ──
+	const [accounts, setAccounts] = useState<TBillingAccount[]>([]);
+	const [accountEditor, setAccountEditor] = useState<AccountEditorState | null>(
+		null,
+	);
+	const [accountSaving, setAccountSaving] = useState(false);
+	const [accountError, setAccountError] = useState<string | null>(null);
+	const [categories, setCategories] = useState<FlatCategory[]>([]);
+
+	// ── Branches management (live local copy persisted via updateOrganization) ──
+	const [branches, setBranches] = useState<TBranch[]>([]);
+	const [branchEditor, setBranchEditor] = useState<BranchEditorState | null>(
+		null,
+	);
+	const [branchSaving, setBranchSaving] = useState(false);
+	const [branchError, setBranchError] = useState<string | null>(null);
+
 	// Reset form, tab, and error whenever the modal opens with a new org
 	useEffect(() => {
 		if (state.kind === "open") {
 			setForm(buildFormState(state.org));
+			setAccounts(state.org?.billingAccounts ?? []);
+			setAccountEditor(null);
+			setAccountError(null);
+			setBranches(state.org?.branches ?? []);
+			setBranchEditor(null);
+			setBranchError(null);
 			setTab("details");
 			setSaveError(null);
 		}
 	}, [state]);
+
+	// Load categories once when the modal opens (needed for account restriction)
+	useEffect(() => {
+		if (state.kind !== "open") return;
+		let active = true;
+		appApi.system?.getStoreCategories?.().then((res: any) => {
+			if (active) setCategories(flattenCategories(res?.data?.categories));
+		});
+		return () => {
+			active = false;
+		};
+	}, [state, appApi]);
 
 	const isOpen = state.kind === "open";
 	const org = state.kind === "open" ? state.org : null;
 	const isNew = org === null;
 	const title = isNew ? "חברה חדשה" : `עריכת חברה — ${org?.name}`;
 
-	const billingAccounts: TBillingAccount[] = org?.billingAccounts ?? [];
+	const billingAccounts: TBillingAccount[] = accounts;
+
+	// Persist the whole org with a new billingAccounts array
+	async function persistAccounts(next: TBillingAccount[]): Promise<boolean> {
+		if (!org) return false;
+		setAccountError(null);
+		setAccountSaving(true);
+		try {
+			const result = await appApi.admin.updateOrganization({
+				...org,
+				billingAccounts: next,
+			});
+			if (result?.success) {
+				setAccounts(next);
+				onSaved?.();
+				return true;
+			}
+			setAccountError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} catch {
+			setAccountError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} finally {
+			setAccountSaving(false);
+		}
+	}
+
+	async function handleSaveAccount() {
+		if (!accountEditor) return;
+		const f = accountEditor.form;
+		if (!f.name.trim() || !f.number.trim()) {
+			setAccountError("נא למלא שם תיוג ומספר לקוח");
+			return;
+		}
+		const payload: TBillingAccount = {
+			id: accountEditor.id ?? `a${Date.now()}`,
+			name: f.name.trim(),
+			number: f.number.trim(),
+			payTerms: f.payTerms,
+			creditLimit: Number(f.creditLimit) || 0,
+			isPrimary: f.isPrimary,
+			restricted: f.restricted,
+			allowedCategories: f.restricted ? f.allowedCategories : [],
+		};
+		let next: TBillingAccount[];
+		if (accountEditor.id) {
+			next = accounts.map((a) => (a.id === accountEditor.id ? payload : a));
+		} else {
+			next = [...accounts, payload];
+		}
+		// Enforce a single primary
+		if (payload.isPrimary) {
+			next = next.map((a) =>
+				a.id === payload.id ? a : { ...a, isPrimary: false },
+			);
+		}
+		const ok = await persistAccounts(next);
+		if (ok) setAccountEditor(null);
+	}
+
+	async function handleDeleteAccount(id: string) {
+		if (!window.confirm("למחוק את החשבון? לא תהיה השפעה על חשבוניות עבר.")) return;
+		await persistAccounts(accounts.filter((a) => a.id !== id));
+	}
+
+	function setAccountField(patch: Partial<AccountFormFields>) {
+		setAccountError(null);
+		setAccountEditor((prev) =>
+			prev ? { ...prev, form: { ...prev.form, ...patch } } : prev,
+		);
+	}
+
+	function toggleAllowedCategory(id: string) {
+		setAccountEditor((prev) => {
+			if (!prev) return prev;
+			const has = prev.form.allowedCategories.includes(id);
+			const allowedCategories = has
+				? prev.form.allowedCategories.filter((c) => c !== id)
+				: [...prev.form.allowedCategories, id];
+			return { ...prev, form: { ...prev.form, allowedCategories } };
+		});
+	}
+
+	// ── Branches handlers ──
+	async function persistBranches(next: TBranch[]): Promise<boolean> {
+		if (!org) return false;
+		setBranchError(null);
+		setBranchSaving(true);
+		try {
+			const result = await appApi.admin.updateOrganization({
+				...org,
+				branches: next,
+			});
+			if (result?.success) {
+				setBranches(next);
+				onSaved?.();
+				return true;
+			}
+			setBranchError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} catch {
+			setBranchError(t("admin:organizationsPage.errors.saveOrganizationFailed"));
+			return false;
+		} finally {
+			setBranchSaving(false);
+		}
+	}
+
+	async function handleSaveBranch() {
+		if (!branchEditor) return;
+		const f = branchEditor.form;
+		if (!f.label.trim()) {
+			setBranchError("נא למלא שם סניף");
+			return;
+		}
+		const payload: TBranch = {
+			id: branchEditor.id ?? `b${Date.now()}`,
+			label: f.label.trim(),
+			address: f.address.trim() || undefined,
+			phone: f.phone.trim() || undefined,
+			isPrimary: f.isPrimary,
+		};
+		let next: TBranch[];
+		if (branchEditor.id) {
+			next = branches.map((b) => (b.id === branchEditor.id ? payload : b));
+		} else {
+			next = [...branches, payload];
+		}
+		if (payload.isPrimary) {
+			next = next.map((b) =>
+				b.id === payload.id ? b : { ...b, isPrimary: false },
+			);
+		}
+		const ok = await persistBranches(next);
+		if (ok) setBranchEditor(null);
+	}
+
+	async function handleDeleteBranch(id: string) {
+		if (!window.confirm("למחוק את הסניף? פעולה זו לא תמחק הזמנות עבר.")) return;
+		await persistBranches(branches.filter((b) => b.id !== id));
+	}
+
+	function setBranchField(patch: Partial<BranchFormFields>) {
+		setBranchError(null);
+		setBranchEditor((prev) =>
+			prev ? { ...prev, form: { ...prev.form, ...patch } } : prev,
+		);
+	}
 
 	const TABS: { key: CompanyTab; label: string; badge?: number }[] = [
 		{ key: "details", label: "פרטי חברה" },
-		{ key: "branches", label: "🏢 סניפים", badge: 0 },
+		{ key: "branches", label: "🏢 סניפים", badge: branches.length },
 		{ key: "accounts", label: "💳 חשבונות", badge: billingAccounts.length },
 		{ key: "users", label: "👥 משתמשים מורשים", badge: 0 },
 	];
 
-	function handleFieldChange(field: keyof CompanyModalFormState, value: string) {
+	function handleFieldChange(
+		field: keyof CompanyModalFormState,
+		value: string | boolean,
+	) {
 		setSaveError(null);
 		setForm((prev) => ({ ...prev, [field]: value }));
 	}
@@ -200,6 +492,7 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 				city: form.city,
 				street: form.street,
 				streetNumber: form.streetNumber,
+				zip: form.zip || undefined,
 			};
 			const discountPercentage = form.discountPercentage.trim()
 				? Number(form.discountPercentage)
@@ -209,10 +502,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 				const payload = {
 					name: form.name,
 					companyNumber: form.companyNumber || undefined,
+					phone: form.phone || undefined,
+					email: form.email || undefined,
 					address,
 					paymentType: form.paymentType,
 					discountPercentage,
 					nameOnInvoice: form.nameOnInvoice || undefined,
+					notes: form.notes || undefined,
+					freeShipping: form.freeShipping,
 					billingAccounts: [],
 				};
 				const result = await appApi.admin.createOrganization(payload);
@@ -227,10 +524,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 					...org!,
 					name: form.name,
 					companyNumber: form.companyNumber || undefined,
+					phone: form.phone || undefined,
+					email: form.email || undefined,
 					address,
 					paymentType: form.paymentType,
 					discountPercentage,
 					nameOnInvoice: form.nameOnInvoice || undefined,
+					notes: form.notes || undefined,
+					freeShipping: form.freeShipping,
 				};
 				const result = await appApi.admin.updateOrganization(payload);
 				if (result?.success) {
@@ -317,6 +618,27 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 								</div>
 								<div className="flex flex-col gap-1">
 									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										טלפון ראשי
+									</label>
+									<Input
+										value={form.phone}
+										onChange={(e) => handleFieldChange("phone", e.target.value)}
+										placeholder="טלפון"
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										דוא"ל ראשי
+									</label>
+									<Input
+										type="email"
+										value={form.email}
+										onChange={(e) => handleFieldChange("email", e.target.value)}
+										placeholder="email@example.com"
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
 										עיר
 									</label>
 									<Input
@@ -343,6 +665,16 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 										value={form.streetNumber}
 										onChange={(e) => handleFieldChange("streetNumber", e.target.value)}
 										placeholder="מספר"
+									/>
+								</div>
+								<div className="flex flex-col gap-1">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										מיקוד
+									</label>
+									<Input
+										value={form.zip}
+										onChange={(e) => handleFieldChange("zip", e.target.value)}
+										placeholder="מיקוד"
 									/>
 								</div>
 								<div className="flex flex-col gap-1">
@@ -390,11 +722,39 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 										placeholder="שם כפי שיופיע בחשבונית"
 									/>
 								</div>
+								<div className="flex flex-col gap-1 col-span-2">
+									<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+										הערות כלליות
+									</label>
+									<textarea
+										value={form.notes}
+										onChange={(e) => handleFieldChange("notes", e.target.value)}
+										rows={2}
+										placeholder="הערות פנימיות על הלקוח"
+										className="w-full border border-[var(--border)] rounded-lg p-2.5 text-sm bg-[var(--background)] text-[var(--foreground)] resize-y focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+									/>
+								</div>
+								<div className="col-span-2">
+									<label className="flex items-start gap-2.5 cursor-pointer p-3 rounded-lg border border-[var(--border)] bg-[var(--background)]">
+										<input
+											type="checkbox"
+											checked={form.freeShipping}
+											onChange={(e) => handleFieldChange("freeShipping", e.target.checked)}
+											className="w-[18px] h-[18px] mt-0.5 flex-none cursor-pointer"
+										/>
+										<span>
+											<b className="block text-sm text-[var(--foreground)]">פטור מדמי משלוח</b>
+											<span className="text-xs text-[var(--muted)]">
+												לא יתווספו דמי משלוח להזמנות של לקוח זה — גם כשההזמנה נמוכה מסף משלוח חינם.
+											</span>
+										</span>
+									</label>
+								</div>
 							</div>
 						)}
 
-						{/* ── Branches Tab — no data, empty state ── */}
-						{!isNew && tab === "branches" && (
+						{/* ── Branches Tab — full CRUD ── */}
+						{!isNew && tab === "branches" && !branchEditor && (
 							<div className="flex flex-col gap-4">
 								<div
 									className="flex items-start gap-3 p-3 rounded-lg text-sm"
@@ -402,19 +762,159 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 								>
 									<span className="text-xl mt-0.5">🏢</span>
 									<p>
-										<b>סניפים</b> — חברה יכולה לכלול כמה משרדים פיזיים, כל סניף עם כתובת וטלפון משלו.
+										<b>סניפים</b> — חברה יכולה לכלול כמה משרדים פיזיים, כל סניף עם
+										כתובת וטלפון משלו. ההזמנות יישלחו לכתובת הסניף שנבחר.
 									</p>
 								</div>
-								<div className="py-8 text-center text-[var(--muted)]">
-									<p className="text-4xl mb-3">🏢</p>
-									<p className="font-semibold">אין סניפים מוגדרים</p>
-									<p className="text-sm mt-1">הוספת סניפים תהיה זמינה בעתיד</p>
+								{branchError && (
+									<p className="text-xs text-[var(--danger)]">{branchError}</p>
+								)}
+								{branches.length === 0 ? (
+									<div className="py-8 text-center text-[var(--muted)]">
+										<p className="text-4xl mb-3">🏢</p>
+										<p className="font-semibold">אין סניפים מוגדרים</p>
+									</div>
+								) : (
+									<div className="flex flex-col gap-2">
+										{branches.map((branch) => (
+											<div
+												key={branch.id}
+												className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] bg-[var(--background)]"
+											>
+												<div
+													className="w-9 h-9 rounded-full grid place-items-center text-lg flex-shrink-0"
+													style={{ backgroundColor: softBg("var(--info)", 16) }}
+												>
+													🏢
+												</div>
+												<div className="flex-1 min-w-0">
+													<p className="font-semibold text-sm text-[var(--foreground)] flex items-center gap-1.5">
+														{branch.label}
+														{branch.isPrimary && (
+															<BadgePill color="var(--success)">ראשי</BadgePill>
+														)}
+													</p>
+													<p className="text-xs text-[var(--muted)] mt-0.5">
+														{branch.address || "—"} · {branch.phone || "—"}
+													</p>
+												</div>
+												<div className="flex items-center gap-1.5 flex-none">
+													<button
+														type="button"
+														onClick={() =>
+															setBranchEditor({
+																id: branch.id,
+																form: branchToForm(branch),
+															})
+														}
+														className="px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+													>
+														עריכה
+													</button>
+													{branches.length > 1 && (
+														<button
+															type="button"
+															onClick={() => handleDeleteBranch(branch.id)}
+															className="w-7 h-7 grid place-items-center rounded border border-[var(--border)] text-[var(--danger)] bg-[var(--surface)] hover:border-[var(--danger)] transition-colors"
+															aria-label={`מחק ${branch.label}`}
+														>
+															<Icon icon="lucide:x" width={13} height={13} />
+														</button>
+													)}
+												</div>
+											</div>
+										))}
+									</div>
+								)}
+								<div>
+									<Button
+										variant="primary"
+										onPress={() =>
+											setBranchEditor({ id: null, form: blankBranchForm() })
+										}
+									>
+										<Icon icon="lucide:plus" width={14} height={14} />
+										הוסף סניף
+									</Button>
 								</div>
 							</div>
 						)}
 
-						{/* ── Accounts Tab — show real billing accounts ── */}
-						{!isNew && tab === "accounts" && (
+						{/* ── Branches Tab — add/edit form ── */}
+						{!isNew && tab === "branches" && branchEditor && (
+							<div className="flex flex-col gap-4">
+								<div className="grid grid-cols-2 gap-x-4 gap-y-4">
+									<div className="flex flex-col gap-1 col-span-2">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											שם הסניף <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={branchEditor.form.label}
+											onChange={(e) => setBranchField({ label: e.target.value })}
+											placeholder="לדוגמה: סניף ת״א — דיזנגוף"
+										/>
+									</div>
+									<div className="flex flex-col gap-1 col-span-2">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											כתובת מלאה
+										</label>
+										<Input
+											value={branchEditor.form.address}
+											onChange={(e) => setBranchField({ address: e.target.value })}
+											placeholder="רחוב, מספר, עיר"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											טלפון
+										</label>
+										<Input
+											value={branchEditor.form.phone}
+											onChange={(e) => setBranchField({ phone: e.target.value })}
+											placeholder="טלפון"
+										/>
+									</div>
+								</div>
+
+								<label className="flex items-center gap-2.5 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={branchEditor.form.isPrimary}
+										onChange={(e) => setBranchField({ isPrimary: e.target.checked })}
+										className="w-[18px] h-[18px] cursor-pointer"
+									/>
+									<span className="text-sm text-[var(--foreground)]">סניף ראשי</span>
+								</label>
+
+								{branchError && (
+									<p className="text-xs text-[var(--danger)]">{branchError}</p>
+								)}
+
+								<div className="flex items-center justify-end gap-2 pt-1">
+									<Button
+										variant="ghost"
+										onPress={() => {
+											setBranchEditor(null);
+											setBranchError(null);
+										}}
+										isDisabled={branchSaving}
+									>
+										ביטול
+									</Button>
+									<Button
+										variant="primary"
+										onPress={handleSaveBranch}
+										isPending={branchSaving}
+										isDisabled={branchSaving}
+									>
+										{branchEditor.id ? "שמור שינויים" : "הוסף סניף"}
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* ── Accounts Tab — full CRUD on billing accounts ── */}
+						{!isNew && tab === "accounts" && !accountEditor && (
 							<div className="flex flex-col gap-4">
 								<div
 									className="flex items-start gap-3 p-3 rounded-lg text-sm"
@@ -422,9 +922,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 								>
 									<span className="text-xl mt-0.5">💳</span>
 									<p>
-										<b>חשבונות (מספרי לקוח)</b> — חשבונות הלקוח המשמשים לחיוב.
+										<b>חשבונות (מספרי לקוח)</b> — לחברה יכולים להיות כמה חשבונות נפרדים,
+										כל אחד עם מספר לקוח, תנאי תשלום ומסגרת אשראי משלו. אפשר גם להגביל
+										חשבון לקטגוריות מסוימות.
 									</p>
 								</div>
+								{accountError && (
+									<p className="text-xs text-[var(--danger)]">{accountError}</p>
+								)}
 								{billingAccounts.length === 0 ? (
 									<div className="py-8 text-center text-[var(--muted)]">
 										<p className="text-4xl mb-3">💳</p>
@@ -444,17 +949,236 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 													💳
 												</div>
 												<div className="flex-1 min-w-0">
-													<p className="font-semibold text-sm text-[var(--foreground)]">
+													<p className="font-semibold text-sm text-[var(--foreground)] flex items-center gap-1.5">
 														{account.name}
+														{account.isPrimary && (
+															<BadgePill color="var(--success)">ראשי</BadgePill>
+														)}
 													</p>
 													<p className="text-xs text-[var(--muted)] mt-0.5">
-														{account.number}
+														<b className="text-[var(--foreground)]">{account.number}</b>
+														{" · "}
+														{payTermsLabel(account.payTerms)}
+														{" · מסגרת ₪"}
+														{(account.creditLimit ?? 0).toLocaleString()}
 													</p>
+													{account.restricted && (
+														<div className="mt-1">
+															<BadgePill color="var(--warning)" icon="lucide:lock">
+																מוגבל:{" "}
+																{(account.allowedCategories ?? [])
+																	.map(
+																		(id) =>
+																			categories.find((c) => c.id === id)?.name ?? id,
+																	)
+																	.join(", ") || "ללא קטגוריות"}
+															</BadgePill>
+														</div>
+													)}
+												</div>
+												<div className="flex items-center gap-1.5 flex-none">
+													<button
+														type="button"
+														onClick={() =>
+															setAccountEditor({
+																id: account.id,
+																form: accountToForm(account),
+															})
+														}
+														className="px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+													>
+														עריכה
+													</button>
+													{billingAccounts.length > 1 && (
+														<button
+															type="button"
+															onClick={() => handleDeleteAccount(account.id)}
+															className="w-7 h-7 grid place-items-center rounded border border-[var(--border)] text-[var(--danger)] bg-[var(--surface)] hover:border-[var(--danger)] transition-colors"
+															aria-label={`מחק ${account.name}`}
+														>
+															<Icon icon="lucide:x" width={13} height={13} />
+														</button>
+													)}
 												</div>
 											</div>
 										))}
 									</div>
 								)}
+								<div>
+									<Button
+										variant="primary"
+										onPress={() =>
+											setAccountEditor({ id: null, form: blankAccountForm() })
+										}
+									>
+										<Icon icon="lucide:plus" width={14} height={14} />
+										הוסף חשבון נוסף
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* ── Accounts Tab — add/edit form ── */}
+						{!isNew && tab === "accounts" && accountEditor && (
+							<div className="flex flex-col gap-4">
+								<div className="grid grid-cols-2 gap-x-4 gap-y-4">
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											שם תיוג <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={accountEditor.form.name}
+											onChange={(e) => setAccountField({ name: e.target.value })}
+											placeholder="לדוגמה: חשבון מזון"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											מספר לקוח <span className="text-[var(--danger)]">*</span>
+										</label>
+										<Input
+											value={accountEditor.form.number}
+											onChange={(e) => setAccountField({ number: e.target.value })}
+											placeholder="C-1010"
+										/>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											תנאי תשלום
+										</label>
+										<Select
+											selectedKey={accountEditor.form.payTerms}
+											onSelectionChange={(k) =>
+												setAccountField({ payTerms: k as TPaymentTerms })
+											}
+											aria-label="תנאי תשלום"
+										>
+											<Select.Trigger>
+												<Select.Value />
+												<Select.Indicator />
+											</Select.Trigger>
+											<Select.Popover>
+												<ListBox>
+													{PAYMENT_TERMS_OPTIONS.map((pt) => (
+														<ListBox.Item key={pt} id={pt} textValue={PAYMENT_TERMS_LABEL[pt]}>
+															{PAYMENT_TERMS_LABEL[pt]}
+														</ListBox.Item>
+													))}
+												</ListBox>
+											</Select.Popover>
+										</Select>
+									</div>
+									<div className="flex flex-col gap-1">
+										<label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">
+											מסגרת אשראי (₪)
+										</label>
+										<Input
+											type="number"
+											value={accountEditor.form.creditLimit}
+											onChange={(e) =>
+												setAccountField({ creditLimit: e.target.value })
+											}
+											placeholder="0"
+											min="0"
+										/>
+									</div>
+								</div>
+
+								<label className="flex items-center gap-2.5 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={accountEditor.form.isPrimary}
+										onChange={(e) => setAccountField({ isPrimary: e.target.checked })}
+										className="w-[18px] h-[18px] cursor-pointer"
+									/>
+									<span className="text-sm text-[var(--foreground)]">
+										סמן כחשבון ראשי (ברירת המחדל בעת הזמנה)
+									</span>
+								</label>
+
+								<div className="border-t border-dashed border-[var(--border)] pt-4">
+									<label className="flex items-start gap-2.5 cursor-pointer">
+										<input
+											type="checkbox"
+											checked={accountEditor.form.restricted}
+											onChange={(e) =>
+												setAccountField({ restricted: e.target.checked })
+											}
+											className="w-[18px] h-[18px] mt-0.5 cursor-pointer"
+										/>
+										<span>
+											<b className="block text-sm text-[var(--foreground)]">
+												הגבל חשבון לקטגוריות מסוימות
+											</b>
+											<span className="text-xs text-[var(--muted)]">
+												לדוגמה: חשבון "פירות וירקות בלבד" שיאפשר רק קטגוריה זו.
+											</span>
+										</span>
+									</label>
+									{accountEditor.form.restricted && (
+										<div className="mt-3">
+											{categories.length === 0 ? (
+												<p className="text-xs text-[var(--muted)]">אין קטגוריות להצגה</p>
+											) : (
+												<div className="flex flex-wrap gap-2">
+													{categories.map((c) => {
+														const active =
+															accountEditor.form.allowedCategories.includes(c.id);
+														return (
+															<button
+																key={c.id}
+																type="button"
+																onClick={() => toggleAllowedCategory(c.id)}
+																className={[
+																	"px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors",
+																	active
+																		? "border-[var(--accent)] text-[var(--accent)]"
+																		: "border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]",
+																].join(" ")}
+																style={
+																	active
+																		? { backgroundColor: softBg("var(--accent)") }
+																		: undefined
+																}
+															>
+																{c.name}
+															</button>
+														);
+													})}
+												</div>
+											)}
+											<p className="text-[11px] text-[var(--muted)] mt-2">
+												ניתן לסמן יותר מקטגוריה אחת. אם לא תסומן אף קטגוריה וההגבלה
+												פעילה — החשבון לא יאפשר אף מוצר.
+											</p>
+										</div>
+									)}
+								</div>
+
+								{accountError && (
+									<p className="text-xs text-[var(--danger)]">{accountError}</p>
+								)}
+
+								<div className="flex items-center justify-end gap-2 pt-1">
+									<Button
+										variant="ghost"
+										onPress={() => {
+											setAccountEditor(null);
+											setAccountError(null);
+										}}
+										isDisabled={accountSaving}
+									>
+										ביטול
+									</Button>
+									<Button
+										variant="primary"
+										onPress={handleSaveAccount}
+										isPending={accountSaving}
+										isDisabled={accountSaving}
+									>
+										{accountEditor.id ? "שמור שינויים" : "הוסף חשבון"}
+									</Button>
+								</div>
 							</div>
 						)}
 
@@ -488,14 +1212,16 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 						<Button variant="ghost" onPress={onClose} isDisabled={isSaving}>
 							סגירה
 						</Button>
-						<Button
-							variant="primary"
-							onPress={handleSave}
-							isPending={isSaving}
-							isDisabled={isSaving || !form.name.trim()}
-						>
-							{isNew ? "שמור" : "שמור פרטים"}
-						</Button>
+						{(isNew || tab === "details") && (
+							<Button
+								variant="primary"
+								onPress={handleSave}
+								isPending={isSaving}
+								isDisabled={isSaving || !form.name.trim()}
+							>
+								{isNew ? "שמור" : "שמור פרטים"}
+							</Button>
+						)}
 					</Modal.Footer>
 				</Modal.Dialog>
 			</Modal.Container>

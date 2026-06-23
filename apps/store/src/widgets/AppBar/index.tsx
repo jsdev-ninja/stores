@@ -127,9 +127,6 @@ export function AppBar() {
         {/* End actions */}
         <ul className="flex items-center gap-2 list-none m-0 p-0">
           <li>
-            <OrgPicker />
-          </li>
-          <li>
             {!!user && !user.isAnonymous ? (
               <Dropdown>
                 <Dropdown.Trigger>
@@ -186,6 +183,9 @@ export function AppBar() {
           </li>
         </ul>
       </nav>
+
+      {/* Organization picker — full-width prominent banner, centered under the header */}
+      <OrgPicker />
 
       {/* Mobile nav menu */}
       {mobileMenuOpen && navLinks.length > 0 && (
