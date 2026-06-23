@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 70" preserveAspectRatio="xMidYMid meet">
+  <!-- Cart icon -->
+  <g stroke="#e8804a" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 22 L14 22 L21 47 L57 47 L64 28 L19 28"/>
+    <circle cx="27" cy="58" r="3.8" fill="none"/>
+    <circle cx="51" cy="58" r="3.8" fill="none"/>
+  </g>
+  <!-- BALASI text -->
+  <text x="78" y="48" font-family="Heebo, Arial, sans-serif" font-weight="900" font-size="32" fill="#1b7a3d" letter-spacing="0.5">BALASI</text>
+  <!-- STORE text -->
+  <text x="222" y="48" font-family="Heebo, Arial, sans-serif" font-weight="900" font-size="32" fill="#e8804a" letter-spacing="0.5">STORE</text>
+  <!-- Underline -->
+  <line x1="78" y1="58" x2="352" y2="58" stroke="#e8804a" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

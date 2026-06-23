@@ -24,6 +24,7 @@ import AdminDeliveryNotesPage from "../AdminDeliveryNotesPage/AdminDeliveryNotes
 import { AdminInventoryCertificatePage } from "../AdminInventoryCertificatePage";
 import { AdminInventoryCertificateDetailPage } from "../AdminInventoryCertificateDetailPage";
 import { AdminBudgetPage, AdminBudgetOrganizationPage } from "../AdminBudgetPage/AdminBudgetPage";
+import AdminCustomerInvoicesPage from "../AdminCustomerInvoicesPage/AdminCustomerInvoicesPage";
 import { useAppApi } from "src/appApi";
 import { OrganizationSlice } from "src/domains/Organization";
 import { useAppDispatch } from "src/infra";
@@ -31,6 +32,7 @@ import { useAppDispatch } from "src/infra";
 import AdminOrdersPage from "../Orders/AdminOrdersPage";
 import AdminOrderPageNew from "../Orders/AdminOrderPageNew";
 import AdminOrderPickPage from "../Orders/AdminOrderPickPage";
+import AdminProblemOrdersPage from "../AdminProblemOrdersPage/AdminProblemOrdersPage";
 
 
 export default function AdminLayout() {
@@ -141,6 +143,9 @@ export default function AdminLayout() {
 					<Route name="admin.deliveryNotes">
 						<AdminDeliveryNotesPage />
 					</Route>
+					<Route name="admin.problemOrders">
+						<AdminProblemOrdersPage />
+					</Route>
 					<Route name="admin.inventoryCertificate">
 						<AdminInventoryCertificatePage />
 					</Route>
@@ -152,6 +157,9 @@ export default function AdminLayout() {
 					</Route>
 					<Route name="admin.budgetOrganization">
 						<AdminBudgetOrganizationPage />
+					</Route>
+					<Route name="admin.customerInvoices">
+						<AdminCustomerInvoicesPage />
 					</Route>
 				</main>
 			</div>

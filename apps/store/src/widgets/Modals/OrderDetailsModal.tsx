@@ -2,11 +2,13 @@ import { useState, ReactNode, Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@heroui/react";
 import { TOrder } from "@jsdev_ninja/core";
+import { isOrderFinal } from "src/domains/Order";
 import { Button } from "src/components/button";
 import { DateView } from "src/components/DateView";
 import { formatter } from "src/utils/formatter";
 import { modalApi } from "src/infra/modals";
 import { useAppApi } from "src/appApi";
+import { FirebaseApi } from "src/lib/firebase";
 
 /* Demo design tokens (balasi-all admin.css): pill variants. */
 type PillVariant = "success" | "warn" | "info" | "danger" | "pending" | "neutral";
@@ -118,6 +120,9 @@ export function OrderDetailsModal({
 	const appApi = useAppApi();
 	const [order, setOrder] = useState<TOrder>(initialOrder);
 	const [loading, setLoading] = useState(false);
+	const [linkLoading, setLinkLoading] = useState(false);
+	const [paymentLinkUrl, setPaymentLinkUrl] = useState<string | null>(null);
+	const [paymentLinkError, setPaymentLinkError] = useState("");
 
 	const close = () => modalApi.closeModal("orderDetails");
 
@@ -140,13 +145,37 @@ export function OrderDetailsModal({
 		}
 	}
 
+	// Draft order = a J5 order whose payment never completed. Generate a HYP
+	// payment link the admin can send the customer to finish paying.
+	async function handleCreatePaymentLink() {
+		setPaymentLinkError("");
+		setLinkLoading(true);
+		try {
+			const res = await FirebaseApi.api.createPaymentRedirect({
+				order,
+				isJ5: false,
+				origin: window.location.origin,
+			});
+			if (res.data?.success && res.data?.url) {
+				setPaymentLinkUrl(res.data.url);
+			} else {
+				setPaymentLinkError(
+					t("ordersPage:paymentLink.error", "שגיאה ביצירת לינק לתשלום"),
+				);
+			}
+		} finally {
+			setLinkLoading(false);
+		}
+	}
+
 	function actions() {
 		const els: JSX.Element[] = [];
 		// New flow: a pending order is approved in one step → completed.
 		// For "external" the onOrderUpdate trigger creates the delivery note;
 		// for "j5" approveOrder charges the J5 hold first. (See approveOrder.)
-		// Picking — only for a pending order that's ready to be fulfilled.
-		if (order.status === "pending") {
+		// Picking — fulfillment metadata, not a financial action. Allowed
+		// for any non-final order; the payment guard lives on Approve.
+		if (!isOrderFinal(order.status)) {
 			els.push(
 				<Button
 					key="picking"
@@ -197,6 +226,21 @@ export function OrderDetailsModal({
 					onPress={() => run(() => appApi.admin.approveOrder({ order }), "completed")}
 				>
 					{t("ordersPage:actions.approveOrder", "✓ אשר → תעודת משלוח")}
+				</Button>,
+			);
+		}
+		// Create payment link — for a draft order (J5 payment not completed) so the
+		// admin can send the customer a link to finish paying. Not for external orders.
+		if (order.status === "draft" && order.paymentType !== "external") {
+			els.push(
+				<Button
+					key="createPaymentLink"
+					variant="primary"
+					className={btnPrimary}
+					isPending={linkLoading}
+					onPress={handleCreatePaymentLink}
+				>
+					{t("ordersPage:actions.createPaymentLink", "🔗 צור לינק לתשלום")}
 				</Button>,
 			);
 		}
@@ -465,9 +509,41 @@ export function OrderDetailsModal({
 							</tbody>
 						</table>
 
-						{/* Grand total — single line, matching demo viewOrder. */}
-						<div className="text-start text-[18px] font-black mt-3.5 text-[#1a1a17]">
-							{t("ordersPage:columns.sum", 'סה"כ')}: {formatter.price(order.cart.cartTotal)}
+						{/* Totals breakdown — items subtotal + VAT + delivery + grand total.
+						    cart.cartTotal already includes VAT + delivery (see getCartCost in core),
+						    so itemsSubtotal is back-derived for display. */}
+						<div className="mt-3.5 text-start space-y-0.5">
+							{(() => {
+								const total = order.cart.cartTotal ?? 0;
+								const vat = order.cart.cartVat ?? 0;
+								const delivery = order.cart.deliveryPrice ?? 0;
+								const itemsSubtotal = Number((total - vat - delivery).toFixed(2));
+								const hasBreakdown = vat > 0 || delivery > 0;
+								return (
+									<>
+										{hasBreakdown && (
+											<>
+												<div className="text-[14px] text-[#1a1a17]">
+													{t("ordersPage:orderDetails.totals.items", "פריטים")}: {formatter.price(itemsSubtotal)}
+												</div>
+												{vat > 0 && (
+													<div className="text-[14px] text-[#1a1a17]">
+														{t("ordersPage:orderDetails.totals.vat", 'מע"מ')}: {formatter.price(vat)}
+													</div>
+												)}
+												{delivery > 0 && (
+													<div className="text-[14px] text-[#1a1a17]">
+														{t("ordersPage:orderDetails.totals.delivery", "משלוח")}: {formatter.price(delivery)}
+													</div>
+												)}
+											</>
+										)}
+										<div className="text-[18px] font-black text-[#1a1a17] pt-1">
+											{t("ordersPage:columns.sum", 'סה"כ')}: {formatter.price(total)}
+										</div>
+									</>
+								);
+							})()}
 						</div>
 
 						{order.clientComment && (
@@ -486,6 +562,42 @@ export function OrderDetailsModal({
 							<div className="bg-[#e3eef9] p-2.5 text-[13px] text-start">
 								<b>🧾 {t("ordersPage:orderDetails.invoiceCreated", "חשבונית שנוצרה")}:</b>{" "}
 								{invoiceNumber}
+							</div>
+						)}
+						{paymentLinkUrl && (
+							<div className="bg-[#e3f2e8] p-3 text-[13px] text-start space-y-2">
+								<b>🔗 {t("ordersPage:paymentLink.created", "לינק לתשלום נוצר")}:</b>
+								<div className="text-[12px] text-[#1a1a17]">
+									{t("ordersPage:paymentLink.amount", "סכום החיוב")}: <b>{formatter.price(order.cart.cartTotal)}</b>
+									{(order.cart.deliveryPrice ?? 0) > 0 && (
+										<>
+											{" "}
+											<span className="text-[#5a5a55]">
+												({t("ordersPage:paymentLink.includesDelivery", "כולל משלוח")} {formatter.price(order.cart.deliveryPrice ?? 0)})
+											</span>
+										</>
+									)}
+								</div>
+								<div className="flex items-center gap-2">
+									<input
+										readOnly
+										value={paymentLinkUrl}
+										onFocus={(e) => e.target.select()}
+										className="flex-1 rounded border border-[#cfe6d6] bg-white px-2 py-1 text-[12px]"
+									/>
+									<Button
+										variant="ghost"
+										className={btnGhost}
+										onPress={() => navigator.clipboard?.writeText(paymentLinkUrl)}
+									>
+										{t("common:copy", "העתק")}
+									</Button>
+								</div>
+							</div>
+						)}
+						{paymentLinkError && (
+							<div className="bg-[#fbe3e0] p-2.5 text-[13px] text-start text-[#c43f2e]">
+								{paymentLinkError}
 							</div>
 						)}
 					</Modal.Body>

@@ -1,10 +1,11 @@
-// Types (legacy + new)
+// Types (revenue only — OrgBalanceSchema removed; AR now in documents module)
 export * from "./types";
 
-// Internal paths (used by budget callables + other modules that read budget data)
+// Internal paths (used by budget callables + nightly schedule)
 export * from "./internal/paths";
 
-// Callables
+// Callables — getBudgetAccount/listBudgetAccounts/getBudgetTransactions are STUBBED
+// (pending admin UI repoint in task 9). Deployed names kept stable.
 export {
 	getBudgetAccount,
 	listBudgetAccounts,
@@ -13,15 +14,8 @@ export {
 	addBudgetManualTransaction,
 } from "./api/budgetApi";
 
-// Subscribers (export for wiring in index.tsx — B5)
-export { increaseDebtOnOrderPlaced } from "./subscribers/increaseDebtOnOrderPlaced";
-export { reduceDebtOnOrderCancelled, reduceDebtOnOrderRefunded } from "./subscribers/reduceDebtOnOrderReversed";
-export { reduceDebtOnTransactionPosted } from "./subscribers/reduceDebtOnTransactionPosted";
-
-// Budget redesign — ledger-derived projections (Phase 1, dual-write)
+// Revenue projections (cash reporting — subscribes to ledger.transaction_posted)
 export { updateProjectionsOnTransactionPosted } from "./subscribers/updateProjectionsOnTransactionPosted";
 export { reconcileBudgetProjections } from "./api/reconcileBudgetProjections";
 export { reconcileProjectionsSchedule } from "./triggers/reconcileProjectionsSchedule";
 export { reconcileProjections } from "./services/reconcileProjections";
-// Note: OrgBalanceSchema/RevenueRollupSchema/TOrgBalance/TRevenueRollup are
-// already re-exported via `export * from "./types"` at the top of this file.

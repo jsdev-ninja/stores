@@ -6,6 +6,7 @@ import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { TStorePrivate } from "src/schema";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import { sanitizeFormFields } from "../internal/sanitizeFormFields";
+import { buildFulfilledHeshDescItems } from "../internal/fulfilledHeshDescItems";
 
 const InputSchema = z.object({
 	orderId: z.string().min(1),
@@ -15,20 +16,21 @@ const InputSchema = z.object({
 	isJ5: z.boolean().default(true),
 });
 
-// Absorb tiny rounding drift between cart total and heshDesc items sum.
-// HYP rejects (CCode=400) when items sum != Amount. We only auto-fix small
-// drifts (≤ 0.20 ILS) to avoid masking real calculation bugs.
-function fitAmountToItemsSum(amount: number, items: string[]): number {
+// HYP/EzCount recomputes each heshDesc line as `qty × price`, rounds it the way
+// the raw float naturally rounds (= toFixed(2)), then sums. `Amount` MUST equal
+// that sum exactly or HYP rejects with CCode=400 ("סכום הפריטים אינו תואם לסכום לחיוב").
+//
+// We derive Amount from the SAME per-line toFixed rounding HYP uses — NOT a raw
+// float sum (e.g. 16.87 + 24.90 = 41.769999999999996, which serialises to a
+// non-2dp string and diverges from HYP's 41.77 line sum). Bill exactly the
+// heshDesc line total, never order.cart.cartTotal (which can drift by an agora).
+function sumHeshDescItems(items: string[]): number {
 	const itemsSum = items.reduce((sum, line) => {
 		const m = line.match(/~([\d.]+)~([\d.]+)\]$/);
 		if (!m) return sum;
-		return sum + parseFloat(m[1]) * parseFloat(m[2]);
+		return sum + Number((parseFloat(m[1]) * parseFloat(m[2])).toFixed(2));
 	}, 0);
-	const diff = Math.abs(amount - itemsSum);
-	if (diff > 0 && diff <= 0.2) {
-		return itemsSum;
-	}
-	return amount;
+	return Number(itemsSum.toFixed(2));
 }
 
 /**
@@ -109,23 +111,10 @@ export const createHypCheckoutPayment = functions.https.onCall(
 
 			// Amount comes from the order loaded server-side, never from client input.
 			// order.cart.cartTotal is in shekels (e.g. 150.50) — HYP expects shekels.
-			const VAT_RATE = 18;
-			const isVatIncluded = order.storeOptions?.isVatIncludedInPrice ?? false;
-			const postVatPrice = (base: number, hasVat: boolean): number =>
-				!isVatIncluded && hasVat ? base * (1 + VAT_RATE / 100) : base;
+			const items = buildFulfilledHeshDescItems(order);
 
-			const DELIVERY_NAME = "משלוח";
-			const items = (order.cart.items ?? []).map((item) => {
-				const price = postVatPrice(item.finalPrice ?? 0, !!item.product.vat).toFixed(2);
-				const sku = (item.product.sku ?? "").trim();
-				const name = (item.product.name[0]?.value ?? "").trim();
-				return `[${sku}~${name}~${item.amount}~${price}]`;
-			});
-			if (order.cart.deliveryPrice) {
-				items.push(`[0~${DELIVERY_NAME}~1~${order.cart.deliveryPrice.toFixed(2)}]`);
-			}
-
-			const cartTotalShekels = fitAmountToItemsSum(order.cart.cartTotal, items);
+			// Amount must equal HYP's own per-line sum of the heshDesc lines.
+			const amountShekels = sumHeshDescItems(items);
 
 			// Load store HYP credentials server-side
 			const storePrivateSnap = await admin
@@ -152,7 +141,7 @@ export const createHypCheckoutPayment = functions.https.onCall(
 				PassP: storePrivateData.hypData.password.trim(),
 				Masof: storePrivateData.hypData.masof.trim(),
 				Sign: "True",
-				Amount: cartTotalShekels.toString(),
+				Amount: amountShekels.toFixed(2),
 				J5: isJ5 ? "True" : "False",
 				MoreData: "True",
 				Order: order.id,

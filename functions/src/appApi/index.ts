@@ -13,7 +13,8 @@ import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
 import { documentsService } from "../services/documents";
 import { renderDeliveryNoteToHTML } from "../services/documents/renderToHTML";
-import { emitDeliveryNoteCreated } from "../modules/documents/internal/emitDeliveryNoteCreated";
+import { emitEvent } from "../platform/eventBus";
+import { DocumentEventTypes, DocumentDeliveryNoteCreatedPayload } from "../modules/documents/events";
 
 type TContext = {
 	storeId: string;
@@ -246,15 +247,28 @@ export function createAppApi(context: TContext) {
 							.update({ ezDeliveryNote, deliveryNote });
 						console.log("order updated with delivery note", order.id);
 
-						await emitDeliveryNoteCreated({
-							order,
+						await emitEvent<DocumentDeliveryNoteCreatedPayload>({
+							type: DocumentEventTypes.deliveryNoteCreated,
+							source: "documents",
 							companyId,
 							storeId,
-							deliveryNoteNumber: res.data.doc_number,
+							actorId: "system",
+							payload: {
+								orderId: order.id,
+								deliveryNoteId: res.data.doc_number,
+								deliveryNoteNumber: res.data.doc_number,
+								organizationId: order.organizationId,
+								...(order.client?.id ? { clientId: order.client.id } : {}),
+								billingAccountId: order.billingAccount?.id ?? null,
+								total: order.cart?.cartTotal,
+								vat: order.cart?.cartVat,
+								currency: "ILS" as const,
+								createdAt: Date.now(),
+								createdBy: "system",
+							},
 						});
 
-						// NOTE (B4): budgetWriter.onDeliveryNoteCreated removed.
-						// Debt now accrues via the order.placed subscriber (increaseDebtOnOrderPlaced).
+						// NOTE: Debt now accrues via documents/subscribers/accrueOnDeliveryNoteCreated.ts.
 
 						return { success: true, error: null };
 					} else {

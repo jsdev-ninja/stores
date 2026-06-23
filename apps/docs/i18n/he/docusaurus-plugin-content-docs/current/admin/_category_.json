@@ -1,0 +1,9 @@
+{
+  "label": "Admin",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "title": "Admin",
+    "description": "The store-owner-facing admin app — pages, flows, and conventions for the back-office UI."
+  }
+}

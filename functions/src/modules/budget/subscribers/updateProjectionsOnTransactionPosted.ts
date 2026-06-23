@@ -8,13 +8,11 @@ import { getTransactionById } from "../../ledger/internal/transactionsStore";
 import { applyLedgerProjection } from "../services/applyLedgerProjection";
 
 /**
- * Subscribes to ledger.transaction_posted and projects every posted transaction
- * (credit AND debit) into the new read-models: orgBalances (accounts-receivable)
- * and revenueRollups (money in/out by month).
+ * Subscribes to ledger.transaction_posted and projects every posted cash
+ * transaction into revenueRollups (money in/out by month).
  *
- * This runs ALONGSIDE the legacy budget subscribers (dual-write) — it writes
- * only the new orgBalances/revenueRollups collections, never the legacy
- * organizationBudgets/budgetRecords. Parity can be compared before cutover.
+ * AR (orgBalances) is no longer computed here — it lives in the documents
+ * module's settleOnTransactionPosted subscriber.
  *
  * Security: the payload is only a routing hint. All authoritative values are
  * read from the STORED transaction doc.
@@ -52,7 +50,6 @@ export const updateProjectionsOnTransactionPosted = subscribe(
 			storeId,
 			eventId,
 			transactionId: storedTx.id,
-			kind: storedTx.kind,
 			type: storedTx.type,
 			amount: storedTx.amount,
 			direction: storedTx.direction,
@@ -63,7 +60,6 @@ export const updateProjectionsOnTransactionPosted = subscribe(
 		logger.info("budget.updateProjectionsOnTransactionPosted: done", {
 			eventId,
 			transactionId: storedTx.id,
-			kind: storedTx.kind,
 			applied,
 			companyId,
 			storeId,

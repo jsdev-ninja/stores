@@ -1,0 +1,214 @@
+/* =========================================================
+   בלסי סטור — Legal Pages CSS
+   Privacy Policy & Terms of Service
+   ========================================================= */
+
+.legal{
+  background:var(--bg);padding:60px 0 100px;min-height:70vh;
+}
+
+.legal-head{
+  max-width:760px;margin:0 auto 60px;text-align:center;
+  padding-bottom:50px;border-bottom:1px solid var(--line);
+}
+.legal-eyebrow{
+  display:inline-block;font-size:11px;color:var(--pop-2);
+  letter-spacing:.18em;text-transform:uppercase;font-weight:700;
+  margin-bottom:18px;
+}
+.legal-head h1{
+  font-family:var(--display);font-size:clamp(38px,5vw,64px);
+  font-weight:900;color:var(--ink);letter-spacing:-.04em;
+  line-height:1;margin-bottom:22px;
+}
+.legal-lead{
+  font-size:16px;color:var(--muted);line-height:1.7;
+  font-weight:400;max-width:640px;margin:0 auto;
+}
+
+.legal-grid{
+  display:grid;grid-template-columns:240px 1fr;gap:60px;
+  max-width:1080px;margin:0 auto;
+}
+
+/* TOC sidebar */
+.legal-toc{
+  position:sticky;top:90px;align-self:flex-start;
+  padding-right:0;
+}
+.toc-label{
+  display:block;font-size:10.5px;font-weight:800;
+  color:var(--ink);letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px solid var(--ink);
+}
+.legal-toc ol{list-style:none;padding:0}
+.legal-toc li{margin-bottom:1px}
+.legal-toc a{
+  display:block;padding:9px 0;font-size:12.5px;font-weight:500;
+  color:var(--ink-2);transition:.18s;
+  border-bottom:1px solid var(--line-2);
+  letter-spacing:.01em;
+}
+.legal-toc a:hover{color:var(--green);padding-right:6px;border-color:var(--green-soft)}
+
+/* Body */
+.legal-body{
+  background:var(--paper);padding:50px 56px;
+  border:1px solid var(--line);
+}
+.legal-body section{margin-bottom:44px}
+.legal-body section:last-child{margin-bottom:0}
+.legal-body h2{
+  font-family:var(--display);font-size:24px;font-weight:900;
+  color:var(--ink);letter-spacing:-.025em;line-height:1.15;
+  margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--ink);
+  scroll-margin-top:90px;
+}
+.legal-body h3{
+  font-family:var(--display);font-size:16px;font-weight:800;
+  color:var(--green);letter-spacing:-.005em;
+  margin:24px 0 10px;
+}
+.legal-body p{
+  font-size:14.5px;color:var(--ink-2);line-height:1.75;
+  font-weight:400;margin-bottom:14px;
+}
+.legal-body p strong{color:var(--ink);font-weight:700}
+.legal-body ul{
+  list-style:none;padding:0;margin:0 0 18px 0;
+}
+.legal-body ul li{
+  font-size:14px;color:var(--ink-2);line-height:1.7;
+  padding:8px 22px 8px 0;position:relative;
+  border-bottom:1px solid var(--line-2);
+}
+.legal-body ul li:last-child{border-bottom:0}
+.legal-body ul li::before{
+  content:"";position:absolute;right:0;top:18px;
+  width:8px;height:1.5px;background:var(--pop);
+}
+.legal-body ul li strong{color:var(--ink);font-weight:700}
+.legal-body a{
+  color:var(--green);font-weight:600;
+  border-bottom:1px solid var(--green-soft);transition:.15s;
+}
+.legal-body a:hover{color:var(--green-2);border-color:var(--green)}
+
+.legal-footnote{
+  margin-top:30px;padding:18px 22px;
+  background:var(--pop-bg);border-right:3px solid var(--pop);
+  font-size:13px;color:var(--ink-2);line-height:1.65;
+}
+.legal-footnote strong{color:var(--pop-3)}
+
+/* ========== COOKIE BANNER ========== */
+.cookie-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:var(--ink);color:var(--paper);
+  padding:20px 32px;
+  display:none;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center;
+  box-shadow:0 -8px 32px rgba(0,0,0,.22);
+  border-top:3px solid var(--pop);
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+.cookie-banner.open{display:flex;transform:translateY(0);animation:cbSlide .4s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes cbSlide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+.cookie-content{flex:1;min-width:280px;max-width:720px}
+.cookie-content h4{
+  font-family:var(--display);font-size:16px;font-weight:800;
+  color:var(--paper);letter-spacing:-.02em;margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.cookie-content h4::before{
+  content:"🍪";font-size:18px;
+}
+.cookie-content p{
+  font-size:13px;color:rgba(247,244,238,.78);
+  line-height:1.55;font-weight:400;
+}
+.cookie-content a{color:var(--pop);font-weight:600;border-bottom:1px solid var(--pop)}
+.cookie-content a:hover{color:var(--green-soft);border-color:var(--green-soft)}
+
+.cookie-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.cookie-btn{
+  padding:11px 18px;font-size:11px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;transition:.2s;border:1.5px solid transparent;
+}
+.cookie-btn-decline{
+  background:transparent;color:var(--paper);border-color:rgba(247,244,238,.3);
+}
+.cookie-btn-decline:hover{border-color:var(--paper);background:rgba(247,244,238,.05)}
+.cookie-btn-customize{
+  background:transparent;color:var(--pop);border-color:var(--pop);
+}
+.cookie-btn-customize:hover{background:var(--pop);color:var(--paper)}
+.cookie-btn-accept{
+  background:var(--green);color:var(--paper);border-color:var(--green);
+}
+.cookie-btn-accept:hover{background:var(--green-3)}
+.cookie-btn-save{
+  background:var(--pop);color:var(--paper);border-color:var(--pop);
+}
+.cookie-btn-save:hover{background:var(--pop-3)}
+
+/* Cookie preferences - granular */
+.cookie-prefs{
+  display:flex;flex-direction:column;gap:10px;margin-top:18px;
+  padding-top:16px;border-top:1px solid rgba(247,244,238,.15);
+}
+.cookie-pref{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:12px 14px;background:rgba(247,244,238,.06);
+  border:1px solid rgba(247,244,238,.1);
+  cursor:pointer;transition:.2s;
+}
+.cookie-pref:hover{background:rgba(247,244,238,.09);border-color:rgba(247,244,238,.2)}
+.cp-info{flex:1}
+.cp-info b{
+  display:block;font-family:var(--display);font-size:13px;font-weight:800;
+  color:var(--paper);letter-spacing:-.01em;margin-bottom:3px;
+}
+.cp-info span{font-size:11.5px;color:rgba(247,244,238,.65);line-height:1.4;font-weight:400}
+.cookie-pref input[type="checkbox"]{
+  width:38px;height:22px;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background:rgba(247,244,238,.15);border-radius:11px;
+  position:relative;transition:.25s;flex-shrink:0;
+}
+.cookie-pref input[type="checkbox"]::before{
+  content:"";position:absolute;width:18px;height:18px;border-radius:50%;
+  background:var(--paper);top:2px;right:2px;transition:.25s;
+}
+.cookie-pref input[type="checkbox"]:checked{background:var(--green)}
+.cookie-pref input[type="checkbox"]:checked::before{right:auto;left:2px}
+.cookie-pref input[type="checkbox"]:disabled{opacity:.5;cursor:not-allowed}
+
+/* Reopen cookie settings floating button */
+.cookie-reopen{
+  position:fixed;bottom:18px;right:22px;z-index:90;
+  background:var(--ink);color:var(--paper);padding:9px 14px;
+  font-size:11px;font-weight:600;letter-spacing:.08em;
+  border:1.5px solid var(--pop);transition:.2s;
+  display:none;align-items:center;gap:6px;
+  box-shadow:var(--s-3);
+}
+.cookie-reopen.show{display:inline-flex}
+.cookie-reopen:hover{background:var(--pop);transform:translateY(-2px)}
+
+/* ========== RESPONSIVE ========== */
+@media(max-width:920px){
+  .legal-grid{grid-template-columns:1fr;gap:40px}
+  .legal-toc{position:static;background:var(--paper);padding:20px;border:1px solid var(--line)}
+  .legal-body{padding:36px 24px}
+  .cookie-banner{padding:18px 20px;flex-direction:column;align-items:stretch;text-align:center}
+  .cookie-content h4{justify-content:center}
+  .cookie-actions{justify-content:center}
+}
+@media(max-width:560px){
+  .legal-body{padding:28px 18px}
+  .legal-body h2{font-size:20px}
+  .legal-body h3{font-size:15px}
+  .legal-body p,.legal-body ul li{font-size:13.5px}
+}
