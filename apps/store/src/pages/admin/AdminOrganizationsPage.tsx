@@ -558,8 +558,16 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 		<Modal.Backdrop isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
 			<Modal.Container>
 				<Modal.Dialog className="max-w-[780px] w-full">
-					<Modal.Header>
-						<Modal.Heading>{title}</Modal.Heading>
+					<Modal.Header className="flex items-center justify-between gap-3 bg-[var(--foreground)] text-white">
+						<Modal.Heading className="text-lg font-bold text-white">{title}</Modal.Heading>
+						<button
+							type="button"
+							onClick={onClose}
+							className="inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/20"
+						>
+							חזור
+							<span aria-hidden>→</span>
+						</button>
 					</Modal.Header>
 
 					{/* Tabs — only for edit mode */}
