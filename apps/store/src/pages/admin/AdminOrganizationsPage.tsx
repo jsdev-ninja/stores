@@ -555,10 +555,14 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 	}
 
 	return (
-		<Modal.Backdrop isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-			<Modal.Container>
-				<Modal.Dialog className="max-w-[780px] w-full">
-					<Modal.Header className="flex items-center justify-between gap-3 bg-[var(--foreground)] text-white">
+		<Modal.Backdrop
+			isOpen={isOpen}
+			onOpenChange={(open) => { if (!open) onClose(); }}
+			className="fixed inset-0 z-[100] grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
+		>
+			<Modal.Container placement="center" className="flex items-center justify-center">
+				<Modal.Dialog className="mx-auto flex max-h-[88vh] w-full max-w-[780px] flex-col overflow-hidden rounded-xl bg-[var(--background)] shadow-2xl">
+					<Modal.Header className="flex shrink-0 items-center justify-between gap-3 bg-[var(--foreground)] text-white">
 						<Modal.Heading className="text-lg font-bold text-white">{title}</Modal.Heading>
 						<button
 							type="button"
@@ -572,7 +576,7 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 
 					{/* Tabs — only for edit mode */}
 					{!isNew && (
-						<div className="flex items-center gap-1 border-b border-[var(--border)] px-5">
+						<div className="flex shrink-0 items-center gap-1 border-b border-[var(--border)] px-5">
 							{TABS.map((tabDef) => {
 								const active = tab === tabDef.key;
 								return (
@@ -606,7 +610,7 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 						</div>
 					)}
 
-					<Modal.Body>
+					<Modal.Body className="min-h-0 flex-1 overflow-y-auto">
 						{/* ── Details Tab ── */}
 						{(isNew || tab === "details") && (
 							<div className="grid grid-cols-2 gap-x-4 gap-y-4">
@@ -1217,7 +1221,7 @@ function CompanyModal({ state, onClose, onSaved }: CompanyModalProps) {
 						)}
 					</Modal.Body>
 
-					<Modal.Footer>
+					<Modal.Footer className="shrink-0">
 						{saveError && (
 							<span className="text-xs text-[var(--danger)] flex-1 text-start">
 								{saveError}
