@@ -1826,16 +1826,25 @@ export function AdminOrganizationDetailPage() {
       <Modal.Backdrop
         isOpen={isEditOrganizationModalOpen}
         onOpenChange={setIsEditOrganizationModalOpen}
+        className="fixed inset-0 z-[100] grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
       >
-        <Modal.Container>
-          <Modal.Dialog>
-            <Modal.Header>
-              <Modal.Heading>
+        <Modal.Container placement="center" className="flex items-center justify-center">
+          <Modal.Dialog className="mx-auto flex max-h-[88vh] w-full max-w-[640px] flex-col overflow-hidden rounded-xl bg-[var(--background)] shadow-2xl">
+            <Modal.Header className="flex shrink-0 items-center justify-between gap-3 bg-[var(--foreground)] text-white">
+              <Modal.Heading className="text-lg font-bold text-white">
                 {t("admin:organizationsPage.editOrganization")}
               </Modal.Heading>
+              <button
+                type="button"
+                onClick={() => setIsEditOrganizationModalOpen(false)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-white/10 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-white/20"
+              >
+                חזור
+                <span aria-hidden>→</span>
+              </button>
             </Modal.Header>
-            <Modal.Body>
-              <div className="flex flex-col gap-3">
+            <Modal.Body className="min-h-0 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-start">
                     {t("admin:organizationsPage.name")}
@@ -1980,7 +1989,7 @@ export function AdminOrganizationDetailPage() {
                 </div>
               </div>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className="shrink-0">
               <Button
                 variant="ghost"
                 onPress={() => setIsEditOrganizationModalOpen(false)}
