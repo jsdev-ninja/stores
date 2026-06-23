@@ -2042,10 +2042,21 @@ export function AdminOrganizationsPage() {
 														<Icon icon="lucide:camera" width={14} height={14} />
 													</button>
 
-													{/* Edit */}
+													{/* Orders / invoices / history — full company card */}
 													<button
 														type="button"
 														onClick={() => navigate({ to: "admin.organization", params: { id: org.id } })}
+														className="inline-flex items-center justify-center w-8 h-8 rounded border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--muted)] transition-colors"
+														title="הזמנות, חשבוניות והיסטוריה"
+														aria-label={`כרטיס חברה — ${org.name}`}
+													>
+														<Icon icon="lucide:list" width={14} height={14} />
+													</button>
+
+													{/* Edit — opens the 4-tab company modal (like the demo) */}
+													<button
+														type="button"
+														onClick={() => setCompanyModal({ kind: "open", org })}
 														className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--foreground)] hover:text-[var(--foreground)] transition-colors"
 													>
 														<Icon icon="lucide:pencil" width={12} height={12} />
