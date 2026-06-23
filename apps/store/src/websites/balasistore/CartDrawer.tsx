@@ -10,10 +10,10 @@
  * mutations via `appApi.user.*`). Returns null for non-Balasi stores.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getCartCost } from "@jsdev_ninja/core";
 import { Icon } from "src/components";
-import { useAppSelector } from "src/infra";
+import { useAppSelector, useStoreActions } from "src/infra";
 import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
@@ -34,7 +34,10 @@ const isBalasiStore = (id?: string) => id === "balasistore_store" || id === "tes
 export function BalasiCartButton() {
 	const store = useStore();
 	const cart = useCart();
-	const [open, setOpen] = useState(false);
+	// Drive the drawer from the global ui flag so every entry point — the AppBar
+	// button, the catalog buttons, and auto-open on add-to-cart — opens the same drawer.
+	const actions = useStoreActions();
+	const open = useAppSelector((state) => state.ui.isCartDrawerOpen);
 
 	if (!isBalasiStore(store?.id)) return null;
 
@@ -44,7 +47,7 @@ export function BalasiCartButton() {
 		<>
 			<button
 				type="button"
-				onClick={() => setOpen(true)}
+				onClick={() => actions.dispatch(actions.ui.openCartDrawer())}
 				aria-label="פתח את הסל"
 				className="inline-flex items-center gap-2.5 border-[1.5px] border-[var(--foreground)] bg-[var(--foreground)] px-[18px] py-[11px] text-[11px] font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:border-[var(--brand-secondary)] hover:bg-[var(--brand-secondary)]"
 			>
@@ -57,7 +60,7 @@ export function BalasiCartButton() {
 					{itemCount}
 				</span>
 			</button>
-			{open && <CartDrawerPanel onClose={() => setOpen(false)} />}
+			{open && <CartDrawerPanel onClose={() => actions.dispatch(actions.ui.closeCartDrawer())} />}
 		</>
 	);
 }
