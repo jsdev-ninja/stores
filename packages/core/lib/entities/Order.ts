@@ -79,6 +79,18 @@ export const OrderSchema = z.object({
 	invoice: InvoiceSchema.optional(),
 	ezInvoice: EzInvoiceSchema.optional(),
 	ezDeliveryNote: EzDeliveryNoteSchema.optional(),
+	/**
+	 * Set when an admin records a full payment against o.invoice / o.ezInvoice.
+	 * Epoch millis. Absent means no payment has been recorded via the admin payment flow.
+	 * A row is "open" iff: invoice exists AND invoicePaidAt is unset AND ezReceipt is unset.
+	 */
+	invoicePaidAt: z.number().int().positive().optional(),
+	/**
+	 * EZcount receipt stored after recording payment.
+	 * Mirrors EzInvoiceSchema shape (doc_uuid, pdf_link, doc_number, …).
+	 * Present only after a successful recordInvoicePayment call.
+	 */
+	ezReceipt: EzInvoiceSchema.optional(),
 	// Audit: who last changed the order + when (epoch millis). Stamped by admin writes.
 	updatedBy: z.string().optional(),
 	updatedAt: z.number().optional(),

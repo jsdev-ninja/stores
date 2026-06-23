@@ -1,15 +1,29 @@
 # Plan: budget + ledger redesign (stable, ledger-as-source-of-truth)
 
-**Status:** Phase 1 + reconciliation IMPLEMENTED (dual-write, additive, not yet deployed).
-Decision §9.1 resolved: **unified ledger** (`Transaction.kind: credit|debit`, accruals use `direction:"none"`).
-Remaining (not started): admin UI repoint + revenue report, backfill/cutover, retire legacy collections, fulfillment-aware `createDeliveryNote` rendering.
+:::danger §9.1 REVERSED
+**Decision §9.1 (unified ledger — AR accruals as `Transaction` rows with `kind: debit` /
+`direction: "none"`) has been REVERSED** by plan `docs/plans/ar-organization-balance.md`.
 
-**Implemented files:**
+The ledger is now **pure cash only** (four `type` values: `manual`, `hyp_direct`,
+`hyp_j5_auth`, `hyp_capture`; `direction: in | out` only). AR accruals and settlements
+live in the `documents` module's `organizationBalance` entry ledger. The fields `kind`,
+`direction: "none"`, and the transaction types `delivery_note` / `invoice` / `credit_note`
+/ `adjustment` have been removed from `ledger/types.ts`.
+
+Do not treat the "unified ledger" text below as current implementation.
+:::
+
+**Status (at reversal point):** Phase 1 + reconciliation IMPLEMENTED (dual-write, additive, not yet deployed).
+Decision §9.1 resolved at the time as: **unified ledger** (`Transaction.kind: credit|debit`, accruals use `direction:"none"`).
+This decision was subsequently reversed — see notice above.
+Remaining (not started at reversal): admin UI repoint + revenue report, backfill/cutover, retire legacy collections, fulfillment-aware `createDeliveryNote` rendering.
+
+**Implemented files (now superseded by ar-organization-balance refactor):**
 - `ledger/types.ts`, `ledger/services/postTransaction.ts`, `ledger/events.ts` — `kind` + debt types + `direction:"none"`.
-- `ledger/subscribers/postDebitOnDeliveryNoteCreated.ts` — debit on DN created (B2B, fulfilled amount).
-- `budget/services/applyLedgerProjection.ts` + `budget/subscribers/updateProjectionsOnTransactionPosted.ts` — orgBalances + revenueRollups projections.
-- `budget/services/reconcileProjections.ts` + `budget/api/reconcileBudgetProjections.ts` (admin callable) + `budget/triggers/reconcileProjectionsSchedule.ts` (nightly) — rebuild/backfill/parity/self-heal.
-- Tests: `applyLedgerProjection.test.ts` (7), `reconcileProjections.test.ts` (4).
+- `ledger/subscribers/postDebitOnDeliveryNoteCreated.ts` — debit on DN created (B2B, fulfilled amount). **DELETED.**
+- `budget/services/applyLedgerProjection.ts` + `budget/subscribers/updateProjectionsOnTransactionPosted.ts` — orgBalances + revenueRollups projections. **orgBalances removed; revenueRollups kept.**
+- `budget/services/reconcileProjections.ts` + `budget/api/reconcileBudgetProjections.ts` (admin callable) + `budget/triggers/reconcileProjectionsSchedule.ts` (nightly) — **revenue-only reconcile; orgBalances removed.**
+- Tests: `applyLedgerProjection.test.ts`, `reconcileProjections.test.ts` — **rewritten for revenue-only behavior.**
 
 ---
 

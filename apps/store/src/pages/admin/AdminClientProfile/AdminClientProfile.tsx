@@ -264,7 +264,7 @@ const ClientProfileForm = ({ profile, onSubmit, onRefresh }: ClientProfileFormPr
       organizationIds: profile.organizationIds,
       organizationId: profile.organizationId,
     }));
-  }, [profile.organizationIds, profile.organizationId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [profile.organizationIds, profile.organizationId]);
 
   const handleChange = (field: keyof TProfile, value: string | string[] | null) => {
     setFormData((prev) => ({
@@ -744,8 +744,14 @@ export default function AdminClientProfile() {
     }
   }
 
-  function removeProfile() {
-    // TODO: Implement profile removal logic
+  async function removeProfile() {
+    if (!clientId) return;
+    const result = await appApi.admin.deleteClient(clientId);
+    if (result?.success) {
+      navigate({ to: "admin.users" });
+    } else {
+      console.error("Failed to remove client:", result);
+    }
   }
 
   useEffect(() => {

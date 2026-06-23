@@ -7,6 +7,7 @@ import { Button } from "src/components/button";
 import { navigate } from "src/navigation";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
+import BalasiCartPage from "src/websites/balasistore/CartPage";
 
 function CartPage() {
 	const { t } = useTranslation(["common", "cart"]);
@@ -21,6 +22,11 @@ function CartPage() {
 
 	if (!store) {
 		return null;
+	}
+
+	// Balasi storefront gets a dedicated cart page in its own design language.
+	if (store.id === "balasistore_store" || store.id === "tester_store") {
+		return <BalasiCartPage />;
 	}
 
 	const cartCost = getCartCost({

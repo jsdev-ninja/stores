@@ -18,6 +18,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8765", "--directory", "/Users/philbro/workspace/@jsdev-store/migration-new-ui/balasi-all"],
       "port": 8765
+    },
+    {
+      "name": "balasi-demo",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "/Users/philbro/workspace/@jsdev-store/demo/balasi-store-site-2026-06-12"],
+      "port": 8766
     }
   ]
 }

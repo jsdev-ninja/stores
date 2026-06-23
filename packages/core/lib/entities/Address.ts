@@ -8,6 +8,7 @@ export const AddressSchema = z.object({
 	floor: z.string().optional(),
 	apartmentEnterNumber: z.string().optional(),
 	apartmentNumber: z.string().optional(),
+	zip: z.string().optional(),
 });
 
 export type TAddress = z.infer<typeof AddressSchema>;

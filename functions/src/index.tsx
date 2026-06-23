@@ -15,37 +15,39 @@ export const uiLogs = functionsV2.https.onCall((opts) => {
 export { chatbotApi } from "./modules/chatbot";
 export { appInit } from "./modules/application";
 export { getMixpanelData } from "./modules/analytics";
-export { createCompanyClient, migrateProfilesToMultiOrg } from "./modules/customers";
+export { createCompanyClient, deleteClient, migrateProfilesToMultiOrg } from "./modules/customers";
+// HYP payment flow (incl. legacy createPayment/chargeOrder/createPaymentRedirect/getPaymentRedirect)
+// now lives entirely in the ledger module and is re-exported here.
+export * from "./modules/ledger";
+// Documents module — delivery notes, invoices, and AR (organizationBalance)
 export {
-  chargeOrder,
-  createPayment,
-  createPaymentRedirect,
-  getPaymentRedirect,
-} from "./modules/payments";
-export {
-  postManualTransaction,
-  captureHypJ5,
-  createHypDirectPaymentLink,
-  createHypCheckoutPayment,
-  recordHypJ5Auth,
-  recordHypDirectPayment,
-  getPaymentLink,
-  postDebitOnDeliveryNoteCreated,
-} from "./modules/ledger";
-export { createDeliveryNote, createInvoice } from "./modules/documents";
+  createDeliveryNote,
+  createInvoice,
+  // AR subscribers
+  accrueOnDeliveryNoteCreated,
+  settleOnTransactionPosted,
+  // AR reconcile (admin callable + nightly schedule)
+  reconcileOrganizationBalanceCallable,
+  reconcileOrganizationBalanceSchedule,
+  // AR read (admin callable)
+  getOrganizationBalance,
+  // Invoice payment callables
+  getOpenInvoices,
+  recordInvoicePayment,
+} from "./modules/documents";
 export { onSupplierInvoiceCreate } from "./modules/suppliers";
 export { onContactFormSubmit, onLandingLeadCreated } from "./modules/notifications";
 export {
+  // Budget callables — getBudgetAccount/listBudgetAccounts/getBudgetTransactions
+  // are STUBBED pending admin UI repoint (task 9). Deployed names kept stable.
   getBudgetAccount,
   listBudgetAccounts,
   getBudgetTransactions,
   markOrderPaid,
   addBudgetManualTransaction,
-  increaseDebtOnOrderPlaced,
-  reduceDebtOnOrderCancelled,
-  reduceDebtOnOrderRefunded,
-  reduceDebtOnTransactionPosted,
+  // Revenue projection subscriber (cash only — AR removed)
   updateProjectionsOnTransactionPosted,
+  // Revenue reconcile callable + nightly schedule
   reconcileBudgetProjections,
   reconcileProjectionsSchedule,
 } from "./modules/budget";

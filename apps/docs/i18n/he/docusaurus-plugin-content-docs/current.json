@@ -1,0 +1,54 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Architecture": {
+    "message": "Architecture",
+    "description": "The label for category 'Architecture' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Architecture.link.generated-index.title": {
+    "message": "Architecture",
+    "description": "The generated-index page title for category 'Architecture' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Architecture.link.generated-index.description": {
+    "message": "Cross-cutting building blocks of the backend — how modules talk to each other, how data flows, how to reason about the system as a whole.",
+    "description": "The generated-index page description for category 'Architecture' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Modules": {
+    "message": "Modules",
+    "description": "The label for category 'Modules' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Modules.link.generated-index.title": {
+    "message": "Backend Modules",
+    "description": "The generated-index page title for category 'Modules' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Modules.link.generated-index.description": {
+    "message": "One page per module under functions/src/modules/{name} — purpose, owned data, public surface, and flows.",
+    "description": "The generated-index page description for category 'Modules' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Admin": {
+    "message": "Admin",
+    "description": "The label for category 'Admin' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Admin.link.generated-index.title": {
+    "message": "Admin",
+    "description": "The generated-index page title for category 'Admin' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Admin.link.generated-index.description": {
+    "message": "The store-owner-facing admin app — pages, flows, and conventions for the back-office UI.",
+    "description": "The generated-index page description for category 'Admin' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Pages": {
+    "message": "Pages",
+    "description": "The label for category 'Pages' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Pages.link.generated-index.title": {
+    "message": "Admin pages",
+    "description": "The generated-index page title for category 'Pages' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Pages.link.generated-index.description": {
+    "message": "Reference for each top-level page in the admin app — what it shows, where the data comes from, what actions it offers.",
+    "description": "The generated-index page description for category 'Pages' in sidebar 'tutorialSidebar'"
+  }
+}

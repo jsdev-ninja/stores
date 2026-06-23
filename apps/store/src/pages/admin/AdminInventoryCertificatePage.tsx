@@ -85,6 +85,11 @@ export function AdminInventoryCertificatePage() {
 	// Keyed by `${rowId}:${field}`. Cleared on blur so the display normalizes.
 	const [rawNumericInputs, setRawNumericInputs] = useState<Record<string, string>>({});
 
+	// SKUs that were looked up but NOT found in the system, keyed by rowId.
+	// Purely UI state (not persisted) — used to flag rows whose product needs to
+	// be created. Set after a SKU lookup misses, cleared when found / edited.
+	const [notFoundSkuRows, setNotFoundSkuRows] = useState<Record<string, boolean>>({});
+
 	// Load suppliers on mount
 	useEffect(() => {
 		const loadSuppliers = async () => {
@@ -200,6 +205,13 @@ export function AdminInventoryCertificatePage() {
 		try {
 			const response = await appApi.system.getProductById({ id: sku });
 			if (response?.success && response.data) {
+				// Product exists — clear any "not found" flag for this row.
+				setNotFoundSkuRows((prev) => {
+					if (!prev[rowId]) return prev;
+					const next = { ...prev };
+					delete next[rowId];
+					return next;
+				});
 				const product: TProduct = response.data;
 				setRows((prevRows) => {
 					return prevRows.map((row) => {
@@ -227,6 +239,21 @@ export function AdminInventoryCertificatePage() {
 						return row;
 					});
 				});
+			} else {
+				// Product not found in the system — flag the row so the user knows a
+				// new product needs to be created, and drop any stale originalProduct
+				// left over from a previously matched SKU on this row.
+				setNotFoundSkuRows((prev) => ({ ...prev, [rowId]: true }));
+				setRows((prevRows) =>
+					prevRows.map((row) => {
+						if (row.id === rowId && row.originalProduct) {
+							const rest = { ...row };
+							delete rest.originalProduct;
+							return rest;
+						}
+						return row;
+					})
+				);
 			}
 		} catch (error) {
 			console.error("Failed to load product by SKU:", error);
@@ -267,11 +294,20 @@ export function AdminInventoryCertificatePage() {
 			return updatedRows;
 		});
 
-		// If SKU field changed, debounce and load product
-		if (field === "sku" && value && value.trim() !== "") {
-			skuDebounceTimers.current[id] = setTimeout(() => {
-				loadProductBySku(id, value);
-			}, 1000);
+		// If SKU field changed, clear any stale "not found" flag (it will be
+		// re-evaluated by the lookup below) and debounce a fresh product lookup.
+		if (field === "sku") {
+			setNotFoundSkuRows((prev) => {
+				if (!prev[id]) return prev;
+				const next = { ...prev };
+				delete next[id];
+				return next;
+			});
+			if (value && value.trim() !== "") {
+				skuDebounceTimers.current[id] = setTimeout(() => {
+					loadProductBySku(id, value);
+				}, 1000);
+			}
 		}
 	};
 
@@ -329,6 +365,12 @@ export function AdminInventoryCertificatePage() {
 	};
 
 	const removeRow = (id: string) => {
+		setNotFoundSkuRows((prev) => {
+			if (!prev[id]) return prev;
+			const next = { ...prev };
+			delete next[id];
+			return next;
+		});
 		setRows((prevRows) => {
 			const filtered = prevRows.filter((row) => row.id !== id);
 			// Update row numbers
@@ -475,6 +517,21 @@ export function AdminInventoryCertificatePage() {
 			})
 			.filter((item): item is NonNullable<typeof item> => item !== null);
 	}, [supplierInvoice.rows]);
+
+	// Rows whose SKU was not found in the system — shown in the save modal as
+	// new products that will need to be created.
+	const productsNotInSystem = useMemo(() => {
+		return (supplierInvoice.rows || [])
+			.filter((row) => row.sku && notFoundSkuRows[row.id])
+			.map((row) => ({
+				id: row.id,
+				sku: row.sku,
+				itemName: row.itemName,
+				purchasePrice: row.purchasePrice,
+				price: row.price,
+				profitPercentage: row.profitPercentage,
+			}));
+	}, [supplierInvoice.rows, notFoundSkuRows]);
 
 	// Calculate totals for summary
 	const invoiceSummary = useMemo(() => {
@@ -793,15 +850,27 @@ export function AdminInventoryCertificatePage() {
 												<div className="text-[14px] px-2 min-w-[50px]">{row.rowNumber}</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
-												<Input
-													value={row.sku}
-													onChange={(e) => updateRow(row.id, "sku", e.target.value)}
-													onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
-													aria-label={`${t("common:sku")} ${t(
-														"common:inventoryCertificatePage.rowNumber"
-													)} ${row.rowNumber}`}
-													className="h-8 w-full bg-white text-[14px]"
-												/>
+												<div className="flex flex-col gap-0.5">
+													<Input
+														value={row.sku}
+														onChange={(e) => updateRow(row.id, "sku", e.target.value)}
+														onKeyDown={(e) => handleKeyDown(e, row.id, "sku")}
+														aria-label={`${t("common:sku")} ${t(
+															"common:inventoryCertificatePage.rowNumber"
+														)} ${row.rowNumber}`}
+														className={`h-8 w-full text-[14px] ${
+															notFoundSkuRows[row.id]
+																? "bg-red-50 ring-1 ring-red-400"
+																: "bg-white"
+														}`}
+													/>
+													{notFoundSkuRows[row.id] && (
+														<span className="flex items-center gap-1 text-[12px] text-red-600">
+															<Icon icon="lucide:alert-triangle" className="shrink-0" />
+															{t("common:inventoryCertificatePage.productNotInSystem")}
+														</span>
+													)}
+												</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
 												<Input
@@ -932,14 +1001,14 @@ export function AdminInventoryCertificatePage() {
 
 			{/* Save Confirmation Modal */}
 			<Modal.Backdrop isOpen={isSaveModalOpen} onOpenChange={setIsSaveModalOpen}>
-				<Modal.Container>
-					<Modal.Dialog>
+				<Modal.Container size="lg" scroll="inside" placement="center">
+					<Modal.Dialog className="max-h-[85vh] flex flex-col">
 						<Modal.Header>
 							<Modal.Heading>
 								{t("common:inventoryCertificatePage.saveModalTitle")}
 							</Modal.Heading>
 						</Modal.Header>
-						<Modal.Body>
+						<Modal.Body className="flex-1 min-h-0 overflow-y-auto">
 							<p className="text-gray-700 mb-4">
 								{t("common:inventoryCertificatePage.saveModalDescription")}
 							</p>
@@ -1018,6 +1087,62 @@ export function AdminInventoryCertificatePage() {
 								<p className="text-gray-500 text-center py-4">
 									{t("common:inventoryCertificatePage.noProductsToUpdate")}
 								</p>
+							)}
+
+							{/* Products not found in the system (will need to be created) */}
+							{productsNotInSystem.length > 0 && (
+								<div className="mt-4 mb-4">
+									<div className="flex items-center gap-1 text-red-600 font-medium mb-2">
+										<Icon icon="lucide:alert-triangle" className="shrink-0" />
+										{t("common:inventoryCertificatePage.newProductsTitle")}
+									</div>
+									<div className="overflow-x-auto">
+										<Table aria-label="New products table" className="shadow-none border border-red-300">
+											<Table.ScrollContainer>
+												<Table.Content>
+													<Table.Header>
+														<Table.Column isRowHeader className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:sku")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.itemName")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.purchasePriceIn")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.salesPriceFrom")}
+														</Table.Column>
+														<Table.Column className="text-[14px] leading-[22px] font-medium text-[#949CA9] bg-red-50 p-2 border-r border-red-200 last:border-r-0">
+															{t("common:inventoryCertificatePage.profitPercent")}
+														</Table.Column>
+													</Table.Header>
+													<Table.Body items={productsNotInSystem}>
+														{(item) => (
+															<Table.Row id={item.id}>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	<div className="font-medium">{item.sku}</div>
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	{item.itemName || "-"}
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	₪ {item.purchasePrice.toFixed(2)}
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	₪ {item.price.toFixed(2)}
+																</Table.Cell>
+																<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-red-200 last:border-r-0">
+																	{item.profitPercentage.toFixed(2)}%
+																</Table.Cell>
+															</Table.Row>
+														)}
+													</Table.Body>
+												</Table.Content>
+											</Table.ScrollContainer>
+										</Table>
+									</div>
+								</div>
 							)}
 							{/* Summary Section */}
 							<div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">

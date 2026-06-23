@@ -6,34 +6,31 @@ export const LedgerEventTypes = {
 
 // ---------------------------------------------------------------------------
 // ledger.transaction_posted
+// Emitted for every posted cash transaction (in or out).
+// AR accruals are no longer posted through this event.
 // ---------------------------------------------------------------------------
 
 export const TransactionPostedPayload = z.object({
 	transactionId: z.string().min(1),
-	/** credit = money in / owed-reduced; debit = owed-increased accrual. Defaults to credit for legacy events. */
-	kind: z.enum(["credit", "debit"]).default("credit"),
-	type: z.enum([
-		"manual",
-		"hyp_direct",
-		"hyp_j5_auth",
-		"hyp_capture",
-		"delivery_note",
-		"invoice",
-		"credit_note",
-		"adjustment",
-	]),
+	/** Narrows to the four real-money types. */
+	type: z.enum(["manual", "hyp_direct", "hyp_j5_auth", "hyp_capture"]),
 	/** Integer agorot */
 	amount: z.number().int().positive(),
-	direction: z.enum(["in", "out", "none"]),
+	/** in = money received, out = refund. */
+	direction: z.enum(["in", "out"]),
 	reference: z
 		.object({
-			type: z.enum(["order", "refund", "adjustment"]),
+			// "invoice" mirrors the TransactionSchema extension —
+			// subscribers filtering by reference.type will see this value.
+			type: z.enum(["order", "refund", "adjustment", "invoice"]),
 			id: z.string().min(1),
 		})
 		.optional(),
 	/**
-	 * Payer identity forwarded from the Transaction doc so budget subscribers
-	 * can identify which organization's debt to reduce without a second read.
+	 * Payer identity forwarded so settlement subscribers (documents module)
+	 * can identify which organization's AR to reduce without a second read.
+	 * Still present here; the documents settlement subscriber uses payer.organizationId
+	 * as a routing hint and re-reads the stored tx for authoritative values.
 	 */
 	payer: z
 		.object({

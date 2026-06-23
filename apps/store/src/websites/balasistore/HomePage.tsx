@@ -1,5 +1,5 @@
 import { useHomeProducts } from "./useHomeProducts";
-import WelcomeBack from "./sections/WelcomeBack";
+import { useFeaturedProducts } from "./useFeaturedProducts";
 import Hero from "./sections/Hero";
 import TrendingStrip from "./sections/TrendingStrip";
 import Bento from "./sections/Bento";
@@ -24,13 +24,12 @@ export default function BalasiHomePage() {
 	const { products } = useHomeProducts();
 
 	const heroProducts = products.slice(0, 3);
-	const trendingProducts = products.slice(0, 6);
+	const trendingProducts = useFeaturedProducts(products);
 	const featuredProducts = products.slice(0, 6);
 	const gridProducts = products.slice(0, 8);
 
 	return (
 		<div className="min-h-screen bg-[var(--background)]" dir="rtl">
-			<WelcomeBack />
 			<Hero products={heroProducts} />
 			<TrendingStrip products={trendingProducts} />
 			<Bento />

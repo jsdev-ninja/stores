@@ -15,8 +15,9 @@ const InputSchema = z
 	.optional();
 
 /**
- * Admin: rebuild orgBalances + revenueRollups for the caller's tenant from the
- * ledger. Serves as backfill, on-demand reconciliation, and parity check.
+ * Admin: rebuild revenueRollups for the caller's tenant from the cash ledger.
+ * Serves as on-demand reconciliation and parity check.
+ * AR reconciliation is handled by reconcileOrganizationBalance in the documents module.
  *
  * Auth: requires `admin` custom claim.
  * Tenant: companyId + storeId derived exclusively from auth token claims.

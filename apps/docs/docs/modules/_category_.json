@@ -1,0 +1,9 @@
+{
+  "label": "Modules",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "title": "Backend Modules",
+    "description": "One page per module under functions/src/modules/{name} — purpose, owned data, public surface, and flows."
+  }
+}

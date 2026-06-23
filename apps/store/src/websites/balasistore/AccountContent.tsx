@@ -55,6 +55,14 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 		navigate({ to, params } as Parameters<typeof navigate>[0]);
 	}
 
+	// Go to the storefront home and scroll to the FAQ section.
+	function openFaq() {
+		go("store");
+		setTimeout(() => {
+			document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+		}, 150);
+	}
+
 	// Orders placed in the current calendar month.
 	const now = new Date();
 	const ordersThisMonth = orders.filter((o) => {
@@ -81,8 +89,6 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 			setIsSaving(false);
 		}
 	}
-
-	if (!profile) return null;
 
 	return (
 		<div dir="rtl" className="bg-[var(--background)]">
@@ -134,42 +140,24 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 			</header>
 
 			<main className="mx-auto max-w-[900px] px-4 pb-10">
-				{/* ---- Stats --------------------------------------------------- */}
-				<section className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
-					<StatCard label="הזמנות החודש" value={ordersThisMonth} accent={GREEN} />
-					<StatCard label="מועדפים" value={favorites.length} accent={ORANGE} />
-					<StatCard label="סה״כ הזמנות" value={orders.length} accent={GREEN} />
-				</section>
-
-				{/* ---- Quick actions ------------------------------------------ */}
-				<section className="mt-10">
-					<h2 className="mb-4 text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
-						פעולות מהירות
-					</h2>
-					<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-						<QuickAction
-							icon="🛒"
-							title="הזמנה חדשה"
-							subtitle="גלשו בקטלוג והזמינו"
-							onClick={() => go("store.catalog")}
-						/>
-						<QuickAction
-							icon="📦"
-							title="ההזמנות שלי"
-							subtitle="מעקב והיסטוריה"
-							onClick={() => go("store.orders")}
-						/>
-						<QuickAction
-							icon="❤️"
-							title="המועדפים שלי"
-							subtitle="המוצרים שאהבתם"
+				{/* ---- Stats (segmented bar, like the original) --------------- */}
+				<section className="mt-6">
+					<div className="flex overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+						<Stat label="הזמנות החודש" value={ordersThisMonth} accent={GREEN} />
+						<span className="w-px self-stretch bg-[var(--border)]" aria-hidden />
+						<Stat
+							label="מועדפים"
+							value={favorites.length}
+							accent={ORANGE}
 							onClick={() => go("store.favoritesProducts")}
 						/>
+						<span className="w-px self-stretch bg-[var(--border)]" aria-hidden />
+						<Stat label="סה״כ הזמנות" value={orders.length} accent={GREEN} />
 					</div>
 				</section>
 
 				{/* ---- Previous orders ----------------------------------------- */}
-				<section className="mt-10">
+				<section className="mt-8">
 					<h2 className="mb-4 text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
 						הזמנות קודמות
 					</h2>
@@ -187,53 +175,115 @@ export default function AccountContent({ onClose }: { onClose?: () => void }) {
 					)}
 				</section>
 
-				{/* ---- Personal details (preserves edit functionality) -------- */}
-				<section className="mt-10">
-					<div className="mb-4 flex items-center justify-between">
-						<h2 className="text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
-							פרטים אישיים
-						</h2>
-						{!isEditing && (
-							<button
-								type="button"
-								onClick={() => setIsEditing(true)}
-								className="cursor-pointer text-[13px] font-bold underline"
-								style={{ color: GREEN }}
-							>
-								עריכת פרטים
-							</button>
-						)}
-					</div>
-
-					<div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-						{isEditing ? (
-							<ProfileForm
-								profile={profile}
-								onSave={handleSave}
-								onCancel={() => setIsEditing(false)}
-								isSaving={isSaving}
-							/>
-						) : (
-							<ProfileView profile={profile} />
-						)}
+				{/* ---- Quick actions (4, like the original) ------------------- */}
+				<section className="mt-8">
+					<h2 className="mb-4 text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
+						פעולות מהירות
+					</h2>
+					<div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+						<QuickAction
+							icon="🛒"
+							title="הזמנה חדשה"
+							subtitle="גלשו בקטלוג והזמינו"
+							onClick={() => go("store.catalog")}
+						/>
+						<QuickAction
+							icon="🎁"
+							title="חבילות מוכנות"
+							subtitle="חסכו זמן עם סלים מוכנים"
+							onClick={() => go("store.catalog")}
+						/>
+						<QuickAction
+							icon="❓"
+							title="שאלות נפוצות"
+							subtitle="תשובות לשאלות הכי שכיחות"
+							onClick={openFaq}
+						/>
+						<QuickAction
+							icon="💬"
+							title="צור קשר"
+							subtitle="שירות לקוחות בוואטסאפ"
+							onClick={() => window.open("https://wa.me/", "_blank")}
+						/>
 					</div>
 				</section>
+
+				{/* ---- Personal details (preserves edit functionality) -------- */}
+				{profile && (
+					<section className="mt-10">
+						<div className="mb-4 flex items-center justify-between">
+							<h2 className="text-[15px] font-extrabold tracking-[0.02em] text-[var(--foreground)]">
+								פרטים אישיים
+							</h2>
+							{!isEditing && (
+								<button
+									type="button"
+									onClick={() => setIsEditing(true)}
+									className="cursor-pointer text-[13px] font-bold underline"
+									style={{ color: GREEN }}
+								>
+									עריכת פרטים
+								</button>
+							)}
+						</div>
+
+						<div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
+							{isEditing ? (
+								<ProfileForm
+									profile={profile}
+									onSave={handleSave}
+									onCancel={() => setIsEditing(false)}
+									isSaving={isSaving}
+								/>
+							) : (
+								<ProfileView profile={profile} />
+							)}
+						</div>
+					</section>
+				)}
 			</main>
 		</div>
 	);
 }
 
-function StatCard({ label, value, accent }: { label: string; value: number; accent: string }) {
-	return (
-		<div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 text-center shadow-sm">
-			<div className="text-[32px] font-black leading-none" style={{ color: accent }}>
-				{value}
-			</div>
-			<div className="mt-2 text-[12px] font-semibold tracking-[0.02em] text-[var(--muted)]">
+function Stat({
+	label,
+	value,
+	accent,
+	onClick,
+}: {
+	label: string;
+	value: number;
+	accent: string;
+	onClick?: () => void;
+}) {
+	const content = (
+		<>
+			<div className="text-[12px] font-semibold tracking-[0.02em] text-[var(--muted)]">
 				{label}
 			</div>
-		</div>
+			<div className="mt-1.5 text-[28px] font-black leading-none" style={{ color: accent }}>
+				{value}
+			</div>
+		</>
 	);
+
+	if (onClick) {
+		return (
+			<button
+				type="button"
+				onClick={onClick}
+				className="flex-1 cursor-pointer px-2 py-4 text-center transition-colors hover:bg-[var(--default)]"
+			>
+				{content}
+				<div className="mt-1 text-[11px] font-semibold" style={{ color: accent }}>
+					צפייה ›
+				</div>
+			</button>
+		);
+	}
+
+	return <div className="flex-1 px-2 py-4 text-center">{content}</div>;
 }
 
 function QuickAction({

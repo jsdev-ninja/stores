@@ -4,10 +4,12 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { reconcileProjections } from "../services/reconcileProjections";
 
 /**
- * Nightly reconciliation: rebuilds orgBalances + revenueRollups for every store
- * from its ledger. This is the self-healing guarantee — a missed or duplicated
- * event can never cause lasting wrong numbers, because the projections are
- * recomputed from the source-of-truth ledger every night.
+ * Nightly reconciliation: rebuilds revenueRollups for every store from its
+ * cash ledger. This is the self-healing guarantee for revenue reporting — a
+ * missed or duplicated event can never cause lasting wrong numbers.
+ *
+ * AR reconciliation (organizationBalance rollups) runs separately via
+ * documents/triggers/reconcileOrganizationBalanceSchedule.ts.
  *
  * Runs best-effort per store: a failure on one store is logged and the run
  * continues with the rest.
@@ -26,7 +28,6 @@ export const reconcileProjectionsSchedule = onSchedule(
 
 		let ok = 0;
 		let failed = 0;
-		let driftedTotal = 0;
 
 		for (const storeDoc of storesSnap.docs) {
 			const storeId = storeDoc.id;
@@ -45,15 +46,12 @@ export const reconcileProjectionsSchedule = onSchedule(
 					apply: true,
 				});
 				ok++;
-				driftedTotal += report.driftedOrgs;
-				if (report.driftedOrgs > 0) {
-					logger.warn("budget.reconcileProjectionsSchedule: drift corrected", {
-						companyId,
-						storeId,
-						driftedOrgs: report.driftedOrgs,
-						transactionsScanned: report.transactionsScanned,
-					});
-				}
+				logger.info("budget.reconcileProjectionsSchedule: store done", {
+					companyId,
+					storeId,
+					transactionsScanned: report.transactionsScanned,
+					monthsComputed: report.months.length,
+				});
 			} catch (err: unknown) {
 				failed++;
 				logger.error("budget.reconcileProjectionsSchedule: store failed", {
@@ -68,7 +66,6 @@ export const reconcileProjectionsSchedule = onSchedule(
 			stores: storesSnap.size,
 			ok,
 			failed,
-			driftedTotal,
 		});
 	},
 );
