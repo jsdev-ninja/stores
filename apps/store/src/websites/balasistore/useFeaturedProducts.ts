@@ -2,7 +2,7 @@
  * Resolves the products shown in the home "מבחר השבוע" / trending strip.
  *
  * If the store owner has curated a list in the admin panel
- * ({companyId}/{storeId}/storeSettings/homeFeatured), those products are
+ * ({companyId}/{storeId}/settings/homeFeatured), those products are
  * fetched by id and shown in the chosen order. Otherwise — or if none of the
  * curated products are still published — it falls back to the first N of the
  * products already loaded for the home page. So the strip is never empty and
