@@ -43,13 +43,25 @@ Relevant current schema:
 **Option B.** Smallest change that is correct for multi-org users, no new entity, fully
 backwards-compatible (optional field; legacy profiles validate unchanged).
 
-## Open sub-questions for you
-1. Option A, B, or C?
-2. Who can set the default — the **customer** (in their account/profile screen) or **admin only**
-   (in the org/customer screen)? David hasn't specified the surface.
-3. On placement, precedence: **per-order choice > stored preference > org "main"** — agreed?
+## DECISIONS (Philip, 2026-06-23)
+1. **Schema — Option B.** `Profile.preferredBillingAccountByOrg?: Record<orgId, accountId>`.
+   Map keyed by org id → preferred account id; correct for multi-org, no new entity,
+   back-compat (optional). Must fall back to the org "main" if the stored account id no
+   longer exists.
+2. **Who can set it — both.** The customer (in their account/profile screen) **and** an
+   admin (in the org/customer screen).
+3. **Precedence — agreed:** per-order choice **>** stored preference **>** org "main".
+   A manual choice on the current order wins for that order only; it does NOT overwrite the
+   stored default.
 
-## Once you decide
-Reply with the option + answers and I can scope the small PRs:
-1 core PR (add the optional field + bump version + update both consumers), then 1 store PR
-(read preference as the checkout default + a UI to set it).
+## Scoping (now unblocked)
+1 core PR — add `Profile.preferredBillingAccountByOrg` (optional map) + bump
+`@jsdev_ninja/core` version + update both consumers (`apps/store`, `functions`).
+Then 1 store PR — read the preference as the checkout default (with the precedence above +
+graceful fallback) and add the set-default UI in **both** the customer profile screen and the
+admin org/customer screen.
+
+## Open sub-questions for you — RESOLVED above
+1. ~~Option A, B, or C?~~ → **B**
+2. ~~Who can set the default?~~ → **both** (customer + admin)
+3. ~~Precedence?~~ → **agreed** (per-order > stored > main)
