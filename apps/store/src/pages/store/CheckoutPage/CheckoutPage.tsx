@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
-import { AddressSchema, getCartCost, TOrder, TProfile } from "@jsdev_ninja/core";
+import { AddressSchema, getCartCost, TOrder, TOrganization, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { submitHypForm } from "src/lib/payment/submitHypForm";
@@ -42,6 +43,34 @@ const checkoutSchema = z.object({
 });
 
 type TCheckout = z.infer<typeof checkoutSchema>;
+
+/**
+ * Keeps the org-derived checkout fields in sync when the customer switches the
+ * active organization (the "מזמינים עבור" picker). react-hook-form reads
+ * `defaultValues` only once on mount, so without this the company name / ח.פ /
+ * name-on-invoice / billing account stay stuck on the previously selected org.
+ * Skips the first run — the initial population is handled by `defaultValues`.
+ */
+function SyncOrgFields({ organization }: { organization: TOrganization | null }) {
+	const { setValue } = useFormContext();
+	const orgId = organization?.id;
+	const isFirstRun = useRef(true);
+
+	useEffect(() => {
+		if (isFirstRun.current) {
+			isFirstRun.current = false;
+			return;
+		}
+		// On an explicit org switch, the selected company's own details win.
+		setValue("companyName", organization?.name ?? "");
+		setValue("companyNumber", organization?.companyNumber ?? "");
+		setValue("nameOnInvoice", organization?.nameOnInvoice ?? "");
+		setValue("billingAccountId", organization?.billingAccounts?.[0]?.id ?? "");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [orgId]);
+
+	return null;
+}
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout", "cart"]);
@@ -272,6 +301,7 @@ function CheckoutPage() {
 					}
 				}}
 			>
+				<SyncOrgFields organization={profileOrganization} />
 				{isBalasi ? (
 					<BalasiCheckoutLayout
 						t={t}
