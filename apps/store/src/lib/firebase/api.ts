@@ -1,6 +1,11 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "./app";
-import { TOrder, TNewProduct } from "@jsdev_ninja/core";
+import {
+	TOrder,
+	TNewProduct,
+	TOrganizationBalanceEntry,
+	TOrganizationBalanceRollup,
+} from "@jsdev_ninja/core";
 import { TCompany } from "src/domains/Company";
 import { CONFIG } from "src/config";
 
@@ -503,6 +508,28 @@ async function getOrganizationActions(organizationId: string, billingAccountId?:
 	return res.data as { success: boolean; data: TOrganizationAction[] };
 }
 
+/**
+ * Admin: AR rollup + entry ledger for one organization (customer ledger card).
+ * Read-only. Auth (admin claim) + tenant scope are enforced server-side.
+ * `rollup` is the O(1) balance cache; `entries` is the append-only debit/credit ledger.
+ */
+async function getOrganizationBalance(params: {
+	organizationId: string;
+	fromMillis?: number;
+	toMillis?: number;
+}) {
+	const func = httpsCallable(functions, "getOrganizationBalance");
+	const res = await func(params);
+	return res.data as {
+		success: boolean;
+		error?: string;
+		data?: {
+			rollup: TOrganizationBalanceRollup | null;
+			entries: TOrganizationBalanceEntry[];
+		};
+	};
+}
+
 async function createProduct(product: TNewProduct): Promise<CreateProductResult> {
 	try {
 		const func = httpsCallable(functions, "createProduct");
@@ -545,6 +572,7 @@ export const api = {
 	addBudgetManualTransaction,
 	postManualTransaction,
 	getOrganizationActions,
+	getOrganizationBalance,
 	createProduct,
 	getOpenInvoices,
 	recordInvoicePayment,
