@@ -627,6 +627,20 @@ export const useAppApi = () => {
       },
 
       /**
+       * Admin: AR rollup + entry ledger for one organization (customer ledger card).
+       * Read-only. Auth guard + tenant scope enforced server-side (admin custom claim).
+       */
+      getOrganizationBalance: async (params: {
+        organizationId: string;
+        fromMillis?: number;
+        toMillis?: number;
+      }) => {
+        if (!isValidAdmin) return;
+        const { api } = await import("src/lib/firebase/api");
+        return await api.getOrganizationBalance(params);
+      },
+
+      /**
        * Record a full payment against an open invoice.
        * Creates an EZcount receipt (doc_type 400) and marks the invoice paid on the order.
        * Partial payments are NOT supported — always pays the full invoice total.
