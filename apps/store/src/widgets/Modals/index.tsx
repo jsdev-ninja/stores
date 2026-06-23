@@ -15,7 +15,9 @@ import { SelectDateForDocumentModal } from "./SelectDateForDocumentModal";
 import { ConfirmModal } from "./ConfirmModal";
 import { AdminCreateOrderModal } from "./AdminCreateOrderModal";
 import { AccountModal } from "./AccountModal";
+import { RecordInvoicePaymentModal } from "./RecordInvoicePaymentModal";
 import { TOrder } from "@jsdev_ninja/core";
+import type { OpenInvoiceRow } from "src/lib/firebase/api";
 
 export const ModalsContainer = ({ children }: { children: ReactNode }) => {
 	return <AnimatePresence>{children}</AnimatePresence>;
@@ -79,6 +81,13 @@ export const modals = {
 	adminCreateOrder: ({ onOrderCreated }: { onOrderCreated?: (order: TOrder) => void }) => (
 		<AdminCreateOrderModal onOrderCreated={onOrderCreated} />
 	),
+	recordInvoicePayment: ({
+		row,
+		onPaymentRecorded,
+	}: {
+		row: OpenInvoiceRow;
+		onPaymentRecorded: (receipt: { doc_uuid: string; pdf_link: string; doc_number: string }) => void;
+	}) => <RecordInvoicePaymentModal row={row} onPaymentRecorded={onPaymentRecorded} />,
 	confirmModal: ({
 		title,
 		message,

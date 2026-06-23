@@ -7,6 +7,7 @@ import {
 	signInAnonymously,
 	EmailAuthProvider,
 	linkWithCredential,
+	sendPasswordResetEmail,
 } from "firebase/auth";
 import { app } from "./app";
 import { TUser, Token } from "src/types";
@@ -63,6 +64,16 @@ export const Auth = {
 		} catch (error) {
 			console.error("auth.logout", error);
 			return { success: false, user: null };
+		}
+	},
+	resetPassword: async (email: string) => {
+		try {
+			await sendPasswordResetEmail(auth, email);
+
+			return { success: true } as const;
+		} catch (error: any) {
+			console.error("auth.resetPassword", error);
+			return handleError(error);
 		}
 	},
 	signInAnonymously: async () => {

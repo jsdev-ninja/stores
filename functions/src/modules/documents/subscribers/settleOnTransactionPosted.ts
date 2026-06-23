@@ -18,10 +18,20 @@ import { settleDebt } from "../services/settleDebt";
 const RECEIVED_MONEY_TYPES = new Set(["hyp_capture", "hyp_direct", "manual"]);
 
 /**
+ * Reference types that can carry a B2B AR settlement.
+ *   - "order"   — classic HYP payment against an order
+ *   - "invoice" — manual payment recorded via recordInvoicePayment()
+ *
+ * Any future reference type added to this set is intentional — the comment
+ * documents WHY each type belongs here, preventing accidental additions.
+ */
+const SETTLED_REFERENCE_TYPES = new Set(["order", "invoice"]);
+
+/**
  * Subscribes to ledger.transaction_posted and reduces B2B org AR when:
  *   - type is one of: hyp_capture, hyp_direct, manual (money actually received)
  *   - direction is "in" (money received by the store)
- *   - reference.type is "order"
+ *   - reference.type is "order" OR "invoice"
  *   - payer.organizationId is present (B2B payment)
  *
  * Design decisions (locked):
@@ -29,7 +39,9 @@ const RECEIVED_MONEY_TYPES = new Set(["hyp_capture", "hyp_direct", "manual"]);
  *   money. The later hyp_capture will settle AR. Settling on the auth would cause
  *   double settlement and would settle before money is captured.
  * - Refund (direction:"out") does NOT touch AR — only direction:"in" settles.
- * - Invoice has NO AR effect — this subscriber acts only on cash transactions.
+ * - reference.type "order" — classic HYP payment flow.
+ * - reference.type "invoice" — manual payment recorded via recordInvoicePayment().
+ *   Both types represent real cash received and must reduce AR.
  *
  * Security:
  * - The event payload is used only as a ROUTING HINT (which transaction to read).
@@ -92,12 +104,14 @@ export const settleOnTransactionPosted = subscribe(
 			return;
 		}
 
-		// Guard: only order-referenced transactions (from stored doc).
-		if (storedTx.reference?.type !== "order") {
-			logger.info("documents.settleOnTransactionPosted: reference not 'order', skipping", {
+		// Guard: only order- or invoice-referenced transactions (from stored doc).
+		// "order" = classic HYP payment; "invoice" = manual payment via recordInvoicePayment().
+		if (!SETTLED_REFERENCE_TYPES.has(storedTx.reference?.type ?? "")) {
+			logger.info("documents.settleOnTransactionPosted: reference type not in allow-list, skipping", {
 				eventId,
 				transactionId: storedTx.id,
 				referenceType: storedTx.reference?.type ?? null,
+				allowedReferenceTypes: [...SETTLED_REFERENCE_TYPES],
 			});
 			return;
 		}

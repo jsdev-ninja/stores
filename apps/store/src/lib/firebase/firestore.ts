@@ -181,13 +181,16 @@ async function listV2<T>(data: {
 		operator: WhereFilterOp;
 	}>;
 	sort?: Array<{ name: NestedPaths<T>; value: "desc" | "asc" }>;
+	/** Override the default 150-document cap. Callers opt in explicitly; all
+	 *  existing call sites that omit this continue to receive at most 150 docs. */
+	limitCount?: number;
 }) {
 	try {
 		const filters = data.where ?? [];
 		const sort = data.sort ?? [];
 		const order = sort.map((s) => orderBy(s.name, s.value));
 		const wheres = filters.map((filter) => where(filter.name, filter.operator, filter.value));
-		const q = query(collection(db, data.collection), ...wheres, ...order, limit(150));
+		const q = query(collection(db, data.collection), ...wheres, ...order, limit(data.limitCount ?? 150));
 
 		const result: any[] = [];
 		const querySnapshot = await getDocs(q);

@@ -2,6 +2,7 @@ import { useState, ReactNode, Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@heroui/react";
 import { TOrder } from "@jsdev_ninja/core";
+import { isOrderFinal } from "src/domains/Order";
 import { Button } from "src/components/button";
 import { DateView } from "src/components/DateView";
 import { formatter } from "src/utils/formatter";
@@ -172,8 +173,9 @@ export function OrderDetailsModal({
 		// New flow: a pending order is approved in one step → completed.
 		// For "external" the onOrderUpdate trigger creates the delivery note;
 		// for "j5" approveOrder charges the J5 hold first. (See approveOrder.)
-		// Picking — only for a pending order that's ready to be fulfilled.
-		if (order.status === "pending") {
+		// Picking — fulfillment metadata, not a financial action. Allowed
+		// for any non-final order; the payment guard lives on Approve.
+		if (!isOrderFinal(order.status)) {
 			els.push(
 				<Button
 					key="picking"
@@ -507,9 +509,41 @@ export function OrderDetailsModal({
 							</tbody>
 						</table>
 
-						{/* Grand total — single line, matching demo viewOrder. */}
-						<div className="text-start text-[18px] font-black mt-3.5 text-[#1a1a17]">
-							{t("ordersPage:columns.sum", 'סה"כ')}: {formatter.price(order.cart.cartTotal)}
+						{/* Totals breakdown — items subtotal + VAT + delivery + grand total.
+						    cart.cartTotal already includes VAT + delivery (see getCartCost in core),
+						    so itemsSubtotal is back-derived for display. */}
+						<div className="mt-3.5 text-start space-y-0.5">
+							{(() => {
+								const total = order.cart.cartTotal ?? 0;
+								const vat = order.cart.cartVat ?? 0;
+								const delivery = order.cart.deliveryPrice ?? 0;
+								const itemsSubtotal = Number((total - vat - delivery).toFixed(2));
+								const hasBreakdown = vat > 0 || delivery > 0;
+								return (
+									<>
+										{hasBreakdown && (
+											<>
+												<div className="text-[14px] text-[#1a1a17]">
+													{t("ordersPage:orderDetails.totals.items", "פריטים")}: {formatter.price(itemsSubtotal)}
+												</div>
+												{vat > 0 && (
+													<div className="text-[14px] text-[#1a1a17]">
+														{t("ordersPage:orderDetails.totals.vat", 'מע"מ')}: {formatter.price(vat)}
+													</div>
+												)}
+												{delivery > 0 && (
+													<div className="text-[14px] text-[#1a1a17]">
+														{t("ordersPage:orderDetails.totals.delivery", "משלוח")}: {formatter.price(delivery)}
+													</div>
+												)}
+											</>
+										)}
+										<div className="text-[18px] font-black text-[#1a1a17] pt-1">
+											{t("ordersPage:columns.sum", 'סה"כ')}: {formatter.price(total)}
+										</div>
+									</>
+								);
+							})()}
 						</div>
 
 						{order.clientComment && (
@@ -533,6 +567,17 @@ export function OrderDetailsModal({
 						{paymentLinkUrl && (
 							<div className="bg-[#e3f2e8] p-3 text-[13px] text-start space-y-2">
 								<b>🔗 {t("ordersPage:paymentLink.created", "לינק לתשלום נוצר")}:</b>
+								<div className="text-[12px] text-[#1a1a17]">
+									{t("ordersPage:paymentLink.amount", "סכום החיוב")}: <b>{formatter.price(order.cart.cartTotal)}</b>
+									{(order.cart.deliveryPrice ?? 0) > 0 && (
+										<>
+											{" "}
+											<span className="text-[#5a5a55]">
+												({t("ordersPage:paymentLink.includesDelivery", "כולל משלוח")} {formatter.price(order.cart.deliveryPrice ?? 0)})
+											</span>
+										</>
+									)}
+								</div>
 								<div className="flex items-center gap-2">
 									<input
 										readOnly

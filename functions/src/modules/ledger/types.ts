@@ -27,7 +27,9 @@ export const TransactionSchema = z.object({
   direction: z.enum(["in", "out"]),
   reference: z
     .object({
-      type: z.enum(["order", "refund", "adjustment"]),
+      // "invoice" added to support recording payments against a specific invoice
+      // (rather than the order as a whole). The invoice uuid is stored in `id`.
+      type: z.enum(["order", "refund", "adjustment", "invoice"]),
       id: z.string().min(1),
     })
     .optional(),

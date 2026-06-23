@@ -32,7 +32,13 @@ const loginSchema = z.object({
 
 type TLoginForm = z.infer<typeof loginSchema>;
 
-export const LoginForm = ({ changeForm }: { changeForm: () => void }) => {
+export const LoginForm = ({
+	changeForm,
+	onForgotPassword,
+}: {
+	changeForm: () => void;
+	onForgotPassword: () => void;
+}) => {
 	const formRef = React.useRef<HTMLDivElement>(null);
 
 	const actions = useStoreActions();
@@ -106,6 +112,14 @@ export const LoginForm = ({ changeForm }: { changeForm: () => void }) => {
 
 							<div className="my-4">
 								<Form.GlobalError />
+							</div>
+							<div className="-mt-2 text-end">
+								<Link
+									onPress={onForgotPassword}
+									className="text-sm text-primary hover:underline cursor-pointer"
+								>
+									{t("auth:form.forgotPassword.link")}
+								</Link>
 							</div>
 							<div className="mt-auto">
 								<Form.Submit fullWidth>כניסה</Form.Submit>

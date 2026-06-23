@@ -32,6 +32,59 @@ BUGS (from structure audit)
 - **Remediation owed for `XFhPL8sdzIHmPExbQrYJ`:** refund/cancel the duplicate HYP charge `439673450` (36.82₪; same-day → `CancelTrans` before settlement avoids the fee), then correct the order to `status: completed` / `paymentStatus: completed` (`lastPaymentTransactionId: hyp_439660424`). Money: 1 real sale 36.82, 1 erroneous duplicate 36.82 to reverse.
 - `createCompany.ts:28` writes to collection `"profile"` (singular). Everywhere else is `"profiles"`. Unify to `"profiles"`. Check for existing docs under `profile/` before renaming.
 - `organizations/{orgId}/actions` is top-level (no company/store prefix). Should be `{companyId}/{storeId}/organizations/{orgId}/actions` so rules can enforce store isolation. Currently any store could read another store's org actions if it guessed the orgId.
+- **🟡 `postManualTransaction` lacks tenant-ownership check for `reference.type === "order"`.** The `"invoice"` branch was secured during the customer-debts/recordInvoicePayment work (`functions/src/modules/ledger/api/postManualTransaction.ts` — `verifyInvoiceBelongsToTenant`), but the older `"order"` branch still trusts the client-supplied `reference.id` without verifying the referenced order belongs to the caller's `companyId`/`storeId`. Theoretical IDOR — an admin who knows another store's order id could post a manual transaction against it. Low practical risk (requires guessing or harvesting an order id from another tenant + admin claim) but real. Fix: add `verifyOrderBelongsToTenant(orderId, companyId, storeId)` mirroring the invoice check, before posting. Deferred from the customer-debts iteration to keep scope tight.
+
+## Refactor: drop `status: "draft"` from new orders
+
+**Goal:** checkout should create orders with `status: "pending"` instead of `"draft"`. The `paymentStatus` field already carries the "paid / not paid" signal — `status` should be the fulfillment lifecycle, not the payment state. Today the two are entangled (a `draft` order = "not paid yet"), which is what we're untangling.
+
+**Why deferred:** can't be done as a 1-line change. Multiple downstream consumers gate behavior on `status === "draft"` and will misbehave if checkout creates `pending` while the rest still expects `draft`. Confirmed during research session.
+
+**Required changes (don't ship piecemeal):**
+
+1. `apps/store/src/pages/store/CheckoutPage/CheckoutPage.tsx:193` — change `status: "draft"` → `status: "pending"`
+2. `apps/store/src/widgets/Modals/OrderDetailsModal.tsx:217` — **Approve** button currently shows for any `status === "pending"`. After the change, unpaid orders are also pending, so add `paymentStatus === "completed"` (or whatever the paid state is) to the gate, otherwise admins can approve unpaid orders → delivery note → accrued AR for goods the customer never paid for.
+3. `apps/store/src/widgets/Modals/OrderDetailsModal.tsx:232` — **Create payment link** button currently gates on `status === "draft"`. Switch to `paymentStatus === "pending"` so the link can still be sent to a customer who placed an order but didn't finish paying.
+4. `apps/store/src/widgets/Modals/OrderDetailsModal.tsx:194-198` — **Edit** button check `status === "pending" || status === "draft"` simplifies to `status === "pending"` (still covers both cases since drafts won't exist for new orders).
+5. `functions/src/modules/orders/subscribers/markOrderPaidOnTransactionPosted.ts:167` — `promoteDraft` branch becomes dead for new orders but **keep it** to migrate historical draft orders that come in via payment. Add a comment that it's a legacy-data migration path.
+6. `apps/store/src/pages/admin/Orders/AdminOrdersPage.tsx:63,67` + `apps/store/src/pages/admin/AdminHomePage/index.tsx:29` — `ACTIVE_STATUSES` includes `"draft"`. Keep it to surface historical drafts; once they're all migrated, remove `"draft"` and clean up the schema enum too.
+7. `apps/store/src/domains/Order/index.ts:26` — filter `status == "draft" && paymentStatus === "pending"` — re-think; probably becomes `paymentStatus === "pending"` alone.
+
+**Historical `draft` orders in production:**
+- Do NOT backfill — leave them as `draft`. The promote-on-payment logic in step 5 handles them naturally if they ever get paid. The Edit / Create-payment-link buttons still work because their guards include `draft`.
+- Eventually (months later, after the population is small) consider a one-shot backfill + drop `"draft"` from the `OrderSchema` enum.
+
+**Scope NOT touched:**
+- `cart.status` — has its own `"active" | "draft" | "completed"` enum, different concept (a cart in the middle of editing vs a placed order)
+- `SupplierInvoice.status` — `"draft" | "completed"` is the supplier-invoice WIP/finalized state, unrelated to orders
+- Schema enum on `OrderSchema.status` — keep `"draft"` in the union for historical reads
+
+## Auth & tenant docs — open questions to confirm
+
+The `apps/docs/docs/architecture/auth.md` page was written based on code reading; the following claims need owner confirmation before the doc can be marked authoritative:
+
+1. **Customer tenant resolution.** Doc claims that for customer-facing callables (e.g. `recordHypDirectPayment`), the backend derives `companyId`/`storeId` from the entity (e.g. the order doc) rather than from `request.data` or token claims (customers have none). Confirm this is the canonical pattern; flag any customer-facing endpoints that still accept `companyId`/`storeId` in the payload.
+2. **Anonymous → email signup.** Doc claims `linkWithCredential` preserves the `uid` and therefore the cart. Confirm whether the `tenantId` binding is also preserved automatically, or whether re-binding is needed after linking. Any known edge cases.
+3. **One-store-per-admin.** Doc claims admins are scoped to exactly one `(companyId, storeId)` because custom claims hold a single tuple, and cross-store access requires a second user under that store's Firebase tenant. Confirm this is intentional, not a TODO.
+4. **Roles beyond `admin: true`.** Doc lists only the binary admin flag. Confirm there are no other roles in use (manager, viewer, owner, support) today, and whether any are planned.
+5. **"VERIFY-gated" as a third auth category.** Doc classifies `recordHypJ5Auth`/`recordHypDirectPayment` as a category distinct from admin-only and customer-owned-entity, because the integrity check is the HYP VERIFY round-trip, not a token claim or strict entity ownership. Confirm the framing is right, or whether they should be folded into "customer-owned-entity with an extra integrity check."
+6. **Admin `TProfile` document.** Doc is silent on whether admin users get a `TProfile` doc at `{companyId}/{storeId}/profiles/{uid}` like customers do, or whether admins exist only as Firebase Auth accounts within the store's tenant. Confirm and add to the doc.
+
+Update `apps/docs/docs/architecture/auth.md` once answers are in.
+
+## Partial payments on invoices (deferred)
+
+The Customer Debts page (`recordInvoicePayment`) currently supports a **single full payment** per invoice only — the amount is locked to the invoice total. The demo (`demo/balasi-store-site-2026-06-12`) supports partial payments: a customer pays ₪200 of a ₪545 invoice, balance ₪345, status `חלקי` (partial), and can pay the rest later.
+
+To support partial payments we need:
+- Track `paidAmount` accrued on the invoice (or derive it from the sum of ledger transactions referencing that invoiceUuid — append-only, more correct than a mutable field). Decision needed: derived vs stored.
+- `recordInvoicePayment` accepts an `amount` param (≤ outstanding), instead of forcing the full total. Validate `0 < amount ≤ outstanding`.
+- The receipt (EZcount RECEIPT 400) reflects the partial amount paid, not the invoice total.
+- Invoice "is paid" signal becomes `paidAmount >= invoiceTotal` rather than `invoicePaidAt` presence. The `getOpenInvoices` filter changes accordingly (outstanding > 0).
+- A 4-state status: `שולם` (paid) / `חלקי` (partial) / `פתוח` (open) / (optionally `באיחור` if due-date work lands). Demo's `invoiceStatusPill` (admin.js:7229) is the reference.
+- UI: the RecordInvoicePaymentModal unlocks the amount field (currently disabled), defaults to outstanding, shows "שולם עד כה" / "יתרה" live.
+
+Deferred by explicit owner decision to keep the first iteration simple. Revisit after the invoices-list + bulk-billing work lands.
 
 EVENT BUS FOLLOWUPS
 
