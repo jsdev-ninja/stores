@@ -1732,6 +1732,39 @@ export const useAppApi = () => {
           },
         });
       },
+      // Home page "featured products" strip — owner-curated product ids.
+      // Stored tenant-scoped so the storefront can read it client-side.
+      getFeaturedProducts: async () => {
+        if (!isValidAdmin || !companyId || !storeId)
+          return { success: false as const, data: null };
+        return FirebaseApi.firestore.getV2<{
+          productIds: string[];
+          updatedAt: number;
+        }>({
+          collection: FirebaseAPI.firestore.getPath({
+            companyId,
+            storeId,
+            collectionName: "settings",
+          }),
+          id: "homeFeatured",
+        });
+      },
+      updateFeaturedProducts: async (productIds: string[]) => {
+        if (!isValidAdmin || !companyId || !storeId)
+          return { success: false as const };
+        return FirebaseApi.firestore.setV2({
+          collection: FirebaseAPI.firestore.getPath({
+            companyId,
+            storeId,
+            collectionName: "settings",
+          }),
+          doc: {
+            id: "homeFeatured",
+            productIds: productIds.slice(0, 6),
+            updatedAt: Date.now(),
+          },
+        });
+      },
     },
     system: {
       getDiscounts: async () => {
