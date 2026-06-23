@@ -90,9 +90,16 @@ client**, not by new accounting logic.
 
 ## Recommended split
 
-- **Phase 1 (low risk, mostly client):** wire `getOrganizationBalance` → summary box +
-  unified debit/credit table + real tab counts + per-account filter. This alone makes
-  the ledger look ~like the demo and is read-only (no money mutation).
+- **Phase 1a — DONE (read-only):** `getOrganizationBalance` is now wired into the client
+  (`api.getOrganizationBalance` → `appApi.admin.getOrganizationBalance`). `LedgerModal`
+  loads the rollup + entries on open and renders the **summary box** (`סך חשבוניות` =
+  `totalAccrued`, `סך תשלומים` = `totalSettled`, `יתרה לתשלום` = `owed`). For "כל החשבונות"
+  it uses the authoritative O(1) rollup; for a single account it derives the totals from
+  that account's entries (`billingAccountId`). No money mutation.
+- **Phase 1b — TODO (read-only, still safe):** render the unified debit/credit entry table
+  (type badge, account, date, חיוב/זיכוי) and the real `חשבוניות / קבלות / זיכויים` tab
+  counts from `entries`. Touches how AR `source`/`kind` map to the demo's tabs — small
+  accounting-display decision.
 - **Phase 2 (needs accounting decisions):** the `+ קבלה` / `+ זיכוי` create buttons and
   whether credit notes become real documents.
 
