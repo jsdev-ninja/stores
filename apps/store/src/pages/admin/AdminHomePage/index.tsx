@@ -249,14 +249,18 @@ function AdminHomePage() {
 			if (!o.organizationId) continue;
 			if (o.status === "cancelled") continue;
 			if ((o.date ?? 0) < monthCutoff) continue;
-			const companyName = (o.companyName ?? o.client?.companyName ?? "").trim();
+			const companyName = (o.companyName ?? o.client?.companyName ?? "")
+				.trim()
+				.replace(/\s+/g, " ");
 			const taxId = (o.companyNumber ?? "").replace(/\D/g, "");
-			// Group a customer by ח.פ when present, otherwise by company name — so the
-			// same company isn't split into separate rows by stale internal org ids.
-			const key = taxId
-				? `tax:${taxId}`
-				: companyName
-					? `name:${companyName.toLowerCase()}`
+			// Group a customer by company name first, falling back to ח.פ then org id.
+			// Orders placed before the checkout org-switch fix can carry stale/mismatched
+			// company numbers for the same customer, so grouping by ח.פ alone still split
+			// one company (e.g. קוניפורס) into two rows. Same name = same customer here.
+			const key = companyName
+				? `name:${companyName.toLowerCase()}`
+				: taxId
+					? `tax:${taxId}`
 					: `org:${o.organizationId}`;
 			const name = companyName || (o.client?.displayName ?? "").trim() || o.organizationId;
 			const existing = revenueByCustomer.get(key);
