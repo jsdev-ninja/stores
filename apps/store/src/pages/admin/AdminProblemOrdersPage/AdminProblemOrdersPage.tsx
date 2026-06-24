@@ -6,6 +6,7 @@ import { useAppApi } from "src/appApi";
 import { DateView } from "src/components/DateView";
 import { Price } from "src/components/Price";
 import { TOrder } from "src/domains/Order";
+import { TOrganization } from "@jsdev_ninja/core";
 import { modalApi } from "src/infra/modals";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -145,9 +146,16 @@ function AdminProblemOrdersPage() {
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 
+	// Organization list for customer-cell display
+	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
+
 	// Cancel-order dialog state — one nullable ID covers both "is cancelling" and "which one"
 	const [orderToCancel, setOrderToCancel] = useState<TOrder | null>(null);
 	const [isCancelling, setIsCancelling] = useState(false);
+
+	// Complete-order dialog state
+	const [orderToComplete, setOrderToComplete] = useState<TOrder | null>(null);
+	const [isCompleting, setIsCompleting] = useState(false);
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -156,6 +164,12 @@ function AdminProblemOrdersPage() {
 			setIsLoading(false);
 		});
 	}, []);
+
+	useEffect(() => {
+		appApi.admin.listOrganizations().then((result) => {
+			if (result?.success) setOrganizations((result.data || []) as TOrganization[]);
+		});
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps -- appApi stable
 
 	const { nonCancelledOrders, problemOrders } = useMemo(() => {
 		const { nonCancelled, problems } = classifyOrders(allOrders);
@@ -180,6 +194,12 @@ function AdminProblemOrdersPage() {
 		}),
 		[nonCancelledOrders, problemOrders]
 	);
+
+	const orgNameById = useMemo(() => {
+		const map = new Map<string, string>();
+		organizations.forEach((o) => map.set(o.id, o.name));
+		return map;
+	}, [organizations]);
 
 	const filtered = useMemo(() => {
 		let list = problemOrders;
@@ -229,6 +249,26 @@ function AdminProblemOrdersPage() {
 		setOrderToCancel(null);
 	}, [isCancelling]);
 
+	// ─── Complete order flow ─────────────────────────────────────────────────
+
+	const handleCompleteConfirm = useCallback(async () => {
+		if (!orderToComplete) return;
+		setIsCompleting(true);
+		const res = await appApi.admin.orderPaid({ order: orderToComplete });
+		setIsCompleting(false);
+		if (res?.success) {
+			setAllOrders((prev) =>
+				prev.map((o) => (o.id === orderToComplete.id ? { ...o, status: "completed" as const } : o))
+			);
+		}
+		setOrderToComplete(null);
+	}, [appApi.admin, orderToComplete]);
+
+	const handleCompleteDismiss = useCallback(() => {
+		if (isCompleting) return;
+		setOrderToComplete(null);
+	}, [isCompleting]);
+
 	// ─── Cell renderer ───────────────────────────────────────────────────────
 
 	const renderCell = useCallback(
@@ -242,7 +282,14 @@ function AdminProblemOrdersPage() {
 					);
 				case "customer": {
 					const name = order.client?.displayName ?? order.nameOnInvoice ?? "—";
-					return <span className="text-sm text-[var(--foreground)]">{name}</span>;
+					const orgName =
+						(order.organizationId && orgNameById.get(order.organizationId)) || order.companyName || null;
+					return (
+						<div className="flex flex-col">
+							<span className="text-sm text-[var(--foreground)]">{name}</span>
+							{orgName && <span className="text-xs text-[var(--muted)]">{orgName}</span>}
+						</div>
+					);
 				}
 				case "status":
 					return (
@@ -332,8 +379,28 @@ function AdminProblemOrdersPage() {
 					);
 				case "actions": {
 					const isCancellable = order.status !== "cancelled" && order.status !== "refunded";
+					const isCompletable =
+						order.status !== "completed" && order.status !== "cancelled" && order.status !== "refunded";
 					return (
 						<div className="flex items-center gap-1">
+							<Button
+								size="sm"
+								variant="ghost"
+								isDisabled={!isCompletable}
+								onPress={() => {
+									if (isCompletable) setOrderToComplete(order);
+								}}
+								onClick={(e: React.MouseEvent) => e.stopPropagation()}
+								aria-label={t("problemOrdersPage:actions.markCompleted")}
+							>
+								<Icon
+									icon="lucide:circle-check"
+									width={15}
+									height={15}
+									className={isCompletable ? "text-[var(--success)]" : "text-[var(--muted)]"}
+								/>
+								{t("problemOrdersPage:actions.markCompleted")}
+							</Button>
 							<Button
 								size="sm"
 								variant="ghost"
@@ -361,7 +428,7 @@ function AdminProblemOrdersPage() {
 					return null;
 			}
 		},
-		[t]
+		[t, orgNameById]
 	);
 
 	const FILTER_CHIPS: { key: FilterKey; label: string }[] = [
@@ -593,6 +660,30 @@ function AdminProblemOrdersPage() {
 								{isCancelling
 									? t("problemOrdersPage:actions.cancelling")
 									: t("problemOrdersPage:actions.cancelOrder")}
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal.Backdrop>
+
+			{/* Mark as completed confirmation modal */}
+			<Modal.Backdrop isOpen={orderToComplete !== null} onOpenChange={handleCompleteDismiss}>
+				<Modal.Container>
+					<Modal.Dialog>
+						<Modal.Header>
+							<Modal.Heading>{t("problemOrdersPage:confirmComplete.title")}</Modal.Heading>
+						</Modal.Header>
+						<Modal.Body>
+							<p>{t("problemOrdersPage:confirmComplete.message")}</p>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="ghost" isDisabled={isCompleting} onPress={handleCompleteDismiss}>
+								{t("common:cancel")}
+							</Button>
+							<Button variant="primary" isDisabled={isCompleting} onPress={handleCompleteConfirm}>
+								{isCompleting
+									? t("problemOrdersPage:actions.completing")
+									: t("problemOrdersPage:actions.markCompleted")}
 							</Button>
 						</Modal.Footer>
 					</Modal.Dialog>

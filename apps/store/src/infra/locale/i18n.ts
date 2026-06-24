@@ -638,11 +638,17 @@ export const resources = {
 				refresh: "רענן",
 				cancelOrder: "ביטול הזמנה",
 				cancelling: "מבטל...",
+				markCompleted: "סמן כהושלם",
+				completing: "מסמן...",
 			},
 			confirmCancel: {
 				title: "ביטול הזמנה",
 				message: "האם אתה בטוח שברצונך לבטל את ההזמנה הזו?",
 				paidWarning: "שים לב: עבור הזמנות שחויבו (J5 או חיצוני) ביטול זה אינו מבטל את אמצעי התשלום ואינו מחזיר ערכים בספרי החשבונות.",
+			},
+			confirmComplete: {
+				title: "סימון הזמנה כהושלמה",
+				message: "האם אתה בטוח שברצונך לסמן את ההזמנה הזו כהושלמה?",
 			},
 			pagination: {
 				showing: "מציג {{start}} עד {{end}} פריטים",

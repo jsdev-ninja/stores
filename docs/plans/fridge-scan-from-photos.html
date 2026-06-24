@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Build My Order From Fridge Photos — Feature Plan</title>
+  <title>Storage-Place Inventory From Photos (B2B) — Feature Plan</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,7 +16,7 @@
     }
 
     nav {
-      width: 224px;
+      width: 232px;
       min-height: 100vh;
       background: #0f172a;
       color: #94a3b8;
@@ -33,7 +33,7 @@
     nav a { display: block; padding: 7px 20px; font-size: 12.5px; color: #64748b; text-decoration: none; transition: all 0.12s; border-left: 2px solid transparent; }
     nav a:hover { color: #e2e8f0; background: #1e293b; border-left-color: #3b82f6; }
 
-    main { margin-left: 224px; flex: 1; padding: 44px 52px 80px; min-width: 0; }
+    main { margin-left: 232px; flex: 1; padding: 44px 52px 80px; min-width: 0; }
     header { margin-bottom: 36px; }
     .meta-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
     .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -41,6 +41,7 @@
     .badge-approved { background: #dcfce7; color: #166534; }
     .badge-progress { background: #dbeafe; color: #1e40af; }
     .badge-blocked { background: #fee2e2; color: #991b1b; }
+    .badge-pivot { background: #ede9fe; color: #6d28d9; }
     header h1 { font-size: 26px; font-weight: 700; color: #0f172a; line-height: 1.25; }
     header .subtitle { font-size: 14.5px; color: #64748b; margin-top: 6px; }
     .header-stats { display: flex; gap: 28px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; }
@@ -93,6 +94,7 @@
     .task-title { font-size: 13.5px; font-weight: 500; color: #1e293b; }
     .task-detail { font-size: 12px; color: #64748b; margin-top: 3px; line-height: 1.5; }
     .task-tag { display: inline-block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 6px; border-radius: 4px; background: #e0e7ff; color: #4338ca; margin-left: 6px; }
+    .task-tag.later { background: #f1f5f9; color: #64748b; }
 
     .dep-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .dep-card { padding: 13px 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
@@ -111,11 +113,22 @@
     .breaking-item { padding: 14px 16px; background: #fff; border-radius: 7px; border-left: 3px solid #f97316; margin-bottom: 12px; }
     .breaking-item:last-child { margin-bottom: 0; }
 
+    .spike-section { background: #f5f3ff; border-color: #ddd6fe; }
+    .spike-section h2 { color: #6d28d9; border-color: #ede9fe; }
+    .spike-item { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid #f1f5f9; }
+    .spike-item:last-child { border-bottom: none; }
+    .spike-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; min-width: 30px; text-align: center; }
+    .spike-pass { background: #dcfce7; color: #166534; }
+    .spike-warn { background: #fef3c7; color: #92400e; }
+    .spike-fail { background: #fee2e2; color: #991b1b; }
+    .spike-item p { font-size: 13.5px; }
+
     .build-step { display: flex; gap: 14px; align-items: flex-start; padding: 13px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
     .build-num { width: 26px; height: 26px; border-radius: 50%; background: #0f172a; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .build-step .title { font-size: 14px; font-weight: 600; color: #1e293b; }
     .build-step .detail { font-size: 12.5px; color: #64748b; margin-top: 3px; line-height: 1.5; }
     .ship { display: inline-block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 7px; border-radius: 4px; background: #dcfce7; color: #166534; margin-left: 6px; }
+    .later-tag { display: inline-block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 7px; border-radius: 4px; background: #f1f5f9; color: #64748b; margin-left: 6px; }
 
     .fanout-item { padding: 14px 16px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #6366f1; margin-bottom: 12px; }
     .fanout-item:last-child { margin-bottom: 0; }
@@ -135,6 +148,10 @@
     .none { color: #94a3b8; font-size: 13.5px; font-style: italic; }
     .callout { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 12px 16px; border-radius: 6px; margin: 14px 0; font-size: 13px; color: #1e3a5f; line-height: 1.6; }
     .callout strong { color: #1e40af; }
+    .callout.warn { background: #fff7ed; border-left-color: #f97316; color: #7c2d12; }
+    .callout.warn strong { color: #c2410c; }
+    .callout.pivot { background: #f5f3ff; border-left-color: #8b5cf6; color: #4c1d95; }
+    .callout.pivot strong { color: #6d28d9; }
     .tree { background: #0f172a; color: #e2e8f0; padding: 18px 22px; border-radius: 8px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; }
     .tree .c { color: #64748b; }
     .tree .f { color: #7dd3fc; }
@@ -144,23 +161,27 @@
 
 <nav>
   <div class="logo">
-    <span>Feature Plan</span>
-    <strong>Build My Order From Fridge Photos</strong>
+    <span>Feature Plan · B2B Pivot</span>
+    <strong>Storage-Place Inventory From Photos</strong>
   </div>
 
   <div class="nav-group">Overview</div>
+  <a href="#pivot">Scope Pivot</a>
   <a href="#goal">Goal</a>
   <a href="#scope">Scope</a>
   <a href="#behavior">User Flows</a>
   <a href="#architecture">Architecture</a>
 
+  <div class="nav-group">Evidence</div>
+  <a href="#spike">Spike — Validated</a>
+
   <div class="nav-group">Technical</div>
+  <a href="#org-model">Org Model (grounding)</a>
   <a href="#backend-design">Backend Design</a>
-  <a href="#detection">Vision &amp; Matching</a>
+  <a href="#detection">Vision &amp; Reconciliation</a>
   <a href="#data-model">Data Model</a>
   <a href="#frontend-design">Frontend Design</a>
-  <a href="#cost">Cost &amp; Abuse</a>
-  <a href="#reminders">Restock Reminders</a>
+  <a href="#auth-infra">Auth / Infra</a>
   <a href="#contracts">Contracts</a>
   <a href="#fanout">Fan-out Dependencies</a>
   <a href="#shared">Shared Package</a>
@@ -182,22 +203,40 @@
   <header>
     <div class="meta-row">
       <span class="badge badge-draft">Draft — awaiting approval</span>
+      <span class="badge badge-pivot">Consumer → B2B pivot</span>
     </div>
-    <h1>Build My Order From Fridge Photos</h1>
-    <p class="subtitle">Customer photographs their fridge; Gemini identifies products; the system diffs against a saved baseline and auto-builds a reviewable cart.</p>
+    <h1>Storage-Place Inventory From Photos (B2B)</h1>
+    <p class="subtitle">An organization (office) sets up each storage place — fridge, cupboard, freezer — by photographing it from several angles; Gemini merges the angles into one estimated inventory the user confirms as a long-term baseline. Later: re-photo a place to see what is missing and reorder.</p>
     <div class="header-stats">
       <div class="stat"><strong>Type</strong>Feature</div>
-      <div class="stat"><strong>Date</strong>2026-06-17</div>
+      <div class="stat"><strong>Date</strong>2026-06-24</div>
       <div class="stat"><strong>Project</strong>@jsdev-store (storebrix.com)</div>
-      <div class="stat"><strong>Stack</strong>Firebase Functions v2 · Genkit/Vertex Gemini 2.5 · React 19 + Vite · HeroUI v3 · Algolia</div>
+      <div class="stat"><strong>Stack</strong>Firebase Functions v2 · Genkit + Gemini Developer API · React 19 + Vite · Algolia</div>
       <div class="stat"><strong>Planned by</strong>software-architect</div>
     </div>
   </header>
 
+  <!-- ── SCOPE PIVOT ── -->
+  <section id="pivot">
+    <h2>What Changed Since the Last Revision</h2>
+    <div class="callout pivot">
+      <strong>This is now a B2B / organization feature, not a consumer one.</strong> The previous revision modelled a single consumer scanning <em>their</em> home fridge with one per-user <code>InventoryTemplate</code>. That model is removed. An <strong>organization</strong> (office) owns <strong>multiple storage places</strong> (fridge / cupboard / freezer / shelf), each set up independently and <strong>shared across all of the org's users</strong>.
+    </div>
+    <ul class="plan-list">
+      <li><strong>Entity replaced:</strong> per-user <code>InventoryTemplate</code> → org-scoped <code>StoragePlace</code>. The baseline now lives <em>on the place</em>, not on a user.</li>
+      <li><strong>Scope changed from per-user to per-organization.</strong> Any member of the org sees and edits the same set of places (grounded in the existing <code>organizationId</code> field + <code>profile.organizationIds</code> membership model — see Org Model section).</li>
+      <li><strong>Multi-angle reconciliation is now core.</strong> Up to 5 photos per place go in ONE Gemini call that de-dups the same physical item across angles and uses angles to see behind items. Isolated behind a <code>reconcilePlaceInventory</code> boundary so the strategy can be swapped.</li>
+      <li><strong>Baseline photos are kept long-term</strong> as the reference image set for the place (the previous "delete scan photos after 7 days" rule applies only to the later diff/what's-missing flow, not to baseline photos).</li>
+      <li><strong>Counts are explicitly best-effort estimates the user confirms</strong> — never promised as exact. This is now backed by spike evidence (see Spike section).</li>
+      <li><strong>Auth/infra corrected:</strong> detection uses the <strong>Gemini Developer API</strong> via <code>googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })</code> — NOT Vertex, NOT <code>defineSecret</code>. This matches the code already in the module. (The previous revision said Vertex; that was wrong.)</li>
+      <li><strong>A spike happened.</strong> Identification of real Israeli brands and separated-item counting are validated; single-image depth counting is not. Findings are captured in their own section and drive the design.</li>
+    </ul>
+  </section>
+
   <!-- ── GOAL ── -->
   <section id="goal">
     <h2>Goal</h2>
-    <p class="goal-text">Let a returning grocery customer rebuild their weekly order in seconds: photograph the fridge/pantry, have AI detect what is present, compare it to a personal "full fridge" baseline, and present a pre-filled, fully editable cart of what is missing — turning a 30-minute re-shop into a 2-minute photo-and-approve.</p>
+    <p class="goal-text">Let an office stop hand-counting supplies: photograph each storage place once to capture an estimated "full" baseline the team confirms, then later re-photograph a place to instantly see what has been used up and rebuild the restock order — turning a manual stock-take into a photo-and-confirm.</p>
   </section>
 
   <!-- ── SCOPE ── -->
@@ -205,32 +244,28 @@
     <h2>Scope</h2>
     <div class="scope-grid">
       <div class="scope-box scope-in">
-        <div class="scope-label">In scope</div>
+        <div class="scope-label">In scope (now)</div>
         <ul class="plan-list">
-          <li>New backend module <code>functions/src/modules/fridgeScan/</code> with two callables: analyze-photos and confirm-template.</li>
-          <li>Gemini vision flow (Genkit/Vertex, mirroring chatbot wiring) that returns Hebrew product+brand names and per-item quantity + confidence.</li>
-          <li>Template-constrained Algolia matching: when a template exists, rank detections against the user's ~30 template SKUs first, falling back to the full tenant index.</li>
-          <li>Pure diff/quantity engine: <code>order_qty = max(0, template_qty − detected_qty)</code>.</li>
-          <li><code>InventoryTemplate</code> core entity (with <code>source: "photo" | "history" | "manual"</code>) + pluggable seeding-service boundary.</li>
-          <li>Per-scan log collection for cost/usage visibility.</li>
-          <li>Frontend: new route <code>store.fridgeScan</code>, first-run setup wizard, returning-scan screen, cart-review screen, Redux domain + appApi methods.</li>
-          <li>Confidence policy wired into review UX (auto-accept / confirm / drop).</li>
-          <li>Cost &amp; abuse controls: per-user rate limit on analyze, hard image cap (max 6), client + server image downscaling, structured per-scan cost logging.</li>
-          <li>Recurring-scan / restock reminder (scheduled job + notification), as a final shippable increment.</li>
-          <li>Coordinated <code>@jsdev_ninja/core</code> version bump (0.17.0 → 0.18.0) propagated to both consumers.</li>
+          <li>New org-scoped <code>StoragePlace</code> entity in <code>@jsdev_ninja/core</code> (replaces <code>InventoryTemplate</code>), tenant-scoped under the store with an <code>organizationId</code> field.</li>
+          <li>Backend module <code>functions/src/modules/fridgeScan/</code> grows from a detection-only spike into: <code>createStoragePlace</code>, <code>listStoragePlaces</code>, <code>analyzePlacePhotos</code> (multi-angle merge), <code>confirmPlaceBaseline</code>.</li>
+          <li><strong>Reconciliation Approach #1</strong> behind a <code>reconcilePlaceInventory</code> boundary: all photos → ONE Gemini call → ONE merged, de-duped inventory with per-item count + uncertainty flag.</li>
+          <li>Depth-aware prompt: count behind an item only with visible evidence (cap/edge), flag <code>depthUncertain</code>, lean on multi-angle as the real depth signal.</li>
+          <li>Setup UI for org users: a "Storage places" area to create &amp; name places, pick a type, upload up to 5 angle photos, review the merged draft inventory, adjust counts, and confirm the baseline.</li>
+          <li>Baseline photos stored long-term in tenant-scoped Storage and referenced on the place.</li>
+          <li>Per-analyze cost/usage log (counts, model, tokens, est cost) — no images/PII in the log.</li>
+          <li>Coordinated <code>@jsdev_ninja/core</code> version bump (0.21.0 → 0.22.0) propagated to <code>apps/store</code> and <code>functions</code>.</li>
         </ul>
       </div>
       <div class="scope-box scope-out">
-        <div class="scope-label">Out of scope</div>
+        <div class="scope-label">Out of scope (later / not now)</div>
         <ul class="plan-list">
-          <li>Seed-from-order-history baseline (designed as a drop-in boundary; not built — see Future Enhancement).</li>
-          <li>Any change to checkout, payment, ledger, or order placement — the feature ends when items land in the existing cart.</li>
+          <li><strong>The "what's missing" diff flow</strong> — re-photo → <code>missing = baseline.count − current.count</code> → reorder list. Designed here, built in a later increment (reuses the same place + merge engine).</li>
+          <li><strong>SKU matching to a real cart</strong> — turning a baseline <code>label + count</code> into an Algolia store SKU is UNTESTED and is the next spike. Without it there is no cart. Capture <code>label + count</code> now; no cart in this scope.</li>
+          <li>Any change to checkout, payment, ledger, or order placement.</li>
           <li>Editing the Algolia index schema or re-indexing products.</li>
-          <li>New external service or new secret — reuses existing Vertex/Genkit credentials.</li>
-          <li>Barcode scanning / OCR of receipts (photo-only vision).</li>
-          <li>Multi-template per user (one active template per <code>{companyId}/{storeId}/userId</code> for v1).</li>
-          <li>Admin UI for browsing customer templates/scans (logging is backend-only for v1).</li>
-          <li>Money math beyond what the existing cart already computes (the diff engine is quantity-only).</li>
+          <li>Per-floor hierarchy / nesting of places (a flat list of places per org for v1; <code>type</code> distinguishes them).</li>
+          <li>Admin UI for browsing org baselines/scan logs (logging is backend-only for v1).</li>
+          <li>Restock reminders / scheduled re-scan prompts (revisit after the diff flow exists).</li>
         </ul>
       </div>
     </div>
@@ -240,235 +275,226 @@
   <section id="behavior">
     <h2>User Flows</h2>
 
-    <h3>Flow A — First-run SETUP (build the baseline template)</h3>
+    <h3>Flow A — SET UP a storage place (build the baseline) — IN SCOPE</h3>
     <ol class="flow-list">
-      <li><span class="flow-actor">User</span>Opens "Build order from fridge" entry point; has no template yet, so the app routes into the setup wizard.</li>
-      <li><span class="flow-actor">User</span>Step 1 — captures/uploads 1–6 photos of the <em>full</em> fridge/pantry/freezer (camera or file). UI enforces the cap and shows thumbnails.</li>
-      <li><span class="flow-actor">System</span>Client downscales each image (longest edge ≤ 1280px, JPEG q≈0.7) and uploads to Storage under <code>{companyId}/{storeId}/fridge-scans/{scanId}/{n}.jpg</code>.</li>
-      <li><span class="flow-actor">Backend</span><code>analyzeFridgePhotos</code> callable: rate-limit check → server-side downscale guard → Gemini vision detect → Algolia match (no template yet → full tenant index) → returns detected items with matched product, qty, confidence, and a confidence band.</li>
-      <li><span class="flow-actor">User</span>Step 2 — confirm/correct screen: auto-accepted items (conf &gt; 0.90) pre-checked; medium items (0.60–0.90) flagged "please confirm"; low items already dropped. User can add missing products via search, edit quantities, or remove.</li>
-      <li><span class="flow-actor">User</span>Step 3 — taps "Save as my full fridge".</li>
-      <li><span class="flow-actor">Backend</span><code>confirmInventoryTemplate</code> callable persists the corrected list as the active <code>InventoryTemplate</code> (<code>source: "photo"</code>) with <code>productId</code> + <code>fullQty</code> per line.</li>
-      <li><span class="flow-actor">System</span>Wizard completes; user is offered "scan now to build an order" (jumps straight into Flow B).</li>
+      <li><span class="flow-actor">User</span>An org member opens "Storage places" (visible only when an active organization is selected). Sees the org's existing places (empty on first use) and an "Add place" action.</li>
+      <li><span class="flow-actor">User</span>Creates a place: enters a <strong>name</strong> (e.g. <span dir="rtl">מקרר קומה 2</span>) and picks a <strong>type</strong> (fridge | cupboard | freezer | shelf | other). <code>createStoragePlace</code> persists an empty place (<code>baseline.status = "draft"</code>).</li>
+      <li><span class="flow-actor">User</span>Uploads up to <strong>5 photos</strong> of the place from different angles. UI enforces the cap and shows thumbnails.</li>
+      <li><span class="flow-actor">System</span>Client downscales each image (longest edge ≤ 1280px, JPEG q≈0.7) and uploads to <code>{companyId}/{storeId}/storage-place-photos/{placeId}/{n}.jpg</code> (kept long-term).</li>
+      <li><span class="flow-actor">Backend</span><code>analyzePlacePhotos</code>: verifies org membership → passes ALL photos to <code>reconcilePlaceInventory</code> (ONE Gemini call) → returns ONE merged draft inventory: "5 cola, 3 bread, 4 milk…", each row with <code>count</code>, <code>unit</code>, <code>confidence</code>, and a <code>depthUncertain</code> flag.</li>
+      <li><span class="flow-actor">User</span>Reviews the merged draft: adjusts counts (e.g. 5 → 4), adds items the model missed, removes false positives. Uncertain rows are visually flagged "please confirm".</li>
+      <li><span class="flow-actor">User</span>Taps "Save as full" → <code>confirmPlaceBaseline</code> persists the confirmed items + the photo refs as the place's baseline (<code>baseline.status = "confirmed"</code>).</li>
+      <li><span class="flow-actor">User</span>Repeats per place. The org now has a confirmed baseline per place.</li>
     </ol>
 
-    <h3>Flow B — Returning SCAN (build the order)</h3>
+    <h3>Flow B — "What's missing" diff &amp; reorder — DESIGNED, LATER</h3>
     <ol class="flow-list">
-      <li><span class="flow-actor">User</span>Opens the entry point; an active template exists, so the app shows the scan screen directly.</li>
-      <li><span class="flow-actor">User</span>Captures/uploads 1–6 photos of the <em>current</em> fridge.</li>
-      <li><span class="flow-actor">System</span>Client downscales + uploads to Storage (same path convention, new <code>scanId</code>).</li>
-      <li><span class="flow-actor">Backend</span><code>analyzeFridgePhotos</code> (<code>mode: "scan"</code>): Gemini detect → <strong>template-constrained</strong> Algolia match (restrict ranking to the user's template SKUs first) → diff engine computes <code>orderQty = max(0, fullQty − detectedQty)</code> per template line → returns review rows.</li>
-      <li><span class="flow-actor">User</span>Cart-review screen: one row per template item showing "have N / need M", with auto/confirm/low styling. Everything editable. Items the user has "enough" of show qty 0 (excluded by default).</li>
-      <li><span class="flow-actor">User</span>Taps "Add to cart" (or "Add to cart &amp; checkout").</li>
-      <li><span class="flow-actor">System</span>Frontend writes the reviewed lines into the existing cart in a single bulk <code>setV2&lt;TCart&gt;</code> write (merging with existing items), then navigates to the cart page.</li>
-      <li><span class="flow-actor">User</span>Reviews the normal cart and proceeds through the existing checkout. Feature ends here.</li>
+      <li><span class="flow-actor">User</span>Opens a place that already has a confirmed baseline; taps "Check what's missing".</li>
+      <li><span class="flow-actor">User</span>Re-photographs the place (up to 5 angles); client downscales + uploads as a <em>short-lived</em> scan (deleted after the diff, unlike baseline photos).</li>
+      <li><span class="flow-actor">Backend</span><code>analyzePlacePhotos</code> (same engine) returns the current merged inventory.</li>
+      <li><span class="flow-actor">System</span>Per baseline item: <code>missing = max(0, baseline.count − current.count)</code> → a "needs restock" list.</li>
+      <li><span class="flow-actor">User</span>Reviews/edits the restock list. <em>(Turning this into a cart requires the SKU-matching spike — out of scope.)</em></li>
     </ol>
 
     <div class="storage-block">
-      <strong>Non-DB persistence — Firebase Storage</strong>
-      Uploaded photos live at <code>{companyId}/{storeId}/fridge-scans/{scanId}/{index}.jpg</code> (tenant-scoped, mirrors existing <code>{companyId}/{storeId}/...</code> convention). Photos are passed to Gemini by signed/download URL or as inline base64 from the just-uploaded blobs. A scheduled cleanup (or Storage lifecycle rule) deletes scan images older than 7 days — raw fridge photos are PII-adjacent and must not accumulate.
+      <strong>Non-DB persistence — Firebase Storage (two retention classes)</strong>
+      <strong style="display:inline;text-transform:none;letter-spacing:0;color:#374151;">Baseline photos</strong> live at <code>{companyId}/{storeId}/storage-place-photos/{placeId}/{n}.jpg</code> and are kept <strong>long-term</strong> (they ARE the reference for the place; their refs are stored on <code>baseline.photos</code>). <strong style="display:inline;text-transform:none;letter-spacing:0;color:#374151;">Diff-scan photos</strong> (Flow B, later) are short-lived and deleted after the diff completes. Both are tenant-scoped and never logged.
     </div>
   </section>
 
   <!-- ── ARCHITECTURE ── -->
   <section id="architecture">
-    <h2>Data-flow Architecture</h2>
+    <h2>Data-flow Architecture (Flow A — in scope)</h2>
     <div class="diagram">
       <pre style="margin:0;background:transparent;padding:0;">flowchart TD
-    A["Customer (React)<br/>capture 1-6 photos"] -->|downscale client-side| B["Firebase Storage<br/>{companyId}/{storeId}/fridge-scans/{scanId}"]
-    A -->|httpsCallable analyzeFridgePhotos<br/>{ scanId, imageRefs, mode }| C["analyzeFridgePhotos (callable)<br/>THIN: auth + parse + rate-limit"]
-    C --> RL{"rate limit OK?<br/>img count &le; 6?"}
-    RL -->|no| ERR["resource-exhausted /<br/>invalid-argument"]
-    RL -->|yes| S["services/analyzeFridgePhotos.ts<br/>(orchestrator)"]
-    S --> G["detectProductsFromImages.ts<br/>Genkit + Vertex Gemini 2.5<br/>Hebrew detection prompt"]
-    B -.image bytes/URL.-> G
-    G -->|"[{ heName, heBrand, qty, rawConfidence }]"| M["matchDetectionsToProducts.ts"]
-    T["InventoryTemplate<br/>(active, if exists)"] -->|template SKUs| M
-    M -->|Algolia products index<br/>filters: storeId AND companyId| ALG[("Algolia<br/>products")]
-    M -->|"[{ detection, product?, matchConfidence }]"| D["computeOrderDiff.ts (pure)<br/>orderQty = max(0, fullQty - detectedQty)"]
-    D --> LOG["fridge-scans log doc<br/>cost + counts (no PII/images)"]
-    D -->|AnalyzeFridgeScanResponse| C
-    C -->|review rows + confidence bands| A
-    A -->|user edits + approves| WC["bulk setV2&lt;TCart&gt;<br/>merge into existing cart"]
-    WC --> CART[("{companyId}/{storeId}/cart")]
-    A -.confirmInventoryTemplate (setup only).-> TPL["confirmInventoryTemplate (callable)<br/>persist InventoryTemplate"]
-    TPL --> TPLDB[("{companyId}/{storeId}/inventory-templates")]</pre>
+    A["Org member (React)<br/>name + type, up to 5 angle photos"] -->|downscale client-side| B["Firebase Storage<br/>storage-place-photos/{placeId} (long-term)"]
+    A -->|createStoragePlace<br/>{ organizationId, name, type }| CP["createStoragePlace (callable)<br/>THIN: auth + org-membership + parse"]
+    CP --> PSTORE[("{companyId}/{storeId}/storage-places/{placeId}<br/>organizationId field")]
+    A -->|analyzePlacePhotos<br/>{ placeId, imageRefs }| AN["analyzePlacePhotos (callable)<br/>THIN: auth + org-membership + parse"]
+    AN --> ORG{"caller in<br/>place.organizationId?"}
+    ORG -->|no| ERR["permission-denied"]
+    ORG -->|yes| RC["reconcilePlaceInventory.ts<br/>(STRATEGY BOUNDARY — Approach #1)"]
+    B -.image bytes/URL.-> RC
+    RC --> G["ONE Gemini call (Developer API)<br/>googleAI apiKey, gemini-2.5-flash<br/>depth-aware Hebrew prompt"]
+    G -->|"merged, de-duped<br/>[{ label, count, unit, confidence, depthUncertain }]"| AN
+    AN --> LOG["analyze log doc<br/>counts + cost (no PII/images)"]
+    AN -->|AnalyzePlacePhotosResponse (draft inventory)| A
+    A -->|user adjusts counts / add / remove| CB["confirmPlaceBaseline<br/>{ placeId, items, idempotencyKey }"]
+    CB --> ORG2{"caller in<br/>place.organizationId?"}
+    ORG2 -->|yes| PSTORE2[("update place.baseline<br/>status=confirmed, items, photos")]</pre>
     </div>
     <div class="callout">
-      <strong>Key design choice — diff and matching happen on the backend, cart write happens on the client.</strong> The callable returns review rows only; it never mutates the cart. This keeps the callable side-effect-light (idempotent-friendly, cheap to retry) and reuses the existing client cart-write path verbatim, avoiding a second source of truth for cart mutation.
+      <strong>Key design choice — the merge is isolated behind <code>reconcilePlaceInventory</code>.</strong> Approach #1 (all photos → one Gemini call → one merged inventory) is the only strategy implemented now, but the callable and the orchestrator depend on the boundary's signature, not on Gemini. A later strategy (per-image detect → server-side reconcile, or a SKU-aware pass) drops in without touching the callables, the entity, or the UI.
     </div>
+  </section>
+
+  <!-- ── SPIKE FINDINGS ── -->
+  <section id="spike" class="spike-section">
+    <h2>Spike — Validated / Findings</h2>
+    <p style="margin-bottom:14px;">A detection spike ran against the real <code>detectProductsFromImages</code> flow (Gemini Developer API, <code>gemini-2.5-flash</code>) on 4 real Israeli fridge photos plus generated images. These findings are load-bearing — they justify the "estimate the user confirms" framing and the multi-angle requirement.</p>
+
+    <div class="spike-item"><span class="spike-badge spike-pass">PASS</span><p><strong>Identification of real Israeli brands off real labels works.</strong> Correctly read Tnuva, Carmel / <span dir="rtl">כרמל</span>, Tomer / <span dir="rtl">תומר</span>, Danone, Tara, Maya, and Coca-Cola from real packaging. This is the core unlock — the model can name local products in context.</p></div>
+    <div class="spike-item"><span class="spike-badge spike-pass">PASS</span><p><strong>Counting clearly-separated items is reliable.</strong> <code>visibleCount</code> nailed milk cartons (1/1/2/3 across photos) and eggs (6). When units are visually distinct and not occluding each other, counts are trustworthy.</p></div>
+    <div class="spike-item"><span class="spike-badge spike-warn">WARN</span><p><strong>Single-image depth / occlusion counting is unreliable.</strong> It over-counts when nothing is behind (read milk ×2 with only one carton) and under-counts real depth (4 cola bottles read as 2–3). The <code>depthUncertain</code> flag fired inconsistently. <em>Mitigation:</em> multi-angle photos are the real depth signal, and every count is human-confirmed before it becomes a baseline.</p></div>
+    <div class="spike-item"><span class="spike-badge spike-pass">PASS</span><p><strong>Bonus — detects EMPTY containers.</strong> Flagged an empty cola bottle. Useful for restock signals (an empty unit = needs reordering even though it's "present").</p></div>
+    <div class="spike-item"><span class="spike-badge spike-fail">FAIL</span><p><strong>Generated images are useless for brand ID.</strong> Fabricated labels make brand identification meaningless. Generated images are only useful for stress-testing variety / clutter / counting — never for validating identification accuracy.</p></div>
+    <div class="spike-item"><span class="spike-badge spike-pass">PASS</span><p><strong>Cost per call is tiny.</strong> Not a constraint at expected volumes; cost logging is for visibility, not a hard limiter.</p></div>
+
+    <div class="callout warn" style="margin-top:18px;">
+      <strong>Design consequences of the spike (non-negotiable):</strong> (1) counts are presented as <em>estimates the user confirms</em>, never as exact; (2) multi-angle (up to 5) is required precisely because single-image depth fails; (3) the review step is always fully editable — the human is the final counter; (4) <code>depthUncertain</code> is surfaced in the UI but treated as advisory, not authoritative.
+    </div>
+  </section>
+
+  <!-- ── ORG MODEL GROUNDING ── -->
+  <section id="org-model">
+    <h2>Organization Model (verified in code)</h2>
+    <p>The data model and UI location below are grounded in what already exists — nothing here invents an org concept.</p>
+    <ul class="plan-list">
+      <li><strong>Organization entity exists:</strong> <code>packages/core/lib/entities/Organization.ts</code> — <code>TOrganization { id, name, billingAccounts[], paymentType, branches?[], … }</code>. Stored at <code>{companyId}/{storeId}/organizations/{organizationId}</code> (<code>"organizations"</code> is already a registered <code>storeCollections</code> key).</li>
+      <li><strong>Membership:</strong> a user's <code>TProfile</code> (<code>packages/core/lib/entities/Profile.ts</code>) carries <code>organizationIds: string[]</code> (current) and <code>organizationId</code> (deprecated single value). A user can belong to multiple orgs.</li>
+      <li><strong>Active org (client):</strong> Redux holds the selected org at <code>state.userOrganization.activeOrganization</code> (<code>TOrganization | null</code>). <code>OrgPicker</code> switches it; <code>CheckoutPage</code> reads it as <code>profileOrganization</code> to stamp <code>order.organizationId</code>.</li>
+      <li><strong>Existing org-scoping pattern:</strong> org data lives at the normal tenant path and is filtered by an <code>organizationId</code> <em>field</em> — e.g. <code>organizationBalance</code>, <code>budgetRecords</code>, <code>orders</code> all use <code>.where("organizationId", "==", id)</code>. <strong>StoragePlace follows this exact pattern</strong> (a field + a where-clause), NOT a nested sub-collection path.</li>
+      <li><strong>Backend authorization reality (important):</strong> the one existing org-scoped callable (<code>documents/getOrganizationBalance</code>) is <em>admin-only</em> — it takes <code>companyId</code>/<code>storeId</code> from the token and trusts the <code>organizationId</code> in the request because only admins call it. There is <strong>no existing pattern for a non-admin org member proving they own an <code>organizationId</code></strong>. This feature is used by ordinary org members, so it MUST add that check (read caller's <code>profiles/{auth.uid}</code> and assert <code>organizationIds.includes(organizationId)</code> — see Security Invariants). The profile-read-then-verify shape is modelled on <code>customers/deleteClient.ts</code>.</li>
+    </ul>
   </section>
 
   <!-- ── BACKEND DESIGN ── -->
   <section id="backend-design">
     <h2>Backend Module Design</h2>
-    <p><strong>Module name: <code>fridgeScan</code></strong> (camelCase, matching existing <code>chatbot</code>/<code>catalog</code> convention). Justification: the feature is a cohesive bounded context (vision detection + template + diff) that owns its own Firestore paths and emits its own events; it does not belong inside <code>cart</code> (which it never writes from the backend) or <code>catalog</code> (which it only reads via Algolia).</p>
+    <p><strong>Module: <code>fridgeScan</code></strong> (kept — the module already exists with the spike's detection flow). It evolves from "detect only" into the storage-place feature. The detection-only callable <code>detectFridgeProducts</code> was the spike; it is removed/replaced by the place-based callables (see Breaking Changes — internal only).</p>
 
-    <h3>File tree</h3>
+    <h3>File tree (in-scope increment)</h3>
     <div class="tree"><span class="c">functions/src/modules/fridgeScan/</span>
-├── <span class="f">README.md</span>                          <span class="c"># purpose, owned paths, public surface, conventions</span>
-├── <span class="f">index.ts</span>                           <span class="c"># ONLY public surface: re-exports callables + scheduled job + public schemas/events</span>
-├── <span class="f">events.ts</span>                          <span class="c"># FridgeScanEventTypes + Zod payloads (templateSaved, scanCompleted)</span>
-├── <span class="f">types.ts</span>                           <span class="c"># backend-only Zod: DetectedItem, MatchedDetection, internal config</span>
+├── <span class="f">README.md</span>                          <span class="c"># purpose, owned paths, public surface</span>
+├── <span class="f">index.ts</span>                           <span class="c"># ONLY public surface: re-export the 4 callables + public schemas</span>
+├── <span class="f">types.ts</span>                           <span class="c"># backend-only Zod: ReconciledItem (Gemini output), internal config</span>
 ├── api/
-│   ├── <span class="f">analyzeFridgePhotos.ts</span>         <span class="c"># callable — THIN: auth, parse req, rate-limit, call service, return</span>
-│   └── <span class="f">confirmInventoryTemplate.ts</span>    <span class="c"># callable — THIN: auth, parse, call saveInventoryTemplate, return</span>
-├── triggers/
-│   └── <span class="f">restockReminderSchedule.ts</span>     <span class="c"># onSchedule — daily; finds due templates, emits reminder events</span>
-├── subscribers/
-│   └── <span class="f">sendRestockReminderOnDue.ts</span>    <span class="c"># reacts to restock-due event → notification (email/push)</span>
+│   ├── <span class="f">createStoragePlace.ts</span>          <span class="c"># callable — THIN: auth + org-membership + parse → service</span>
+│   ├── <span class="f">listStoragePlaces.ts</span>           <span class="c"># callable — THIN: auth + org-membership + parse → service</span>
+│   ├── <span class="f">analyzePlacePhotos.ts</span>          <span class="c"># callable — THIN: auth + org-membership + parse → service</span>
+│   └── <span class="f">confirmPlaceBaseline.ts</span>        <span class="c"># callable — THIN: auth + org-membership + parse → service</span>
 ├── services/
-│   ├── <span class="f">analyzeFridgePhotos.ts</span>         <span class="c"># orchestrator: detect → match → diff → log; entry-point-agnostic</span>
-│   ├── <span class="f">detectProductsFromImages.ts</span>    <span class="c"># Genkit/Vertex vision flow; Hebrew prompt; returns DetectedItem[]</span>
-│   ├── <span class="f">matchDetectionsToProducts.ts</span>   <span class="c"># Algolia match w/ template constraint + confidence scoring</span>
-│   ├── <span class="f">computeOrderDiff.ts</span>            <span class="c"># PURE: (template, detections) → review rows. No I/O. Unit-tested.</span>
-│   ├── <span class="f">saveInventoryTemplate.ts</span>       <span class="c"># persist/replace active template (source-aware)</span>
-│   ├── <span class="f">seedTemplate.ts</span>               <span class="c"># pluggable seeding boundary: { photo } now; { history } future</span>
-│   └── <span class="f">checkScanRateLimit.ts</span>          <span class="c"># per-user sliding-window limiter via fridge-scans log reads</span>
+│   ├── <span class="f">createStoragePlace.ts</span>          <span class="c"># persist empty place (draft baseline)</span>
+│   ├── <span class="f">listStoragePlaces.ts</span>           <span class="c"># list places where organizationId == caller's org</span>
+│   ├── <span class="f">analyzePlacePhotos.ts</span>          <span class="c"># orchestrator: load place → reconcile → log → return draft</span>
+│   ├── <span class="f">reconcilePlaceInventory.ts</span>     <span class="c"># STRATEGY BOUNDARY (Approach #1): all photos → 1 Gemini call → merged inventory</span>
+│   ├── <span class="f">confirmPlaceBaseline.ts</span>        <span class="c"># write confirmed items + photo refs to place.baseline</span>
+│   └── <span class="f">checkOrgMembership.ts</span>          <span class="c"># read caller profile, assert organizationIds.includes(orgId)</span>
 └── internal/
-    ├── <span class="f">paths.ts</span>                       <span class="c"># module-private: inventory-templates + fridge-scans path helpers (via getPath)</span>
-    ├── <span class="f">templatesStore.ts</span>              <span class="c"># read/write InventoryTemplate (deterministic id = userId)</span>
-    └── <span class="f">scanLogStore.ts</span>               <span class="c"># create scan-log docs (deterministic id = scanId, .create())</span></div>
+    ├── <span class="f">paths.ts</span>                       <span class="c"># module-private: storage-places path via getPath</span>
+    └── <span class="f">storagePlacesStore.ts</span>          <span class="c"># read/write StoragePlace (create + get + list + update baseline)</span>
+<span class="c"># detectProductsFromImages.ts is folded INTO reconcilePlaceInventory.ts (it becomes the Approach #1 impl).</span></div>
 
     <div class="callout">
-      <strong>Where the Gemini wiring lives.</strong> The existing chatbot keeps its Genkit logic in <code>functions/src/services/genkit-service/index.ts</code> (a shared service), not inside the module. For fridgeScan we keep the vision flow <em>inside the module</em> at <code>services/detectProductsFromImages.ts</code> because the prompt + output schema are feature-specific. It still imports the same packages the chatbot uses: <code>import { vertexAI } from "@genkit-ai/google-genai"</code> and <code>import { genkit, z } from "genkit"</code>, and creates ONE module-level <code>ai</code> instance (same cold-start pattern). <em>Note: the brief said <code>@genkit-ai/vertexai</code>; the live chatbot actually imports <code>vertexAI</code> from <code>@genkit-ai/google-genai</code>. Both are in <code>functions/package.json</code>; use the one the chatbot uses for consistency.</em>
+      <strong>Where the Gemini wiring lives.</strong> Inside the module, in <code>services/reconcilePlaceInventory.ts</code> — it owns the prompt + output schema (feature-specific). One module-level <code>ai = genkit({ plugins: [googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })], model: googleAI.model("gemini-2.5-flash") })</code>, exactly as the current <code>detectProductsFromImages.ts</code> already does. This is the <strong>Developer API</strong>, not Vertex.
     </div>
 
     <h3>Callable signatures</h3>
-    <p>Both are <code>functionsV2.https.onCall</code> with <code>invoker: "public"</code>, <code>memory: "1GiB"</code>, <code>timeoutSeconds: 540</code> (mirroring <code>chatbotApi</code> — vision calls are slow). Both re-exported from <code>functions/src/index.tsx</code> via <code>export { analyzeFridgePhotos, confirmInventoryTemplate, restockReminderSchedule } from "./modules/fridgeScan"</code>. Full Zod in the Contracts appendix.</p>
+    <p>All four are <code>functionsV2.https.onCall</code> with <code>invoker: "public"</code>; <code>analyzePlacePhotos</code> uses <code>memory: "1GiB"</code>, <code>timeoutSeconds: 540</code> (vision is slow) — the other three can be smaller (<code>256MiB</code>). All re-exported from <code>functions/src/index.tsx</code>. Full Zod in Contracts.</p>
     <ul class="plan-list">
-      <li><code>analyzeFridgePhotos(AnalyzeFridgeScanRequest) → AnalyzeFridgeScanResponse</code> — detect + match + diff; returns review rows + confidence bands. Pure read (creates only a log doc). Never writes the cart or template.</li>
-      <li><code>confirmInventoryTemplate(ConfirmTemplateRequest) → ConfirmTemplateResponse</code> — persists the active template. Idempotent on <code>idempotencyKey</code>.</li>
+      <li><code>createStoragePlace(CreateStoragePlaceRequest) → { placeId }</code> — creates an empty place for the caller's org.</li>
+      <li><code>listStoragePlaces(ListStoragePlacesRequest) → { places: TStoragePlace[] }</code> — lists the org's places.</li>
+      <li><code>analyzePlacePhotos(AnalyzePlacePhotosRequest) → { placeId, items: TReconciledItem[], warning }</code> — multi-angle merge; pure read (creates only a log doc). Never writes the baseline.</li>
+      <li><code>confirmPlaceBaseline(ConfirmPlaceBaselineRequest) → { placeId, itemCount }</code> — writes the confirmed baseline. Idempotent on <code>idempotencyKey</code>.</li>
     </ul>
   </section>
 
-  <!-- ── VISION & MATCHING ── -->
+  <!-- ── VISION & RECONCILIATION ── -->
   <section id="detection">
-    <h2>Vision Detection &amp; Matching</h2>
+    <h2>Vision Detection &amp; Reconciliation</h2>
 
-    <h3>Genkit vision flow (<code>detectProductsFromImages.ts</code>)</h3>
-    <p>A single <code>ai.generate</code> call with multimodal input: the system/Hebrew prompt plus each image as a media part (<code>{ media: { url } }</code> for Storage download URLs, or inline base64). Output is forced to a Zod array via <code>output: { schema: DetectedItemArraySchema }</code> so detection returns structured rows, not prose. No tools are needed for detection (unlike the chatbot) — this is a single structured-extraction call.</p>
+    <h3>Reconciliation — Approach #1 (<code>reconcilePlaceInventory.ts</code>)</h3>
+    <p>ONE <code>ai.generate</code> call with multimodal input: the depth-aware system prompt plus every uploaded image as a media part. The model is instructed to treat the images as <strong>different angles of the same place</strong> and return ONE merged inventory — de-duplicating the same physical item seen from multiple angles, and using angles to resolve what is behind what. Output forced to a Zod array via <code>output: { schema: ReconciledItemArraySchema }</code>.</p>
+    <div class="callout">
+      <strong>Why this is a boundary, not just a function.</strong> The merge logic ("same item across angles") lives entirely inside this file. Approach #1 puts the merge inside the single Gemini prompt. A future Approach #2 (per-image detect, then server-side reconcile with embeddings/heuristics) implements the same <code>reconcilePlaceInventory(args) → TReconciledItem[]</code> signature and swaps in with zero changes upstream.
+    </div>
 
-    <h3>Hebrew detection prompt strategy</h3>
-    <p>The Algolia <code>products</code> index stores Hebrew-only names (<code>name: {lang:"he", value}[]</code>) and a Latin/Hebrew <code>brand</code> string. To maximize match rate the model must emit <strong>Hebrew</strong> product nouns and Israeli brand names. Prompt requirements (English instructions, Hebrew outputs):</p>
+    <h3>Depth-aware Hebrew prompt strategy</h3>
     <ul class="plan-list">
-      <li>Instruct: "You are a grocery-inventory vision assistant for an Israeli supermarket. Identify each distinct food/household product visible across the images."</li>
-      <li>"Return the product name and brand in <strong>Hebrew</strong> (the catalog is Hebrew). Use the on-package Hebrew text when legible."</li>
-      <li>Provide Israeli brand exemplars so the model anchors to local brands: <span dir="rtl">תנובה, טרה, אסם, שטראוס, עלית, פרי הגליל, תלמה, יטבתה, מולר, יופלה</span> (Tnuva, Tara, Osem, Strauss, Elite, Pri HaGalil, Telma, Yotvata, Muller, Yoplait).</li>
-      <li>For each item return: <code>heName</code> (e.g. <span dir="rtl">חלב 3%</span>), <code>heBrand</code> (nullable), <code>quantity</code> (integer count of distinct units visible), <code>unitHint</code> (<code>"unit" | "kg" | "liter" | "ml" | "gram" | "unknown"</code>), and <code>rawConfidence</code> 0–1.</li>
-      <li>Counting guidance: "Count only clearly visible distinct units. If items are stacked/occluded and you cannot count, set <code>quantity</code> to your best minimum and <code>countUncertain: true</code>." (Feeds the low/absent fallback — see Risks.)</li>
+      <li>"You are a grocery-inventory vision assistant for an Israeli office. The images are <strong>different angles of the same storage place</strong> — do not double-count an item seen from two angles."</li>
+      <li>Identify each distinct product; return <code>label</code> and <code>brand</code> in <strong>Hebrew</strong> using on-package text. Anchor to Israeli brands (Tnuva / <span dir="rtl">תנובה</span>, Tara / <span dir="rtl">טרה</span>, Osem / <span dir="rtl">אסם</span>, Strauss, Elite, Carmel / <span dir="rtl">כרמל</span>, Tomer / <span dir="rtl">תומר</span>, Danone, Maya, Coca-Cola).</li>
+      <li><strong>Depth rule (from spike):</strong> "Count an item behind another ONLY when you can see direct visual evidence of it (a visible cap, edge, or label of a second unit). Do not assume hidden units. If you suspect more behind but cannot confirm, set <code>depthUncertain: true</code> and report the count you can actually see." Multi-angle is the depth signal — items visible only in one angle still count once.</li>
+      <li><strong>Partial-item rule:</strong> "A partially-visible item behind an identified one is assumed to be the SAME product at lower <code>confidence</code>, unless it is clearly a different product."</li>
+      <li>Per item return: <code>label</code> (Hebrew), <code>brand</code> (nullable), <code>count</code> (integer), <code>unit</code> (<code>"unit" | "kg" | "liter" | "ml" | "gram" | "unknown"</code>), <code>confidence</code> 0–1, <code>depthUncertain</code> boolean, <code>isEmpty</code> boolean (spike bonus — flag empty containers).</li>
       <li>"Do not invent products you cannot see. Omit anything you are unsure exists."</li>
     </ul>
 
-    <h3>Matching algorithm (<code>matchDetectionsToProducts.ts</code>)</h3>
-    <div class="callout">
-      <strong>Constraint discovered in code:</strong> the existing <code>AlgoliaService.queryProducts(query)</code> takes only a query string and hardcodes <code>filters: storeId:X AND companyId:Y</code> internally; it returns full <code>TProduct[]</code> hits but does <em>not</em> surface a relevance score, and offers no way to constrain to a SKU set. The matching service therefore wraps Algolia rather than calling <code>queryProducts</code> directly, so it can (a) request the Algolia <code>_rankingInfo</code>/score and (b) pass <code>filters</code> that AND-in the template SKUs. The tenant filter (<code>storeId AND companyId</code>) MUST be preserved on every call.
-    </div>
-    <ul class="plan-list">
-      <li><strong>Template-constrained pass (scan mode, when a template exists):</strong> for each detection, search Algolia with query = <code>"{heBrand} {heName}"</code> and <code>filters: storeId:X AND companyId:Y AND (sku:S1 OR sku:S2 OR ...)</code> built from the template's SKUs. This narrows ~3,600 products → the ~30 the user buys — the primary accuracy unlock.</li>
-      <li><strong>Fallback pass (setup mode, or no template hit):</strong> search the full tenant index (<code>filters: storeId:X AND companyId:Y</code> only).</li>
-      <li><strong>Confidence scoring:</strong> <code>matchConfidence = f(rawConfidence_from_Gemini, algoliaTopScore, scoreGapToSecondHit)</code>. Concretely: start from <code>rawConfidence</code>; boost when the top Algolia hit's normalized score is high and well-separated from the runner-up; penalize when the top two hits are close (ambiguous) or the brand mismatches. Clamp to [0,1].</li>
-      <li><strong>Confidence policy (per spec, applied to <code>matchConfidence</code>):</strong> &gt; 0.90 → <code>band: "auto"</code> (pre-accepted); 0.60–0.90 → <code>band: "confirm"</code>; &lt; 0.60 → <code>band: "drop"</code> (returned but excluded from defaults, surfaced under "we weren't sure").</li>
-      <li><strong>No match found:</strong> detection is returned with <code>product: null, band: "drop"</code> so the UI can still show "we saw X but couldn't match it".</li>
-    </ul>
-
-    <h3>Pure diff engine (<code>computeOrderDiff.ts</code>)</h3>
-    <p>Zero I/O, fully unit-testable. Input: the active <code>InventoryTemplate</code> + matched detections. For each <em>template line</em>: find detections matched to that <code>productId</code>, sum their <code>quantity</code> → <code>detectedQty</code>; <code>orderQty = max(0, fullQty − detectedQty)</code>. Output one <code>ReviewRow</code> per template line (plus "extra" rows for confident detections not in the template, offered as optional adds in setup). Money is never touched here — see the Money note below.</p>
-    <div class="callout">
-      <strong>Money note (verified in code):</strong> despite the agorot rule in CLAUDE.md, the live cart treats <code>product.price</code> as <em>shekels</em> (<code>cart-store.ts</code> <code>selectCost</code> does <code>product.price * CONFIG.VAT/100</code> and renders via <code>Intl.NumberFormat('he-IL', ILS)</code>). This feature does <strong>no money math</strong> — the diff engine outputs quantities only, and any price shown on the review screen must reuse the existing <code>Price</code> component / <code>formatter.price</code> path (which expects shekels). Do not multiply or divide by 100 anywhere.
-    </div>
+    <h3>Counts are estimates — confirmed by the user</h3>
+    <p>Every returned <code>count</code> is a best-effort estimate. The UI presents them as editable defaults, flags <code>depthUncertain</code> rows, and only what the user confirms is written to the baseline. No code path treats a model count as authoritative.</p>
   </section>
 
   <!-- ── DATA MODEL ── -->
   <section id="data-model">
     <h2>Data Model</h2>
+    <p style="margin-bottom:12px;"><strong>Path decision:</strong> <code>{companyId}/{storeId}/storage-places/{placeId}</code> with an <code>organizationId</code> <em>field</em> — matching the existing org-scoping pattern (<code>organizationBalance</code> / <code>budgetRecords</code> / <code>orders</code> all scope by field + where-clause, not by nested path). Register <code>"storage-places"</code> in <code>storeCollections</code> (core). Doc id is a generated id (not <code>organizationId</code>, since an org has many places).</p>
     <table class="model-table">
       <thead>
         <tr><th>Field</th><th>Type</th><th>Collection / Path</th><th>Notes</th></tr>
       </thead>
       <tbody>
-        <tr><td class="field-name">InventoryTemplate</td><td class="field-type">new entity</td><td><code>{companyId}/{storeId}/inventory-templates/{userId}</code></td><td>Doc id = <code>userId</code> (one active template per user → deterministic, idempotent upsert). Must register <code>"inventory-templates"</code> in <code>storeCollections</code> (core).</td></tr>
-        <tr><td class="field-name">id</td><td class="field-type">z.string().uuid()</td><td>inventory-templates</td><td>Template's own id. Other id fields below mirror the Cart schema's <code>.uuid()</code> discipline.</td></tr>
-        <tr><td class="field-name">companyId / storeId / userId</td><td class="field-type">z.string().uuid()</td><td>inventory-templates</td><td>Tenant + owner scoping. Derived server-side from auth token, never client input.</td></tr>
-        <tr><td class="field-name">source</td><td class="field-type">"photo" | "history" | "manual"</td><td>inventory-templates</td><td>How the baseline was seeded. v1 only writes <code>"photo"</code>; field exists so history/manual drop in without migration.</td></tr>
-        <tr><td class="field-name">items[]</td><td class="field-type">TInventoryTemplateItem[]</td><td>inventory-templates</td><td>Each: <code>productId</code>, <code>sku</code>, <code>fullQty</code> (int &gt; 0), <code>unit</code>, denormalized <code>productName</code> (he) + <code>imageUrl</code> for fast render.</td></tr>
-        <tr><td class="field-name">remindEveryDays</td><td class="field-type">z.number().nullable()</td><td>inventory-templates</td><td>Restock cadence in days; <code>null</code> = reminders off. Sentinel handled in scheduler (see Security).</td></tr>
-        <tr><td class="field-name">lastScanAt</td><td class="field-type">z.number().nullable()</td><td>inventory-templates</td><td>Epoch millis (Date.now()). Drives next-reminder math.</td></tr>
-        <tr><td class="field-name">createdAt / updatedAt</td><td class="field-type">z.number()</td><td>inventory-templates</td><td>Epoch millis. NEVER Firestore Timestamp.</td></tr>
-        <tr><td class="field-name">FridgeScanLog</td><td class="field-type">new entity</td><td><code>{companyId}/{storeId}/fridge-scans/{scanId}</code></td><td>One per analyze call. Doc id = <code>scanId</code> via <code>.create()</code> (idempotent). Register <code>"fridge-scans"</code> in <code>storeCollections</code>.</td></tr>
-        <tr><td class="field-name">scanId / userId</td><td class="field-type">z.string()</td><td>fridge-scans</td><td>Owner + idempotency key. Also the rate-limit read key.</td></tr>
-        <tr><td class="field-name">mode</td><td class="field-type">"setup" | "scan"</td><td>fridge-scans</td><td>Which flow produced it.</td></tr>
-        <tr><td class="field-name">imageCount</td><td class="field-type">z.number()</td><td>fridge-scans</td><td>How many images were processed (cost driver).</td></tr>
-        <tr><td class="field-name">detectedCount / matchedCount</td><td class="field-type">z.number()</td><td>fridge-scans</td><td>Detections returned vs. matched to products. Accuracy signal.</td></tr>
-        <tr><td class="field-name">model / inputTokens / outputTokens / estCostאgorot</td><td class="field-type">z.number()</td><td>fridge-scans</td><td>Cost telemetry from Genkit usage. <code>estCost</code> stored as integer agorot (this IS new stored money → agorot per rule).</td></tr>
-        <tr><td class="field-name">createdAt</td><td class="field-type">z.number()</td><td>fridge-scans</td><td>Epoch millis. Used by the rate-limit sliding window + 7-day cleanup.</td></tr>
+        <tr><td class="field-name">StoragePlace</td><td class="field-type">new entity</td><td><code>{companyId}/{storeId}/storage-places/{placeId}</code></td><td>Replaces <code>InventoryTemplate</code>. Org-scoped via field. Register <code>"storage-places"</code> in <code>storeCollections</code>.</td></tr>
+        <tr><td class="field-name">id</td><td class="field-type">z.string()</td><td>storage-places</td><td>Generated doc id. (Org model uses plain <code>z.string()</code> ids, not <code>.uuid()</code> — match that.)</td></tr>
+        <tr><td class="field-name">companyId / storeId</td><td class="field-type">z.string()</td><td>storage-places</td><td>Tenant scope. Derived server-side from auth token, never client input.</td></tr>
+        <tr><td class="field-name">organizationId</td><td class="field-type">z.string()</td><td>storage-places</td><td>Owning org. The scoping key for all reads (<code>.where("organizationId","==",id)</code>). Verified against caller's <code>profile.organizationIds</code>.</td></tr>
+        <tr><td class="field-name">name</td><td class="field-type">z.string().min(1)</td><td>storage-places</td><td>User-given, e.g. <span dir="rtl">ארון מטבח</span>.</td></tr>
+        <tr><td class="field-name">type</td><td class="field-type">"fridge"|"cupboard"|"freezer"|"shelf"|"other"</td><td>storage-places</td><td>User-picked at creation.</td></tr>
+        <tr><td class="field-name">createdBy</td><td class="field-type">z.string()</td><td>storage-places</td><td>uid of the member who created it (audit; not an access key — any org member can edit).</td></tr>
+        <tr><td class="field-name">createdAt / updatedAt</td><td class="field-type">z.number()</td><td>storage-places</td><td>Epoch millis (<code>Date.now()</code>). NEVER Firestore Timestamp.</td></tr>
+        <tr><td class="field-name">baseline.status</td><td class="field-type">"draft" | "confirmed"</td><td>storage-places (nested)</td><td><code>"draft"</code> on create; <code>"confirmed"</code> after <code>confirmPlaceBaseline</code>.</td></tr>
+        <tr><td class="field-name">baseline.photos[]</td><td class="field-type">{ path, url }[]</td><td>storage-places (nested)</td><td>Up to 5. The long-term reference image set for the place.</td></tr>
+        <tr><td class="field-name">baseline.items[]</td><td class="field-type">TStoragePlaceItem[]</td><td>storage-places (nested)</td><td>Each: <code>label</code>, <code>productId?|null</code>, <code>sku?|null</code>, <code>count</code>, <code>unit</code>, <code>confidence</code>, <code>depthUncertain</code>. <code>productId</code>/<code>sku</code> are null now (SKU matching is a later spike).</td></tr>
+        <tr><td class="field-name">baseline.updatedAt</td><td class="field-type">z.number()</td><td>storage-places (nested)</td><td>Epoch millis of last baseline confirm.</td></tr>
+        <tr><td class="field-name">FridgeScanLog</td><td class="field-type">new entity</td><td><code>{companyId}/{storeId}/fridge-scans/{scanId}</code></td><td>One per <code>analyzePlacePhotos</code> call. Doc id = <code>scanId</code> via <code>.create()</code> (idempotent). Register <code>"fridge-scans"</code> in <code>storeCollections</code>. Cost/usage only — NO images/PII.</td></tr>
+        <tr><td class="field-name">scanId / placeId / organizationId</td><td class="field-type">z.string()</td><td>fridge-scans</td><td>Idempotency key + the place/org it analyzed.</td></tr>
+        <tr><td class="field-name">imageCount / itemCount</td><td class="field-type">z.number()</td><td>fridge-scans</td><td>Cost driver + result size.</td></tr>
+        <tr><td class="field-name">model / inputTokens / outputTokens / estCostAgorot</td><td class="field-type">z.number()</td><td>fridge-scans</td><td>Cost telemetry from Genkit usage. <code>estCostAgorot</code> stored as integer agorot (new stored money → agorot per rule).</td></tr>
+        <tr><td class="field-name">createdAt</td><td class="field-type">z.number()</td><td>fridge-scans</td><td>Epoch millis.</td></tr>
       </tbody>
     </table>
-    <p style="margin-top:14px;"><strong>No image bytes or detection text/PII are ever stored in the log doc</strong> — only counts, model, and cost. Raw photos live in Storage and are deleted after 7 days.</p>
   </section>
 
   <!-- ── FRONTEND DESIGN ── -->
   <section id="frontend-design">
     <h2>Frontend Design</h2>
 
-    <h3>Route &amp; navigation</h3>
-    <p>Add <code>fridgeScan: { path: "/fridge-scan" }</code> under <code>routes.store.children</code> in <code>apps/store/src/navigation/index.tsx</code>, register a lazy-loaded page in <code>App.tsx</code> (same pattern as existing store pages), and add an entry point (button on the cart page / catalog header) that calls <code>navigate({ to: "store.fridgeScan" })</code>. The page decides setup-vs-scan based on whether an active template exists.</p>
+    <h3>Route &amp; navigation — org-gated</h3>
+    <p>Add a store route <code>storagePlaces: { path: "/storage-places" }</code> under <code>routes.store.children</code> in <code>apps/store/src/navigation/index.tsx</code>; register a lazy page in <code>App.tsx</code>. The entry point and page are <strong>gated on an active organization</strong>: render the link/page only when <code>state.userOrganization.activeOrganization</code> is set (mirror the <code>CheckoutPage</code> "choose an org first" guard for users with orgs). For consumers (no org), the feature is simply absent.</p>
 
     <h3>Component breakdown</h3>
     <ul class="plan-list">
-      <li><code>FridgeScanPage.tsx</code> — route container; loads active template via appApi; branches to <code>SetupWizard</code> (no template) or <code>ScanScreen</code> (template exists). Mirrors <code>CheckoutPage</code>'s section/state approach (no shared stepper component exists — build a small local one).</li>
-      <li><code>SetupWizard.tsx</code> — 3 sections driven by local state (<code>"capture" | "review" | "done"</code>), like CheckoutPage. Hosts the photo step, the confirm/correct grid, and the save action.</li>
-      <li><code>PhotoCaptureStep.tsx</code> — multi-photo capture (max 6, enforced). Reuse/extend <code>components/FIleUpload/FileUpload.tsx</code> — <strong>note it is currently single-file</strong>; either render N instances or extend it to accept multiple. Each selected file is downscaled (canvas) then uploaded via <code>firebaseStorage.upload(path, file)</code>.</li>
-      <li><code>DetectionReviewGrid.tsx</code> — shared by setup + scan. One row per item: product name/image, qty stepper, confidence styling (auto = subtle check, confirm = amber "אשרו" prompt, drop = greyed under a "לא היינו בטוחים" group). Product search-to-add reuses the catalog Algolia widget scope or a simple lookup.</li>
-      <li><code>ScanScreen.tsx</code> — capture step → calls analyze → renders <code>CartReviewScreen</code>.</li>
-      <li><code>CartReviewScreen.tsx</code> — "have N / need M" rows from the diff; editable; "Add to cart" / "Add &amp; checkout" actions.</li>
+      <li><code>StoragePlacesPage.tsx</code> — route container; reads <code>activeOrganization</code>; lists places via <code>storagePlaces.list({ organizationId })</code>; "Add place" action. Guards on org presence.</li>
+      <li><code>CreatePlaceDialog.tsx</code> — name input + type picker; calls <code>storagePlaces.create({ organizationId, name, type })</code>.</li>
+      <li><code>PlaceSetupWizard.tsx</code> — for a draft place: capture (up to 5 photos) → review merged draft → save baseline (CheckoutPage-style local section state).</li>
+      <li><code>PlacePhotoCaptureStep.tsx</code> — multi-photo capture (max 5, enforced). Reuse/extend <code>components/FIleUpload/FileUpload.tsx</code> (currently single-file). Each file is canvas-downscaled then uploaded to <code>storage-place-photos/{placeId}/{n}.jpg</code> via <code>firebaseStorage.upload</code>.</li>
+      <li><code>InventoryReviewGrid.tsx</code> — one editable row per merged item: <code>label</code>, count stepper, unit, <code>depthUncertain</code> flag ("אשרו כמות"), empty-container badge, add/remove. RTL-safe.</li>
     </ul>
 
     <h3>Redux domain + appApi methods</h3>
     <ul class="plan-list">
-      <li>New domain <code>apps/store/src/domains/fridgeScan/</code> (slice + types), holding transient scan state (<code>status</code>, <code>reviewRows</code>, <code>scanId</code>, <code>error</code>) and the cached active template. Mirrors existing domains.</li>
-      <li>appApi additions (in <code>apps/store/src/appApi/index.ts</code>, user namespace): <code>fridgeScan.analyze({ scanId, imageRefs, mode })</code> and <code>fridgeScan.saveTemplate({ items, idempotencyKey })</code> — thin wrappers over <code>httpsCallable(functions, "analyzeFridgePhotos")</code> / <code>"confirmInventoryTemplate"</code> (same pattern as <code>chatbotChat</code> in <code>lib/firebase/api.ts</code>); plus <code>fridgeScan.getActiveTemplate()</code> reading <code>inventory-templates/{userId}</code> via <code>FirebaseApi.firestore.getV2</code> + <code>getPath</code>.</li>
+      <li>New domain <code>apps/store/src/domains/storagePlaces/</code> (slice + types): the org's places list + transient analyze state (<code>status</code>, draft <code>items</code>, <code>placeId</code>, <code>error</code>).</li>
+      <li>appApi additions (user namespace, mirroring <code>chatbotChat</code>'s <code>httpsCallable</code> pattern): <code>storagePlaces.create</code>, <code>storagePlaces.list</code>, <code>storagePlaces.analyze</code>, <code>storagePlaces.confirmBaseline</code> — thin wrappers over the four callables. The <code>organizationId</code> sent is the <strong>active org id</strong> from Redux (the backend re-verifies membership — see Security).</li>
     </ul>
-
-    <h3>Loading reviewed items into the cart — RECOMMENDATION</h3>
-    <div class="callout">
-      <strong>Use a single bulk <code>setV2&lt;TCart&gt;</code> write, NOT an <code>addItemToCart</code> loop.</strong> <code>addItemToCart</code> reads-modifies-writes the whole cart doc once <em>per product</em> and only increments by 1 — looping it would be N racy full-doc writes and can't set arbitrary quantities. The reviewed list maps cleanly to <code>TCartItemProduct[]</code> (<code>{ product, amount }</code>), so build the merged items array (existing cart items + reviewed rows, summing amounts on <code>product.id</code> collision) and write it once via <code>FirebaseApi.firestore.setV2&lt;TCart&gt;({ collection: getPath({...,collectionName:"cart"}), doc: { ...actualCart, items } })</code> — exactly the shape <code>createCartFromOrder</code> already uses. One write, correct quantities, no races.
-    </div>
 
     <h3>i18n / RTL (Hebrew primary)</h3>
     <ul class="plan-list">
-      <li>Add a <code>fridgeScan.*</code> i18next namespace. Keys (Hebrew values): <code>title</code> (<span dir="rtl">בנו הזמנה מתמונות המקרר</span>), <code>setup.cta</code>, <code>capture.hint</code>, <code>review.have</code> / <code>review.need</code>, <code>confidence.confirm</code> (<span dir="rtl">אשרו פריט זה</span>), <code>confidence.unsure</code> (<span dir="rtl">לא היינו בטוחים</span>), <code>saveTemplate</code> (<span dir="rtl">שמרו כמקרר מלא</span>), <code>addToCart</code>, <code>error.rateLimited</code> (<span dir="rtl">נסו שוב בעוד מספר דקות</span>), <code>error.tooManyImages</code>.</li>
-      <li>Layout inherits RTL from <code>document.body.dir</code>; steppers/grids must be RTL-safe (no hard-coded left/right).</li>
+      <li>New <code>storagePlaces.*</code> i18next namespace. Keys (Hebrew values): <code>title</code> (<span dir="rtl">מקומות אחסון</span>), <code>addPlace</code> (<span dir="rtl">הוספת מקום</span>), <code>type.fridge</code>/<code>cupboard</code>/<code>freezer</code>/<code>shelf</code>/<code>other</code>, <code>capture.hint</code> (<span dir="rtl">צלמו עד 5 זוויות</span>), <code>review.confirmCount</code> (<span dir="rtl">אשרו כמות</span>), <code>review.uncertain</code> (<span dir="rtl">לא בטוח — בדקו</span>), <code>saveBaseline</code> (<span dir="rtl">שמרו כמלא</span>), <code>error.notInOrg</code>, <code>error.tooManyImages</code>.</li>
+      <li>Layout inherits RTL from <code>document.body.dir</code>; steppers/grids must be RTL-safe.</li>
     </ul>
   </section>
 
-  <!-- ── COST & ABUSE ── -->
-  <section id="cost">
-    <h2>Cost &amp; Abuse Controls (mandatory — all-stores, no flag)</h2>
-    <div class="callout">Because there is no feature flag or gating, these are first-class requirements, not nice-to-haves. Every one is enforced server-side; client-side measures are UX only and must never be trusted as the limit.</div>
+  <!-- ── AUTH / INFRA ── -->
+  <section id="auth-infra">
+    <h2>Auth / Infra Decision (corrected)</h2>
+    <div class="callout warn">
+      <strong>Detection uses the Gemini Developer API, NOT Vertex.</strong> The module already does <code>genkit({ plugins: [googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })], model: googleAI.model("gemini-2.5-flash") })</code>. Keep this. Do NOT switch to <code>vertexAI</code> and do NOT use <code>defineSecret</code>. The key lives in <code>functions/.env.jsdev-stores-prod</code> AND Secret Manager (<code>GOOGLE_GENAI_API_KEY</code>).
+    </div>
+    <div class="callout warn">
+      <strong>KNOWN PRODUCTION RISK — the free Developer API is flaky.</strong> It returns HTTP <strong>503 "model is overloaded / high demand" on roughly 2 of 3 calls</strong>. The current code has <strong>no retry</strong> and only catches <strong>429</strong> (not 503), so a 503 currently surfaces as a generic <code>internal</code> error. Before this ships to production, the analyze path MUST gain: (1) <strong>retry with backoff</strong> (e.g. 2–3 attempts, jittered) around the Gemini call inside <code>reconcilePlaceInventory</code>; and (2) <strong>503 → friendly message</strong> handling in the callable (return a "vision temporarily busy, try again" warning, not a hard throw) — mirroring the existing 429 branch. Alternatively, reconsider <strong>Vertex</strong> (more reliable; the chatbot uses it) as a follow-up if 503s persist after retry. This is the single biggest delivery risk and is called out again in Risks.
+    </div>
     <ul class="plan-list">
-      <li><strong>Per-user rate limit (server):</strong> <code>checkScanRateLimit.ts</code> counts the user's <code>fridge-scans</code> docs in a sliding window (e.g. ≤ 5 scans / hour and ≤ 20 / day per <code>userId</code>). Over limit → <code>HttpsError("resource-exhausted")</code>. Window is read from the log collection (already written per scan), so no extra store needed.</li>
-      <li><strong>Hard image cap (server + client):</strong> server rejects <code>imageRefs.length &gt; 6</code> with <code>invalid-argument</code>; client disables capture past 6. Cap is the dominant cost lever (Gemini bills per image).</li>
-      <li><strong>Image downscaling (client + server guard):</strong> client downscales to longest-edge ≤ 1280px, JPEG q≈0.7 before upload (canvas). Server validates each image's byte size is under a ceiling (e.g. 1.5 MB) and rejects oversized payloads rather than forwarding them to Gemini.</li>
-      <li><strong>Structured per-scan cost logging:</strong> every analyze writes a <code>fridge-scans</code> doc with <code>imageCount</code>, <code>model</code>, token usage, and <code>estCost</code> (agorot), and a <code>logger.info("fridgeScan.analyzed", {...})</code> structured line (no images/PII). This is the cost-visibility surface.</li>
-      <li><strong>Metric to watch:</strong> daily sum of <code>fridge-scans.estCost</code> per store + scans-per-user p95. A spike in either is the early-warning signal for abuse or a prompt regression. (Surface later via the existing analytics/Mixpanel path or a simple admin query — admin UI is out of scope for v1.)</li>
-      <li><strong>Quota-error handling:</strong> mirror <code>chatbotApi</code> — catch 429/quota errors and return a friendly "temporarily unavailable" message instead of a hard throw.</li>
+      <li><code>process.env.GOOGLE_GENAI_API_KEY</code> must be <code>.trim()</code>-ed at read (guard against a trailing newline corrupting the key).</li>
+      <li>Secret verification: <code>firebase functions:secrets:access GOOGLE_GENAI_API_KEY | od -c</code> must end in exactly one <code>\n</code>; set via <code>printf '%s' "key" | firebase functions:secrets:set GOOGLE_GENAI_API_KEY --data-file=-</code> (never <code>echo</code>).</li>
     </ul>
-  </section>
-
-  <!-- ── RESTOCK REMINDERS ── -->
-  <section id="reminders">
-    <h2>Recurring-scan / Restock Reminders</h2>
-    <p>Final shippable increment. Reuses the verified scheduled-trigger + event-bus + notification patterns already in the repo (<code>onSchedule</code> in <code>budget/triggers/reconcileProjectionsSchedule.ts</code>; <code>subscribe(...)</code> + <code>emailService</code> in <code>notifications/subscribers/orderPlacedAdminEmail.tsx</code>).</p>
-    <ul class="plan-list">
-      <li><code>triggers/restockReminderSchedule.ts</code> — <code>onSchedule({ schedule: "every day 09:00", timeZone: "Asia/Jerusalem" })</code>. Iterates stores (like the budget job), then templates where <code>remindEveryDays</code> is non-null and <code>now − lastScanAt ≥ remindEveryDays·86400000</code>. For each due template, <code>emitEvent</code> a <code>restock-due</code> event (no PII beyond ids/email).</li>
-      <li><code>subscribers/sendRestockReminderOnDue.ts</code> — <code>subscribe</code> to <code>restock-due</code> → send a notification (email via existing <code>emailService</code>, and/or FCM via the existing messaging path) with a deep link to <code>/fridge-scan</code>. Idempotent via deterministic doc id <code>evt_sendRestockReminder_{eventId}</code>.</li>
-      <li><strong>Sentinel handling:</strong> <code>remindEveryDays = null</code> means reminders OFF — the scheduler MUST skip null/≤0 before the date math (documented in Security Invariants).</li>
-      <li>UI: a simple "remind me every N days" toggle on the template (writes <code>remindEveryDays</code>). Defaults to off.</li>
-    </ul>
-
-    <h3>Future enhancement — seed-from-order-history (designed, not built)</h3>
-    <p>The <code>seedTemplate.ts</code> service is the single seam. v1 implements only the <code>{ source: "photo", items }</code> path. A future history path adds a <code>{ source: "history" }</code> branch that reads the user's recent <code>orders</code>, aggregates typical quantities per product, and returns the same <code>TInventoryTemplateItem[]</code> shape — no change to the entity, the diff engine, the callables, or the UI review grid. Because <code>source</code> already exists on the entity and the seeding boundary is isolated, this is additive.</p>
   </section>
 
   <!-- ── CONTRACTS ── -->
@@ -476,185 +502,163 @@
     <h2>Contracts</h2>
 
     <div class="contract-block">
-      <div class="contract-label">InventoryTemplate (domain entity — client + backend) <span class="contract-location">packages/core/lib/entities/InventoryTemplate.ts</span></div>
+      <div class="contract-label">StoragePlace (domain entity — client + backend) <span class="contract-location">packages/core/lib/entities/StoragePlace.ts</span></div>
       <pre>import { z } from "zod";
 
-export const InventoryTemplateSourceSchema = z.enum(["photo", "history", "manual"]);
-export type TInventoryTemplateSource = z.infer&lt;typeof InventoryTemplateSourceSchema&gt;;
+export const StoragePlaceTypeSchema = z.enum([
+  "fridge", "cupboard", "freezer", "shelf", "other",
+]);
+export type TStoragePlaceType = z.infer&lt;typeof StoragePlaceTypeSchema&gt;;
 
-export const InventoryTemplateItemSchema = z.object({
-  productId: z.string(),
-  sku: z.string(),
-  fullQty: z.number().int().positive(),      // baseline "full" count
-  unit: z.enum(["unit", "kg", "gram", "liter", "ml"]),
-  // denormalized for fast render (Hebrew name + image), refreshed on save
-  productName: z.string(),
-  imageUrl: z.string().url().nullable(),
-});
-export type TInventoryTemplateItem = z.infer&lt;typeof InventoryTemplateItemSchema&gt;;
+export const StoragePlaceUnitSchema = z.enum([
+  "unit", "kg", "gram", "liter", "ml", "unknown",
+]);
 
-export const InventoryTemplateSchema = z.object({
-  type: z.literal("InventoryTemplate"),
-  id: z.string().uuid(),
-  companyId: z.string().uuid(),
-  storeId: z.string().uuid(),
-  userId: z.string().uuid(),
-  source: InventoryTemplateSourceSchema,
-  items: z.array(InventoryTemplateItemSchema),
-  remindEveryDays: z.number().int().positive().nullable(),  // null = reminders off
-  lastScanAt: z.number().nullable(),                        // epoch millis
-  createdAt: z.number(),                                    // epoch millis
-  updatedAt: z.number(),                                    // epoch millis
+// One confirmed/estimated inventory line on a place's baseline.
+export const StoragePlaceItemSchema = z.object({
+  label: z.string(),                          // Hebrew product label (what we saw)
+  productId: z.string().nullable(),           // null now — SKU matching is a later spike
+  sku: z.string().nullable(),                 // null now — "
+  count: z.number().int().min(0),             // best-effort estimate, user-confirmed
+  unit: StoragePlaceUnitSchema,
+  confidence: z.number().min(0).max(1),
+  depthUncertain: z.boolean(),                // model could not confirm what's behind
 });
-export type TInventoryTemplate = z.infer&lt;typeof InventoryTemplateSchema&gt;;</pre>
+export type TStoragePlaceItem = z.infer&lt;typeof StoragePlaceItemSchema&gt;;
+
+export const StoragePlacePhotoSchema = z.object({
+  path: z.string(),                           // storage-place-photos/{placeId}/{n}.jpg
+  url: z.string().url(),
+});
+
+export const StoragePlaceBaselineSchema = z.object({
+  status: z.enum(["draft", "confirmed"]),
+  photos: z.array(StoragePlacePhotoSchema).max(5),   // kept long-term
+  items: z.array(StoragePlaceItemSchema),
+  updatedAt: z.number(),                              // epoch millis
+});
+
+export const StoragePlaceSchema = z.object({
+  type: z.literal("StoragePlace"),
+  id: z.string(),
+  companyId: z.string(),
+  storeId: z.string(),
+  organizationId: z.string(),                 // org-scoping key (field, not path)
+  name: z.string().min(1),
+  placeType: StoragePlaceTypeSchema,          // "type" key reserved for the entity tag
+  createdBy: z.string(),                      // uid
+  createdAt: z.number(),                       // epoch millis
+  updatedAt: z.number(),                       // epoch millis
+  baseline: StoragePlaceBaselineSchema,
+});
+export type TStoragePlace = z.infer&lt;typeof StoragePlaceSchema&gt;;</pre>
     </div>
 
     <div class="contract-block">
-      <div class="contract-label">Detection &amp; review shapes (client renders them → core) <span class="contract-location">packages/core/lib/entities/FridgeScan.ts</span></div>
-      <pre>import { z } from "zod";
-import { ProductSchema } from "./Product";
-
-export const ScanModeSchema = z.enum(["setup", "scan"]);
-export type TScanMode = z.infer&lt;typeof ScanModeSchema&gt;;
-
-export const ConfidenceBandSchema = z.enum(["auto", "confirm", "drop"]);
-export type TConfidenceBand = z.infer&lt;typeof ConfidenceBandSchema&gt;;
-
-// One row the review UI renders (setup confirm grid AND scan cart-review)
-export const ReviewRowSchema = z.object({
-  rowId: z.string(),                          // stable client key
-  product: ProductSchema.nullable(),          // null = detected but unmatched
-  detectedHeName: z.string(),                 // what Gemini saw (Hebrew)
-  detectedHeBrand: z.string().nullable(),
-  detectedQty: z.number().int().min(0),
-  fullQty: z.number().int().min(0),           // 0 in setup mode (no template yet)
-  orderQty: z.number().int().min(0),          // max(0, fullQty - detectedQty); setup => detectedQty
-  matchConfidence: z.number().min(0).max(1),
-  band: ConfidenceBandSchema,
-  countUncertain: z.boolean(),                // model could not count reliably
+      <div class="contract-label">Reconciled inventory (Gemini output → returned as draft) <span class="contract-location">packages/core/lib/entities/StoragePlace.ts (shared) · backend mirrors in types.ts</span></div>
+      <pre>// What analyzePlacePhotos returns for the user to review (the merged draft).
+export const ReconciledItemSchema = z.object({
+  label: z.string(),                          // Hebrew
+  brand: z.string().nullable(),               // Hebrew Israeli brand, nullable
+  count: z.number().int().min(0),             // estimate
+  unit: StoragePlaceUnitSchema,
+  confidence: z.number().min(0).max(1),
+  depthUncertain: z.boolean(),
+  isEmpty: z.boolean(),                       // spike bonus: flag empty containers
 });
-export type TReviewRow = z.infer&lt;typeof ReviewRowSchema&gt;;</pre>
+export type TReconciledItem = z.infer&lt;typeof ReconciledItemSchema&gt;;</pre>
     </div>
 
     <div class="contract-block">
-      <div class="contract-label">Callable: analyzeFridgePhotos (request/response) <span class="contract-location">packages/core/lib/entities/FridgeScan.ts</span></div>
+      <div class="contract-label">Callable: createStoragePlace <span class="contract-location">packages/core/lib/entities/StoragePlace.ts</span></div>
+      <pre>export const CreateStoragePlaceRequestSchema = z.object({
+  organizationId: z.string().min(1),          // re-verified against caller's profile
+  name: z.string().min(1),
+  type: StoragePlaceTypeSchema,
+  // companyId/storeId/uid derived from auth token — never client input.
+});
+export type TCreateStoragePlaceRequest =
+  z.infer&lt;typeof CreateStoragePlaceRequestSchema&gt;;
+
+export const CreateStoragePlaceResponseSchema = z.object({
+  placeId: z.string(),
+});</pre>
+    </div>
+
+    <div class="contract-block">
+      <div class="contract-label">Callable: listStoragePlaces <span class="contract-location">packages/core/lib/entities/StoragePlace.ts</span></div>
+      <pre>export const ListStoragePlacesRequestSchema = z.object({
+  organizationId: z.string().min(1),          // re-verified against caller's profile
+});
+
+export const ListStoragePlacesResponseSchema = z.object({
+  places: z.array(StoragePlaceSchema),
+});</pre>
+    </div>
+
+    <div class="contract-block">
+      <div class="contract-label">Callable: analyzePlacePhotos <span class="contract-location">packages/core/lib/entities/StoragePlace.ts</span></div>
       <pre>// Client sends references to already-uploaded Storage objects (not bytes).
-export const FridgeImageRefSchema = z.object({
-  path: z.string(),          // {companyId}/{storeId}/fridge-scans/{scanId}/{n}.jpg
-  url: z.string().url(),     // download URL returned by firebaseStorage.upload
+export const StoragePlaceImageRefSchema = z.object({
+  path: z.string(),          // storage-place-photos/{placeId}/{n}.jpg
+  url: z.string().url(),
 });
 
-export const AnalyzeFridgeScanRequestSchema = z.object({
-  scanId: z.string().min(1),                 // client-generated; idempotency + log id
-  mode: ScanModeSchema,
-  imageRefs: z.array(FridgeImageRefSchema).min(1).max(6),
-  // companyId/storeId/userId are NOT trusted from client — derived from auth token.
+export const AnalyzePlacePhotosRequestSchema = z.object({
+  scanId: z.string().min(1),                  // client-generated; idempotency + log id
+  placeId: z.string().min(1),                 // org verified via the place's organizationId
+  imageRefs: z.array(StoragePlaceImageRefSchema).min(1).max(5),
 });
-export type TAnalyzeFridgeScanRequest = z.infer&lt;typeof AnalyzeFridgeScanRequestSchema&gt;;
+export type TAnalyzePlacePhotosRequest =
+  z.infer&lt;typeof AnalyzePlacePhotosRequestSchema&gt;;
 
-export const AnalyzeFridgeScanResponseSchema = z.object({
-  scanId: z.string(),
-  mode: ScanModeSchema,
-  rows: z.array(ReviewRowSchema),
-  hadTemplate: z.boolean(),                   // was matching template-constrained?
-  warning: z.string().nullable(),            // e.g. quota fallback message
+export const AnalyzePlacePhotosResponseSchema = z.object({
+  placeId: z.string(),
+  items: z.array(ReconciledItemSchema),       // ONE merged, de-duped draft inventory
+  warning: z.string().nullable(),             // e.g. "vision temporarily busy" (503 fallback)
 });
-export type TAnalyzeFridgeScanResponse = z.infer&lt;typeof AnalyzeFridgeScanResponseSchema&gt;;</pre>
+export type TAnalyzePlacePhotosResponse =
+  z.infer&lt;typeof AnalyzePlacePhotosResponseSchema&gt;;</pre>
     </div>
 
     <div class="contract-block">
-      <div class="contract-label">Callable: confirmInventoryTemplate (request/response) <span class="contract-location">packages/core/lib/entities/FridgeScan.ts</span></div>
-      <pre>export const ConfirmTemplateItemSchema = z.object({
-  productId: z.string(),
-  fullQty: z.number().int().positive(),
+      <div class="contract-label">Callable: confirmPlaceBaseline <span class="contract-location">packages/core/lib/entities/StoragePlace.ts</span></div>
+      <pre>export const ConfirmPlaceBaselineRequestSchema = z.object({
+  idempotencyKey: z.string().min(1),          // dedup: idem_{idempotencyKey}
+  placeId: z.string().min(1),                 // org verified via the place's organizationId
+  items: z.array(StoragePlaceItemSchema).min(0),  // the user-confirmed list (may add/remove)
+  photoRefs: z.array(StoragePlacePhotoSchema).max(5),  // baseline photos to keep long-term
 });
+export type TConfirmPlaceBaselineRequest =
+  z.infer&lt;typeof ConfirmPlaceBaselineRequestSchema&gt;;
 
-export const ConfirmTemplateRequestSchema = z.object({
-  idempotencyKey: z.string().min(1),         // dedup: idem_{idempotencyKey}
-  source: InventoryTemplateSourceSchema.default("photo"),
-  items: z.array(ConfirmTemplateItemSchema).min(1),
-  remindEveryDays: z.number().int().positive().nullable().default(null),
-  // server re-fetches each product by id (tenant-scoped) to fill sku/name/image —
-  // never trusts client-sent denormalized fields.
-});
-export type TConfirmTemplateRequest = z.infer&lt;typeof ConfirmTemplateRequestSchema&gt;;
-
-export const ConfirmTemplateResponseSchema = z.object({
-  templateId: z.string(),
+export const ConfirmPlaceBaselineResponseSchema = z.object({
+  placeId: z.string(),
   itemCount: z.number(),
-});
-export type TConfirmTemplateResponse = z.infer&lt;typeof ConfirmTemplateResponseSchema&gt;;</pre>
+});</pre>
     </div>
 
     <div class="contract-block">
-      <div class="contract-label">Genkit vision flow output (backend-only) <span class="contract-location">functions/src/modules/fridgeScan/types.ts</span></div>
-      <pre>import { z } from "genkit"; // genkit re-exports zod
-
-export const DetectedItemSchema = z.object({
-  heName: z.string(),                         // Hebrew product noun
-  heBrand: z.string().nullable(),            // Israeli brand if legible
-  quantity: z.number().int().min(0),
-  unitHint: z.enum(["unit", "kg", "liter", "ml", "gram", "unknown"]),
-  rawConfidence: z.number().min(0).max(1),
-  countUncertain: z.boolean(),
-});
-export const DetectedItemArraySchema = z.array(DetectedItemSchema);
-export type TDetectedItem = z.infer&lt;typeof DetectedItemSchema&gt;;
-
-// internal: matched detection before diff
-export type MatchedDetection = {
-  detection: TDetectedItem;
-  product: import("@jsdev_ninja/core").TProduct | null;
-  matchConfidence: number;
-  band: "auto" | "confirm" | "drop";
-};</pre>
+      <div class="contract-label">Reconciliation strategy boundary (backend) <span class="contract-location">functions/src/modules/fridgeScan/services/reconcilePlaceInventory.ts</span></div>
+      <pre>// The ONLY seam the strategy can change behind. Approach #1: one Gemini call.
+reconcilePlaceInventory(args: {
+  imageRefs: { path: string; url: string }[];   // up to 5 angles of ONE place
+}): Promise&lt;{
+  items: TReconciledItem[];                       // merged, de-duped across angles
+  usage: { inputTokens: number; outputTokens: number; model: string };
+}&gt;
+// Internally: 1 ai.generate (Developer API) with depth-aware Hebrew prompt +
+// output.schema = ReconciledItemArraySchema, wrapped in retry/backoff for 503.</pre>
     </div>
 
     <div class="contract-block">
-      <div class="contract-label">Module event payloads <span class="contract-location">functions/src/modules/fridgeScan/events.ts</span></div>
-      <pre>import { z } from "zod";
-
-export const FridgeScanEventTypes = {
-  templateSaved: "fridgeScan.templateSaved",
-  scanCompleted: "fridgeScan.scanCompleted",
-  restockDue:    "fridgeScan.restockDue",
-} as const;
-
-export const RestockDuePayload = z.object({
-  userId: z.string(),
-  templateId: z.string(),
-  customerEmail: z.string().email().nullable(),
-});
-export type TRestockDuePayload = z.infer&lt;typeof RestockDuePayload&gt;;
-
-// emitted via emitEvent({ type, source: "fridgeScan", companyId, storeId, actorId, payload })</pre>
-    </div>
-
-    <div class="contract-block">
-      <div class="contract-label">Service signatures (backend) <span class="contract-location">functions/src/modules/fridgeScan/services/*</span></div>
-      <pre>// orchestrator
-analyzeFridgePhotos(args: {
-  companyId: string; storeId: string; userId: string;
-  scanId: string; mode: TScanMode; imageRefs: TFridgeImageRef[];
-}): Promise&lt;TAnalyzeFridgeScanResponse&gt;
-
-// vision (Genkit/Vertex Gemini 2.5)
-detectProductsFromImages(args: {
-  imageRefs: TFridgeImageRef[];
-}): Promise&lt;{ items: TDetectedItem[]; usage: { inputTokens: number; outputTokens: number; model: string } }&gt;
-
-// matching (wraps Algolia; preserves storeId AND companyId filter; adds SKU constraint)
-matchDetectionsToProducts(args: {
+      <div class="contract-label">Org-membership guard (backend) <span class="contract-location">functions/src/modules/fridgeScan/services/checkOrgMembership.ts</span></div>
+      <pre>// Reads the caller's own profile (tenant-scoped) and asserts membership.
+// Models the profile-read-then-verify shape from customers/deleteClient.ts.
+checkOrgMembership(args: {
   companyId: string; storeId: string;
-  detections: TDetectedItem[];
-  templateSkus: string[] | null;     // null => full-index fallback
-}): Promise&lt;MatchedDetection[]&gt;
-
-// pure — no I/O
-computeOrderDiff(args: {
-  template: TInventoryTemplate | null;   // null in setup mode
-  matched: MatchedDetection[];
-}): TReviewRow[]</pre>
+  uid: string; organizationId: string;
+}): Promise&lt;void&gt;   // throws HttpsError("permission-denied") if not a member</pre>
     </div>
   </section>
 
@@ -665,33 +669,34 @@ computeOrderDiff(args: {
     <div class="fanout-item">
       <div class="fanout-field">storeCollections registry</div>
       <div class="fanout-meta">Category: Parallel registry — Producer: <code>packages/core/lib/firebase-api/index.ts</code></div>
-      <p style="font-size:13px;color:#374151;margin-bottom:8px;">Adding the two new collections requires editing the <code>storeCollections</code> <code>as const</code> map, because <code>getPath({ collectionName })</code> is typed as <code>keyof typeof storeCollections</code>. Without registration, every <code>getPath</code> call for the new collections fails to type-check across both packages.</p>
+      <p style="font-size:13px;color:#374151;margin-bottom:8px;">Adding the new collections requires editing the <code>storeCollections</code> <code>as const</code> map — <code>getPath({ collectionName })</code> is typed <code>keyof typeof storeCollections</code>, so without registration every <code>getPath</code> for the new collections fails to type-check in BOTH packages.</p>
       <ul class="plan-list">
-        <li>Add <code>"inventory-templates": "inventory-templates"</code> to <code>storeCollections</code>.</li>
+        <li>Add <code>"storage-places": "storage-places"</code> to <code>storeCollections</code>.</li>
         <li>Add <code>"fridge-scans": "fridge-scans"</code> to <code>storeCollections</code>.</li>
         <li>Consumer — backend <code>internal/paths.ts</code> uses both via <code>getPath</code>.</li>
-        <li>Consumer — frontend appApi <code>getActiveTemplate</code> / cart merge uses <code>getPath({ collectionName: "inventory-templates" })</code>.</li>
-        <li>Triggers/scripts that iterate stores must include the new collections only if they need them (none required for v1).</li>
+        <li>Consumer — frontend appApi <code>storagePlaces.list</code> uses <code>getPath({ collectionName: "storage-places" })</code> if it reads directly (otherwise it goes through the callable).</li>
       </ul>
     </div>
 
     <div class="fanout-item">
-      <div class="fanout-field">source: "photo" | "history" | "manual"</div>
-      <div class="fanout-meta">Category: Discriminated union — Producer: <code>packages/core/.../InventoryTemplate.ts</code> &amp; <code>services/seedTemplate.ts</code></div>
-      <p style="font-size:13px;color:#374151;margin-bottom:8px;">Today only <code>"photo"</code> is produced. The union exists so future seeding paths drop in. Consumers that branch on <code>source</code> must handle all three (or default) when a new value is produced.</p>
+      <div class="fanout-field">StoragePlaceType: "fridge" | "cupboard" | "freezer" | "shelf" | "other"</div>
+      <div class="fanout-meta">Category: Discriminated union — Producer: <code>packages/core/.../StoragePlace.ts</code></div>
+      <p style="font-size:13px;color:#374151;margin-bottom:8px;">Every consumer that branches on place type or renders a type label must handle all five values (or default). Adding a sixth type later fans out to each of these.</p>
       <ul class="plan-list">
-        <li>Consumer — <code>services/seedTemplate.ts</code> (the only place that switches on <code>source</code>). v1: implement <code>"photo"</code>; leave a clear <code>default</code>/exhaustiveness guard for <code>"history"</code>/<code>"manual"</code>.</li>
-        <li>Consumer — any analytics/admin display of template provenance (out of scope v1, but the union is the seam).</li>
+        <li>Consumer — <code>CreatePlaceDialog.tsx</code> type picker (must list all values).</li>
+        <li>Consumer — <code>StoragePlacesPage.tsx</code> per-place type label/icon rendering.</li>
+        <li>Consumer — <code>storagePlaces.*</code> i18n namespace (one key per type).</li>
       </ul>
     </div>
 
     <div class="fanout-item">
       <div class="fanout-field">module re-exports in functions entry</div>
       <div class="fanout-meta">Category: Parallel registry — Producer: <code>functions/src/index.tsx</code></div>
-      <p style="font-size:13px;color:#374151;margin-bottom:8px;">Cloud Functions are only deployed if re-exported from the root entry (verified: each module's functions are <code>export { ... } from "./modules/x"</code>). Missing a re-export = the function silently does not deploy.</p>
+      <p style="font-size:13px;color:#374151;margin-bottom:8px;">Cloud Functions deploy only if re-exported from the root entry. Missing a re-export = the function silently does not deploy. The old spike export (<code>detectFridgeProducts</code>) must be removed at the same time the four new ones are added.</p>
       <ul class="plan-list">
-        <li>Add <code>export { analyzeFridgePhotos, confirmInventoryTemplate, restockReminderSchedule } from "./modules/fridgeScan";</code> to <code>functions/src/index.tsx</code>.</li>
-        <li><code>modules/fridgeScan/index.ts</code> re-exports those three from their files (mirrors <code>chatbot/index.ts</code>).</li>
+        <li>Remove <code>export { detectFridgeProducts } from "./modules/fridgeScan"</code> (spike).</li>
+        <li>Add <code>export { createStoragePlace, listStoragePlaces, analyzePlacePhotos, confirmPlaceBaseline } from "./modules/fridgeScan"</code>.</li>
+        <li><code>modules/fridgeScan/index.ts</code> re-exports those four from their files.</li>
       </ul>
     </div>
   </section>
@@ -700,11 +705,11 @@ computeOrderDiff(args: {
   <section id="shared">
     <h2>Shared Package Changes (@jsdev_ninja/core)</h2>
     <ul class="plan-list">
-      <li>New file <code>packages/core/lib/entities/InventoryTemplate.ts</code> — entity + item + source schemas.</li>
-      <li>New file <code>packages/core/lib/entities/FridgeScan.ts</code> — scan mode, confidence band, review row, and both callables' request/response schemas (client renders + sends these).</li>
-      <li>Export both from the core entities barrel so <code>@jsdev_ninja/core</code> surfaces the new types.</li>
-      <li>Register <code>"inventory-templates"</code> and <code>"fridge-scans"</code> in <code>storeCollections</code> (<code>packages/core/lib/firebase-api/index.ts</code>).</li>
-      <li><strong>Version bump 0.17.0 → 0.18.0</strong> in <code>packages/core/package.json</code>, then set the dependency to <code>^0.18.0</code> in BOTH <code>apps/store/package.json</code> AND <code>functions/package.json</code> (both currently <code>^0.17.0</code>). CI publishes core to npm on merge to main; the backend installs from the registry, so the version reference must match exactly. This is a coordinated step — see Backend Task 1.</li>
+      <li>New file <code>packages/core/lib/entities/StoragePlace.ts</code> — the entity, item, baseline, reconciled-item, and all four callables' request/response schemas (client renders + sends these).</li>
+      <li>Export from the core entities barrel so <code>@jsdev_ninja/core</code> surfaces the new types.</li>
+      <li><strong>Delete the consumer <code>InventoryTemplate</code> design</strong> — it was never built (the previous plan was a draft), so this is a plan-level removal, not a code migration. Confirm no <code>InventoryTemplate</code> entity exists in core before assuming it's clean.</li>
+      <li>Register <code>"storage-places"</code> and <code>"fridge-scans"</code> in <code>storeCollections</code> (<code>packages/core/lib/firebase-api/index.ts</code>).</li>
+      <li><strong>Version bump 0.21.0 → 0.22.0</strong> in <code>packages/core/package.json</code>, then set the dependency to <code>^0.22.0</code> in BOTH <code>apps/store/package.json</code> AND <code>functions/package.json</code> (both currently <code>^0.21.0</code>). CI publishes core on merge to main; the backend installs from the registry, so versions must match. Coordinated step — see Backend Task B1.</li>
     </ul>
   </section>
 
@@ -713,36 +718,28 @@ computeOrderDiff(args: {
     <h2>Backend Tasks</h2>
     <div class="task-list">
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B1 — Core contracts + collection registry + version bump <span class="task-tag">core</span></div>
-        <div class="task-detail">Add <code>InventoryTemplate.ts</code> and <code>FridgeScan.ts</code> entities, export from the barrel, register both collections in <code>storeCollections</code>, bump core to 0.18.0, and update the dep to <code>^0.18.0</code> in <code>apps/store/package.json</code> + <code>functions/package.json</code>. Build core; verify both consumers type-check. BLOCKS everything else.</div>
+        <div class="task-title">B1 — Core contract + collection registry + version bump <span class="task-tag">core</span></div>
+        <div class="task-detail">Add <code>StoragePlace.ts</code> (entity + reconciled item + 4 callable request/response schemas), export from the barrel, register <code>"storage-places"</code> + <code>"fridge-scans"</code> in <code>storeCollections</code>, bump core 0.21.0 → 0.22.0, update dep to <code>^0.22.0</code> in <code>apps/store</code> + <code>functions</code>. Build core; verify both consumers type-check. BLOCKS everything.</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B2 — fridgeScan module skeleton + internal stores + paths <span class="task-tag">fridgeScan</span></div>
-        <div class="task-detail">Create the module tree, <code>README.md</code>, <code>events.ts</code>, <code>types.ts</code>, <code>internal/paths.ts</code> (via <code>getPath</code>), <code>internal/templatesStore.ts</code> (deterministic id = userId, idempotent upsert), <code>internal/scanLogStore.ts</code> (<code>.create()</code> with id = scanId; ALREADY_EXISTS → no-op).</div>
+        <div class="task-title">B2 — Module skeleton: paths, store, org guard, entry rewire <span class="task-tag">fridgeScan</span></div>
+        <div class="task-detail"><code>internal/paths.ts</code> (storage-places + fridge-scans via <code>getPath</code>); <code>internal/storagePlacesStore.ts</code> (create / get / list-by-org / update baseline); <code>services/checkOrgMembership.ts</code> (read <code>profiles/{uid}</code> tenant-scoped, assert <code>organizationIds.includes(orgId)</code>, throw <code>permission-denied</code> — model on <code>deleteClient.ts</code>). Remove the spike's <code>detectFridgeProducts</code> export from <code>functions/src/index.tsx</code> and module <code>index.ts</code>.</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B3 — Pure diff engine + unit tests <span class="task-tag">fridgeScan</span></div>
-        <div class="task-detail"><code>services/computeOrderDiff.ts</code>: quantity-only, no I/O. <code>orderQty = max(0, fullQty − detectedQty)</code>; setup mode (no template) → rows from detections with <code>fullQty=0, orderQty=detectedQty</code>. Unit-test edge cases (over-stocked → 0, unmatched detection, extras, countUncertain passthrough). No money math.</div>
+        <div class="task-title">B3 — Reconciliation strategy (Approach #1) + retry/503 <span class="task-tag">fridgeScan</span></div>
+        <div class="task-detail"><code>services/reconcilePlaceInventory.ts</code>: fold in the existing <code>detectProductsFromImages</code> Gemini wiring (Developer API — <code>googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY.trim() })</code>). ONE multimodal <code>ai.generate</code> across all angle images with the depth-aware Hebrew merge prompt; <code>output.schema = ReconciledItemArraySchema</code>. WRAP the call in retry/backoff (2–3 jittered attempts) and treat 503/"overloaded"/"high demand" like the existing 429 branch → return a <code>warning</code>, not a throw. Return items + usage.</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B4 — Vision flow (Genkit/Vertex Gemini 2.5) <span class="task-tag">fridgeScan</span></div>
-        <div class="task-detail"><code>services/detectProductsFromImages.ts</code>: module-level <code>ai = genkit({ plugins:[vertexAI({location:"us-central1"})], model: vertexAI.model("gemini-2.5-flash") })</code> using <code>@genkit-ai/google-genai</code> (as the chatbot does). Multimodal <code>ai.generate</code> with images as media parts + the Hebrew detection prompt; force <code>output.schema = DetectedItemArraySchema</code>. Return items + token usage. Catch quota/429 like chatbotApi.</div>
+        <div class="task-title">B4 — createStoragePlace + listStoragePlaces (callables + services) <span class="task-tag">fridgeScan</span></div>
+        <div class="task-detail">Thin <code>api/createStoragePlace.ts</code> + <code>api/listStoragePlaces.ts</code> (onCall, public, 256MiB): auth (non-anonymous) → <code>checkOrgMembership</code> → parse Zod → service. <code>services/createStoragePlace.ts</code> writes an empty place (<code>baseline.status="draft"</code>, generated id, <code>companyId/storeId</code> from token). <code>services/listStoragePlaces.ts</code> queries <code>storage-places where organizationId == orgId</code>.</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B5 — Matching service (Algolia, template-constrained) <span class="task-tag">fridgeScan</span></div>
-        <div class="task-detail"><code>services/matchDetectionsToProducts.ts</code>: wrap the Algolia <code>products</code> index directly (the existing <code>queryProducts</code> exposes no score/SKU constraint). Build <code>filters: storeId:X AND companyId:Y</code> always, AND-in template SKUs when present. Compute <code>matchConfidence</code> from rawConfidence + Algolia score gap; assign <code>band</code> via 0.90/0.60 thresholds. NEVER drop the tenant filter.</div>
+        <div class="task-title">B5 — analyzePlacePhotos (orchestrator + callable + cost log) <span class="task-tag">fridgeScan</span></div>
+        <div class="task-detail">Thin <code>api/analyzePlacePhotos.ts</code> (onCall, public, 1GiB, 540s): auth → load the place → <code>checkOrgMembership</code> against <code>place.organizationId</code> → validate <code>imageRefs</code> (≤5, each path under the caller's <code>{companyId}/{storeId}/storage-place-photos/{placeId}/</code> prefix). <code>services/analyzePlacePhotos.ts</code>: call <code>reconcilePlaceInventory</code> → write <code>fridge-scans</code> log (counts, model, tokens, <code>estCostAgorot</code>; NO images/PII, <code>.create()</code> id=scanId) → return draft + warning.</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B6 — Orchestrator service + rate limit + cost log <span class="task-tag">fridgeScan</span></div>
-        <div class="task-detail"><code>services/analyzeFridgePhotos.ts</code>: load active template (scan mode) → detect → match (constrained) → diff → write <code>fridge-scans</code> log (counts, model, tokens, estCost in agorot; NO images/PII) → return response. <code>services/checkScanRateLimit.ts</code>: sliding-window count over the log collection; throw <code>resource-exhausted</code> when exceeded.</div>
-      </div></div>
-      <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B7 — Callables + seeding boundary + entry re-exports <span class="task-tag">fridgeScan</span></div>
-        <div class="task-detail">Thin <code>api/analyzeFridgePhotos.ts</code> and <code>api/confirmInventoryTemplate.ts</code> (onCall, public, 1GiB, 540s): derive companyId/storeId/userId from <code>auth.token</code> (fallback to verified context like chatbotApi), validate request Zod, enforce image cap + size, call services. <code>services/saveInventoryTemplate.ts</code> + <code>services/seedTemplate.ts</code> (photo path; guarded default for history/manual). Re-export from <code>modules/fridgeScan/index.ts</code> and add to <code>functions/src/index.tsx</code>.</div>
-      </div></div>
-      <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">B8 — Restock reminder schedule + subscriber + Storage cleanup <span class="task-tag">fridgeScan</span></div>
-        <div class="task-detail"><code>triggers/restockReminderSchedule.ts</code> (onSchedule, Asia/Jerusalem; skip <code>remindEveryDays</code> null/≤0; emit <code>restockDue</code>). <code>subscribers/sendRestockReminderOnDue.ts</code> (idempotent <code>evt_…{eventId}</code>; email via existing <code>emailService</code> / FCM). Add a 7-day Storage cleanup for <code>fridge-scans</code> images (scheduled delete or document a Storage lifecycle rule).</div>
+        <div class="task-title">B6 — confirmPlaceBaseline (callable + service) + re-exports <span class="task-tag">fridgeScan</span></div>
+        <div class="task-detail">Thin <code>api/confirmPlaceBaseline.ts</code> (onCall, public, 256MiB): auth → load place → <code>checkOrgMembership</code> → parse Zod (idempotent on <code>idem_{idempotencyKey}</code>). <code>services/confirmPlaceBaseline.ts</code> writes <code>baseline = { status:"confirmed", items, photos: photoRefs, updatedAt }</code> to the place. Re-export all four callables from <code>modules/fridgeScan/index.ts</code> and add to <code>functions/src/index.tsx</code>.</div>
       </div></div>
     </div>
   </section>
@@ -752,28 +749,24 @@ computeOrderDiff(args: {
     <h2>Frontend Tasks</h2>
     <div class="task-list">
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">F1 — Route, page shell, appApi wrappers, Redux domain</div>
-        <div class="task-detail">Add <code>store.fridgeScan</code> route + lazy page in <code>App.tsx</code>; new <code>domains/fridgeScan/</code> slice; appApi methods <code>fridgeScan.analyze</code>/<code>saveTemplate</code> (httpsCallable, like <code>chatbotChat</code>) + <code>getActiveTemplate</code> (<code>getV2</code> + <code>getPath("inventory-templates", id=userId)</code>). Page branches setup-vs-scan on template presence. Depends on B1 + B7 (callable names/contracts).</div>
+        <div class="task-title">F1 — Route (org-gated), page shell, appApi wrappers, Redux domain</div>
+        <div class="task-detail">Add <code>store.storagePlaces</code> route + lazy page in <code>App.tsx</code>; new <code>domains/storagePlaces/</code> slice; appApi methods <code>storagePlaces.create/list/analyze/confirmBaseline</code> (httpsCallable, like <code>chatbotChat</code>). Page + entry point render only when <code>state.userOrganization.activeOrganization</code> is set; <code>organizationId</code> sent = active org id. Depends on B1 + B4/B5/B6 (callable names/contracts).</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">F2 — Photo capture step + client downscale + upload</div>
-        <div class="task-detail"><code>PhotoCaptureStep.tsx</code>: capture up to 6 images (enforce cap), canvas downscale (≤1280px, q≈0.7), upload each via <code>firebaseStorage.upload("{companyId}/{storeId}/fridge-scans/{scanId}/{n}.jpg", file)</code>, collect <code>{path,url}</code> refs. Reuse/extend <code>FIleUpload/FileUpload.tsx</code> (currently single-file).</div>
+        <div class="task-title">F2 — Places list + create-place dialog</div>
+        <div class="task-detail"><code>StoragePlacesPage.tsx</code>: list the org's places (name, type label, baseline status); "Add place". <code>CreatePlaceDialog.tsx</code>: name + type picker (all 5 types) → <code>storagePlaces.create</code> → routes into the setup wizard for the new draft place.</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">F3 — Detection review grid (shared) + confidence UX</div>
-        <div class="task-detail"><code>DetectionReviewGrid.tsx</code>: one editable row per item; pre-check <code>band:"auto"</code>; amber "אשרו" on <code>band:"confirm"</code>; group <code>band:"drop"</code> under "לא היינו בטוחים". Qty steppers (RTL-safe), add-product search, remove. Prices (if shown) via existing <code>Price</code>/<code>formatter.price</code> (shekels — no /100).</div>
+        <div class="task-title">F3 — Photo capture step (up to 5) + client downscale + upload</div>
+        <div class="task-detail"><code>PlacePhotoCaptureStep.tsx</code>: capture up to 5 images (enforce cap), canvas downscale (≤1280px, q≈0.7), upload each via <code>firebaseStorage.upload("{companyId}/{storeId}/storage-place-photos/{placeId}/{n}.jpg", file)</code>, collect <code>{path,url}</code> refs. Reuse/extend <code>FIleUpload/FileUpload.tsx</code> (currently single-file).</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">F4 — Setup wizard + Save template</div>
-        <div class="task-detail"><code>SetupWizard.tsx</code> (capture → review → done, CheckoutPage-style local sections). On save, call <code>fridgeScan.saveTemplate({ items:[{productId,fullQty}], idempotencyKey })</code>; on success offer "scan now".</div>
+        <div class="task-title">F4 — Inventory review grid + setup wizard + confirm baseline</div>
+        <div class="task-detail"><code>InventoryReviewGrid.tsx</code>: one editable row per merged item (label, count stepper, unit, <code>depthUncertain</code> "אשרו כמות" flag, empty badge, add/remove). <code>PlaceSetupWizard.tsx</code> (capture → review → done). On save → <code>storagePlaces.confirmBaseline({ placeId, items, photoRefs, idempotencyKey })</code>; on 503 <code>warning</code> from analyze, show a "try again" state. RTL-safe.</div>
       </div></div>
       <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">F5 — Scan screen + cart-review + bulk cart load</div>
-        <div class="task-detail"><code>ScanScreen.tsx</code> → analyze → <code>CartReviewScreen.tsx</code> ("have N / need M", editable). "Add to cart" builds merged <code>TCartItemProduct[]</code> (existing items + reviewed rows, summed on <code>product.id</code>) and writes ONCE via <code>setV2&lt;TCart&gt;</code> (createCartFromOrder shape), then <code>navigate({to:"store.cart"})</code>. NOT an addItemToCart loop.</div>
-      </div></div>
-      <div class="task-item"><div class="task-check"></div><div>
-        <div class="task-title">F6 — i18n keys + entry point + reminder toggle</div>
-        <div class="task-detail">Add the <code>fridgeScan.*</code> Hebrew i18next namespace; add the entry-point button (cart/catalog header) → <code>navigate({to:"store.fridgeScan"})</code>; add a "remind me every N days" toggle that writes <code>remindEveryDays</code> via <code>saveTemplate</code>. RTL verified.</div>
+        <div class="task-title">F5 — i18n keys + entry point</div>
+        <div class="task-detail">Add the <code>storagePlaces.*</code> Hebrew i18next namespace (incl. one key per place type); add the entry-point link (org-gated — e.g. in the org/account area or header when an org is active) → <code>navigate({ to: "store.storagePlaces" })</code>. RTL verified.</div>
       </div></div>
     </div>
   </section>
@@ -784,15 +777,15 @@ computeOrderDiff(args: {
     <div class="dep-grid">
       <div class="dep-card">
         <strong>Run first</strong>
-        <p>B1 (core contracts + collection registry + version bump). Everything imports these types and the collection keys; nothing type-checks until it lands and both consumers point at 0.18.0.</p>
+        <p>B1 (core contract + collection registry + version bump). Everything imports <code>TStoragePlace</code> / the callable schemas and the collection keys; nothing type-checks until it lands and both consumers point at 0.22.0.</p>
       </div>
       <div class="dep-card">
         <strong>Can run in parallel</strong>
-        <p>After B1: backend B2–B6 (one coder), and frontend F1–F4 can scaffold against the published contracts. B3 (pure diff) and B4 (vision) are independent of each other. F2/F3 are independent of the backend except via contracts.</p>
+        <p>After B1: backend B2 → then B3, B4, B5, B6 (one coder; B3 reconciliation is independent of B4 CRUD). Frontend F1–F4 can scaffold against the published contracts; F3 (capture/upload) is independent of the backend except via contracts.</p>
       </div>
       <div class="dep-card">
         <strong>Blocked until</strong>
-        <p>F1/F5 blocked until B7 (real callable names deployed). B8 blocked until B1+B2 (template entity + paths). F5 cart-merge blocked until F3 (review rows) exist. Restock UI (F6 toggle) blocked until B1 (<code>remindEveryDays</code> field).</p>
+        <p>F1 needs B1 + the callable names (B4/B5/B6 deployed). F4's confirm step needs B6. B5 analyze needs B3 (reconcile boundary). All org-gated UI needs the existing <code>userOrganization</code> Redux state (already present — no new work).</p>
       </div>
     </div>
   </section>
@@ -802,49 +795,52 @@ computeOrderDiff(args: {
     <h2>Recommended Build Sequence</h2>
 
     <div class="callout">
-      <strong>Recommendation: YES — run a throwaway vision-accuracy spike BEFORE the full build.</strong> The #1 project risk is whether Gemini 2.5 can reliably identify Israeli grocery products in Hebrew <em>and</em> count them from real fridge photos. Everything downstream (template, diff, UX) is cheap and low-risk; the vision step is the load-bearing unknown. A 1–2 day spike de-risks the entire feature for a tiny fraction of its cost.
+      <strong>The vision spike is DONE</strong> — identification + separated-count are validated, single-image depth is not. No further spike is needed before Increment 1. The next <em>open</em> spike is SKU-matching (label → Algolia store SKU), which gates any cart and is deliberately deferred.
     </div>
 
-    <div class="build-step"><div class="build-num">0</div><div>
-      <div class="title">Vision-accuracy spike (throwaway) <span class="ship">de-risk</span></div>
-      <div class="detail">Stand up only <code>detectProductsFromImages</code> behind a temporary callable (or a Genkit dev-server flow). Feed 15–25 real Israeli fridge/pantry photos. Measure: identification rate (did it name the right product in Hebrew?), brand accuracy, and counting error vs. ground truth. Decision gate: if identification is usable but counting is unreliable, commit to the "coarse low/absent + always-editable" fallback (see Risks) before building the diff UX. Throw the spike code away.</div>
-    </div></div>
     <div class="build-step"><div class="build-num">1</div><div>
-      <div class="title">Increment 1 — Contracts + template setup (Flow A) <span class="ship">shippable</span></div>
-      <div class="detail">B1, B2, B4, B5, B7 (analyze + confirm) and F1–F4. Ships the setup wizard: photograph full fridge → review → save template. Independently valuable (users curate their baseline) and exercises detect+match end-to-end without the diff.</div>
+      <div class="title">Increment 1 — Storage places + create/list + UI <span class="ship">shippable</span></div>
+      <div class="detail">B1, B2, B4 and F1, F2, F5. Ships the org-scoped "Storage places" area: create &amp; name a place, pick a type, see the org's list. Independently valuable and exercises the org-membership authz end-to-end before any vision work.</div>
     </div></div>
     <div class="build-step"><div class="build-num">2</div><div>
-      <div class="title">Increment 2 — Returning scan + diff + cart load (Flow B) <span class="ship">shippable</span></div>
-      <div class="detail">B3 (pure diff) + B6 wiring template-constrained matching + diff, and F5. Ships the core value: scan → "have N / need M" → one-write cart load. This is the feature's payoff.</div>
+      <div class="title">Increment 2 — Multi-angle analyze → merged review → confirm baseline <span class="ship">shippable</span></div>
+      <div class="detail">B3 (reconcile + retry/503), B5 (analyze + cost log), B6 (confirm) and F3, F4. Ships the core value: photograph a place from up to 5 angles → one merged estimated inventory → adjust counts → save as the confirmed baseline (photos kept long-term).</div>
     </div></div>
     <div class="build-step"><div class="build-num">3</div><div>
-      <div class="title">Increment 3 — Cost/abuse hardening pass <span class="ship">shippable</span></div>
-      <div class="detail">Finalize B6 rate-limit + size guards + cost-log fields and the metric query; confirm the image cap is enforced server-side. (Image cap + downscale ship in Inc.1/2; this increment makes the limits production-grade since there's no flag.)</div>
+      <div class="title">Increment 3 — "What's missing" diff / reorder list <span class="later-tag">later</span></div>
+      <div class="detail">Re-photo a place (short-lived scan) → same analyze engine → <code>missing = max(0, baseline.count − current.count)</code> per item → reorder list. Reuses the place + merge engine; adds short-lived-photo cleanup. No new entity.</div>
     </div></div>
     <div class="build-step"><div class="build-num">4</div><div>
-      <div class="title">Increment 4 — Restock reminders + Storage cleanup <span class="ship">shippable</span></div>
-      <div class="detail">B8 + F6 toggle. Adds recurring engagement and the 7-day photo cleanup. Fully additive; does not touch Flow A/B.</div>
+      <div class="title">Increment 4 — SKU matching (next spike → then cart) <span class="later-tag">later</span></div>
+      <div class="detail">Spike: map a baseline <code>label</code> → a store SKU via Algolia (tenant-filtered <code>storeId AND companyId</code>). Only once that is proven can the reorder list become a real cart. UNTESTED today — this is the gating unknown for monetization.</div>
     </div></div>
+
+    <div class="callout warn" style="margin-top:18px;">
+      <strong>Baseline prompt recommendation:</strong> KEEP the spike's depth-aware prompt (count-behind-only-with-evidence + <code>depthUncertain</code>) as the Approach #1 baseline, but rely on <strong>multi-angle + human confirm</strong> for accuracy rather than the flag. Do NOT revert to a naive <code>visibleCount</code>-only prompt — the multi-angle merge is the whole point of Approach #1, and the spike showed single-image counting is exactly what fails.
+    </div>
   </section>
 
   <!-- ── SECURITY INVARIANTS ── -->
   <section id="security" class="security-section">
     <h2>Security Invariants</h2>
-    <div class="security-item"><strong>Authentication</strong><p>Both callables require a signed-in, non-anonymous user. Derive <code>userId</code> from <code>auth.uid</code>; reject (or no-op) anonymous/absent auth. Mirror chatbotApi's auth handling but stricter — cart/template writes must not happen for anonymous users.</p></div>
-    <div class="security-item"><strong>Authorization (tenant + owner isolation)</strong><p><code>companyId</code>/<code>storeId</code> come from <code>auth.token</code> (fallback to verified store context exactly as chatbotApi does), NEVER from raw client input. The template is keyed by <code>userId</code> and read/written only at <code>{companyId}/{storeId}/inventory-templates/{userId}</code> — a user can only ever read/write their own template and their own scan logs. No cross-user or cross-tenant read path exists.</p></div>
-    <div class="security-item"><strong>Input validation &amp; trust boundary</strong><p>Validate every request with the Zod contracts. <code>imageRefs</code> max 6 and each path MUST be under the caller's own <code>{companyId}/{storeId}/fridge-scans/</code> prefix (reject foreign Storage paths — prevents pulling another tenant's images into Gemini). <code>confirmInventoryTemplate</code> re-fetches each product by id tenant-scoped to fill sku/name/image; client-sent denormalized fields are ignored. <code>fullQty</code> must be a positive integer.</p></div>
-    <div class="security-item"><strong>Data boundaries &amp; PII</strong><p>Raw fridge photos are PII-adjacent: store ONLY under the tenant-scoped Storage path, never log image bytes/URLs or detection text, and delete after 7 days. The <code>fridge-scans</code> log holds counts/model/cost only. Structured logs use <code>firebase-functions/v2</code> logger with ids only.</p></div>
-    <div class="security-item"><strong>Trust escalation — recompute server-side</strong><p>The cart is written by the client (reusing the existing path), so do NOT trust client-claimed prices: the cart write must embed the full <code>TProduct</code> read from the store/Algolia (as today), not a client-fabricated product. <code>orderQty</code> is advisory; the authoritative cart total is recomputed by the existing cart/checkout/ledger path unchanged.</p></div>
-    <div class="security-item"><strong>Sentinel / magic values</strong><p><code>remindEveryDays = null</code> means reminders OFF. The scheduler MUST guard <code>null</code> and <code>≤ 0</code> before any date arithmetic, or it would spam every user. Documented and tested.</p></div>
-    <div class="security-item"><strong>Abuse / cost (no feature flag)</strong><p>Per-user rate limit (resource-exhausted on exceed), hard image cap, and server-side image-size ceiling are security controls here, not just UX — there is no gating to contain a runaway. Quota/429 from Vertex returns a friendly message, never an unhandled throw.</p></div>
-    <div class="security-item"><strong>External services / secrets</strong><p>No NEW external service and no new secret — reuses the existing Vertex AI / Genkit credentials already used by the chatbot. If the project later moves Gemini auth to a dedicated key, prefer <code>defineSecret</code>/Secret Manager over plaintext .env (current pattern is plaintext); but nothing new is required for this feature.</p></div>
+    <div class="security-item"><strong>Authentication</strong><p>All four callables require a signed-in, non-anonymous user (mirror the spike's <code>detectFridgeProducts</code> guard: reject absent auth and <code>sign_in_provider === "anonymous"</code>). No place data is created or read for anonymous users.</p></div>
+    <div class="security-item"><strong>Authorization — ORG MEMBERSHIP (the central new control)</strong><p><code>companyId</code>/<code>storeId</code> come from <code>auth.token</code>, NEVER client input. <strong>Every callable MUST verify the caller belongs to the target organization</strong> via <code>checkOrgMembership</code>: read the caller's own <code>profiles/{auth.uid}</code> (tenant-scoped) and assert <code>organizationIds.includes(organizationId)</code> (falling back to the deprecated <code>organizationId</code> field). For <code>analyzePlacePhotos</code>/<code>confirmPlaceBaseline</code> the <code>organizationId</code> is taken from the <em>loaded place</em>, not the request, then membership-checked — so a member of org A can never read/write org B's places. There is no existing pattern for this (the only org-scoped callable today is admin-only), so it must be built and tested here.</p></div>
+    <div class="security-item"><strong>Input validation &amp; trust boundary</strong><p>Validate every request with the Zod contracts. <code>imageRefs</code> max 5; each <code>path</code> MUST be under the caller's own <code>{companyId}/{storeId}/storage-place-photos/{placeId}/</code> prefix — reject foreign Storage paths so a caller cannot feed another tenant's/place's images into Gemini. <code>count</code>/<code>fullQty</code>-style numbers are non-negative integers. <code>name</code> non-empty; <code>type</code> within the enum.</p></div>
+    <div class="security-item"><strong>Data boundaries &amp; PII</strong><p>Baseline photos are PII-adjacent: store ONLY under the tenant-scoped Storage path; never log image bytes/URLs or detection text. The <code>fridge-scans</code> log holds counts/model/cost only. Diff-scan photos (Flow B, later) are deleted after the diff; baseline photos are intentionally retained as the place reference. Structured logs (<code>firebase-functions/v2</code> logger) carry ids only.</p></div>
+    <div class="security-item"><strong>Trust escalation — counts are estimates, not authority</strong><p>No code path treats a Gemini <code>count</code> as authoritative — only the user-confirmed <code>items</code> on <code>confirmPlaceBaseline</code> are persisted as the baseline. (When the later cart flow exists, prices/SKUs MUST be recomputed server-side from the store, never trusted from the client — same rule as the existing cart.)</p></div>
+    <div class="security-item"><strong>External service / secret</strong><p>Reuses the Gemini <strong>Developer API</strong> already wired in the module (<code>GOOGLE_GENAI_API_KEY</code> in <code>functions/.env.jsdev-stores-prod</code> + Secret Manager). No NEW external service. <code>.trim()</code> the env read. Known reliability risk (503s) is handled with retry + friendly fallback — see Auth/Infra and Risks. Quota/429 AND overload/503 must both return a friendly message, never an unhandled throw.</p></div>
   </section>
 
   <!-- ── BREAKING CHANGES ── -->
   <section id="breaking" class="breaking-section">
     <h2>Breaking Changes</h2>
     <div class="breaking-item">
-      <p><strong>None — all additive.</strong> New core entities, two new collections registered in <code>storeCollections</code>, new callables, new route, new Redux domain. The core version bump (0.17.0 → 0.18.0) is additive (no existing entity changes), and both consumers are updated in the same coordinated step (Backend Task B1), so no consumer is left on a stale version.</p>
+      <p><strong>Internal-only — the spike callable is removed.</strong> <code>detectFridgeProducts</code> (the detection-only spike) is replaced by the four place-based callables. — <code>functions/src/modules/fridgeScan/api/detectFridgeProducts.ts</code>, <code>functions/src/index.tsx</code></p>
+      <p class="change-arrow">detectFridgeProducts({ images }) → createStoragePlace / listStoragePlaces / analyzePlacePhotos / confirmPlaceBaseline</p>
+      <p class="migration">Migration: none for users — <code>detectFridgeProducts</code> has no production frontend caller (it was a spike). Remove its export and file; no data migration. <strong>Confirm</strong> there is no client <code>httpsCallable(..., "detectFridgeProducts")</code> call before deleting (grep <code>apps/store</code>).</p>
+    </div>
+    <div class="breaking-item">
+      <p><strong>No consumer-data breakage.</strong> The previous <code>InventoryTemplate</code> entity was a plan-only draft and (per investigation) was never added to <code>@jsdev_ninja/core</code> — so dropping it is a plan change, not a code/data migration. The core version bump (0.21.0 → 0.22.0) is purely additive (new entity + two new collection keys); both consumers are updated in the same coordinated B1 step, so no consumer is left on a stale version.</p>
     </div>
   </section>
 
@@ -852,18 +848,18 @@ computeOrderDiff(args: {
   <section id="risks">
     <h2>Risks &amp; Open Questions</h2>
 
-    <div class="risk-item"><span class="risk-badge risk-high">High</span><p><strong>Quantity counting reliability (occlusion / stacking).</strong> The baseline helps <em>identification</em> (narrowing 3,600→30 SKUs) but does NOT make <em>counting</em> easier — a fridge with milk behind milk is genuinely hard to count from a photo. Mitigations: (1) template-constrained identification so at least "is it present?" is reliable; (2) a coarse <code>low/present/absent</code> signal as a fallback when <code>countUncertain</code> is true — treat "uncertain + present" as "you may have some, qty defaults conservative"; (3) the review screen is ALWAYS fully editable so the human is the final counter; (4) frame the UX as "we pre-filled your usual order, adjust quantities" rather than promising exact counts. The vision spike (Step 0) decides how far to lean on exact counts vs. the coarse fallback.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-high">High</span><p><strong>Hebrew identification accuracy for Israeli brands.</strong> Match rate depends on Gemini emitting Hebrew names/brands that Algolia can match against Hebrew-only product names. Mitigations: Hebrew-forcing prompt with Israeli brand exemplars (Tnuva/Tara/Osem/…), template-SKU-constrained Algolia search, and the confidence bands so low-confidence matches never auto-apply. Measured in the spike.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-medium">Medium</span><p><strong>Per-scan cost &amp; abuse at all-stores scale, no flag.</strong> Each scan = up to 6 images through Gemini. Mitigations are first-class: image cap, client+server downscale, per-user rate limit, per-scan cost logging + a daily-cost metric. Residual risk if a store has many power users — the metric is the early-warning.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-medium">Medium</span><p><strong>Algolia score exposure for confidence scoring.</strong> The existing service doesn't surface relevance scores; the matching service must request <code>_rankingInfo</code>/score directly from the index. If score isn't reliably comparable across queries, confidence may need to lean more on the Gemini <code>rawConfidence</code> + brand-string agreement. Validate during B5.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-low">Low</span><p><strong>Multimodal input shape in this Genkit version.</strong> Gemini 2.5 via Vertex supports image parts, but the exact media-part shape (download URL vs. inline base64, gs:// support) should be confirmed against <code>genkit</code> 1.30.1 in the spike. Low risk — well-trodden path.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-low">Low</span><p><strong>Cart id is <code>z.string().uuid()</code>.</strong> When building the cart write, reuse the existing <code>actualCart</code> doc / <code>generateDocId("cart")</code> path (as createCartFromOrder does) so ids stay valid; don't fabricate non-UUID ids. The InventoryTemplate's own <code>id</code> is also a UUID, but its Firestore doc id is <code>userId</code> (intentional, for one-per-user idempotency).</p></div>
+    <div class="risk-item"><span class="risk-badge risk-high">High</span><p><strong>Gemini Developer API reliability (HTTP 503).</strong> The free Developer API returns 503 "overloaded / high demand" on ~2 of 3 calls; current code has no retry and only catches 429. <strong>Mitigation (required before prod):</strong> retry/backoff around the Gemini call + 503→friendly <code>warning</code> in the callable; consider Vertex as a follow-up if 503s persist. This is the #1 delivery risk — see Auth/Infra.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-high">High</span><p><strong>No cart without SKU matching.</strong> The baseline stores <code>label + count</code>; turning "missing" into a real cart needs each label mapped to a store SKU via Algolia (tenant-filtered) — UNTESTED. Until that spike succeeds, the feature delivers inventory baselines and a (later) restock <em>list</em>, not a purchasable cart. Deliberately deferred; flagged so monetization expectations are set correctly.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-high">High</span><p><strong>Depth / occlusion counting is unreliable (spike-proven).</strong> Single-image counts over/under-count behind-items and <code>depthUncertain</code> fires inconsistently. <strong>Mitigation:</strong> multi-angle (up to 5) merge as the real depth signal + always-editable review + "estimate you confirm" framing. The plan never promises exact counts.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-medium">Medium</span><p><strong>New org-member authorization path.</strong> No existing pattern verifies a non-admin member owns an <code>organizationId</code> (the only org-scoped callable today is admin-only). The new <code>checkOrgMembership</code> is the single guard standing between org A and org B's data — it must be applied on ALL four callables and unit/integration-tested for the cross-org-denied case. A miss here is a cross-tenant data leak.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-medium">Medium</span><p><strong>Multi-angle de-dup quality.</strong> Approach #1 asks one Gemini prompt to de-dup the same item across angles; it may still double-count or merge two distinct items. <strong>Mitigation:</strong> the review grid is fully editable, and the <code>reconcilePlaceInventory</code> boundary lets a better strategy (per-image detect + server reconcile) drop in later without upstream changes.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-medium">Medium</span><p><strong>Hebrew identification breadth.</strong> Spike validated several real Israeli brands, but the full catalog is large; some products will be mislabeled. Lower stakes than the consumer plan because nothing auto-buys — the label feeds a human-confirmed baseline, and SKU matching (later) is where label quality really bites.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-low">Low</span><p><strong>Multi-angle media input shape.</strong> Passing up to 5 images as media parts in one <code>ai.generate</code> is supported, but confirm the per-part shape (download URL vs inline base64) against the installed <code>genkit</code>/<code>@genkit-ai/google-genai</code> version during B3 (the spike already does one image; 5 is the same path).</p></div>
 
-    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Confirm rate-limit thresholds (proposed: 5/hour, 20/day per user) and the image cap value within 4–8 (proposed: <strong>6</strong>). Acceptable?</p></div>
-    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>One active template per user for v1 (no named multi-templates "kitchen" vs "garage")? Plan assumes yes.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Reminder channel: email only (existing <code>emailService</code>), push (FCM via existing messaging), or both? Plan assumes email + optional push.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Photo retention: 7 days proposed. Acceptable for privacy, or should photos be deleted immediately after the scan completes (we keep only the log)? Immediate-delete is more privacy-friendly and cheaper; 7 days helps debugging.</p></div>
-    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Entry-point placement: cart page button, catalog header, and/or a dedicated nav item? Plan assumes a cart/catalog-header button for v1.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Image cap is <strong>5</strong> per place (confirmed in the brief). Confirm there is no per-org rate limit needed for v1 given cost-per-call is tiny (spike) — plan assumes cost logging only, no hard limiter. Acceptable?</p></div>
+    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Entry-point placement for the org-gated "Storage places" area: a header link when an org is active, an item in the profile/account area, or a dedicated nav entry? Plan assumes an org-gated link near the account/org area.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Can any org member edit/delete any place in the org, or only <code>createdBy</code> / admins? Plan assumes <strong>any member</strong> (places are shared org resources); <code>createdBy</code> is audit-only. Confirm.</p></div>
+    <div class="risk-item"><span class="risk-badge risk-open">Open</span><p>Re-confirming a baseline (re-running setup on a place that's already <code>confirmed</code>) — overwrite the baseline outright, or keep history? Plan assumes overwrite (simplest); revisit if audit/history is wanted.</p></div>
   </section>
 
 </main>
