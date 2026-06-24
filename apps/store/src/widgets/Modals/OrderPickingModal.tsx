@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Input } from "@heroui/react";
-import algoliasearch from "algoliasearch/lite";
+import { productsIndex } from "src/services";
 import {
 	getCartCost,
 	TOrder,
@@ -15,9 +15,6 @@ import { modalApi } from "src/infra/modals";
 import { useAppApi } from "src/appApi";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
-
-const algoliaClient = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
-const productsIndex = algoliaClient.initIndex("products");
 
 function itemUnitPrice(it: TCartItemProduct): number {
 	return it.finalPrice || it.originalPrice || it.product.price || 0;

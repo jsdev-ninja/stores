@@ -17,7 +17,7 @@ import { getCartCost, TOrder, TProduct } from "@jsdev_ninja/core";
 import { useStore } from "src/domains/Store";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useTranslation } from "react-i18next";
-import algoliasearch from "algoliasearch/lite";
+import { productsIndex } from "src/services";
 import { formatter } from "src/utils/formatter";
 
 type ChangeType = "added" | "removed" | "modified";
@@ -52,9 +52,6 @@ export default function AdminOrderPickPage() {
   const [externalProductName, setExternalProductName] = useState<string>("");
   const [externalProductPrice, setExternalProductPrice] = useState<number>(0);
   const [externalProductQuantity, setExternalProductQuantity] = useState<number>(1);
-
-  const algoliaClient = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
-  const productsIndex = algoliaClient.initIndex("products");
 
   // Track changes
   const changes = useMemo<ProductChange[]>(() => {

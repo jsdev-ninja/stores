@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import algoliasearch from "algoliasearch/lite";
+import { productsIndex } from "src/services";
 import { useAppApi } from "src/appApi";
 import { useStore } from "src/domains/Store";
 import { useAppSelector } from "src/infra";
@@ -7,10 +7,6 @@ import { modalApi } from "src/infra/modals";
 import { FirebaseApi } from "src/lib/firebase";
 import { TOrganization, TProduct, TOrder, TBillingAccount } from "@jsdev_ninja/core";
 import type { Key } from "react-aria-components";
-
-// Same Algolia client used by OrderPickingModal / OrderEditModal.
-const algoliaClient = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
-const productsIndex = algoliaClient.initIndex("products");
 
 export type OrderLine = { product: TProduct; qty: number };
 

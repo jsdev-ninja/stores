@@ -1,5 +1,8 @@
-// hello_algolia.js
-import algoliasearch from "algoliasearch";
+import algoliasearch from "algoliasearch/lite";
+import { CONFIG } from "src/config";
 
-// Connect and authenticate with your Algolia app
-export const AlgoliaClient = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
+// Search-only Algolia client — safe to ship in the browser bundle.
+// Credentials live in src/config (CONFIG.ALGOLIA). Only ever put a SEARCH-ONLY
+// key there; a write-capable key would be readable by anyone who loads the site.
+export const AlgoliaClient = algoliasearch(CONFIG.ALGOLIA.APP_ID, CONFIG.ALGOLIA.SEARCH_KEY);
+export const productsIndex = AlgoliaClient.initIndex(CONFIG.ALGOLIA.PRODUCTS_INDEX);
