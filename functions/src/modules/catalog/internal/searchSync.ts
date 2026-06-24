@@ -1,10 +1,9 @@
-import algoliasearch from "algoliasearch";
+import { productsIndex } from "../../../services/algolia-service";
 
-const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
-const index = algolia.initIndex("products");
-
+// Reuses the single shared Algolia client owned by services/algolia-service —
+// no separate client/key here. (Key migration to env happens in that module.)
 export const searchSync = {
 	upsert: (product: { id: string; [k: string]: unknown }) =>
-		index.saveObject({ objectID: product.id, ...product }),
-	remove: (productId: string) => index.deleteObject(productId),
+		productsIndex.saveObject({ objectID: product.id, ...product }),
+	remove: (productId: string) => productsIndex.deleteObject(productId),
 };
