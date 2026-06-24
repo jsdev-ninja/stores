@@ -76,11 +76,11 @@ export default function Bento() {
 							<h3
 								className="mb-4 text-[clamp(28px,4vw,52px)] font-black leading-[0.95] tracking-[-0.04em] text-white"
 							>
-								פירות וירקות<br />
-								<em className="font-light italic" style={{ fontFamily: SERIF }}>טריים</em> ואיכותיים.
+								ויטמינים,<br />
+								<em className="font-light italic" style={{ fontFamily: SERIF }}>ישר לעבודה.</em>
 							</h3>
 							<p className="mb-7 max-w-[300px] text-[14px] leading-[1.55] text-white/85">
-								בוחרים כל בוקר את הסחורה הטובה ביותר — ושולחים אליכם טרי עד הבית.
+								פינת פירות וירקות טרייה במשרד שלכם — אנחנו דואגים לאספקה, אתם נהנים מהטריות.
 							</p>
 							<span className="inline-flex items-center gap-2 border-b-[1.5px] border-white/60 pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-white">
 								לקטלוג ←
