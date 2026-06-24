@@ -71,29 +71,29 @@ export default function Bento() {
 								className="mb-6 block text-[13px] font-light uppercase tracking-[0.08em]"
 								style={{ fontFamily: SERIF, fontStyle: "italic", color: "rgba(247,244,238,0.85)" }}
 							>
-								N°01 — הצעת היכרות
+								N°01 — טרי כל יום
 							</span>
 							<h3
 								className="mb-4 text-[clamp(28px,4vw,52px)] font-black leading-[0.95] tracking-[-0.04em] text-white"
 							>
-								הזמנה ראשונה<br />
-								ב-<em className="font-light italic" style={{ fontFamily: SERIF }}>5%</em> הנחה.
+								פירות וירקות<br />
+								<em className="font-light italic" style={{ fontFamily: SERIF }}>טריים</em> ואיכותיים.
 							</h3>
 							<p className="mb-7 max-w-[300px] text-[14px] leading-[1.55] text-white/85">
-								הירשמו, מלאו פרטים, וקבלו הנחה אוטומטית על ההזמנה הראשונה.
+								בוחרים כל בוקר את הסחורה הטובה ביותר — ושולחים אליכם טרי עד הבית.
 							</p>
 							<span className="inline-flex items-center gap-2 border-b-[1.5px] border-white/60 pb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white transition hover:border-white">
-								התחילו ←
+								לקטלוג ←
 							</span>
 						</div>
 
 						{/* Big glyph decoration */}
 						<div
 							className="pointer-events-none absolute bottom-5 start-[30px] z-10 font-black text-black/10 leading-[0.85] tracking-[-0.06em] select-none"
-							style={{ fontSize: "280px" }}
+							style={{ fontSize: "200px" }}
 							aria-hidden
 						>
-							5%
+							טרי
 						</div>
 					</a>
 
