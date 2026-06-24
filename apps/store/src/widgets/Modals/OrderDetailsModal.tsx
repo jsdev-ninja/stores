@@ -450,7 +450,7 @@ export function OrderDetailsModal({
 												<td className={`${td} text-start ${struck} text-[12.5px]`}>
 													{item.product.brand || "—"}
 												</td>
-												<td className={`${td} text-center ${struck}`}>{item.amount}</td>
+												<td className={`${td} text-center ${struck}`}>{formatter.qty(item.amount)}</td>
 												<td className={`${td} text-end ${struck}`}>{formatter.price(unit)}</td>
 												<td className={`${td} text-end ${struck} text-[12.5px]`}>
 													{formatter.price(unit * item.amount)}
@@ -473,7 +473,7 @@ export function OrderDetailsModal({
 													<td className={`${td} text-start ${struck} text-[12.5px]`}>
 														{item.product.brand || "—"}
 													</td>
-													<td className={`${td} text-center ${struck}`}>{item.amount}</td>
+													<td className={`${td} text-center ${struck}`}>{formatter.qty(item.amount)}</td>
 													<td className={`${td} text-end ${struck}`}>{formatter.price(unit)}</td>
 													<td className={`${td} text-end ${struck} text-[12.5px]`}>
 														{formatter.price(unit * item.amount)}
@@ -489,7 +489,7 @@ export function OrderDetailsModal({
 													<td className={`${td} text-start text-[#6b675f] text-[12.5px]`}>
 														{sub.product.brand || "—"}
 													</td>
-													<td className={`${td} text-center`}>{sub.amount}</td>
+													<td className={`${td} text-center`}>{formatter.qty(sub.amount)}</td>
 													<td className={`${td} text-end text-[#6b675f]`}>{formatter.price(sub.price)}</td>
 													<td className={`${td} text-end font-bold text-[#1a1a17]`}>
 														{formatter.price(sub.price * sub.amount)}
@@ -505,7 +505,7 @@ export function OrderDetailsModal({
 											<td className={`${td} text-start text-[#6b675f] text-[12.5px]`}>
 												{item.product.brand || "—"}
 											</td>
-											<td className={`${td} text-center`}>{item.amount}</td>
+											<td className={`${td} text-center`}>{formatter.qty(item.amount)}</td>
 											<td className={`${td} text-end text-[#6b675f]`}>{formatter.price(unit)}</td>
 											<td className={`${td} text-end font-bold text-[#1a1a17]`}>
 												{formatter.price(unit * item.amount)}
