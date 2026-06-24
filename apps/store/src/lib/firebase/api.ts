@@ -298,6 +298,43 @@ async function recordHypJ5Auth(input: {
 	}
 }
 
+// Records a direct (immediate-charge) HYP payment from the browser redirect — the
+// result of an admin payment link the customer just paid. No J5 token (UID) is
+// present for a direct charge. The server re-verifies the signature with HYP before
+// writing the hyp_direct ledger transaction; the order is flipped to paid by the
+// onTransactionPostedMarkOrderPaid subscriber — never the client. `token` is optional
+// (the live createPaymentRedirect link has no token; the order is resolved from `Order`).
+async function recordHypDirectPayment(input: {
+	companyId: string;
+	storeId: string;
+	Id: string;
+	CCode: string;
+	Amount: string;
+	Order: string;
+	Masof: string;
+	ACode?: string;
+	Sign?: string;
+	token?: string;
+	rawResponse: Record<string, unknown>;
+}) {
+	try {
+		const func = httpsCallable(functions, "recordHypDirectPayment");
+		const response = await func(input);
+		return {
+			success: true,
+			data: response.data as {
+				success: boolean;
+				transactionId?: string;
+				error?: string;
+			},
+		};
+	} catch (error: unknown) {
+		const e = error as { code?: string; message?: string; details?: unknown };
+		console.error(e.code, e.message, e.details);
+		return { success: false, data: null };
+	}
+}
+
 async function createCompanyClient(company: TCompany) {
 	try {
 		const func = httpsCallable(functions, "createCompanyClient");
@@ -572,6 +609,7 @@ export const api = {
 	createPayment,
 	createHypCheckoutPayment,
 	recordHypJ5Auth,
+	recordHypDirectPayment,
 	chargeOrder,
 	createPaymentRedirect,
 	getPaymentRedirect,

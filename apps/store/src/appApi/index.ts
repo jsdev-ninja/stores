@@ -1917,7 +1917,35 @@ export const useAppApi = () => {
           return;
         }
 
-        // Legacy fallback — direct/external (no J5 token). Pending #2 cutover.
+        // #2 cutover: a direct HYP charge (admin payment link, J5=false) returns no
+        // UID, so it isn't a J5 result. Record it server-side — the server re-verifies
+        // the HYP signature, writes the hyp_direct ledger transaction (idempotent on
+        // the HYP Id), and the onTransactionPostedMarkOrderPaid subscriber flips the
+        // order to completed. The client must NOT write the order status itself (the
+        // old pending_j5 write below was the bug).
+        if (store?.paymentType !== "external") {
+          const res = await FirebaseApi.api.recordHypDirectPayment({
+            companyId,
+            storeId,
+            Id: payment.Id,
+            CCode: payment.CCode,
+            Amount: payment.Amount,
+            Order: payment.Order,
+            Masof: payment.Masof,
+            ACode: payment.ACode,
+            Sign: payment.Sign,
+            rawResponse: payment,
+          });
+          logger({
+            message: "client record hyp direct payment",
+            severity: "INFO",
+            payment: res,
+            userId: user.uid,
+          });
+          return;
+        }
+
+        // Legacy fallback — external-payment stores only (no HYP charge here).
         await FirebaseApi.firestore.setV2<Partial<TOrder>>({
           collection: FirebaseAPI.firestore.getPath({
             collectionName: "orders",

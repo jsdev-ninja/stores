@@ -10,9 +10,18 @@ import { postTransaction } from "../services/postTransaction";
 import { getPaymentLinkByToken } from "../internal/paymentLinksStore";
 
 const InputSchema = z.object({
-	/** Payment link token — identifies which link was used */
-	token: z.string().min(1),
-	/** Tenant context (must match the link's companyId/storeId) */
+	/**
+	 * Payment link token — OPTIONAL.
+	 *  • Canonical payment-link flow (createHypDirectPaymentLink) passes it: the
+	 *    server resolves the link, validates tenant + expiry, and consumes it
+	 *    (single-use enforcement).
+	 *  • Live admin payment-link flow (createPaymentRedirect) does NOT carry a
+	 *    token in the HYP redirect — in that case the order is resolved directly
+	 *    from `Order` + tenant input and no link is consumed.
+	 * Integrity is enforced by HYP VERIFY + Masof cross-check in BOTH paths.
+	 */
+	token: z.string().min(1).optional(),
+	/** Tenant context (must match the link's companyId/storeId when a token is used) */
 	companyId: z.string().min(1),
 	storeId: z.string().min(1),
 	/** HYP direct payment redirect result fields */
@@ -112,39 +121,67 @@ export const recordHypDirectPayment = functions.https.onCall(
 				return { success: false, error: "verify_failed" };
 			}
 
-			// Peek at the link (read-only) to validate tenant context BEFORE writing the
-			// transaction, so we don't record money for the wrong tenant.
-			// The authoritative single-use enforcement happens in the transactional consume below.
-			const linkSnapshot = await getPaymentLinkByToken(input.token);
+			// Resolve the transaction's order reference + tenant. Two modes:
+			//  • token present → canonical payment-link flow: peek at the link
+			//    (read-only) to validate tenant context BEFORE writing, so we don't
+			//    record money for the wrong tenant. Authoritative single-use
+			//    enforcement happens in the transactional consume below.
+			//  • token absent → live admin payment-link flow (createPaymentRedirect):
+			//    there is no link doc; the order id comes from the verified `Order`
+			//    field and the tenant from the (VERIFY-gated) input. Same trust model
+			//    as recordHypJ5Auth.
+			let reference: { type: "order"; id: string };
+			let companyId = input.companyId;
+			let storeId = input.storeId;
 
-			if (!linkSnapshot) {
-				logger.error("ledger.recordHypDirectPayment.linkNotFound", {
-					token: input.token,
-					Id: input.Id,
-				});
-				return { success: false, error: "link_not_found" };
-			}
+			if (input.token) {
+				const linkSnapshot = await getPaymentLinkByToken(input.token);
 
-			if (linkSnapshot.expiresAt < Date.now()) {
-				logger.error("ledger.recordHypDirectPayment.linkExpired", {
-					token: input.token,
-					Id: input.Id,
-				});
-				return { success: false, error: "link_expired" };
-			}
+				if (!linkSnapshot) {
+					logger.error("ledger.recordHypDirectPayment.linkNotFound", {
+						token: input.token,
+						Id: input.Id,
+					});
+					return { success: false, error: "link_not_found" };
+				}
 
-			// Validate tenant context matches the link before any write
-			if (
-				linkSnapshot.companyId !== input.companyId ||
-				linkSnapshot.storeId !== input.storeId
-			) {
-				logger.error("ledger.recordHypDirectPayment.tenantMismatch", {
-					linkCompanyId: linkSnapshot.companyId,
-					linkStoreId: linkSnapshot.storeId,
-					inputCompanyId: input.companyId,
-					inputStoreId: input.storeId,
-				});
-				return { success: false, error: "tenant_mismatch" };
+				if (linkSnapshot.expiresAt < Date.now()) {
+					logger.error("ledger.recordHypDirectPayment.linkExpired", {
+						token: input.token,
+						Id: input.Id,
+					});
+					return { success: false, error: "link_expired" };
+				}
+
+				// Validate tenant context matches the link before any write
+				if (
+					linkSnapshot.companyId !== input.companyId ||
+					linkSnapshot.storeId !== input.storeId
+				) {
+					logger.error("ledger.recordHypDirectPayment.tenantMismatch", {
+						linkCompanyId: linkSnapshot.companyId,
+						linkStoreId: linkSnapshot.storeId,
+						inputCompanyId: input.companyId,
+						inputStoreId: input.storeId,
+					});
+					return { success: false, error: "tenant_mismatch" };
+				}
+
+				if (linkSnapshot.reference.type !== "order") {
+					logger.error("ledger.recordHypDirectPayment.unsupportedReference", {
+						token: input.token,
+						referenceType: linkSnapshot.reference.type,
+						Id: input.Id,
+					});
+					return { success: false, error: "unsupported_reference" };
+				}
+
+				reference = linkSnapshot.reference;
+				companyId = linkSnapshot.companyId;
+				storeId = linkSnapshot.storeId;
+			} else {
+				// Tokenless: reference the order carried in the verified HYP redirect.
+				reference = { type: "order", id: input.Order };
 			}
 
 			// Amount comes from HYP (verified), NOT from a separately client-supplied field
@@ -169,27 +206,27 @@ export const recordHypDirectPayment = functions.https.onCall(
 			let payerClientId: string | undefined;
 			let payerBillingAccountId: string | undefined;
 
-			if (linkSnapshot.reference.type === "order") {
+			{
 				const orderPath = FirebaseAPI.firestore.getPath({
-					companyId: input.companyId,
-					storeId: input.storeId,
+					companyId,
+					storeId,
 					collectionName: "orders",
-					id: linkSnapshot.reference.id,
+					id: reference.id,
 				});
 				// Do NOT wrap in try/catch — let network/Firestore errors propagate so
 				// the caller retries. A missing doc (exists === false) also fails closed.
 				const orderSnap = await admin.firestore().doc(orderPath).get();
 				if (!orderSnap.exists) {
 					logger.error("ledger.recordHypDirectPayment.orderNotFound", {
-						orderId: linkSnapshot.reference.id,
-						companyId: input.companyId,
-						storeId: input.storeId,
+						orderId: reference.id,
+						companyId,
+						storeId,
 						Id: input.Id,
 					});
 					// Throw so the function retries; the HYP charge is already recorded
 					// idempotently so retrying is safe.
 					throw new Error(
-						`recordHypDirectPayment: order doc not found for orderId=${linkSnapshot.reference.id} — will retry`,
+						`recordHypDirectPayment: order doc not found for orderId=${reference.id} — will retry`,
 					);
 				}
 				const order = orderSnap.data() as TOrder;
@@ -209,7 +246,7 @@ export const recordHypDirectPayment = functions.https.onCall(
 				amount: amountAgorot,
 				currency: "ILS",
 				direction: "in",
-				reference: linkSnapshot.reference,
+				reference,
 				payer: {
 					organizationId: payerOrganizationId,
 					clientId: payerClientId,
@@ -221,45 +258,48 @@ export const recordHypDirectPayment = functions.https.onCall(
 					hypTransactionId: input.Id,
 					rawResponse: input.rawResponse,
 				},
-				companyId: input.companyId,
-				storeId: input.storeId,
+				companyId,
+				storeId,
 			});
 
-			// STEP 2 (secondary): Consume the single-use link.
-			// If this fails after a successful record, the money fact is already durable —
-			// return success with the transactionId and log the issue for ops follow-up.
-			// On retry, postTransaction (step 1) is idempotent; consume returning
-			// already_used is acceptable.
-			const consumeResult = await validateAndConsumeLink(input.token);
-			if (!consumeResult.success) {
-				if (consumeResult.reason === "already_used") {
-					// Idempotent replay — the link was already consumed (likely a browser retry).
-					// The transaction was recorded (idempotently) above; this is normal.
-					logger.info("ledger.recordHypDirectPayment.linkAlreadyUsed", {
-						token: input.token,
-						reason: consumeResult.reason,
-						Id: input.Id,
-						transactionId: tx.id,
-					});
-				} else {
-					// Consume failed after a successful record — money fact is safe.
-					// Log as a warning for ops; do NOT surface as a failure to the client
-					// since the transaction was recorded successfully.
-					logger.warn("ledger.recordHypDirectPayment.consumeFailedAfterRecord", {
-						token: input.token,
-						reason: consumeResult.reason,
-						Id: input.Id,
-						transactionId: tx.id,
-					});
+			// STEP 2 (secondary, token flow only): Consume the single-use link.
+			// The live admin payment-link flow has no link doc, so there is nothing to
+			// consume — idempotency there relies solely on the hyp_{Id} dedup key.
+			// If consume fails after a successful record, the money fact is already
+			// durable — return success and log for ops. On retry, postTransaction
+			// (step 1) is idempotent; consume returning already_used is acceptable.
+			if (input.token) {
+				const consumeResult = await validateAndConsumeLink(input.token);
+				if (!consumeResult.success) {
+					if (consumeResult.reason === "already_used") {
+						// Idempotent replay — the link was already consumed (likely a browser retry).
+						// The transaction was recorded (idempotently) above; this is normal.
+						logger.info("ledger.recordHypDirectPayment.linkAlreadyUsed", {
+							token: input.token,
+							reason: consumeResult.reason,
+							Id: input.Id,
+							transactionId: tx.id,
+						});
+					} else {
+						// Consume failed after a successful record — money fact is safe.
+						// Log as a warning for ops; do NOT surface as a failure to the client
+						// since the transaction was recorded successfully.
+						logger.warn("ledger.recordHypDirectPayment.consumeFailedAfterRecord", {
+							token: input.token,
+							reason: consumeResult.reason,
+							Id: input.Id,
+							transactionId: tx.id,
+						});
+					}
 				}
 			}
 
 			logger.info("ledger.recordHypDirectPayment.success", {
 				Id: input.Id,
 				transactionId: tx.id,
-				companyId: input.companyId,
-				storeId: input.storeId,
-				token: input.token,
+				companyId,
+				storeId,
+				token: input.token ?? null,
 				amountAgorot,
 			});
 
