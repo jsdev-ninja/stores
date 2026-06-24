@@ -103,7 +103,10 @@ function classifyOrders(orders: TOrder[]): { nonCancelled: TOrder[]; problems: P
 
 		const groups: GroupKey[] = [];
 		if (order.status !== "completed") groups.push("g1");
-		if (order.paymentStatus !== "completed") groups.push("g2");
+		// External-payment orders are settled outside the system (cash / bank transfer),
+		// so a non-"completed" paymentStatus is expected — don't flag them as unpaid.
+		if (order.paymentStatus !== "completed" && order.paymentType !== "external")
+			groups.push("g2");
 		if (needsExternalDocs && (!hasInvoice || !hasDeliveryNote)) groups.push("g3");
 
 		if (groups.length > 0) problems.push({ ...order, groups });
