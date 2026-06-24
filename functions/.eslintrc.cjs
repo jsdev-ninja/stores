@@ -30,6 +30,9 @@ module.exports = {
     "**/*.test.ts",
     "**/__tests__/**",
     "vitest.config.ts",
+    // Throwaway dev/spike runners live outside src (not in tsconfig), so the
+    // type-aware parser can't resolve them — keep ESLint off them.
+    "/scripts/**",
   ],
   settings: {
     // "boundaries/elements": [

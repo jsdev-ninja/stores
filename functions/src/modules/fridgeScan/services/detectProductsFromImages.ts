@@ -1,13 +1,13 @@
 import { genkit } from "genkit";
-import { vertexAI } from "@genkit-ai/google-genai";
+import { googleAI } from "@genkit-ai/google-genai";
 import { logger } from "../../../core";
 import { DetectedItemArraySchema, TDetectedItem } from "../types";
 
 // One module-level ai instance — avoids cold-start cost on warm instances.
 // Mirrors the pattern in functions/src/services/genkit-service/index.ts.
 const ai = genkit({
-	plugins: [vertexAI({ location: "us-central1" })],
-	model: vertexAI.model("gemini-2.5-flash"),
+	plugins: [googleAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY })],
+	model: googleAI.model("gemini-2.5-flash"),
 });
 
 const DETECTION_PROMPT = `You are a grocery-inventory vision assistant for an Israeli supermarket. \

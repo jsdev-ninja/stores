@@ -1,21 +1,53 @@
 /**
- * THROWAWAY spike runner — calls detectProductsFromImages directly on local
- * fridge photo(s) and prints what Gemini detected.
+ * THROWAWAY spike — depth/occlusion-aware detection experiment.
  *
- * Lives OUTSIDE functions/src, so it is not part of the deployed build.
- * Delete after the vision-accuracy spike.
+ * Standalone googleAI call (does NOT import the module) so we can iterate on the
+ * prompt + schema without touching prod code. Goal: also count units partially
+ * hidden BEHIND the front row (front-row count vs depth-aware total estimate).
  *
- * Usage (from repo root or anywhere):
- *   GOOGLE_CLOUD_PROJECT=<gcp-project-with-vertex> \
- *     functions/node_modules/.bin/tsx functions/scripts/spike-fridge-detect.ts \
- *     /path/to/fridge1.jpg [/path/to/fridge2.jpg ...]
- *
- * Requires Google ADC (`gcloud auth application-default login`) and a project
- * with Vertex AI enabled (the chatbot already runs Gemini in jsdev-stores-prod).
+ * Usage:
+ *   GOOGLE_GENAI_API_KEY="$(cat /tmp/gk_spike)" \
+ *     functions/node_modules/.bin/tsx functions/scripts/spike-fridge-detect.ts img [img...]
  */
 import { readFileSync } from "node:fs";
 import { extname, basename } from "node:path";
-import { detectProductsFromImages } from "../src/modules/fridgeScan/services/detectProductsFromImages";
+import { genkit, z } from "genkit";
+import { googleAI } from "@genkit-ai/google-genai";
+
+const apiKey = process.env.GOOGLE_GENAI_API_KEY;
+if (!apiKey) {
+	console.error("set GOOGLE_GENAI_API_KEY");
+	process.exit(1);
+}
+
+const ai = genkit({
+	plugins: [googleAI({ apiKey })],
+	model: googleAI.model("gemini-2.5-flash"),
+});
+
+const ItemSchema = z.object({
+	name: z.string().describe("short product name, Hebrew when legible"),
+	visibleCount: z.number().int().min(0).describe("units clearly visible in the FRONT row"),
+	estimatedTotal: z
+		.number()
+		.int()
+		.min(0)
+		.describe("best estimate of TRUE total incl. partially-hidden units behind (>= visibleCount)"),
+	depthUncertain: z.boolean().describe("true if more units appear to be behind but cannot be counted exactly"),
+	confidence: z.number().min(0).max(1),
+});
+const Schema = z.array(ItemSchema);
+
+const PROMPT = `You are a grocery-inventory vision assistant for a fridge. Identify each distinct product visible.
+
+CRITICAL: items in a fridge are stored MULTIPLE ROWS DEEP. Do NOT count only the front row.
+For each product:
+- visibleCount = units you can clearly see in front.
+- Then look carefully for the SAME product partially hidden BEHIND the front units — a cap, shoulder, top, or edge peeking out between or behind them. Bottles and cartons are usually lined up several deep.
+- estimatedTotal = your best estimate of the TRUE total including those partially-hidden units. estimatedTotal must be >= visibleCount.
+- depthUncertain = true if you can tell more are behind but cannot count them exactly (still give a reasonable estimate).
+Return: name (Hebrew when legible), visibleCount, estimatedTotal, depthUncertain, confidence (0-1).
+Do not invent products you cannot see at all.`;
 
 const MIME: Record<string, string> = {
 	".jpg": "image/jpeg",
@@ -27,11 +59,8 @@ const MIME: Record<string, string> = {
 function toDataUri(path: string): string {
 	const ext = extname(path).toLowerCase();
 	const mime = MIME[ext];
-	if (!mime) {
-		throw new Error(`Unsupported extension "${ext}" for ${path} (use jpg/png/webp)`);
-	}
-	const b64 = readFileSync(path).toString("base64");
-	return `data:${mime};base64,${b64}`;
+	if (!mime) throw new Error(`Unsupported extension "${ext}" for ${path}`);
+	return `data:${mime};base64,${readFileSync(path).toString("base64")}`;
 }
 
 async function main() {
@@ -40,29 +69,19 @@ async function main() {
 		console.error("Usage: tsx scripts/spike-fridge-detect.ts <image1> [image2 ...]");
 		process.exit(1);
 	}
-	if (paths.length > 6) {
-		console.error(`Got ${paths.length} images; the detector caps at 6.`);
-		process.exit(1);
-	}
+	console.log(`Images: ${paths.map((p) => basename(p)).join(", ")}`);
+	console.log("Calling Gemini (depth-aware prompt)…\n");
 
-	console.log(`Project: ${process.env.GOOGLE_CLOUD_PROJECT ?? "(ADC default)"}`);
-	console.log(`Images:  ${paths.map((p) => basename(p)).join(", ")}`);
-	console.log("Calling Gemini…\n");
+	const parts = paths.map((p) => ({ media: { url: toDataUri(p) } }));
+	const res = await ai.generate({ system: PROMPT, prompt: parts, output: { schema: Schema } });
+	const items = res.output ?? [];
 
-	const images = paths.map(toDataUri);
-	const started = Date.now();
-	try {
-		const result = await detectProductsFromImages({ images });
-		const ms = Date.now() - started;
-		console.log(`✓ ${result.products.length} product(s) in ${ms}ms`);
-		console.log(`Usage: ${JSON.stringify(result.usage)}\n`);
-		console.log(JSON.stringify(result.products, null, 2));
-	} catch (err) {
-		const ms = Date.now() - started;
-		console.error(`✗ failed after ${ms}ms`);
-		console.error(err);
-		process.exit(1);
+	console.log(`${items.length} products  (visible → estimated total)\n`);
+	for (const it of items) {
+		const flag = it.depthUncertain ? "  ⚠ depth?" : "";
+		console.log(`  ${it.visibleCount} → ${it.estimatedTotal}${flag}   [conf ${it.confidence}]  ${it.name}`);
 	}
+	console.log("\n" + JSON.stringify(items, null, 2));
 }
 
 main();

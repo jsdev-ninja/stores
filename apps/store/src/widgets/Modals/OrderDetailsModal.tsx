@@ -316,7 +316,7 @@ export function OrderDetailsModal({
 					{/* Demo modal chrome: black header bar + circular close (admin.css .m-head) */}
 					<Modal.Header className="relative !flex-row items-center bg-[#1a1a17] px-6 py-[18px] m-0">
 						<Modal.Heading className="flex-1 min-w-0 truncate pe-12 text-[16px] font-extrabold tracking-[-0.02em] text-white text-start">
-							{t("ordersPage:orderDetails.title", "הזמנה")} #{order.id.slice(-8)}
+							{t("ordersPage:orderDetails.title", "הזמנה")} #{order.id}
 						</Modal.Heading>
 						<Modal.CloseTrigger className="absolute !left-6 !right-auto !start-auto top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white transition hover:rotate-90 hover:bg-white/20">
 							✕
