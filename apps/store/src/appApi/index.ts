@@ -1927,7 +1927,11 @@ export const useAppApi = () => {
           doc: {
             id: payment.Order,
             paymentStatus:
-              store?.paymentType === "external" ? "external" : "pending_j5",
+              store?.paymentType === "external"
+                ? "external"
+                : payment.CCode === "0"
+                  ? "completed" // CCode 0 = card actually charged → mark paid
+                  : "pending_j5", // CCode 700 = J5 hold → awaiting capture
             originalAmount: payment.Amount,
             actualAmount: payment.Amount,
           },

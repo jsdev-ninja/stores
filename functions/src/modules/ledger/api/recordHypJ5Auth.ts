@@ -133,7 +133,10 @@ export const recordHypJ5Auth = functions.https.onCall(
 			const tx = await postTransaction({
 				source: "hyp_result",
 				hypTransactionId: input.Id, // dedup key: hyp_{Id}
-				type: "hyp_j5_auth",
+				// CCode "0" = the card was actually charged (direct payment), not a J5
+				// hold — record it as hyp_direct so the order is marked paid, not left
+				// at pending_j5. CCode "700" = real J5 authorization (awaiting capture).
+				type: input.CCode === "0" ? "hyp_direct" : "hyp_j5_auth",
 				amount: amountAgorot,
 				currency: "ILS",
 				direction: "in",
