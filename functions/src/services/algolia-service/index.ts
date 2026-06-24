@@ -2,7 +2,8 @@ import { TProduct } from "@jsdev_ninja/core";
 import algoliasearch from "algoliasearch";
 import { logger } from "firebase-functions/v2";
 
-const algolia = algoliasearch("633V4WVLUB", "2f3dbcf0c588a92a1e553020254ddb3a");
+// API key comes from the ALGOLIA_SECRET env var (functions/.env.<project>), never hardcoded.
+const algolia = algoliasearch("633V4WVLUB", process.env.ALGOLIA_SECRET ?? "");
 
 export const productsIndex = algolia.initIndex("products");
 

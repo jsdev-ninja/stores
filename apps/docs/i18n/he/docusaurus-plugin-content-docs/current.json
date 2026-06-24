@@ -50,5 +50,17 @@
   "sidebar.tutorialSidebar.category.Pages.link.generated-index.description": {
     "message": "Reference for each top-level page in the admin app — what it shows, where the data comes from, what actions it offers.",
     "description": "The generated-index page description for category 'Pages' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Past Issues": {
+    "message": "בעיות עבר",
+    "description": "The label for category 'Past Issues' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Past Issues.link.generated-index.title": {
+    "message": "בעיות עבר",
+    "description": "The generated-index page title for category 'Past Issues' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Past Issues.link.generated-index.description": {
+    "message": "יומן של תקלות ומקרים מבלבלים שנחקרו — מה קרה, מה מצאנו, וכיצד זה נפתר. כתוב בשפה פשוטה לעיון עתידי.",
+    "description": "The generated-index page description for category 'Past Issues' in sidebar 'tutorialSidebar'"
   }
 }

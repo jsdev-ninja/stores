@@ -1,0 +1,9 @@
+{
+  "label": "Past Issues",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "title": "Past Issues",
+    "description": "A log of investigated incidents and confusing cases — what happened, what we found, and how it was resolved. Written in plain language for future reference."
+  }
+}
