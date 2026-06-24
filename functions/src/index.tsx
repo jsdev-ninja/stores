@@ -16,7 +16,7 @@ export { chatbotApi } from "./modules/chatbot";
 export { detectFridgeProducts } from "./modules/fridgeScan";
 export { appInit } from "./modules/application";
 export { getMixpanelData } from "./modules/analytics";
-export { createCompanyClient, migrateProfilesToMultiOrg } from "./modules/customers";
+export { createCompanyClient, deleteClient, migrateProfilesToMultiOrg } from "./modules/customers";
 // HYP payment flow (incl. legacy createPayment/chargeOrder/createPaymentRedirect/getPaymentRedirect)
 // now lives entirely in the ledger module and is re-exported here.
 export * from "./modules/ledger";

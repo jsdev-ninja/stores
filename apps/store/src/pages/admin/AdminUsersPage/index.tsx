@@ -176,6 +176,26 @@ function AdminUsersPage() {
 	const [search, setSearch] = useState("");
 	const [companyFilter, setCompanyFilter] = useState("all");
 	const [modal, setModal] = useState<CustomerModalState>({ kind: "closed" });
+	const [deleteTarget, setDeleteTarget] = useState<TProfile | null>(null);
+	const [isDeleting, setIsDeleting] = useState(false);
+
+	async function handleDelete() {
+		if (!deleteTarget) return;
+		setIsDeleting(true);
+		try {
+			const result = await appApi.admin.deleteClient(deleteTarget.id);
+			if (result?.success) {
+				setClients((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+				setDeleteTarget(null);
+			} else {
+				console.error("Failed to delete client:", result);
+			}
+		} catch (error) {
+			console.error("Error deleting client:", error);
+		} finally {
+			setIsDeleting(false);
+		}
+	}
 
 	useEffect(() => {
 		appApi.admin.getStoreClients().then((res) => {
@@ -376,12 +396,10 @@ function AdminUsersPage() {
 														עריכה
 													</button>
 
-													{/* Delete — UI-only: no client-delete API yet */}
+													{/* Delete */}
 													<button
 														type="button"
-														onClick={() => {
-															/* UI-only placeholder — delete not wired */
-														}}
+														onClick={() => setDeleteTarget(c)}
 														className="inline-flex items-center justify-center w-8 h-8 rounded border border-[var(--border)] text-[var(--danger)] bg-[var(--surface)] hover:border-[var(--danger)] hover:bg-[var(--danger)] hover:text-white transition-colors"
 														title="מחק"
 														aria-label={`מחק ${c.displayName}`}
@@ -404,6 +422,33 @@ function AdminUsersPage() {
 				organizations={organizations}
 				onClose={() => setModal({ kind: "closed" })}
 			/>
+
+			<Modal.Backdrop
+				isOpen={deleteTarget !== null}
+				onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+			>
+				<Modal.Container>
+					<Modal.Dialog className="max-w-[440px] w-full">
+						<Modal.Header>
+							<Modal.Heading>אישור הסרה</Modal.Heading>
+						</Modal.Header>
+						<Modal.Body>
+							<p>
+								האם אתה בטוח שברצונך להסיר את{" "}
+								<strong>{deleteTarget?.displayName}</strong>? פעולה זו לא ניתנת לביטול.
+							</p>
+						</Modal.Body>
+						<Modal.Footer>
+							<Button variant="ghost" onPress={() => setDeleteTarget(null)}>
+								ביטול
+							</Button>
+							<Button variant="danger" onPress={handleDelete} isPending={isDeleting}>
+								הסר לקוח
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal.Backdrop>
 		</div>
 	);
 }

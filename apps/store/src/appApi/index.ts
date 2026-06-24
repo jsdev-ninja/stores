@@ -627,6 +627,20 @@ export const useAppApi = () => {
       },
 
       /**
+       * Admin: AR rollup + entry ledger for one organization (customer ledger card).
+       * Read-only. Auth guard + tenant scope enforced server-side (admin custom claim).
+       */
+      getOrganizationBalance: async (params: {
+        organizationId: string;
+        fromMillis?: number;
+        toMillis?: number;
+      }) => {
+        if (!isValidAdmin) return;
+        const { api } = await import("src/lib/firebase/api");
+        return await api.getOrganizationBalance(params);
+      },
+
+      /**
        * Record a full payment against an open invoice.
        * Creates an EZcount receipt (doc_type 400) and marks the invoice paid on the order.
        * Partial payments are NOT supported — always pays the full invoice total.
@@ -745,6 +759,24 @@ export const useAppApi = () => {
           severity: result.success ? "INFO" : "ERROR",
           result,
           client,
+        });
+
+        return result;
+      },
+      deleteClient: async (clientId: string) => {
+        if (!isValidAdmin) return;
+
+        // Fully delete the client: profile doc + Firebase Auth user. This must
+        // run server-side (Admin SDK), so we call the backend callable rather
+        // than removing the Firestore doc directly. Org membership lives on the
+        // profile, so deleting the profile also clears it.
+        const result = await FirebaseApi.api.deleteClient(clientId);
+
+        logger({
+          message: "delete client",
+          severity: result.success ? "INFO" : "ERROR",
+          result,
+          clientId,
         });
 
         return result;
@@ -1700,6 +1732,39 @@ export const useAppApi = () => {
           },
         });
       },
+      // Home page "featured products" strip — owner-curated product ids.
+      // Stored tenant-scoped so the storefront can read it client-side.
+      getFeaturedProducts: async () => {
+        if (!isValidAdmin || !companyId || !storeId)
+          return { success: false as const, data: null };
+        return FirebaseApi.firestore.getV2<{
+          productIds: string[];
+          updatedAt: number;
+        }>({
+          collection: FirebaseAPI.firestore.getPath({
+            companyId,
+            storeId,
+            collectionName: "settings",
+          }),
+          id: "homeFeatured",
+        });
+      },
+      updateFeaturedProducts: async (productIds: string[]) => {
+        if (!isValidAdmin || !companyId || !storeId)
+          return { success: false as const };
+        return FirebaseApi.firestore.setV2({
+          collection: FirebaseAPI.firestore.getPath({
+            companyId,
+            storeId,
+            collectionName: "settings",
+          }),
+          doc: {
+            id: "homeFeatured",
+            productIds: productIds.slice(0, 6),
+            updatedAt: Date.now(),
+          },
+        });
+      },
     },
     system: {
       getDiscounts: async () => {
@@ -2264,6 +2329,12 @@ export const useAppApi = () => {
           companyId: companyId,
           companyName: company?.name,
         });
+
+        // Balasi storefront: surface the cart drawer when an item is added so
+        // the customer sees their cart pop up (scoped to balasi/tester only).
+        if (store?.id === "balasistore_store" || store?.id === "tester_store") {
+          actions.dispatch(actions.ui.openCartDrawer());
+        }
       },
       async removeItemFromCart({ product }: { product: TProduct }) {
         if (!isValidUser) {

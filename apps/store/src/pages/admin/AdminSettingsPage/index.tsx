@@ -5,9 +5,18 @@ import { Button } from "src/components/button";
 import { FileDropzone } from "src/components/FileDropzone";
 import { useStore } from "src/domains/Store";
 import { useTranslation } from "react-i18next";
-import { TAddress } from "@jsdev_ninja/core";
+import { TAddress, TProduct } from "@jsdev_ninja/core";
 
 const CHATBOT_CONTEXT_MAX = 3000;
+const FEATURED_MAX = 6;
+
+function productLabel(product: TProduct): string {
+	return (
+		product.name.find((l) => l.lang === "he")?.value ??
+		product.name[0]?.value ??
+		product.id
+	);
+}
 
 function AdminSettingsPage() {
 	const [logo, setLogo] = useState<File | null>(null);
@@ -19,6 +28,11 @@ function AdminSettingsPage() {
 	const [chatbotContext, setChatbotContext] = useState("");
 	const [savedChatbotContext, setSavedChatbotContext] = useState("");
 	const [chatbotContextLoading, setChatbotContextLoading] = useState(false);
+	const [allProducts, setAllProducts] = useState<TProduct[]>([]);
+	const [featuredIds, setFeaturedIds] = useState<string[]>([]);
+	const [savedFeaturedIds, setSavedFeaturedIds] = useState<string[]>([]);
+	const [featuredSearch, setFeaturedSearch] = useState("");
+	const [featuredLoading, setFeaturedLoading] = useState(false);
 	const [address, setAddress] = useState<TAddress>({
 		country: "",
 		city: "",
@@ -55,6 +69,66 @@ function AdminSettingsPage() {
 			setChatbotContextLoading(false);
 		}
 	}
+
+	// Load product list + saved featured selection on mount
+	useEffect(() => {
+		appApi.admin.listProducts().then((result) => {
+			if (result?.success) setAllProducts(result.data);
+		});
+		appApi.admin.getFeaturedProducts().then((result) => {
+			if (result?.success && result.data?.productIds) {
+				setFeaturedIds(result.data.productIds);
+				setSavedFeaturedIds(result.data.productIds);
+			}
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const selectedProducts = featuredIds
+		.map((id) => allProducts.find((p) => p.id === id))
+		.filter((p): p is TProduct => !!p);
+
+	const featuredSearchTrimmed = featuredSearch.trim().toLowerCase();
+	const availableProducts = allProducts
+		.filter((p) => !featuredIds.includes(p.id))
+		.filter(
+			(p) =>
+				!featuredSearchTrimmed ||
+				productLabel(p).toLowerCase().includes(featuredSearchTrimmed),
+		)
+		.slice(0, 30);
+
+	function addFeatured(id: string) {
+		if (featuredIds.length >= FEATURED_MAX || featuredIds.includes(id)) return;
+		setFeaturedIds([...featuredIds, id]);
+	}
+
+	function removeFeatured(id: string) {
+		setFeaturedIds(featuredIds.filter((x) => x !== id));
+	}
+
+	function moveFeatured(index: number, direction: -1 | 1) {
+		const target = index + direction;
+		if (target < 0 || target >= featuredIds.length) return;
+		const next = [...featuredIds];
+		[next[index], next[target]] = [next[target], next[index]];
+		setFeaturedIds(next);
+	}
+
+	async function saveFeatured() {
+		setFeaturedLoading(true);
+		try {
+			await appApi.admin.updateFeaturedProducts(featuredIds);
+			setSavedFeaturedIds(featuredIds);
+		} catch (error) {
+			console.error("Failed to save featured products:", error);
+		} finally {
+			setFeaturedLoading(false);
+		}
+	}
+
+	const featuredUnchanged =
+		JSON.stringify(featuredIds) === JSON.stringify(savedFeaturedIds);
 
 	// Initialize form values when store data loads
 	useEffect(() => {
@@ -384,6 +458,113 @@ function AdminSettingsPage() {
 							chatbotContext.length > CHATBOT_CONTEXT_MAX ||
 							chatbotContext === savedChatbotContext
 						}
+					>
+						{t("common:save")}
+					</Button>
+				</div>
+			</div>
+
+			{/* Featured Products Section */}
+			<div className="bg-white rounded-lg shadow p-6">
+				<h2 className="text-xl font-semibold mb-1">מוצרים נבחרים לעמוד הבית</h2>
+				<p className="text-sm text-gray-500 mb-4">
+					בחרו עד {FEATURED_MAX} מוצרים שיוצגו בקטע &quot;מבחר השבוע&quot; בעמוד הבית, לפי הסדר שתקבעו.
+					אם לא תבחרו מוצרים — יוצגו אוטומטית המוצרים הראשונים בחנות.
+				</p>
+
+				{/* Selected products */}
+				<div className="mb-5">
+					<h3 className="text-sm font-medium text-gray-700 mb-2">
+						נבחרו ({selectedProducts.length}/{FEATURED_MAX})
+					</h3>
+					{selectedProducts.length === 0 ? (
+						<p className="text-sm text-gray-400">
+							לא נבחרו מוצרים — מוצג מבחר אוטומטי.
+						</p>
+					) : (
+						<ol className="space-y-2">
+							{selectedProducts.map((product, index) => (
+								<li
+									key={product.id}
+									className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2"
+								>
+									<span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-800 text-xs font-bold text-white">
+										{index + 1}
+									</span>
+									<span className="flex-1 text-sm">{productLabel(product)}</span>
+									<HeroButton
+										size="sm"
+										variant="ghost"
+										isDisabled={index === 0}
+										onPress={() => moveFeatured(index, -1)}
+										aria-label="העבר למעלה"
+									>
+										↑
+									</HeroButton>
+									<HeroButton
+										size="sm"
+										variant="ghost"
+										isDisabled={index === selectedProducts.length - 1}
+										onPress={() => moveFeatured(index, 1)}
+										aria-label="העבר למטה"
+									>
+										↓
+									</HeroButton>
+									<HeroButton
+										size="sm"
+										variant="danger"
+										onPress={() => removeFeatured(product.id)}
+									>
+										הסר
+									</HeroButton>
+								</li>
+							))}
+						</ol>
+					)}
+				</div>
+
+				{/* Product picker */}
+				<div className="space-y-2">
+					<Input
+						value={featuredSearch}
+						onChange={(e) => setFeaturedSearch(e.target.value)}
+						placeholder="חיפוש מוצר לפי שם..."
+					/>
+					<div className="max-h-64 overflow-y-auto rounded-md border border-gray-200 divide-y divide-gray-100">
+						{availableProducts.length === 0 ? (
+							<p className="p-3 text-sm text-gray-400">לא נמצאו מוצרים.</p>
+						) : (
+							availableProducts.map((product) => (
+								<div
+									key={product.id}
+									className="flex items-center gap-2 px-3 py-2"
+								>
+									<span className="flex-1 text-sm">{productLabel(product)}</span>
+									<HeroButton
+										size="sm"
+										variant="outline"
+										isDisabled={featuredIds.length >= FEATURED_MAX}
+										onPress={() => addFeatured(product.id)}
+									>
+										הוסף
+									</HeroButton>
+								</div>
+							))
+						)}
+					</div>
+					{featuredIds.length >= FEATURED_MAX && (
+						<p className="text-xs text-amber-600">
+							הגעתם למקסימום {FEATURED_MAX} מוצרים. כדי להוסיף מוצר אחר, הסירו אחד קודם.
+						</p>
+					)}
+				</div>
+
+				<div className="mt-6">
+					<Button
+						onPress={saveFeatured}
+						isPending={featuredLoading}
+						isDisabled={featuredUnchanged}
+						className="w-full md:w-auto"
 					>
 						{t("common:save")}
 					</Button>

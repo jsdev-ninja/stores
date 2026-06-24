@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
 import { useAppSelector } from "src/infra";
-import { AddressSchema, getCartCost, TOrder, TProfile } from "@jsdev_ninja/core";
+import { AddressSchema, getCartCost, TOrder, TOrganization, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { submitHypForm } from "src/lib/payment/submitHypForm";
@@ -37,9 +38,39 @@ const checkoutSchema = z.object({
 		.optional(),
 	poNumber: z.string().optional(),
 	outOfStockPolicy: z.enum(["substitute", "remove"]).optional(),
+	// Selected billing account (by id) for B2B customers whose org has several accounts.
+	billingAccountId: z.string().optional(),
 });
 
 type TCheckout = z.infer<typeof checkoutSchema>;
+
+/**
+ * Keeps the org-derived checkout fields in sync when the customer switches the
+ * active organization (the "מזמינים עבור" picker). react-hook-form reads
+ * `defaultValues` only once on mount, so without this the company name / ח.פ /
+ * name-on-invoice / billing account stay stuck on the previously selected org.
+ * Skips the first run — the initial population is handled by `defaultValues`.
+ */
+function SyncOrgFields({ organization }: { organization: TOrganization | null }) {
+	const { setValue } = useFormContext();
+	const orgId = organization?.id;
+	const isFirstRun = useRef(true);
+
+	useEffect(() => {
+		if (isFirstRun.current) {
+			isFirstRun.current = false;
+			return;
+		}
+		// On an explicit org switch, the selected company's own details win.
+		setValue("companyName", organization?.name ?? "");
+		setValue("companyNumber", organization?.companyNumber ?? "");
+		setValue("nameOnInvoice", organization?.nameOnInvoice ?? "");
+		setValue("billingAccountId", organization?.billingAccounts?.[0]?.id ?? "");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [orgId]);
+
+	return null;
+}
 
 function CheckoutPage() {
 	const { t } = useTranslation(["common", "checkout", "cart"]);
@@ -160,8 +191,10 @@ function CheckoutPage() {
 					email: profile?.email ?? "",
 					phone: profile?.phoneNumber ?? "",
 					clientComment: "",
-					// B2B prefill (auto-fill from profile/organization where available)
-					companyName: profile?.companyName ?? profileOrganization?.name ?? "",
+					// B2B prefill — when an org is active, ALL company details derive from
+					// it (name + ח.פ + invoice name) so they stay consistent on org switch.
+					// Falls back to the profile's company name only for non-org customers.
+					companyName: profileOrganization?.name ?? profile?.companyName ?? "",
 					companyNumber: profileOrganization?.companyNumber ?? "",
 					contact: {
 						fullName: profile?.displayName ?? "",
@@ -171,6 +204,8 @@ function CheckoutPage() {
 					},
 					poNumber: "",
 					outOfStockPolicy: "substitute",
+					// Default to the org's main (first) account; the customer can change it below.
+					billingAccountId: profileOrganization?.billingAccounts?.[0]?.id ?? "",
 				}}
 				onError={(errors) => {
 					console.warn("errors", errors);
@@ -181,6 +216,13 @@ function CheckoutPage() {
 					setIsSubmitting(true);
 
 					try {
+						// Resolve the chosen billing account (B2B). Default to the org's main
+						// (first) account when nothing was picked, so an org order always carries one.
+						const orgBillingAccounts = profileOrganization?.billingAccounts ?? [];
+						const billingAccount =
+							orgBillingAccounts.find((a) => a.id === values.billingAccountId) ??
+							orgBillingAccounts[0];
+
 						const newOrder: TOrder = {
 							type: "Order",
 							// Deterministic ID = cart.id → idempotent across rage-clicks, page refresh, multi-tab.
@@ -194,6 +236,7 @@ function CheckoutPage() {
 							paymentStatus: store.paymentType === "external" ? "external" : "pending",
 							client: _profile,
 							organizationId: profileOrganization?.id,
+							billingAccount: billingAccount ?? undefined,
 							cart: {
 								id: cart.id,
 								items: cartCost.items,
@@ -260,12 +303,14 @@ function CheckoutPage() {
 					}
 				}}
 			>
+				<SyncOrgFields organization={profileOrganization} />
 				{isBalasi ? (
 					<BalasiCheckoutLayout
 						t={t}
 						minDate={minDate}
 						maxDate={maxDate}
 						isSubmitting={isSubmitting}
+						billingAccounts={profileOrganization?.billingAccounts ?? []}
 					/>
 				) : (
 				<div className="mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8">
