@@ -273,9 +273,9 @@ function CheckoutPage() {
 						) {
 							newOrder.status = "pending";
 							newOrder.paymentType = "external";
-							// createV2 returns success:false when the doc already exists (re-submit/refresh).
-							// Either way, navigate to orders — order is in DB.
-							await appApi.orders.order({
+							// Upsert: refreshes the order if the customer re-submits after
+							// editing the cart. Either way, navigate to orders — order is in DB.
+							await appApi.orders.upsertCheckoutOrder({
 								order: newOrder,
 							});
 
@@ -286,9 +286,10 @@ function CheckoutPage() {
 
 						newOrder.paymentType = "j5";
 
-						// Don't bail on success:false — that fires when the order already exists
-						// (rage-click / refresh). Continue to payment link generation either way.
-						await appApi.orders.order({
+						// Upsert: on a re-submit (customer went back to add products) this
+						// refreshes the still-unpaid draft order so the payment link reflects
+						// the latest cart. Idempotent for rage-clicks (deterministic cart.id).
+						await appApi.orders.upsertCheckoutOrder({
 							order: newOrder,
 						});
 
