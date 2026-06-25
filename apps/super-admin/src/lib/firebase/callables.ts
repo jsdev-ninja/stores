@@ -22,8 +22,11 @@ import type {
 	TProfile,
 } from "src/lib/saContracts";
 
-// Region MUST match the deploy region of all sa* callables.
-const fns = getFunctions(app, "europe-west1");
+// No region arg: the sa* callables deploy to the project default region
+// (us-central1) — same as apps/store's getFunctions(app). Hardcoding
+// "europe-west1" pointed the client at the wrong region (the functions live in
+// us-central1), which surfaced as "Failed to load stores → internal".
+const fns = getFunctions(app);
 
 // ─── Stores ───────────────────────────────────────────────────────────────────
 
