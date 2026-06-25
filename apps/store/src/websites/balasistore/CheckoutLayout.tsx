@@ -25,6 +25,7 @@ import { useFormContext } from "react-hook-form";
 import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
+import { useAppSelector } from "src/infra";
 import { formatter } from "src/utils/formatter";
 
 const ORANGE = "var(--brand-secondary)";
@@ -413,6 +414,9 @@ function OrderSummary({ children }: { children?: ReactNode }) {
 	const cart = useCart();
 	const discounts = useDiscounts();
 	const store = useStore();
+	const activeOrganization = useAppSelector(
+		(state) => state.userOrganization.activeOrganization
+	);
 
 	if (!cart || !store) return null;
 
@@ -421,6 +425,7 @@ function OrderSummary({ children }: { children?: ReactNode }) {
 		discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		freeShipping: activeOrganization?.freeShipping ?? false,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 

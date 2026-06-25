@@ -70,6 +70,9 @@ function CartDrawerPanel({ onClose }: { onClose: () => void }) {
 	const cart = useCart();
 	const discounts = useDiscounts();
 	const user = useAppSelector((state) => state.user.user);
+	const activeOrganization = useAppSelector(
+		(state) => state.userOrganization.activeOrganization
+	);
 
 	// Esc to close + lock background scroll while the drawer is open.
 	useEffect(() => {
@@ -92,6 +95,7 @@ function CartDrawerPanel({ onClose }: { onClose: () => void }) {
 		discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		freeShipping: activeOrganization?.freeShipping ?? false,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 

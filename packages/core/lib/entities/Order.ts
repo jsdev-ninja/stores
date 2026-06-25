@@ -48,6 +48,10 @@ export const OrderSchema = z.object({
 			deliveryPrice: z.number().optional(),
 			freeDeliveryPrice: z.number().optional(),
 			isVatIncludedInPrice: z.boolean().optional(),
+			// True when the ordering organization is exempt from delivery fees
+			// ("פטור מדמי משלוח"). Persisted so any later recompute (admin edit,
+			// invoice generation) keeps the exemption.
+			freeShipping: z.boolean().optional(),
 		})
 		.optional(),
 	originalAmount: z.number().positive().optional(), // what client pay

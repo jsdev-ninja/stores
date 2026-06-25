@@ -70,7 +70,13 @@ function Row({ label, value }: { label: string; value: string }) {
 	);
 }
 
-function OrderSummary({ children }: { children?: ReactNode }) {
+function OrderSummary({
+	children,
+	freeShipping = false,
+}: {
+	children?: ReactNode;
+	freeShipping?: boolean;
+}) {
 	const cart = useCart();
 	const discounts = useDiscounts();
 	const store = useStore();
@@ -82,6 +88,7 @@ function OrderSummary({ children }: { children?: ReactNode }) {
 		discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		freeShipping,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
@@ -299,7 +306,7 @@ export default function BalasiAdminCreateOrderLayout({
 					<MinimumOrderAlert />
 				</div>
 
-				<OrderSummary>
+				<OrderSummary freeShipping={selectedOrganization?.freeShipping ?? false}>
 					<div className="space-y-3">
 						<Button fullWidth type="submit">
 							{t("admin:createOrder.createOrder", "צור הזמנה")}

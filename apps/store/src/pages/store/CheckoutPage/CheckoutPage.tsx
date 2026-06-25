@@ -151,6 +151,8 @@ function CheckoutPage() {
 		discounts: discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		// B2B: an organization flagged "פטור מדמי משלוח" never pays delivery.
+		freeShipping: profileOrganization?.freeShipping ?? false,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
@@ -250,6 +252,7 @@ function CheckoutPage() {
 								deliveryPrice: store.deliveryPrice,
 								freeDeliveryPrice: store.freeDeliveryPrice,
 								isVatIncludedInPrice: store.isVatIncludedInPrice,
+								freeShipping: profileOrganization?.freeShipping ?? false,
 							},
 							// form data
 							deliveryDate: values.deliveryDate.getTime(),
