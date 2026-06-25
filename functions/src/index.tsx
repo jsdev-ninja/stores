@@ -30,6 +30,8 @@ export {
   // AR reconcile (admin callable + nightly schedule)
   reconcileOrganizationBalanceCallable,
   reconcileOrganizationBalanceSchedule,
+  // AR one-time backfill from historical orders + transactions (admin callable)
+  backfillOrganizationBalanceCallable,
   // AR read (admin callable)
   getOrganizationBalance,
   // Invoice payment callables

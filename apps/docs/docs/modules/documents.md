@@ -196,6 +196,30 @@ corrected rollup docs.
 **The reconcile service reads the entry ledger only** — it does not scan
 the `transactions` collection.
 
+## Backfill service (one-time history seed)
+
+`backfillOrganizationBalance(params)` seeds the `organizationBalance` entry
+ledger from **historical** data, for orgs whose orders/payments predate the AR
+subscribers (their ledger is empty, so the כרטסת card shows "—" and the org-list
+"חוב פתוח" column shows ₪0).
+
+Unlike reconcile (which only rebuilds the rollup cache **from existing entries**),
+backfill **creates the missing entries**:
+
+- **Accruals** — scans `orders`; for each order with `organizationId` + a
+  `deliveryNote` + positive `cart.cartTotal`, replays `accrueDebt` (same guards as
+  `accrueOnDeliveryNoteCreated`). `cart.cartTotal` is shekels → converted to agorot.
+- **Settlements** — scans `transactions`; for each received-money B2B inflow
+  (`type ∈ {hyp_capture, hyp_direct, manual}`, `direction:"in"`,
+  `reference.type ∈ {order, invoice}`, `payer.organizationId` present), replays
+  `settleDebt` (same guards as `settleOnTransactionPosted`).
+
+**Idempotent & safe to re-run:** it reuses the live dedup ids (`dn_{deliveryNoteId}`,
+`settle_{transactionId}`), so it never double-accrues / double-settles, even if the
+live subscribers already processed an item. `apply: false` (default) is a dry run
+that only counts candidates. After applying, the rollup is already correct
+(incremental writer); running reconcile afterwards is an optional parity check.
+
 ## Idempotency (AR)
 
 `organizationBalanceStore.writeArEntry` uses `txn.create()` inside a Firestore
@@ -290,6 +314,7 @@ human-readable doc numbers. Passing a number returns
 | `createInvoice`                   | `onCall`     | admin claim  | Issue a tax invoice (see [Invoice flows](#invoice-flows)). |
 | `getOrganizationBalance`          | `onCall`     | admin claim  | Read rollup + filtered entry list for one org. |
 | `reconcileOrganizationBalanceCallable` | `onCall` | admin claim  | Admin-triggered reconcile (dry-run or apply). |
+| `backfillOrganizationBalanceCallable`  | `onCall` | admin claim  | One-time history seed of the AR ledger from orders + transactions (dry-run or apply). |
 | `accrueOnDeliveryNoteCreated`     | subscriber   | internal     | AR accrual on DN. |
 | `settleOnTransactionPosted`       | subscriber   | internal     | AR settlement on payment. |
 | `reconcileOrganizationBalanceSchedule` | scheduled | system      | Nightly reconcile (04:00 Asia/Jerusalem). |
@@ -359,11 +384,13 @@ modules/documents/
 │   ├── createDeliveryNote.ts                       DN issuance
 │   ├── createInvoice.ts                            tax-invoice issuance (both flows)
 │   ├── getOrganizationBalance.ts                   AR balance read (rollup + entries)
-│   └── reconcileOrganizationBalance.ts             admin reconcile callable
+│   ├── reconcileOrganizationBalance.ts             admin reconcile callable
+│   └── backfillOrganizationBalance.ts              admin one-time AR history backfill
 ├── services/
 │   ├── accrueDebt.ts                               write "+" entry for a delivery note
 │   ├── settleDebt.ts                               write "-" entry for a payment
-│   └── reconcileOrganizationBalance.ts             scan ledger, rebuild rollups
+│   ├── reconcileOrganizationBalance.ts             scan ledger, rebuild rollups
+│   └── backfillOrganizationBalance.ts              scan orders+transactions, seed entries
 ├── subscribers/
 │   ├── accrueOnDeliveryNoteCreated.ts              reacts to documents.delivery_note_created
 │   └── settleOnTransactionPosted.ts                reacts to ledger.transaction_posted

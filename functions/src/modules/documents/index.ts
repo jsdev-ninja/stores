@@ -10,6 +10,7 @@ export type { DocumentInvoiceCreatedPayload as TDocumentInvoiceCreatedPayload } 
 export { createDeliveryNote } from "./api/createDeliveryNote";
 export { createInvoice } from "./api/createInvoice";
 export { reconcileOrganizationBalanceCallable } from "./api/reconcileOrganizationBalance";
+export { backfillOrganizationBalanceCallable } from "./api/backfillOrganizationBalance";
 export { getOrganizationBalance } from "./api/getOrganizationBalance";
 export { getOpenInvoices } from "./api/getOpenInvoices";
 export type { OpenInvoiceRow } from "./api/getOpenInvoices";
