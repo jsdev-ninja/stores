@@ -142,6 +142,7 @@ export function useAdminCreateOrderModal(onOrderCreated?: (order: TOrder) => voi
 				deliveryPrice: store.deliveryPrice,
 				freeDeliveryPrice: store.freeDeliveryPrice,
 				isVatIncludedInPrice: store.isVatIncludedInPrice,
+				freeShipping: selectedOrg?.freeShipping ?? false,
 			},
 			cart: {
 				id: orderId,

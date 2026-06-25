@@ -38,12 +38,19 @@ export function getCartCost({
 	discounts,
 	deliveryPrice = 0,
 	freeDeliveryPrice = 0,
+	freeShipping = false,
 	isVatIncludedInPrice = false,
 }: {
 	cart: TCart["items"];
 	discounts: TDiscount[];
 	deliveryPrice?: number;
 	freeDeliveryPrice?: number;
+	/**
+	 * When true, the customer is exempt from delivery fees regardless of the
+	 * store's free-delivery threshold (e.g. an organization flagged with
+	 * `freeShipping`). Forces `deliveryPrice` to 0.
+	 */
+	freeShipping?: boolean;
 	isVatIncludedInPrice?: boolean;
 }) {
 	// Convert cart items to the format expected by the discount engine
@@ -123,7 +130,10 @@ export function getCartCost({
 		},
 	);
 
-	if (cartDetails.deliveryPrice && cartDetails.productsCost >= freeDeliveryPrice) {
+	if (
+		freeShipping ||
+		(cartDetails.deliveryPrice && cartDetails.productsCost >= freeDeliveryPrice)
+	) {
 		cartDetails.deliveryPrice = 0;
 	} else {
 		cartDetails.finalCost += cartDetails.deliveryPrice;

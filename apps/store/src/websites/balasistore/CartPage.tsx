@@ -24,6 +24,9 @@ export default function BalasiCartPage() {
 	const cart = useCart();
 	const discounts = useDiscounts();
 	const user = useAppSelector((state) => state.user.user);
+	const activeOrganization = useAppSelector(
+		(state) => state.userOrganization.activeOrganization
+	);
 
 	if (!store) return null;
 
@@ -32,6 +35,7 @@ export default function BalasiCartPage() {
 		discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		freeShipping: activeOrganization?.freeShipping ?? false,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 

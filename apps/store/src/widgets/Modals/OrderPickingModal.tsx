@@ -131,6 +131,7 @@ export function OrderPickingModal({
 			deliveryPrice:
 				store?.deliveryPrice ?? order.storeOptions?.deliveryPrice ?? order.cart.deliveryPrice ?? 0,
 			freeDeliveryPrice: store?.freeDeliveryPrice ?? order.storeOptions?.freeDeliveryPrice ?? 0,
+			freeShipping: order.storeOptions?.freeShipping ?? false,
 			isVatIncludedInPrice:
 				store?.isVatIncludedInPrice ?? order.storeOptions?.isVatIncludedInPrice ?? false,
 		});

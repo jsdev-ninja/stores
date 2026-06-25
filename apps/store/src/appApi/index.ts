@@ -1084,6 +1084,7 @@ export const useAppApi = () => {
           discounts: [],
           deliveryPrice: order.storeOptions?.deliveryPrice ?? 0,
           freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice ?? 0,
+          freeShipping: order.storeOptions?.freeShipping ?? false,
           isVatIncludedInPrice:
             order.storeOptions?.isVatIncludedInPrice ?? false,
         });

@@ -19,6 +19,9 @@ function CartPage() {
 
 	const store = useStore();
 	const discounts = useDiscounts();
+	const activeOrganization = useAppSelector(
+		(state) => state.userOrganization.activeOrganization
+	);
 
 	if (!store) {
 		return null;
@@ -34,6 +37,7 @@ function CartPage() {
 		discounts: discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		freeShipping: activeOrganization?.freeShipping ?? false,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 

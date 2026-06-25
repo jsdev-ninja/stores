@@ -171,6 +171,7 @@ export default function AdminOrderPickPage() {
         discounts: discounts,
         deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
         freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+        freeShipping: prev.storeOptions?.freeShipping ?? false,
         isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
       });
 
@@ -251,6 +252,7 @@ export default function AdminOrderPickPage() {
         discounts: discounts,
         deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
         freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+        freeShipping: prev.storeOptions?.freeShipping ?? false,
         isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
       });
 
@@ -291,6 +293,7 @@ export default function AdminOrderPickPage() {
         discounts: discounts,
         deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
         freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+        freeShipping: prev.storeOptions?.freeShipping ?? false,
         isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
       });
 
@@ -320,6 +323,7 @@ export default function AdminOrderPickPage() {
         discounts: discounts,
         deliveryPrice: prev.storeOptions?.deliveryPrice ?? 0,
         freeDeliveryPrice: prev.storeOptions?.freeDeliveryPrice ?? 0,
+        freeShipping: prev.storeOptions?.freeShipping ?? false,
         isVatIncludedInPrice: prev.storeOptions?.isVatIncludedInPrice ?? false,
       });
 

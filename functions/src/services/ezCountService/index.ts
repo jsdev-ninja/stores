@@ -187,6 +187,7 @@ export const ezCountService = {
 				discounts: [],
 				deliveryPrice: order.storeOptions?.deliveryPrice,
 				freeDeliveryPrice: order.storeOptions?.freeDeliveryPrice,
+				freeShipping: order.storeOptions?.freeShipping,
 				isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice,
 			});
 

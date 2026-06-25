@@ -110,6 +110,7 @@ function AdminCreateOrderPage() {
 		discounts: discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		freeShipping: selectedOrganization?.freeShipping ?? false,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 

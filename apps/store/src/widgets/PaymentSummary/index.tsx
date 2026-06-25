@@ -5,6 +5,7 @@ import { Price } from "src/components/Price";
 import { useCart } from "src/domains/cart";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { useStore } from "src/domains/Store";
+import { useAppSelector } from "src/infra";
 // import { useDiscounts } from "src/domains/Discounts/Discounts";
 
 export function PaymentSummary({ children }: { children?: ReactNode }) {
@@ -15,6 +16,9 @@ export function PaymentSummary({ children }: { children?: ReactNode }) {
 
 	const discounts = useDiscounts();
 	const store = useStore();
+	const activeOrganization = useAppSelector(
+		(state) => state.userOrganization.activeOrganization
+	);
 
 	if (!cart || !store) {
 		return null;
@@ -25,6 +29,7 @@ export function PaymentSummary({ children }: { children?: ReactNode }) {
 		discounts: discounts,
 		deliveryPrice: store.deliveryPrice,
 		freeDeliveryPrice: store.freeDeliveryPrice,
+		freeShipping: activeOrganization?.freeShipping ?? false,
 		isVatIncludedInPrice: store.isVatIncludedInPrice,
 	});
 
