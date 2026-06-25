@@ -61,7 +61,7 @@ export function ProfilesListPage() {
 						</tbody>
 					</table>
 
-					{state.hasMore && (
+					{state.nextCursor && (
 						<div className="px-4 py-3 border-t border-slate-200 text-center">
 							<button
 								type="button"

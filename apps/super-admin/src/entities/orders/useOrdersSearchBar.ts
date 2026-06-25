@@ -38,5 +38,8 @@ export function useOrdersSearchBar({ onSearch, onClear }: Props) {
 		onClear();
 	}, [onClear]);
 
-	return { fields, handleChange, handleSubmit, handleClear };
+	// Disable submit until at least one field has a value
+	const isSubmitDisabled = !fields.byId.trim() && !fields.byStatus;
+
+	return { fields, handleChange, handleSubmit, handleClear, isSubmitDisabled };
 }

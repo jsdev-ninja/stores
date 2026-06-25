@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { useOrderDetail } from "./useOrderDetail";
-import { OrderStatusForm } from "./OrderStatusForm";
 import { EntityErrorBanner } from "src/entities/shared/EntityErrorBanner";
 import { RawJsonPanel } from "src/entities/shared/RawJsonPanel";
 import { useStoreContext } from "src/store-context/StoreContext";
@@ -131,7 +130,7 @@ function OrderFields({ order }: { order: TOrder }) {
 export function OrderDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const { currentStore } = useStoreContext();
-	const { state, refetch } = useOrderDetail(id ?? "");
+	const { state } = useOrderDetail(id ?? "");
 
 	return (
 		<div>
@@ -152,15 +151,20 @@ export function OrderDetailPage() {
 			{state.status === "error" && <EntityErrorBanner message={state.message} />}
 
 			{state.status === "success" && currentStore && (
-				<div className="bg-white rounded-lg border border-slate-200 p-6">
+				<div className="bg-white rounded-lg border border-slate-200 p-6 space-y-0">
 					<OrderFields order={state.order} />
-					<OrderStatusForm
-						companyId={currentStore.companyId}
-						storeId={currentStore.id}
-						orderId={state.order.id}
-						currentStatus={state.order.status}
-						onSuccess={refetch}
-					/>
+
+					{/* E1 order-status editing — deferred, backend callable not yet deployed.
+					    Re-enable by swapping the notice below for <OrderStatusForm …/> once E1 ships. */}
+					<div className="mt-6 pt-6 border-t border-slate-200">
+						<h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+							Edit order
+						</h2>
+						<p className="text-xs text-slate-400 italic">
+							Order-status editing is currently unavailable.
+						</p>
+					</div>
+
 					<RawJsonPanel data={state.order} />
 				</div>
 			)}

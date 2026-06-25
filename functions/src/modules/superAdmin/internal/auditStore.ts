@@ -21,13 +21,21 @@ import { auditCollectionPath } from "./paths";
 const db = () => admin.firestore();
 
 /**
- * Deterministic audit doc id: sa_{actorUid}_{entityType}_{docId}_{field}_{timestampMillis}
+ * Deterministic audit doc id:
+ *   sa_{actorUid}_{entityType}_{docId}_{field}_{timestampMillis}_{newValueToken}
  *
- * Slashes in field paths (e.g. "stock.quantity") are acceptable in doc ids;
- * no escaping needed. The combination is unique per (actor, target, millis).
+ * The newValueToken is a short stable encoding of newValue (String(newValue),
+ * non-alphanumerics replaced with "_") appended so that two *distinct* edits to
+ * the same field in the same millisecond produce different ids and are both
+ * recorded. A true retry (same actor/field/value/ms) still produces the same id
+ * and is safely deduped via .create() ALREADY_EXISTS.
+ *
+ * Slashes in field paths (e.g. "stock.quantity") are acceptable in Firestore
+ * doc ids; no escaping needed.
  */
 function auditDocId(entry: Omit<AuditEntry, "id">): string {
-	return `sa_${entry.actorUid}_${entry.collection}_${entry.docId}_${entry.field}_${entry.timestamp}`;
+	const valueToken = String(entry.newValue).replace(/[^a-zA-Z0-9]/g, "_");
+	return `sa_${entry.actorUid}_${entry.collection}_${entry.docId}_${entry.field}_${entry.timestamp}_${valueToken}`;
 }
 
 /**

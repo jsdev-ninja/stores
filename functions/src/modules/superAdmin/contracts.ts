@@ -28,8 +28,7 @@ import type { TOrder, TProduct, TProfile } from "@jsdev_ninja/core";
  * At runtime this is still exactly OrderSchema.shape.status — no change to
  * validation behaviour. The union values are preserved via OrderStatus type.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const orderStatusSchema = OrderSchema.shape.status as z.ZodType<any>;
+const orderStatusSchema = (OrderSchema as unknown as { shape: { status: z.ZodTypeAny } }).shape.status;
 
 // ─── Shared request primitives ───────────────────────────────────────────────
 

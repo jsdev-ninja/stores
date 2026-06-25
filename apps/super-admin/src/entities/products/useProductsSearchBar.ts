@@ -38,5 +38,8 @@ export function useProductsSearchBar({ onSearch, onClear }: Props) {
 		onClear();
 	}, [onClear]);
 
-	return { fields, handleChange, handleSubmit, handleClear };
+	// Disable submit until at least one field has a value
+	const isSubmitDisabled = !fields.bySku.trim() && !fields.byName.trim();
+
+	return { fields, handleChange, handleSubmit, handleClear, isSubmitDisabled };
 }

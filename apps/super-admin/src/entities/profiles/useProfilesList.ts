@@ -12,7 +12,7 @@ type SearchState =
 export type ProfilesListState =
 	| { status: "loading" }
 	| { status: "error"; message: string }
-	| { status: "success"; rows: ProfileListRow[]; hasMore: boolean };
+	| { status: "success"; rows: ProfileListRow[]; nextCursor: string | undefined };
 
 export function useProfilesList() {
 	const { currentStore } = useStoreContext();
@@ -22,7 +22,8 @@ export function useProfilesList() {
 	const load = useCallback(
 		async (cursor?: string) => {
 			if (!currentStore) return;
-			setState({ status: "loading" });
+			// Only show spinner on initial/search load, not on load-more
+			if (!cursor) setState({ status: "loading" });
 			try {
 				const result =
 					searchState.mode === "search"
@@ -42,11 +43,15 @@ export function useProfilesList() {
 					setState({ status: "error", message: `Failed to load profiles: ${result.error}` });
 					return;
 				}
-				setState({
+				setState((prev) => ({
 					status: "success",
-					rows: result.data,
-					hasMore: result.nextCursor !== undefined,
-				});
+					// Append on load-more (cursor present), replace on fresh load
+					rows:
+						cursor && prev.status === "success"
+							? [...prev.rows, ...result.data]
+							: result.data,
+					nextCursor: result.nextCursor,
+				}));
 			} catch (err) {
 				setState({
 					status: "error",
@@ -73,11 +78,8 @@ export function useProfilesList() {
 	}, []);
 
 	const handleLoadMore = useCallback(() => {
-		const lastCursor =
-			state.status === "success" && state.hasMore
-				? (state.rows[state.rows.length - 1]?.id ?? undefined)
-				: undefined;
-		if (lastCursor) void load(lastCursor);
+		if (state.status !== "success" || !state.nextCursor) return;
+		void load(state.nextCursor);
 	}, [state, load]);
 
 	return { state, searchState, handleSearch, handleClearSearch, handleLoadMore };

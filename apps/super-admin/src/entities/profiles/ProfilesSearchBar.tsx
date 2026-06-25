@@ -7,7 +7,7 @@ type Props = {
 };
 
 export function ProfilesSearchBar({ onSearch, onClear }: Props) {
-	const { fields, handleChange, handleSubmit, handleClear } = useProfilesSearchBar({
+	const { fields, handleChange, handleSubmit, handleClear, isSubmitDisabled } = useProfilesSearchBar({
 		onSearch,
 		onClear,
 	});
@@ -47,7 +47,8 @@ export function ProfilesSearchBar({ onSearch, onClear }: Props) {
 
 			<button
 				type="submit"
-				className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+				disabled={isSubmitDisabled}
+				className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
 			>
 				Search
 			</button>

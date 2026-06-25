@@ -38,5 +38,8 @@ export function useProfilesSearchBar({ onSearch, onClear }: Props) {
 		onClear();
 	}, [onClear]);
 
-	return { fields, handleChange, handleSubmit, handleClear };
+	// Disable submit until at least one field has a value
+	const isSubmitDisabled = !fields.byEmail.trim() && !fields.byPhone.trim();
+
+	return { fields, handleChange, handleSubmit, handleClear, isSubmitDisabled };
 }
