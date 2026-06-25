@@ -1852,6 +1852,9 @@ export function AdminOrganizationsPage() {
 
 	const [organizations, setOrganizations] = useState<TOrganization[]>([]);
 	const [search, setSearch] = useState("");
+	// Open-debt (owed, agorot) per organization id. Loaded from the same AR rollup
+	// the ledger card uses. undefined = still loading → render a "—" placeholder.
+	const [debts, setDebts] = useState<Record<string, number>>({});
 
 	// Modal state
 	const [companyModal, setCompanyModal] = useState<CompanyModalState>({ kind: "closed" });
@@ -1872,6 +1875,32 @@ export function AdminOrganizationsPage() {
 	useEffect(() => {
 		loadOrganizations();
 	}, [loadOrganizations]);
+
+	// Load each organization's open debt (AR rollup) once the list is in.
+	// Rollup reads are O(1) per org, so fetching them in parallel is cheap.
+	const loadDebts = useCallback(
+		async (orgs: TOrganization[]) => {
+			const results = await Promise.all(
+				orgs.map(async (org) => {
+					try {
+						const res = await appApi.admin.getOrganizationBalance({
+							organizationId: org.id,
+						});
+						const owed = res?.success ? res.data?.rollup?.owed ?? 0 : 0;
+						return [org.id, owed] as const;
+					} catch {
+						return [org.id, 0] as const;
+					}
+				}),
+			);
+			setDebts(Object.fromEntries(results));
+		},
+		[], // eslint-disable-line react-hooks/exhaustive-deps -- appApi is re-created each render but stable in behavior
+	);
+
+	useEffect(() => {
+		if (organizations.length > 0) loadDebts(organizations);
+	}, [organizations, loadDebts]);
 
 	// REAL delete — preserved from original implementation
 	const handleDelete = async (organizationId: string) => {
@@ -2012,9 +2041,22 @@ export function AdminOrganizationsPage() {
 												</span>
 											</Table.Cell>
 
-											{/* חוב פתוח — no data */}
+											{/* חוב פתוח — open AR balance (owed, agorot) */}
 											<Table.Cell className="py-3">
-												<span className="text-sm text-[var(--muted)]">—</span>
+												{org.id in debts ? (
+													<span
+														className={[
+															"text-sm font-semibold",
+															debts[org.id] > 0
+																? "text-[var(--danger,#dc2626)]"
+																: "text-[var(--muted)]",
+														].join(" ")}
+													>
+														{fmtMoney(debts[org.id] / 100)}
+													</span>
+												) : (
+													<span className="text-sm text-[var(--muted)]">—</span>
+												)}
 											</Table.Cell>
 
 											{/* Actions */}
