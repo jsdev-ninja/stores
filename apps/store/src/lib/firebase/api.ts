@@ -6,7 +6,6 @@ import {
 	TOrganizationBalanceEntry,
 	TOrganizationBalanceRollup,
 } from "@jsdev_ninja/core";
-import { TCompany } from "src/domains/Company";
 import { CONFIG } from "src/config";
 
 export type CreateProductResult =
@@ -298,21 +297,6 @@ async function recordHypJ5Auth(input: {
 	}
 }
 
-async function createCompanyClient(company: TCompany) {
-	try {
-		const func = httpsCallable(functions, "createCompanyClient");
-
-		const response = await func(company);
-		return { success: true, data: response.data };
-	} catch (error: any) {
-		const code = error.code;
-		const message = error.message;
-		const details = error.details;
-		console.error(code, message, details);
-		return { success: false, data: null };
-	}
-}
-
 async function deleteClient(clientId: string) {
 	try {
 		const func = httpsCallable(functions, "deleteClient");
@@ -567,7 +551,6 @@ async function createProduct(product: TNewProduct): Promise<CreateProductResult>
 
 export const api = {
 	init,
-	createCompanyClient,
 	deleteClient,
 	createPayment,
 	createHypCheckoutPayment,

@@ -8,75 +8,84 @@ title: Order paid at the gateway but stuck on "pending"
 | | |
 |---|---|
 | **Store** | Balasi (balasistore) |
-| **Customer** | Volumez — דנה קונין |
-| **When** | Charged 13 Apr 2026 · reconciled 24 Jun 2026 |
-| **Status** | ✅ Fixed — both orders manually marked paid (ledger backfill still open) |
+| **Affected customers** | Volumez **and** Dentsu — **not customer-specific** |
+| **Status** | ✅ Root cause found · band-aid fix written (not yet deployed) · all known orders reconciled by hand |
+| **Found so far** | **7 orders · ₪12,569.39** |
 
 ## In one line
 
-Two orders were **charged successfully** at the payment provider (the customer even
-got a receipt), but the orders kept showing as **unpaid** in the system. We
-manually corrected their status.
+A card payment **succeeds** at the gateway (the customer even gets a receipt), but
+the order keeps showing as **unpaid** (`pending_j5`) — because the code path that
+recorded the payment never told the order it was paid.
 
-> This is a **different** problem from the
-> [duplicate-draft issue](./order-looked-unpaid-but-was-paid.md). There the money
-> was on a *sibling* order; here the money is on *this* order, but its status never
-> updated.
+> Different from the [duplicate-draft issue](./order-looked-unpaid-but-was-paid.md):
+> there the money sat on a *sibling* order; here the money is on *this* order, but
+> its status never updated.
 
-## What went wrong
+## The symptom
 
-These are B2B "charge later" (J5) orders: the customer's card is authorised at
-checkout, and the store charges it later when the order is packed.
+For each affected order:
+- gateway shows the charge **approved** (receipt issued), but
+- the order is stuck at `status: completed/delivered` + **`paymentStatus: pending_j5`**, and
+- there is **no ledger transaction** for it.
 
-- The first charge attempts (February) were **declined** by the card.
-- On **13 Apr 2026** the charges finally went **through** — the provider approved
-  them and an EZcount **receipt was issued**.
-- **But the order records never updated.** They stayed at status `pending` /
-  payment `pending_j5`, so in the admin they still looked unpaid — even though the
-  money had been collected.
+## Root cause (the real find)
 
-## Why it happened
+Recording a payment result is **mid-migration between two places**:
 
-The successful April 13 charge recorded the payment and issued the receipt, but it
-did **not** run the normal "order paid" flow that flips the order to completed and
-writes a ledger entry. So the payment and the order status drifted apart: **paid at
-the provider, unpaid in the order record.**
+- **Old (client / browser):** after the gateway redirect, the browser writes the
+  order + payment doc directly. It sets `paymentStatus: "pending_j5"` and saves the
+  payment record, but **posts no ledger transaction**.
+- **New (server / Cloud Function):** re-verifies the gateway signature and **posts a
+  ledger transaction**; a subscriber (`markOrderPaidOnTransactionPosted`) then flips
+  the order to `completed`.
 
-## How we found it
+The **only** code that sets `paymentStatus: "completed"` is that subscriber, and it
+**only runs when a ledger transaction is posted**. Direct / admin-payment-link
+charges still go through the **old client path**, which posts no transaction → the
+order is stranded at `pending_j5` even though the card was charged.
 
-- The payment provider's dashboard showed the charges as **approved** on April 13.
-- The stored payment records confirmed success (approval code + **receipt issued**),
-  matching the provider's transaction numbers.
-- Yet the order documents still read `pending` / `pending_j5`, with **no ledger
-  transaction**.
+(Secondary, same class of bug: the server J5 recorder always logged an "authorization"
+even when the result was a real charge — which also maps to `pending_j5`.)
 
-## What we did
+**Why two places at all:** the team is moving payment recording from client →
+server (server re-verifies + is the single source of truth via the ledger). The J5
+path was migrated; the **direct / admin-link path was not** — the "#2 cutover" was
+never finished, so the legacy client write is still live.
 
-- Manually set both orders to **`completed` / `completed`**, stamped with a note
-  pointing at the April 13 transaction.
-- Verified the change processed cleanly: no delivery note needed (J5); one internal
-  "payment completed" record was added to the organization's timeline; **no customer
-  was contacted and no money moved**.
+## Known occurrences (all reconciled to paid)
 
-## Still open
-
-The **ledger has no transaction** for these charges, so the amounts **do not yet
-appear in revenue/ledger reports**. The money was collected — it's only the internal
-accounting record that's missing. Backfilling a capture transaction per order would
-close this.
-
-## Occurrences
-
-| Order | Charged (gateway) | Amount | Now |
+| Order | Customer | Charged | Amount |
 |---|---|---|---|
-| `314oTtPvzxhZKPM9QwGE` | 13 Apr 2026 — txn 414258039 | ₪1,640.72 | completed / paid |
-| `TM8bY48dLoMXpMuJvYUm` | 13 Apr 2026 — txn 414258129 | ₪2,939.92 | completed / paid |
+| `314oTtPvzxhZKPM9QwGE` | Volumez | 13 Apr 2026 | ₪1,640.72 |
+| `TM8bY48dLoMXpMuJvYUm` | Volumez | 13 Apr 2026 | ₪2,939.92 |
+| `aY5a0S5XBzIA6FuPGKwy` | Volumez | 26 Feb 2026 | ₪503.16 |
+| `GAvwJI1kBb5RdbBzJNXt` | Volumez | 20 Apr 2026 | ₪1,948.25 |
+| `RgyCzLGlIVmZYglhWlfW` | Volumez | 20 May 2026 | ₪3,364.08 |
+| `hbYRg7vlLsn3ySQcbYXI` | Volumez | 20 May 2026 | ₪1,334.48 |
+| `GRlvqL0yd3aEz9toBXJ6` | **Dentsu** | 24 Jun 2026 | ₪838.78 |
 
-Both: Volumez / דנה קונין, balasistore, same card.
+Each was confirmed paid at the gateway (receipt issued) and then manually set to
+`paymentStatus: completed`.
 
-## Worth keeping an eye on
+## The fix
 
-If a J5 charge can succeed without flipping the order to paid, there may be **other
-orders sitting as `pending_j5` that were actually charged**. A periodic sweep for
-`pending_j5` orders that have a successful (receipt-issued) payment record would
-catch them.
+**Band-aid (written, not committed)** — corrects the order status on both live paths:
+- `apps/store/src/appApi/index.ts` (`onOrderPaid` legacy fallback): when the result is
+  actually charged (`CCode === "0"`), set `paymentStatus: "completed"` instead of
+  `pending_j5`.
+- `functions/src/modules/ledger/api/recordHypJ5Auth.ts`: a `CCode "0"` result posts a
+  `hyp_direct` transaction (→ `completed`) instead of `hyp_j5_auth` (→ `pending_j5`).
+
+**Proper fix (future):** finish the cutover — route direct / admin-link payments
+through the existing server handler `recordHypDirectPayment` (verifies + posts the
+ledger transaction), then delete the legacy client write. One place, no bug.
+
+## Still open / worth watching
+
+- The **band-aid fixes only the order status, not the ledger** — these charges still
+  have no ledger transaction, so they won't appear in revenue/ledger reports until a
+  backfill is done (deferred).
+- The fix is **not deployed** — until it is, newly-charged direct/admin-link orders can
+  still get stuck. A periodic sweep for `pending_j5` orders that have a successful
+  (receipt-issued) charge will catch any new ones.

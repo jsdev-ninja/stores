@@ -15,7 +15,6 @@ import {
   SupplierSchema,
   TSupplierInvoice,
 } from "@jsdev_ninja/core";
-import { TCompany } from "src/domains/Company";
 import { TOrder } from "@jsdev_ninja/core";
 import { useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
@@ -1072,21 +1071,6 @@ export const useAppApi = () => {
         } catch (error) {
           SentryApi.captureException(error);
           return { success: false };
-        }
-      },
-      async companyCreate(newCompany: TCompany) {
-        if (!isValidAdmin) return;
-
-        try {
-          const res = await FirebaseApi.api.createCompanyClient(newCompany);
-
-          if (!res.success) {
-            return res;
-          }
-        } catch (error) {
-          console.error(error);
-          SentryApi.captureException(error);
-          return { user: null, success: false, error };
         }
       },
       async updateOrder({ order }: { order: TOrder }) {
