@@ -5,7 +5,7 @@ import { useAppApi } from "src/appApi";
 import { Button } from "src/components/button";
 import { Form } from "src/components/Form";
 import { useProfile } from "src/domains/profile";
-import { useAppSelector } from "src/infra";
+import { useAppSelector, useStoreActions } from "src/infra";
 import { AddressSchema, getCartCost, TOrder, TOrganization, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
@@ -86,6 +86,7 @@ function CheckoutPage() {
 	const userOrganizations = useAppSelector((state) => state.userOrganization.organizations);
 
 	const appApi = useAppApi();
+	const actions = useStoreActions();
 
 	const cartData = useAppSelector((state) => state.cart);
 	const cart = cartData.currentCart;
@@ -218,9 +219,41 @@ function CheckoutPage() {
 					setIsSubmitting(true);
 
 					try {
+						// The active organization is loaded once when the store opens, so its
+						// payment terms can go stale if an admin changes them mid-session (the
+						// customer's profile, by contrast, is kept live via a subscription).
+						// Re-read the active org fresh at submit time so a customer/company
+						// marked "J5" always reaches the payment page instead of being routed to
+						// the external-payment path on stale data.
+						let resolvedOrg = profileOrganization;
+						if (profileOrganization) {
+							const orgsRes = await appApi.user.getProfileOrganization();
+							if (orgsRes?.success && Array.isArray(orgsRes.data)) {
+								actions.dispatch(
+									actions.userOrganization.setOrganizations(orgsRes.data)
+								);
+								const fresh = orgsRes.data.find(
+									(o) => o.id === profileOrganization.id
+								);
+								if (fresh) {
+									resolvedOrg = fresh;
+									actions.dispatch(
+										actions.userOrganization.setActiveOrganization(fresh)
+									);
+								}
+							}
+						}
+
+						// External payment wins if the store, the active company, or the
+						// customer profile is set to it; otherwise the order goes through J5.
+						const isExternalPayment =
+							store.paymentType === "external" ||
+							resolvedOrg?.paymentType === "external" ||
+							profile?.paymentType === "external";
+
 						// Resolve the chosen billing account (B2B). Default to the org's main
 						// (first) account when nothing was picked, so an org order always carries one.
-						const orgBillingAccounts = profileOrganization?.billingAccounts ?? [];
+						const orgBillingAccounts = resolvedOrg?.billingAccounts ?? [];
 						const billingAccount =
 							orgBillingAccounts.find((a) => a.id === values.billingAccountId) ??
 							orgBillingAccounts[0];
@@ -235,9 +268,9 @@ function CheckoutPage() {
 							companyId: store.companyId,
 							storeId: store.id,
 							status: "pending",
-							paymentStatus: store.paymentType === "external" ? "external" : "pending",
+							paymentStatus: isExternalPayment ? "external" : "pending",
 							client: _profile,
-							organizationId: profileOrganization?.id,
+							organizationId: resolvedOrg?.id,
 							billingAccount: billingAccount ?? undefined,
 							cart: {
 								id: cart.id,
@@ -252,7 +285,7 @@ function CheckoutPage() {
 								deliveryPrice: store.deliveryPrice,
 								freeDeliveryPrice: store.freeDeliveryPrice,
 								isVatIncludedInPrice: store.isVatIncludedInPrice,
-								freeShipping: profileOrganization?.freeShipping ?? false,
+								freeShipping: resolvedOrg?.freeShipping ?? false,
 							},
 							// form data
 							deliveryDate: values.deliveryDate.getTime(),
@@ -269,11 +302,7 @@ function CheckoutPage() {
 							outOfStockPolicy: values.outOfStockPolicy,
 						}
 
-						if (
-							store.paymentType === "external" ||
-							profileOrganization?.paymentType === "external" ||
-							profile?.paymentType === "external"
-						) {
+						if (isExternalPayment) {
 							newOrder.status = "pending";
 							newOrder.paymentType = "external";
 							// createV2 returns success:false when the doc already exists (re-submit/refresh).
