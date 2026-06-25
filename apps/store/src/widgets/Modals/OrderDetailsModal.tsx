@@ -235,10 +235,10 @@ export function OrderDetailsModal({
 				</Button>,
 			);
 		}
-		// Create payment link — for a J5 order whose payment hasn't completed
-		// (paymentStatus is still "pending") so the admin can send the customer a link
-		// to finish paying.
-		if (order.paymentType === "j5" && order.paymentStatus === "pending") {
+		// Create payment link — admin sends the customer a link to finish paying.
+		// TEMPORARY (by request): render this button ALWAYS. Original condition was
+		// `order.paymentType === "j5" && order.paymentStatus === "pending"` — restore to revert.
+		if (true) {
 			els.push(
 				<Button
 					key="createPaymentLink"
