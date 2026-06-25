@@ -61,6 +61,7 @@ Explain everything in plain, non-technical language. No code dumps.
 
 - ALWAYS validate build complie before merge or commit
 - ALWAYS validate lint before merge or commit
+- ALYWAS inlcude revelant documentaion update in apps/docs folder.
 
 ## Architecture
 

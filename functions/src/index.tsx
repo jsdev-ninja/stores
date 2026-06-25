@@ -52,7 +52,6 @@ export {
   reconcileBudgetProjections,
   reconcileProjectionsSchedule,
 } from "./modules/budget";
-export { getOrganizationActions } from "./api/organizationActionsApi";
 export { onOrderPlacedAdminEmail } from "./modules/notifications";
 export { onOrderPlacedCloseCart } from "./modules/cart";
 export {
@@ -63,3 +62,4 @@ export {
 } from "./modules/catalog";
 export { onUserDelete } from "./modules/auth";
 export { onOrderCreated, onOrderUpdate, onTransactionPostedMarkOrderPaid } from "./modules/orders";
+export * from "./modules/superAdmin";

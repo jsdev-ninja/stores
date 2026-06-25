@@ -119,3 +119,30 @@ jobs:
               entryPoint: apps/website
            env:
               FIREBASE_CLI_EXPERIMENTS: webframeworks
+
+         - name: check if super-admin folder changed
+           id: super-admin-check
+           run: |
+              if git diff --quiet HEAD~1 HEAD -- apps/super-admin/; then
+              echo "SUPER_ADMIN_CHANGE=false" >> $GITHUB_OUTPUT
+              else
+              echo "SUPER_ADMIN_CHANGE=true" >> $GITHUB_OUTPUT
+              fi
+
+         - name: build super-admin
+           if: steps.super-admin-check.outputs.SUPER_ADMIN_CHANGE == 'true'
+           run: |
+              echo -e "\033[1;34mBUILD SUPER-ADMIN"
+              yarn workspace super-admin run build
+
+         - name: deploy super-admin to firebase hosting
+           if: steps.super-admin-check.outputs.SUPER_ADMIN_CHANGE == 'true'
+           uses: FirebaseExtended/action-hosting-deploy@v0
+           with:
+              repoToken: ${{ secrets.GITHUB_TOKEN }}
+              firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSDEV_STORES_PROD }}
+              channelId: live
+              projectId: jsdev-stores-prod
+              entryPoint: apps/super-admin
+           env:
+              FIREBASE_CLI_EXPERIMENTS: webframeworks

@@ -24,6 +24,7 @@ functions/src/services/documents/dev-preview/dist
 
 # app
 apps/store/dist
+apps/super-admin/dist
 
 # functions folder
 functions/lib

@@ -6,6 +6,7 @@ async function main() {
 	const action = await select({
 		message: "selection action",
 		choices: [
+			{ value: "createSuperAdmin", name: "create super admin" },
 			{ value: "createAdmin", name: "create admin" },
 			{ value: "createCompany", name: "create company" },
 			{ value: "createStore", name: "create store" },
@@ -55,6 +56,68 @@ async function main() {
 		// Access custom claims
 		const customClaims = userRecord2.customClaims;
 		console.log("customClaims", customClaims);
+	}
+
+	if (action === "createSuperAdmin") {
+		// The super-admin is a PROJECT-LEVEL user — NOT tenant-scoped. The
+		// super-admin console signs in at the project level (no tenant), and the
+		// `superAdmin` claim grants god-mode read across every store/company.
+		// Every backend callable re-verifies the claim server-side, so this grant
+		// is the single bootstrap that makes the console usable (architecture A1).
+		// Use admin.auth() directly (NOT tenantManager) so the user lives at the
+		// project level, matching how the console authenticates.
+		const auth = admin.auth();
+
+		const mode = await select({
+			message: "grant superAdmin to an existing user, or create a new one?",
+			choices: [
+				{ value: "existing", name: "grant superAdmin to an existing user (by email)" },
+				{ value: "new", name: "create a new super-admin user (email + password)" },
+			],
+		});
+
+		let uid: string;
+		if (mode === "new") {
+			const email = await input({ message: "enter email" });
+			const password = await input({ message: "enter password" });
+			const name = await input({ message: "enter name" });
+			const userRecord = await auth.createUser({
+				displayName: name,
+				email,
+				password,
+				emailVerified: true,
+			});
+			uid = userRecord.uid;
+		} else {
+			const email = await input({ message: "enter existing user email" });
+			const userRecord = await auth.getUserByEmail(email);
+			uid = userRecord.uid;
+		}
+
+		// Preserve any existing claims; only add superAdmin:true so we never clobber
+		// an existing admin/storeId/companyId grant.
+		const existingClaims = (await auth.getUser(uid)).customClaims ?? {};
+		console.log("uid", uid);
+		console.log("existing claims", existingClaims);
+
+		const confirm = await select({
+			message: `set superAdmin:true on ${uid}? this grants god-mode across ALL stores.`,
+			choices: [
+				{ value: "no", name: "no — cancel, change nothing" },
+				{ value: "yes", name: "yes — grant superAdmin" },
+			],
+		});
+		if (confirm !== "yes") {
+			console.log("cancelled — no claims changed");
+			return;
+		}
+
+		await auth.setCustomUserClaims(uid, { ...existingClaims, superAdmin: true });
+		const updated = (await auth.getUser(uid)).customClaims;
+		console.log("updated claims", updated);
+		console.log(
+			"done — the user must sign out and back in (or force-refresh the ID token) to pick up the claim.",
+		);
 	}
 
 	if (action === "createStore") {

@@ -78,7 +78,7 @@ export function AdminInventoryCertificatePage() {
 	const [invoiceDateTo, setInvoiceDateTo] = useState<string>("");
 
 	// Debounce timers for SKU lookups
-	const skuDebounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
+	const skuDebounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
 	// Raw (in-progress) text for numeric inputs, so the user can freely type
 	// decimals like "8.04" without the value being normalized mid-typing.

@@ -486,25 +486,6 @@ async function recordInvoicePayment(
 	return res.data as RecordInvoicePaymentResult;
 }
 
-type TOrganizationAction = {
-	id: string;
-	type: "order.created" | "delivery_note.created" | "invoice.created" | "payment.completed";
-	orderId: string;
-	orderTotal: number;
-	billingAccountId: string | null;
-	billingAccountName: string | null;
-	billingAccountNumber: string | null;
-	date: number;
-	createdAt: number;
-	meta: Record<string, any>;
-};
-
-async function getOrganizationActions(organizationId: string, billingAccountId?: string) {
-	const func = httpsCallable(functions, "getOrganizationActions");
-	const res = await func({ organizationId, billingAccountId });
-	return res.data as { success: boolean; data: TOrganizationAction[] };
-}
-
 /**
  * Admin: AR rollup + entry ledger for one organization (customer ledger card).
  * Read-only. Auth (admin claim) + tenant scope are enforced server-side.
@@ -568,7 +549,6 @@ export const api = {
 	markOrderPaid,
 	addBudgetManualTransaction,
 	postManualTransaction,
-	getOrganizationActions,
 	getOrganizationBalance,
 	createProduct,
 	getOpenInvoices,
