@@ -124,26 +124,6 @@ export function AdminOrganizationDetailPage() {
     totalCredits: number;
     balance: number;
   } | null>(null);
-  const [actions, setActions] = useState<
-    Array<{
-      id: string;
-      type:
-        | "order.created"
-        | "delivery_note.created"
-        | "invoice.created"
-        | "payment.completed";
-      orderId: string;
-      orderTotal: number;
-      billingAccountId: string | null;
-      billingAccountName: string | null;
-      billingAccountNumber: string | null;
-      date: number;
-      meta: Record<string, unknown>;
-    }>
-  >([]);
-  const [actionsLoading, setActionsLoading] = useState(false);
-  const [actionsBillingFilter, setActionsBillingFilter] = useState<string>("");
-
   const appApi = useAppApi();
 
   useEffect(() => {
@@ -235,29 +215,6 @@ export function AdminOrganizationDetailPage() {
       setInvoicesLoading(false);
     }
   };
-
-  const loadActions = async (billingAccountId?: string) => {
-    if (!id) return;
-    setActionsLoading(true);
-    try {
-      const res = await FirebaseApi.api.getOrganizationActions(
-        id,
-        billingAccountId || undefined,
-      );
-      if (res.success) setActions(res.data);
-    } catch (err) {
-      console.error("Failed to load organization actions:", err);
-    } finally {
-      setActionsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === "actions" && actions.length === 0 && !actionsLoading) {
-      loadActions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
 
   const loadOrganizationClients = async (organizationId: string) => {
     setClientsLoading(true);
@@ -871,12 +828,6 @@ export function AdminOrganizationDetailPage() {
     ...organizationGroups,
   ];
 
-  // Billing accounts list for actions filter
-  const orgBillingAccounts = (organization.billingAccounts || []) as Array<{
-    id: string;
-    name: string;
-  }>;
-
   return (
     <div className="w-full p-6">
       <div className="flex items-center gap-4 mb-6">
@@ -902,12 +853,10 @@ export function AdminOrganizationDetailPage() {
           <Tabs.Tab id="invoices">
             {t("admin:organizationsPage.invoices" as never)}
           </Tabs.Tab>
-          <Tabs.Tab id="actions">פעולות</Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel id="details">{null}</Tabs.Panel>
         <Tabs.Panel id="orders">{null}</Tabs.Panel>
         <Tabs.Panel id="invoices">{null}</Tabs.Panel>
-        <Tabs.Panel id="actions">{null}</Tabs.Panel>
       </Tabs>
 
       {activeTab === "details" && (
@@ -1411,132 +1360,6 @@ export function AdminOrganizationDetailPage() {
         </div>
       )}
 
-      {activeTab === "actions" && (
-        <div className="flex flex-col gap-4">
-          <Card>
-            <Card.Header>
-              <div className="flex flex-row items-center justify-between gap-4 w-full">
-                <h3 className="text-lg font-semibold">היסטוריית פעולות</h3>
-                {orgBillingAccounts.length > 0 && (
-                  <Select
-                    selectedKey={actionsBillingFilter || null}
-                    onSelectionChange={(key: Key | null) => {
-                      const val = key ? String(key) : "";
-                      setActionsBillingFilter(val);
-                      loadActions(val || undefined);
-                    }}
-                    aria-label="סנן לפי חשבון חיוב"
-                  >
-                    <Select.Trigger>
-                      <Select.Value />
-                      <Select.Indicator />
-                    </Select.Trigger>
-                    <Select.Popover>
-                      <ListBox>
-                        <ListBox.Item id="" textValue="כל חשבונות החיוב">
-                          כל חשבונות החיוב
-                        </ListBox.Item>
-                        {orgBillingAccounts.map((ba) => (
-                          <ListBox.Item
-                            key={ba.id}
-                            id={ba.id}
-                            textValue={ba.name}
-                          >
-                            {ba.name}
-                          </ListBox.Item>
-                        ))}
-                      </ListBox>
-                    </Select.Popover>
-                  </Select>
-                )}
-              </div>
-            </Card.Header>
-            <Card.Content>
-              {actionsLoading ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-                </div>
-              ) : actions.filter((a) => a.type !== "order.created").length >
-                0 ? (
-                <Table aria-label="organization actions">
-                  <Table.ScrollContainer>
-                    <Table.Content>
-                      <Table.Header>
-                        <Table.Column>תאריך</Table.Column>
-                        <Table.Column>פעולה</Table.Column>
-                        <Table.Column>הזמנה</Table.Column>
-                        <Table.Column>סכום</Table.Column>
-                        <Table.Column>חשבון חיוב</Table.Column>
-                        <Table.Column>פרטים</Table.Column>
-                      </Table.Header>
-                      <Table.Body>
-                        {actions
-                          .filter((a) => a.type !== "order.created")
-                          .map((action) => (
-                            <Table.Row key={action.id} id={action.id}>
-                              <Table.Cell>
-                                <DateView date={action.date} />
-                              </Table.Cell>
-                              <Table.Cell>
-                                <span
-                                  className={`px-2 py-1 rounded text-xs font-medium ${
-                                    action.type === "order.created"
-                                      ? "bg-pink-100 text-pink-800"
-                                      : action.type === "delivery_note.created"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : action.type === "invoice.created"
-                                          ? "bg-purple-100 text-purple-800"
-                                          : "bg-green-100 text-green-800"
-                                  }`}
-                                >
-                                  {action.type === "order.created"
-                                    ? "הזמנה נוצרה"
-                                    : action.type === "delivery_note.created"
-                                      ? "תעודת משלוח"
-                                      : action.type === "invoice.created"
-                                        ? "חשבונית"
-                                        : "תשלום הושלם"}
-                                </span>
-                              </Table.Cell>
-                              <Table.Cell>
-                                <button
-                                  className="text-blue-600 hover:underline text-sm"
-                                  onClick={() =>
-                                    navigate({
-                                      to: "admin.order",
-                                      params: { id: action.orderId },
-                                    })
-                                  }
-                                >
-                                  {action.orderId.slice(0, 8)}...
-                                </button>
-                              </Table.Cell>
-                              <Table.Cell>
-                                <Price price={action.orderTotal} />
-                              </Table.Cell>
-                              <Table.Cell>
-                                {action.billingAccountName ?? "—"}
-                              </Table.Cell>
-                              <Table.Cell>
-                                {action.meta?.number
-                                  ? `#${String(action.meta.number)}`
-                                  : action.meta?.status
-                                    ? String(action.meta.status)
-                                    : "—"}
-                              </Table.Cell>
-                            </Table.Row>
-                          ))}
-                      </Table.Body>
-                    </Table.Content>
-                  </Table.ScrollContainer>
-                </Table>
-              ) : (
-                <div className="text-center py-8 text-gray-500">אין פעולות</div>
-              )}
-            </Card.Content>
-          </Card>
-        </div>
-      )}
 
       {/* Add Organization Client Modal */}
       <Modal.Backdrop

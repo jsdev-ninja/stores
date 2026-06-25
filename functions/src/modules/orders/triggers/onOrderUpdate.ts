@@ -5,8 +5,6 @@ import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { cancelOrder } from "../services/cancelOrder";
 import { refundOrder } from "../services/refundOrder";
 import { completeOrder } from "../services/completeOrder";
-import { trackOrderPayment } from "../services/trackOrderPayment";
-import { handleOrderDocumentAttached } from "../services/handleOrderDocumentAttached";
 
 export const onOrderUpdate = functions
 	.runWith({ memory: "1GB", timeoutSeconds: 540 })
@@ -48,41 +46,5 @@ export const onOrderUpdate = functions
 		// any → refunded
 		if (before.status !== "refunded" && after.status === "refunded") {
 			await refundOrder({ order: after, orderId, companyId, storeId });
-		}
-
-		// paymentStatus → completed
-		if (
-			before.paymentStatus !== "completed" &&
-			after.paymentStatus === "completed"
-		) {
-			await trackOrderPayment({ order: after, orderId, companyId, storeId });
-		}
-
-		// deliveryNote / ezDeliveryNote field added
-		const deliveryNoteAttached =
-			(!(before as any).deliveryNote && !!(after as any).deliveryNote) ||
-			(!(before as any).ezDeliveryNote && !!(after as any).ezDeliveryNote);
-		if (deliveryNoteAttached) {
-			await handleOrderDocumentAttached({
-				order: after,
-				orderId,
-				companyId,
-				storeId,
-				kind: "deliveryNote",
-			});
-		}
-
-		// invoice / ezInvoice field added
-		const invoiceAttached =
-			(!(before as any).invoice && !!(after as any).invoice) ||
-			(!(before as any).ezInvoice && !!(after as any).ezInvoice);
-		if (invoiceAttached) {
-			await handleOrderDocumentAttached({
-				order: after,
-				orderId,
-				companyId,
-				storeId,
-				kind: "invoice",
-			});
 		}
 	});

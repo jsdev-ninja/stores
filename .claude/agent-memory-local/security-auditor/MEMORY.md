@@ -1,0 +1,3 @@
+- [Firestore rules are console-managed, not in repo](project_no_rules_file_in_repo.md) — no firestore.rules tracked anywhere; rules live only in Firebase console; prod is open allow-all
+- [onOrderUpdate fires refund/cancel/complete on status set](project_onorderupdate_side_effects.md) — bare Order.status writes trigger money side-effects; any "set status" feature must account for this
+- [Super-admin module security model](project_superadmin_security_model.md) — verifySuperAdmin pattern, AC-7 basis, root SUPER_ADMIN_AUDIT exposure under open rules

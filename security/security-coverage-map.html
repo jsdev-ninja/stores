@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Security coverage map — @jsdev-store</title>
+<style>
+  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#fafafa;color:#1a1a1a;margin:0;padding:24px;}
+  .wrap{max-width:1120px;margin:0 auto;}
+  h1{font-size:22px;font-weight:600;margin:0 0 4px;}
+  .sub{font-size:13px;color:#777;margin:0 0 16px;}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin:8px 0 18px;font-size:13px;color:#555;}
+  .legend span{display:flex;align-items:center;gap:6px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;}
+  .card{background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:14px 16px;}
+  .ch{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:#f0f0f0;font-size:11px;font-weight:600;color:#555;flex:none;}
+  .ct{font-size:14px;font-weight:600;color:#1a1a1a;flex:1;}
+  .topics{display:flex;flex-direction:column;gap:6px;}
+  .t{display:flex;align-items:center;gap:8px;font-size:13px;color:#555;}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .dot.lg{width:10px;height:10px;}
+  .gap{background:#e5484d;} .warn{background:#e08e0b;} .ok{background:#2fa363;} .none{background:#9a9a9a;}
+  @media (prefers-color-scheme: dark){
+    body{background:#1f1f1d;color:#f0efe9;}
+    .sub{color:#9a988f;} .legend{color:#bdbbb2;}
+    .card{background:#2a2a27;border-color:#3a3a36;}
+    .badge{background:#3a3a36;color:#bdbbb2;} .ct{color:#f0efe9;} .t{color:#bdbbb2;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Security coverage map — @jsdev-store</h1>
+<p class="sub">16 domains · initial posture from the 2026-06-25 review. Full why + definition of done per topic in SECURITY-COVERAGE.md.</p>
+
+<div class="legend">
+<span><span class="dot gap"></span>known gap</span>
+<span><span class="dot warn"></span>partial / verify</span>
+<span><span class="dot ok"></span>in place</span>
+<span><span class="dot none"></span>not yet assessed</span>
+</div>
+
+<div class="grid">
+
+<div class="card"><div class="ch"><span class="badge">A</span><span class="ct">Tenant isolation</span><span class="dot lg gap"></span></div><div class="topics">
+<div class="t"><span class="dot warn"></span>Firestore path scoping</div>
+<div class="t"><span class="dot gap"></span>Rules enforce tenant ownership</div>
+<div class="t"><span class="dot warn"></span>Algolia tenant filter</div>
+<div class="t"><span class="dot warn"></span>Functions derive tenant from token</div>
+<div class="t"><span class="dot warn"></span>Callable IDOR checks</div>
+<div class="t"><span class="dot none"></span>Storage path scoping</div>
+<div class="t"><span class="dot none"></span>collectionGroup scoping</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">B</span><span class="ct">Authentication &amp; identity</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>Auth provider hardening</div>
+<div class="t"><span class="dot warn"></span>Anonymous auth scope</div>
+<div class="t"><span class="dot warn"></span>Token verify + freshness</div>
+<div class="t"><span class="dot none"></span>Token revocation</div>
+<div class="t"><span class="dot warn"></span>Account lifecycle</div>
+<div class="t"><span class="dot none"></span>Admin MFA</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">C</span><span class="ct">Authorization &amp; admin model</span><span class="dot lg gap"></span></div><div class="topics">
+<div class="t"><span class="dot gap"></span>Define role model</div>
+<div class="t"><span class="dot gap"></span>Automated claim granting</div>
+<div class="t"><span class="dot none"></span>Revocation / offboarding</div>
+<div class="t"><span class="dot none"></span>Least privilege</div>
+<div class="t"><span class="dot warn"></span>Escalation prevention</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">D</span><span class="ct">Firestore security rules</span><span class="dot lg gap"></span></div><div class="topics">
+<div class="t"><span class="dot gap"></span>Default-deny posture</div>
+<div class="t"><span class="dot gap"></span>Per-collection matrix</div>
+<div class="t"><span class="dot gap"></span>Field-level write constraints</div>
+<div class="t"><span class="dot gap"></span>Rules in repo + CI validate</div>
+<div class="t"><span class="dot gap"></span>Emulator test suite</div>
+<div class="t"><span class="dot warn"></span>Query / rule coupling</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">E</span><span class="ct">Cloud storage</span><span class="dot lg gap"></span></div><div class="topics">
+<div class="t"><span class="dot gap"></span>Locked storage rules</div>
+<div class="t"><span class="dot gap"></span>Signed URLs for private docs</div>
+<div class="t"><span class="dot none"></span>Upload validation</div>
+<div class="t"><span class="dot none"></span>Path scoping</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">F</span><span class="ct">Payments, ledger &amp; order integrity</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot warn"></span>HYP callback authenticity</div>
+<div class="t"><span class="dot warn"></span>Idempotency / no double-charge</div>
+<div class="t"><span class="dot gap"></span>Server-side amount authority</div>
+<div class="t"><span class="dot warn"></span>Order state transitions locked</div>
+<div class="t"><span class="dot none"></span>Refund authorization</div>
+<div class="t"><span class="dot warn"></span>Ledger reconciliation</div>
+<div class="t"><span class="dot gap"></span>Payment endpoint auth</div>
+<div class="t"><span class="dot ok"></span>Keep PCI SAQ-A scope</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">G</span><span class="ct">Backend / functions hardening</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot warn"></span>Auth on every callable</div>
+<div class="t"><span class="dot warn"></span>Zod input validation</div>
+<div class="t"><span class="dot gap"></span>App Check</div>
+<div class="t"><span class="dot gap"></span>Rate limiting / abuse</div>
+<div class="t"><span class="dot gap"></span>No secrets / PII in logs</div>
+<div class="t"><span class="dot warn"></span>Idempotent external writes</div>
+<div class="t"><span class="dot none"></span>Trigger replay safety</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">H</span><span class="ct">Frontend / web app</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>XSS sinks audit</div>
+<div class="t"><span class="dot none"></span>CSP + security headers</div>
+<div class="t"><span class="dot none"></span>Clickjacking protection</div>
+<div class="t"><span class="dot warn"></span>Open redirect on user URLs</div>
+<div class="t"><span class="dot none"></span>SSRF on user URLs</div>
+<div class="t"><span class="dot ok"></span>Publishable keys only</div>
+<div class="t"><span class="dot warn"></span>No client-side authorization</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">I</span><span class="ct">Search / Algolia</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot warn"></span>Secured API key + filter</div>
+<div class="t"><span class="dot ok"></span>Server-only admin key</div>
+<div class="t"><span class="dot none"></span>Index data minimization</div>
+<div class="t"><span class="dot ok"></span>Server filter enforcement</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">J</span><span class="ct">AI / LLM features</span><span class="dot lg none"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>Prompt injection defenses</div>
+<div class="t"><span class="dot none"></span>Model output handling</div>
+<div class="t"><span class="dot none"></span>PII minimization to GenAI</div>
+<div class="t"><span class="dot none"></span>Per-tenant context isolation</div>
+<div class="t"><span class="dot none"></span>Cost / abuse limits</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">K</span><span class="ct">Secrets &amp; key management</span><span class="dot lg gap"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>Secret inventory</div>
+<div class="t"><span class="dot warn"></span>Secret Manager storage</div>
+<div class="t"><span class="dot gap"></span>Never in logs</div>
+<div class="t"><span class="dot gap"></span>Rotation policy</div>
+<div class="t"><span class="dot none"></span>Least-privilege service accounts</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">L</span><span class="ct">Data protection &amp; privacy</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>PII inventory &amp; data-flow map</div>
+<div class="t"><span class="dot gap"></span>Access control on PII</div>
+<div class="t"><span class="dot none"></span>Retention / erasure</div>
+<div class="t"><span class="dot gap"></span>No public PII documents</div>
+<div class="t"><span class="dot none"></span>Data export / portability</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">M</span><span class="ct">Supply chain &amp; dependencies</span><span class="dot lg none"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>SCA / npm audit / Dependabot</div>
+<div class="t"><span class="dot warn"></span>core version consistency</div>
+<div class="t"><span class="dot none"></span>Lockfile integrity</div>
+<div class="t"><span class="dot none"></span>Build pipeline integrity</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">N</span><span class="ct">Infra, CI/CD &amp; deploy</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>Project IAM least privilege</div>
+<div class="t"><span class="dot warn"></span>Gated, reviewed deploys</div>
+<div class="t"><span class="dot ok"></span>Env separation prod / test</div>
+<div class="t"><span class="dot none"></span>Secret scanning in CI</div>
+<div class="t"><span class="dot none"></span>Backups / DR drill</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">O</span><span class="ct">Logging, monitoring &amp; IR</span><span class="dot lg warn"></span></div><div class="topics">
+<div class="t"><span class="dot warn"></span>Security event logging</div>
+<div class="t"><span class="dot none"></span>Anomaly alerting</div>
+<div class="t"><span class="dot ok"></span>Error monitoring (Sentry)</div>
+<div class="t"><span class="dot warn"></span>Audit trail</div>
+<div class="t"><span class="dot none"></span>IR + rotation runbooks</div>
+</div></div>
+
+<div class="card"><div class="ch"><span class="badge">P</span><span class="ct">Compliance &amp; governance</span><span class="dot lg none"></span></div><div class="topics">
+<div class="t"><span class="dot none"></span>PCI SAQ-A attestation</div>
+<div class="t"><span class="dot none"></span>Privacy policy / ToS</div>
+<div class="t"><span class="dot none"></span>Processor DPAs</div>
+<div class="t"><span class="dot none"></span>Data-subject requests</div>
+</div></div>
+
+</div>
+</div>
+</body>
+</html>
