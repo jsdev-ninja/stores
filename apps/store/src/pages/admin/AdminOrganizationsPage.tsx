@@ -1877,23 +1877,34 @@ export function AdminOrganizationsPage() {
 	}, [loadOrganizations]);
 
 	// Load each organization's open debt (AR rollup) once the list is in.
-	// Rollup reads are O(1) per org, so fetching them in parallel is cheap.
+	// Each rollup read is O(1), but with many companies we must NOT fire one
+	// request per company all at once. Instead a small worker pool keeps a few
+	// requests in flight at a time and fills each row in as its value arrives,
+	// so the column stays responsive whether there are 10 companies or 1000.
 	const loadDebts = useCallback(
 		async (orgs: TOrganization[]) => {
-			const results = await Promise.all(
-				orgs.map(async (org) => {
+			const CONCURRENCY = 6;
+			let cursor = 0;
+			const worker = async () => {
+				while (cursor < orgs.length) {
+					const org = orgs[cursor++];
+					let owed = 0;
 					try {
 						const res = await appApi.admin.getOrganizationBalance({
 							organizationId: org.id,
 						});
-						const owed = res?.success ? res.data?.rollup?.owed ?? 0 : 0;
-						return [org.id, owed] as const;
+						owed = res?.success ? res.data?.rollup?.owed ?? 0 : 0;
 					} catch {
-						return [org.id, 0] as const;
+						owed = 0;
 					}
-				}),
+					// Fill this row in immediately rather than waiting for the
+					// whole batch, so values appear progressively.
+					setDebts((prev) => ({ ...prev, [org.id]: owed }));
+				}
+			};
+			await Promise.all(
+				Array.from({ length: Math.min(CONCURRENCY, orgs.length) }, worker),
 			);
-			setDebts(Object.fromEntries(results));
 		},
 		[], // eslint-disable-line react-hooks/exhaustive-deps -- appApi is re-created each render but stable in behavior
 	);
