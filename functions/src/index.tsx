@@ -61,5 +61,5 @@ export {
   onProductUpdate,
 } from "./modules/catalog";
 export { onUserDelete } from "./modules/auth";
-export { onOrderCreated, onOrderUpdate, onTransactionPostedMarkOrderPaid } from "./modules/orders";
+export { onOrderCreated, onOrderUpdate, onTransactionPostedMarkOrderPaid, createOrder } from "./modules/orders";
 export * from "./modules/superAdmin";
