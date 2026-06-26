@@ -49,27 +49,27 @@ export async function listDocuments(
 	limit: number,
 	cursor: string | null | undefined,
 ): Promise<ListDocumentsRes> {
-	let query: FirebaseFirestore.Query = db()
-		.collection(collectionPath)
-		.orderBy(admin.firestore.FieldPath.documentId())
-		.limit(limit);
+	// Use listDocuments() (NOT a .get() query) so "phantom" documents are
+	// included — ids that hold subcollections but have no fields of their own,
+	// e.g. the {companyId}/{storeId} ancestor docs in this multi-tenant layout.
+	// A .get() query returns only docs that have field data, which makes ancestor
+	// collections (a companyId collection of storeId docs) look wrongly empty.
+	const refs = await db().collection(collectionPath).listDocuments();
+	const ids = refs.map((r) => r.id).sort();
 
-	if (cursor) {
-		// startAfter a document reference by its full path
-		const cursorRef = db().doc(`${collectionPath}/${cursor}`);
-		query = query.startAfter(cursorRef);
-	}
-
-	const snap = await query.get();
-
-	const docs = snap.docs.map((d) => ({ id: d.id }));
-	const nextCursor =
-		snap.docs.length === limit ? snap.docs[snap.docs.length - 1].id : undefined;
+	// listDocuments() has no native cursor; paginate in memory by id order.
+	const from = cursor ? ids.findIndex((id) => id > cursor) : 0;
+	const start = from === -1 ? ids.length : from;
+	const pageIds = ids.slice(start, start + limit);
+	const docs = pageIds.map((id) => ({ id }));
+	const hasMore = start + pageIds.length < ids.length;
+	const nextCursor = hasMore && pageIds.length > 0 ? pageIds[pageIds.length - 1] : undefined;
 
 	logger.info("superAdmin.firestoreBrowserStore.listDocuments: ok", {
 		collectionPath,
+		total: ids.length,
 		count: docs.length,
-		hasMore: nextCursor !== undefined,
+		hasMore,
 	});
 
 	return { docs, nextCursor };
