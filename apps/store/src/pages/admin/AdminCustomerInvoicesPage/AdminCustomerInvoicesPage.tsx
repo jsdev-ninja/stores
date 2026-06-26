@@ -102,6 +102,7 @@ export default function AdminCustomerInvoicesPage() {
     filtered,
     organizations,
     kpis,
+    unbilledCount,
     search,
     setSearch,
     statusFilter,
@@ -122,6 +123,27 @@ export default function AdminCustomerInvoicesPage() {
   return (
     <div className="space-y-5">
       <h1 className="text-2xl font-bold">חשבוניות לקוחות</h1>
+
+      {/* Bulk-billing banner — shown when delivery notes await an invoice */}
+      {unbilledCount > 0 && (
+        <div
+          className="flex items-center justify-between gap-3 flex-wrap rounded-xl border border-[var(--accent)] bg-[color-mix(in_oklab,var(--accent)_8%,transparent)] px-4 py-3"
+          dir="rtl"
+        >
+          <div className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
+            <Icon icon="lucide:truck" width={18} height={18} className="text-[var(--accent)]" />
+            יש {unbilledCount} תעודות משלוח שעדיין לא חויבו
+          </div>
+          <button
+            type="button"
+            onClick={() => modalApi.openModal("bulkBilling", { onDone: () => reload() })}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-semibold bg-[var(--accent)] text-white hover:opacity-90 transition-opacity"
+          >
+            <Icon icon="lucide:layers" width={15} height={15} />
+            הפק חשבוניות מרוכזות
+          </button>
+        </div>
+      )}
 
       {/* KPI strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

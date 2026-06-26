@@ -16,6 +16,7 @@ import { ConfirmModal } from "./ConfirmModal";
 import { AdminCreateOrderModal } from "./AdminCreateOrderModal";
 import { AccountModal } from "./AccountModal";
 import { RecordInvoicePaymentModal } from "./RecordInvoicePaymentModal";
+import { BulkBillingModal } from "./BulkBillingModal";
 import { TOrder } from "@jsdev_ninja/core";
 import type { OpenInvoiceRow } from "src/lib/firebase/api";
 
@@ -88,6 +89,7 @@ export const modals = {
 		row: OpenInvoiceRow;
 		onPaymentRecorded: (receipt: { doc_uuid: string; pdf_link: string; doc_number: string }) => void;
 	}) => <RecordInvoicePaymentModal row={row} onPaymentRecorded={onPaymentRecorded} />,
+	bulkBilling: ({ onDone }: { onDone?: () => void }) => <BulkBillingModal onDone={onDone} />,
 	confirmModal: ({
 		title,
 		message,

@@ -1,9 +1,17 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useAppApi } from "src/appApi";
-import type { TOrganization } from "@jsdev_ninja/core";
+import type { TOrder, TOrganization } from "@jsdev_ninja/core";
 import type { InvoiceRow, InvoiceStatus } from "src/lib/firebase/api";
 
 export type { InvoiceStatus } from "src/lib/firebase/api";
+
+// Window for the "unbilled delivery notes" banner — matches BulkBillingModal.
+const UNBILLED_LOOKBACK_DAYS = 365;
+
+/** A delivery note is "unbilled" when no invoice has been issued from it yet. */
+function isUnbilled(o: TOrder): boolean {
+  return !o.ezInvoice?.doc_number && !o.invoice;
+}
 
 export function useAdminCustomerInvoices() {
   const appApi = useAppApi();
@@ -11,6 +19,7 @@ export function useAdminCustomerInvoices() {
   const [rows, setRows] = useState<InvoiceRow[]>([]);
   const [organizations, setOrganizations] = useState<TOrganization[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unbilledCount, setUnbilledCount] = useState(0);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
@@ -26,9 +35,23 @@ export function useAdminCustomerInvoices() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- appApi stable
 
+  // Count of delivery notes still awaiting an invoice (drives the bulk banner).
+  const loadUnbilledCount = useCallback(async () => {
+    const now = Date.now();
+    const fromDate = now - UNBILLED_LOOKBACK_DAYS * 24 * 60 * 60 * 1000;
+    const result = await appApi.admin.getDeliveryNotes({ fromDate, toDate: now });
+    const notes = (result?.success ? result.data ?? [] : []) as TOrder[];
+    setUnbilledCount(notes.filter(isUnbilled).length);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- appApi stable
+
+  const reload = useCallback(async () => {
+    await loadInvoices();
+    await loadUnbilledCount();
+  }, [loadInvoices, loadUnbilledCount]);
+
   useEffect(() => {
-    loadInvoices();
-  }, [loadInvoices]);
+    reload();
+  }, [reload]);
 
   useEffect(() => {
     appApi.admin.listOrganizations().then((result) => {
@@ -72,12 +95,13 @@ export function useAdminCustomerInvoices() {
     filtered,
     organizations,
     kpis,
+    unbilledCount,
     search,
     setSearch,
     statusFilter,
     setStatusFilter,
     companyFilter,
     setCompanyFilter,
-    reload: loadInvoices,
+    reload,
   };
 }

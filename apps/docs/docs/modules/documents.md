@@ -313,6 +313,26 @@ orders are billed onto one consolidated tax invoice.
 - After EZcount returns: each order gets `order.invoice = ezData` in one batch.
 - **No** `documents.invoice_created` event is emitted.
 
+### Bulk billing (multi-company) — frontend orchestration
+
+The Customer Invoices page hosts a **bulk billing wizard** (`BulkBillingModal`)
+that produces one consolidated invoice per company in a single action. It is
+**pure frontend orchestration** — no new backend surface:
+
+- Loads unbilled delivery notes (`getDeliveryNotes` over a lookback window,
+  filtered to `!ezInvoice?.doc_number && !invoice`), groups them by
+  `organizationId`, and lets the admin select per company.
+- Calls the existing `createInvoice` **once per company** (the rollup flow
+  above), sequentially, collecting per-company `{ok|error|skipped}` results.
+  There is no cross-company atomicity (each company is a separate EZcount call),
+  so it is best-effort with a per-company report.
+- **Allocation gate:** a company whose selected total is ≥ ₪5,000 requires an
+  allocation number, collected **inline** in the wizard and passed to
+  `createInvoice` (the backend gate would otherwise reject it). Over-threshold
+  companies are not skipped.
+- There are no B2C customers, so the wizard groups strictly by company;
+  org-less delivery notes are surfaced as a warning, not billed.
+
 ### Single-DN (single-order) — new flow
 
 Used by `AdminDeliveryNotesPage`'s per-row "הפק חשבונית" action.
