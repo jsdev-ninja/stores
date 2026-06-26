@@ -15,3 +15,10 @@ export type CompleteOrderParams = {
 	companyId: string;
 	storeId: string;
 };
+
+export type CreateOrderParams = {
+	order: TOrder;
+	companyId: string;
+	storeId: string;
+	actorId?: string;
+};

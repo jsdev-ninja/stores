@@ -21,5 +21,9 @@
     "peacock.color": "#dd0531",
     "cSpell.words": [
         "nodenext"
-    ]
+    ],
+    "editor.tabSize": 3,
+    "editor.insertSpaces": false,
+    "prettier.useTabs": true,
+    "prettier.tabWidth": 3
 }
