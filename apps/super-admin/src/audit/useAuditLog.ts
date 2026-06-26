@@ -25,7 +25,9 @@ export function useAuditLog({ companyId, storeId }: Props) {
 
 		const req: ListAuditReq = {
 			limit: PAGE_LIMIT,
-			cursor,
+			// Omit cursor when absent — the callable SDK sends `undefined` as
+			// `null`, which the cursor schema (optional string) rejects.
+			...(cursor ? { cursor } : {}),
 			...(companyId ? { companyId } : {}),
 			...(storeId ? { storeId } : {}),
 		};
