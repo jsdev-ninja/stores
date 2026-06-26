@@ -12,6 +12,7 @@ import {
 	CancelOrderParams,
 	CompleteOrderParams,
 	CreateOrderParams,
+	UpdateOrderParams,
 } from "../types";
 
 export const orderService = {
@@ -52,6 +53,30 @@ export const orderService = {
 					customerEmail: order.client?.email,
 				},
 			});
+		});
+	},
+
+	async update(params: UpdateOrderParams): Promise<void> {
+		const { orderId, updates, companyId, storeId, actorId } = params;
+
+		logger.info("orderService.update: handling update", {
+			orderId,
+			companyId,
+			storeId,
+		});
+
+		const db = admin.firestore();
+		const orderPath = FirebaseAPI.firestore.getPath({
+			collectionName: "orders",
+			companyId,
+			storeId,
+		});
+		const orderRef = db.collection(orderPath).doc(orderId);
+
+		await orderRef.update({
+			...updates,
+			updatedAt: Date.now(),
+			updatedBy: actorId ?? "system",
 		});
 	},
 

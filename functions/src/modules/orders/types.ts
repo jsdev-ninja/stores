@@ -22,3 +22,11 @@ export type CreateOrderParams = {
 	storeId: string;
 	actorId?: string;
 };
+
+export type UpdateOrderParams = {
+	orderId: string;
+	updates: Partial<TOrder>;
+	companyId: string;
+	storeId: string;
+	actorId?: string;
+};

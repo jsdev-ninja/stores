@@ -544,6 +544,20 @@ async function createOrder(params: { order: TOrder; companyId?: string; storeId?
 	}
 }
 
+async function updateOrder(params: { orderId: string; updates: Partial<TOrder>; companyId?: string; storeId?: string }) {
+	try {
+		const func = httpsCallable(functions, "updateOrder");
+		const response = await func(params);
+		const data = response.data as { success: boolean; data?: { id: string }; error?: string };
+		return data;
+	} catch (error: any) {
+		const code: string = error.code ?? "";
+		const message: string = error.message ?? "Unknown error";
+		console.error("updateOrder failed", code, message);
+		return { success: false, error: message };
+	}
+}
+
 export const api = {
 	init,
 	deleteClient,
@@ -568,4 +582,5 @@ export const api = {
 	createOrder,
 	getOpenInvoices,
 	recordInvoicePayment,
+	updateOrder,
 };
