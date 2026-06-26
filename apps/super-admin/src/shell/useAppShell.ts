@@ -10,6 +10,7 @@ const NAV_ITEMS: NavItem[] = [
 	{ label: "Products", path: "/products" },
 	{ label: "Profiles", path: "/profiles" },
 	{ label: "Audit", path: "/audit" },
+	{ label: "Firestore", path: "/firestore" },
 ];
 
 export function useAppShell() {

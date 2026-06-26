@@ -63,6 +63,7 @@ export type SuperAdminError =
 	| "not_found" // doc absent at tenant path
 	| "invalid_status" // E1 target not in Order.status enum
 	| "stock_uninitialized" // E3 on a product with no stock object
+	| "forbidden" // path blocked by guardrail (e.g. private subcollections)
 	| "internal";
 
 // ─── Uniform result envelope ──────────────────────────────────────────────────
@@ -230,3 +231,33 @@ export type ListAuditReq = z.infer<typeof ListAuditReqSchema>;
 // location for all super-admin types without depending on the full core package
 // surface for admin-specific payloads.
 export type { TOrder, TProduct, TProfile };
+
+// ─── Firestore browser (god-mode read-only tree browser) ─────────────────────
+// These callables are intentionally cross-tenant — they take raw Firestore paths
+// (not tenant-scoped getPath paths). This is the ONE deliberate exception to the
+// multi-tenant isolation rule, gated exclusively by the superAdmin claim +
+// the `private` path guardrail that blocks secrets subcollections.
+
+export const ListCollectionsReqSchema = z.object({
+	/** Empty string or omitted = Firestore root. Must resolve to a document path (even segment count). */
+	path: z.string().optional(),
+});
+export type ListCollectionsReq = z.infer<typeof ListCollectionsReqSchema>;
+export type ListCollectionsRes = { collections: string[] };
+
+export const ListDocumentsReqSchema = z.object({
+	/** Must resolve to a collection path (odd segment count). */
+	collectionPath: z.string().min(1),
+	limit: z.number().int().min(1).max(100).default(50),
+	/** Opaque cursor: last doc id from the previous page. Accepts null (callable SDK serializes undefined→null). */
+	cursor: z.string().nullish(),
+});
+export type ListDocumentsReq = z.infer<typeof ListDocumentsReqSchema>;
+export type ListDocumentsRes = { docs: { id: string }[]; nextCursor?: string };
+
+export const GetDocumentReqSchema = z.object({
+	/** Must resolve to a document path (even segment count, non-empty). */
+	path: z.string().min(1),
+});
+export type GetDocumentReq = z.infer<typeof GetDocumentReqSchema>;
+export type GetDocumentRes = { id: string; data: Record<string, unknown> | null };

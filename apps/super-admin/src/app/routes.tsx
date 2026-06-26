@@ -7,6 +7,7 @@ import { ProductDetailPage } from "src/entities/products/ProductDetailPage";
 import { ProfilesListPage } from "src/entities/profiles/ProfilesListPage";
 import { ProfileDetailPage } from "src/entities/profiles/ProfileDetailPage";
 import { AuditLogPage } from "src/audit/AuditLogPage";
+import { FirestorePage } from "src/firestore/FirestorePage";
 
 // ─── Placeholder pages ────────────────────────────────────────────────────────
 
@@ -34,6 +35,7 @@ export function AppRoutes() {
 					<Route path=":id" element={<ProfileDetailPage />} />
 				</Route>
 				<Route path="audit" element={<AuditLogPage />} />
+				<Route path="firestore" element={<FirestorePage />} />
 				{/* Catch-all: redirect unknown paths to root */}
 				<Route path="*" element={<Navigate replace to="/" />} />
 			</Route>

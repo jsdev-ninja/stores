@@ -32,6 +32,10 @@ export {
 	SuperAdminActionSchema,
 	AuditEntrySchema,
 	ListAuditReqSchema,
+	// Firestore browser schemas
+	ListCollectionsReqSchema,
+	ListDocumentsReqSchema,
+	GetDocumentReqSchema,
 } from "./contracts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -61,6 +65,13 @@ export type {
 	SuperAdminAction,
 	AuditEntry,
 	ListAuditReq,
+	// Firestore browser types
+	ListCollectionsReq,
+	ListCollectionsRes,
+	ListDocumentsReq,
+	ListDocumentsRes,
+	GetDocumentReq,
+	GetDocumentRes,
 	// Re-exported core entity types (one import location for the frontend)
 	TOrder,
 	TProduct,
@@ -90,3 +101,8 @@ export { saSearchProfiles } from "./api/searchProfiles";
 export { saSetProductVisibility } from "./api/setProductVisibility";
 export { saSetProductStock } from "./api/setProductStock";
 export { saListAuditEntries } from "./api/listAuditEntries";
+
+// ─── Firestore browser callables (god-mode read-only tree browser) ────────────
+export { saListCollections } from "./api/listCollections";
+export { saListDocuments } from "./api/listDocuments";
+export { saGetDocument } from "./api/getDocument";

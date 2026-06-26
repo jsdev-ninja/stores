@@ -20,6 +20,12 @@ import type {
 	TOrder,
 	TProduct,
 	TProfile,
+	ListCollectionsReq,
+	ListCollectionsRes,
+	ListDocumentsReq,
+	ListDocumentsRes,
+	GetDocumentReq,
+	GetDocumentRes,
 } from "src/lib/saContracts";
 
 // No region arg: the sa* callables deploy to the project default region
@@ -99,5 +105,22 @@ export const saSetProductStock = (req: SetProductStockReq) =>
 
 export const saListAuditEntries = (req: ListAuditReq) =>
 	httpsCallable<ListAuditReq, Result<AuditEntry[]>>(fns, "saListAuditEntries")(req).then(
+		(r) => r.data
+	);
+
+// ─── Firestore browser ────────────────────────────────────────────────────────
+
+export const saListCollections = (req: ListCollectionsReq) =>
+	httpsCallable<ListCollectionsReq, Result<ListCollectionsRes>>(fns, "saListCollections")(req).then(
+		(r) => r.data
+	);
+
+export const saListDocuments = (req: ListDocumentsReq) =>
+	httpsCallable<ListDocumentsReq, Result<ListDocumentsRes>>(fns, "saListDocuments")(req).then(
+		(r) => r.data
+	);
+
+export const saGetDocument = (req: GetDocumentReq) =>
+	httpsCallable<GetDocumentReq, Result<GetDocumentRes>>(fns, "saGetDocument")(req).then(
 		(r) => r.data
 	);

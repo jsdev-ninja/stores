@@ -19,6 +19,7 @@ const ERROR_MESSAGES: Record<SuperAdminError, string> = {
 	invalid_status: "Invalid status.",
 	stock_uninitialized:
 		"This product has no stock object — it must be initialized before it can be updated here.",
+	forbidden: "Access to this resource is not allowed.",
 	internal: "An internal error occurred. Please try again.",
 };
 

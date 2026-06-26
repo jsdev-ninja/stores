@@ -17,6 +17,7 @@ const ERROR_MESSAGES: Record<SuperAdminError, string> = {
 	not_found: "Product not found.",
 	invalid_status: "Invalid status.",
 	stock_uninitialized: "Stock is not initialized.",
+	forbidden: "Access to this resource is not allowed.",
 	internal: "An internal error occurred. Please try again.",
 };
 

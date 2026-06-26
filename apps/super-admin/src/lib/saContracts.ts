@@ -25,6 +25,7 @@ export type SuperAdminError =
 	| "not_found"
 	| "invalid_status"
 	| "stock_uninitialized"
+	| "forbidden"
 	| "internal";
 
 // ─── Uniform result envelope ──────────────────────────────────────────────────
@@ -148,6 +149,37 @@ export type ListAuditReq = {
 	storeId?: string;
 	limit?: number;
 	cursor?: string;
+};
+
+// ─── Firestore browser ────────────────────────────────────────────────────────
+// MIRROR of functions/src/modules/superAdmin/contracts.ts — keep in sync.
+
+export type ListCollectionsReq = {
+	path?: string; // "" / omit = Firestore root; else a DOCUMENT path
+};
+
+export type ListCollectionsRes = {
+	collections: string[]; // child collection ids (secret `private` already filtered server-side)
+};
+
+export type ListDocumentsReq = {
+	collectionPath: string;
+	limit?: number;
+	cursor?: string | null;
+};
+
+export type ListDocumentsRes = {
+	docs: { id: string }[];
+	nextCursor?: string;
+};
+
+export type GetDocumentReq = {
+	path: string; // a DOCUMENT path
+};
+
+export type GetDocumentRes = {
+	id: string;
+	data: Record<string, unknown> | null;
 };
 
 // Re-export the core entity types so callers can import everything from one place.

@@ -1,12 +1,17 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { CurrentStoreBanner } from "src/store-context/CurrentStoreBanner";
 import { StoreSwitcher } from "src/store-context/StoreSwitcher";
 import { useStoreContext } from "src/store-context/StoreContext";
 import { useAppShell } from "./useAppShell";
 
+// Routes that are global (not store-scoped) — render regardless of store selection.
+const GLOBAL_ROUTES = ["/firestore"];
+
 export function AppShell() {
 	const { navItems, isActive } = useAppShell();
 	const { currentStore, loading, error } = useStoreContext();
+	const location = useLocation();
+	const isGlobalRoute = GLOBAL_ROUTES.some((r) => location.pathname.startsWith(r));
 
 	return (
 		<div className="flex min-h-screen bg-slate-100">
@@ -64,7 +69,7 @@ export function AppShell() {
 						</div>
 					)}
 
-					{!loading && !error && !currentStore && (
+					{!loading && !error && !currentStore && !isGlobalRoute && (
 						<div className="flex flex-col items-center justify-center h-64 text-center">
 							<p className="text-lg font-semibold text-slate-700 mb-2">
 								No store selected
@@ -76,7 +81,7 @@ export function AppShell() {
 						</div>
 					)}
 
-					{!loading && !error && currentStore && <Outlet />}
+					{!loading && !error && (currentStore || isGlobalRoute) && <Outlet />}
 				</main>
 			</div>
 		</div>
