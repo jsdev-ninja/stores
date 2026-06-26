@@ -2,7 +2,6 @@ export {
 	OrderEventTypes,
 	OrderPlacedPayload,
 	OrderCancelledPayload,
-	OrderRefundedPayload,
 } from "./events";
 
 export { onOrderCreated } from "./triggers/onOrderCreated";

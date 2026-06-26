@@ -9,7 +9,7 @@ Owns the order lifecycle: creation, status transitions, payment tracking, and do
 ## Public surface (via `./index.ts`)
 
 - **Cloud Functions**: `onOrderCreated`, `onOrderUpdate`
-- **Events**: `OrderEventTypes` enum, `OrderPlacedPayload`, `OrderCompletedPayload`, `OrderCancelledPayload`, `OrderRefundedPayload` schemas
+- **Events**: `OrderEventTypes` enum, `OrderPlacedPayload`, `OrderCancelledPayload` schemas
 
 ## Events emitted
 
@@ -18,7 +18,6 @@ Owns the order lifecycle: creation, status transitions, payment tracking, and do
 | `order.placed` | emitted on order creation (every new order, regardless of status) | inlined in `triggers/onOrderCreated.ts` |
 | `order.cancelled` | order transitions to `cancelled` | inlined in `services/cancelOrder.ts` |
 | `order.completed` | _not yet emitted_ — payload defined for future use | — |
-| `order.refunded` | _not yet emitted_ — payload defined for future use | — |
 
 ## Folder structure
 
@@ -31,13 +30,12 @@ internal/      module-private impl — classification rules, paths, etc.
 
 ## Service catalog
 
-| Service | Operation |
-|---|---|
-| `cancelOrder` | Reverse B2B budget impact + emit `order.cancelled` |
-| `refundOrder` | Reverse B2B budget impact (no event emitted today) |
-| `completeOrder` | Create delivery note for cash-on-delivery (external) orders |
-| `trackOrderPayment` | Track payment completion + notify organization actions |
-| `handleOrderDocumentAttached` | Notify organization actions when a deliveryNote/invoice field is attached |
+| Service | Method | Operation |
+|---|---|---|
+| `orderService` | `.cancel` | Emit `order.cancelled`; debt reversal handled reactively by budget subscriber (B4) |
+| `orderService` | `.complete` | Create delivery note for cash-on-delivery (external) orders; HYP orders skip this |
+| `trackOrderPayment` | — | Track payment completion + notify organization actions |
+| `handleOrderDocumentAttached` | — | Notify organization actions when a deliveryNote/invoice field is attached |
 
 **Note**: `order.placed` does NOT have a service — it's a single `emitEvent` call inlined at each of its two emission points. Wrapping a single emit in a "service" is the anti-pattern we explicitly exclude.
 

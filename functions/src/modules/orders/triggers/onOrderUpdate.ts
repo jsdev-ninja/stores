@@ -2,9 +2,7 @@ import * as functions from "firebase-functions/v1";
 import { logger } from "firebase-functions/v2";
 import diff from "microdiff";
 import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
-import { cancelOrder } from "../services/cancelOrder";
-import { refundOrder } from "../services/refundOrder";
-import { completeOrder } from "../services/completeOrder";
+import { orderService } from "../services/orderService";
 
 export const onOrderUpdate = functions
 	.runWith({ memory: "1GB", timeoutSeconds: 540 })
@@ -35,16 +33,11 @@ export const onOrderUpdate = functions
 
 		// any → completed
 		if (before.status !== "completed" && after.status === "completed") {
-			await completeOrder({ order: after, orderId, companyId, storeId });
+			await orderService.complete({ order: after, orderId, companyId, storeId });
 		}
 
 		// any → cancelled
 		if (before.status !== "cancelled" && after.status === "cancelled") {
-			await cancelOrder({ order: after, orderId, companyId, storeId });
-		}
-
-		// any → refunded
-		if (before.status !== "refunded" && after.status === "refunded") {
-			await refundOrder({ order: after, orderId, companyId, storeId });
+			await orderService.cancel({ order: after, orderId, companyId, storeId });
 		}
 	});
