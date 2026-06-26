@@ -15,7 +15,7 @@ export const createOrder = functionsV2.https.onCall(
 		const { auth, data } = request;
 
 		if (!auth) {
-			logger.warn("createOrder: unauthorized", { uid: null });
+			logger.warn("api.createOrder: unauthorized", { uid: null });
 			return { success: false as const, error: "Unauthorized" };
 		}
 

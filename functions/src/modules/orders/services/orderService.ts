@@ -18,7 +18,7 @@ export const orderService = {
 	async create(params: CreateOrderParams): Promise<void> {
 		const { order, companyId, storeId, actorId } = params;
 
-		logger.info("createOrder: handling creation", {
+		logger.info("orderService.createOrder: handling creation", {
 			orderId: order.id,
 			companyId,
 			storeId,
