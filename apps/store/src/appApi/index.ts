@@ -2321,7 +2321,15 @@ export const useAppApi = () => {
 
         // Balasi storefront: surface the cart drawer when an item is added so
         // the customer sees their cart pop up (scoped to balasi/tester only).
-        if (store?.id === "balasistore_store" || store?.id === "tester_store") {
+        // On desktop (≥ xl / 1280px) a docked cart sidebar is already visible,
+        // so skip the drawer there — only auto-open below xl where there is no
+        // docked sidebar, otherwise it dims the whole page on every add.
+        const isBalasiStorefront =
+          store?.id === "balasistore_store" || store?.id === "tester_store";
+        const dockedCartVisible =
+          typeof window !== "undefined" &&
+          window.matchMedia("(min-width: 1280px)").matches;
+        if (isBalasiStorefront && !dockedCartVisible) {
           actions.dispatch(actions.ui.openCartDrawer());
         }
       },
