@@ -528,6 +528,18 @@ async function createProduct(product: TNewProduct): Promise<CreateProductResult>
 		}
 		return { success: false, reason: "unknown", message };
 	}
+async function createOrder(params: { order: TOrder; companyId?: string; storeId?: string }) {
+	try {
+		const func = httpsCallable(functions, "createOrder");
+		const response = await func(params);
+		const data = response.data as { success: boolean; data?: { id: string }; error?: string };
+		return data;
+	} catch (error: any) {
+		const code: string = error.code ?? "";
+		const message: string = error.message ?? "Unknown error";
+		console.error("createOrder failed", code, message);
+		return { success: false, error: message };
+	}
 }
 
 export const api = {
@@ -551,6 +563,7 @@ export const api = {
 	postManualTransaction,
 	getOrganizationBalance,
 	createProduct,
+	createOrder,
 	getOpenInvoices,
 	recordInvoicePayment,
 };
