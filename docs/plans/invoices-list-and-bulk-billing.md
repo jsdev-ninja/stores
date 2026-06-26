@@ -3,7 +3,7 @@
 **Type:** Feature (two related features)
 **Date:** 2026-06-17
 **Project:** @jsdev-store (storebrix.com) — multi-tenant Firebase + Vite/React, EZcount-backed invoicing
-**Status:** Draft — awaiting approval
+**Status:** Phase 1 (Feature A — Invoices List) BUILT. `getInvoices` backend + client wiring + page connected to real data (paid + open). Allocation-editing (§3.4) and Phase 2 (Feature B — bulk wizard) still pending; the two owner decisions in §6 (B2C in bulk, allocation over ₪5,000) remain open for Phase 2.
 **Demo reference:** `demo/balasi-store-site-2026-06-12/admin.js` (`renderInvoices` @7257, `invoiceStatusPill` @7229, `openBulkBillingWizard` @8743)
 
 ---

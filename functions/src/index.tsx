@@ -34,6 +34,7 @@ export {
   getOrganizationBalance,
   // Invoice payment callables
   getOpenInvoices,
+  getInvoices,
   recordInvoicePayment,
 } from "./modules/documents";
 export { onSupplierInvoiceCreate } from "./modules/suppliers";

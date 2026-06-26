@@ -288,6 +288,9 @@ human-readable doc numbers. Passing a number returns
 | --------------------------------- | ------------ | ------------ | ------- |
 | `createDeliveryNote`              | `onCall`     | admin claim  | Issue a DN; persist `ezDeliveryNote`; emit event (triggers AR accrual). |
 | `createInvoice`                   | `onCall`     | admin claim  | Issue a tax invoice (see [Invoice flows](#invoice-flows)). |
+| `getOpenInvoices`                 | `onCall`     | admin claim  | List orders with an **unpaid** invoice (Customer Debts page). |
+| `getInvoices`                     | `onCall`     | admin claim  | List **all** invoices (paid + open) with derived paid/balance/status (Customer Invoices page). See [Invoice list reads](#invoice-list-reads). |
+| `recordInvoicePayment`            | `onCall`     | admin claim  | Record a full payment + EZcount receipt against one open invoice. |
 | `getOrganizationBalance`          | `onCall`     | admin claim  | Read rollup + filtered entry list for one org. |
 | `reconcileOrganizationBalanceCallable` | `onCall` | admin claim  | Admin-triggered reconcile (dry-run or apply). |
 | `accrueOnDeliveryNoteCreated`     | subscriber   | internal     | AR accrual on DN. |
@@ -331,6 +334,30 @@ before touching EZcount.
 
 `ALLOCATION_THRESHOLD_ILS = 25000` (agorot) — TODO: externalize to config once
 a config getter exists.
+
+## Invoice list reads
+
+Two admin read endpoints back the invoice pages. Both query
+`orders where ezInvoice.success == true orderBy date desc` (tenant-scoped),
+batch-read organizations to resolve the display name, and **exclude any row
+with no resolvable customer name** (logged as WARN — a nameless invoice is
+legally invalid in Israel).
+
+| | `getOpenInvoices` | `getInvoices` |
+| --- | --- | --- |
+| Returns | unpaid only | all (paid + open) |
+| Page | Customer Debts | Customer Invoices |
+| Row type | `OpenInvoiceRow` | `InvoiceRow` |
+| Extra fields | — | `paid`, `balance`, `status`, `allocationNumber?`, `paidAt?` |
+
+`getInvoices` derives payment fields server-side (no partial payments):
+
+- `isPaid` = `order.invoicePaidAt` set **OR** `order.ezReceipt` present
+- `paid` = `isPaid ? total : 0` · `balance` = `total - paid`
+- `status` = `balance <= 0 ? "paid" : "open"` (the `"partial"` literal is
+  reserved for future partial-payments work; not produced today)
+
+Amounts are in shekels (ILS), mirroring the legacy `cart.cartTotal` convention.
 
 ## Error surfaces
 

@@ -2,7 +2,7 @@ import { Table, Chip, Spinner, Select, Input, ListBox } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
 import { useAdminCustomerInvoices, type InvoiceStatus } from "./useAdminCustomerInvoices";
-import type { OpenInvoiceRow } from "src/lib/firebase/api";
+import type { InvoiceRow } from "src/lib/firebase/api";
 
 // ─── Helpers (verbatim from AdminBudgetPage / AdminDeliveryNotesPage) ─────────
 
@@ -68,7 +68,7 @@ const COLUMNS = [
 
 // ─── CSV export (verbatim pattern from AdminOrdersPage.exportOrders) ──────────
 
-function exportToCSV(rows: (OpenInvoiceRow & { paid: number; balance: number; status: InvoiceStatus })[]) {
+function exportToCSV(rows: InvoiceRow[]) {
   const header = ["מס׳ חשבונית", "חברה", "תאריך", "סכום", "שולם", "יתרה", "סטטוס"];
   const STATUS_LABELS: Record<InvoiceStatus, string> = { paid: "שולם", partial: "חלקי", open: "פתוח" };
   const csvRows = rows.map((r) => [

@@ -13,6 +13,8 @@ export { reconcileOrganizationBalanceCallable } from "./api/reconcileOrganizatio
 export { getOrganizationBalance } from "./api/getOrganizationBalance";
 export { getOpenInvoices } from "./api/getOpenInvoices";
 export type { OpenInvoiceRow } from "./api/getOpenInvoices";
+export { getInvoices } from "./api/getInvoices";
+export type { InvoiceRow, InvoiceStatus } from "./api/getInvoices";
 export { recordInvoicePayment } from "./api/recordInvoicePayment";
 
 // Subscribers (wired in functions/src/index.tsx)

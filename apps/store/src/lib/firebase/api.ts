@@ -445,6 +445,37 @@ async function getOpenInvoices(params?: { fromDate?: number; toDate?: number }) 
 	return res.data as { success: boolean; data?: OpenInvoiceRow[]; error?: string };
 }
 
+/** Derived payment status for an invoice row. */
+export type InvoiceStatus = "paid" | "partial" | "open";
+
+/** Shape returned by getInvoices for a single invoice row (paid + open). */
+export type InvoiceRow = {
+	orderId: string;
+	invoiceUuid: string;
+	invoiceNumber: string;
+	invoicePdfLink: string;
+	issueDate: number; // epoch millis
+	total: number; // shekels (ILS)
+	paid: number; // shekels — 0 or total (no partial payments)
+	balance: number; // shekels — total - paid
+	status: InvoiceStatus; // derived server-side
+	displayName: string; // REQUIRED — name that appears on the invoice; backend excludes nameless rows
+	organizationId?: string; // kept for company-filter dropdown, not for display
+	allocationNumber?: string; // ITA חשבונית ישראל allocation number
+	paidAt?: number; // epoch millis
+};
+
+/**
+ * Admin: list ALL invoices (paid + open) for the active store.
+ * Returns orders where ezInvoice.success == true, with paid/balance/status
+ * derived server-side. Sorted newest first.
+ */
+async function getInvoices(params?: { fromDate?: number; toDate?: number }) {
+	const func = httpsCallable(functions, "getInvoices");
+	const res = await func(params ?? {});
+	return res.data as { success: boolean; data?: InvoiceRow[]; error?: string };
+}
+
 type PaymentMethod = "cash" | "check" | "bank_transfer" | "credit_card";
 
 type RecordInvoicePaymentParams = {
@@ -552,5 +583,6 @@ export const api = {
 	getOrganizationBalance,
 	createProduct,
 	getOpenInvoices,
+	getInvoices,
 	recordInvoicePayment,
 };

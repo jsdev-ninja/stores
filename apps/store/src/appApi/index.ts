@@ -626,6 +626,17 @@ export const useAppApi = () => {
       },
 
       /**
+       * List ALL invoices (paid + open) for the current store.
+       * Each row has paid/balance/status derived server-side.
+       * Auth guard is enforced server-side (admin custom claim).
+       */
+      getInvoices: async (params?: { fromDate?: number; toDate?: number }) => {
+        if (!isValidAdmin) return;
+        const { api } = await import("src/lib/firebase/api");
+        return await api.getInvoices(params);
+      },
+
+      /**
        * Admin: AR rollup + entry ledger for one organization (customer ledger card).
        * Read-only. Auth guard + tenant scope enforced server-side (admin custom claim).
        */
