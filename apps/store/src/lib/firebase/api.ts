@@ -528,6 +528,8 @@ async function createProduct(product: TNewProduct): Promise<CreateProductResult>
 		}
 		return { success: false, reason: "unknown", message };
 	}
+}
+
 async function createOrder(params: { order: TOrder; companyId?: string; storeId?: string }) {
 	try {
 		const func = httpsCallable(functions, "createOrder");
