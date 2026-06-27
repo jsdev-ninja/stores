@@ -37,6 +37,7 @@ export function subscribe<T>(
     name: string;
     type: string;
     payloadSchema: ZodType<T>;
+    maxAttempts?: number;
     functionOptions?: Omit<DocumentOptions, "document" | "retry">;
   },
   handler: (event: StoredEvent<T>, ctx: SubscriberContext) => Promise<void>,
@@ -87,9 +88,13 @@ export function subscribe<T>(
         payload: payloadResult.data,
       };
 
+      const maxAttempts = options.maxAttempts ?? MAX_ATTEMPTS;
       const db = admin.firestore();
       const attemptsRef = db.doc(
         eventBusAttemptsPath(companyId, storeId, options.name, eventId),
+      );
+      const dlqRef = db.doc(
+        eventBusDeadLetterPath(companyId, storeId, options.name, eventId),
       );
 
       const attemptsSnap = await attemptsRef.get();
@@ -100,38 +105,87 @@ export function subscribe<T>(
         ? ((attemptsSnap.data()?.errors as AttemptError[] | undefined) ?? [])
         : [];
 
+      // Prior invocations already exhausted the budget (e.g. they OOM-crashed before they could
+      // dead-letter). Dead-letter now and STOP — do not run the handler again.
+      if (priorAttempts >= maxAttempts) {
+        await dlqRef.set(
+          {
+            subscriberName: options.name,
+            eventId,
+            eventType: options.type,
+            companyId,
+            storeId,
+            attempts: priorAttempts,
+            errors: priorErrors,
+            droppedAt: Date.now(),
+            originalEvent: envelope,
+          },
+          { merge: true },
+        );
+        await attemptsRef.delete().catch((e) =>
+          logger.warn("eventBus.subscriber.attemptCleanupFailed", {
+            subscriber: options.name,
+            eventId,
+            err: describeError(e),
+          }),
+        );
+        logger.error("eventBus.subscriber.deadLettered", {
+          subscriber: options.name,
+          eventId,
+          eventType: options.type,
+          companyId,
+          storeId,
+          attempts: priorAttempts,
+          lastError: priorErrors[priorErrors.length - 1]?.message ?? null,
+        });
+        return;
+      }
+
+      const attemptNumber = priorAttempts + 1;
+
+      // Claim the attempt BEFORE running the handler so a hard crash (OOM) still counts.
+      await attemptsRef.set(
+        {
+          attempts: attemptNumber,
+          lastAttemptAt: Date.now(),
+          ...(attemptsSnap.exists
+            ? {}
+            : {
+                subscriberName: options.name,
+                eventId,
+                eventType: options.type,
+                firstAttemptAt: Date.now(),
+              }),
+        },
+        { merge: true },
+      );
+
       logger.info("eventBus.subscriber.received", {
         subscriber: options.name,
         eventId,
         eventType: options.type,
         companyId,
         storeId,
-        attempt: priorAttempts + 1,
+        attempt: attemptNumber,
       });
 
       try {
         await handler(event, { companyId, storeId, eventId });
-        if (attemptsSnap.exists) {
-          await attemptsRef.delete().catch((cleanupErr) => {
-            logger.warn("eventBus.subscriber.attemptCleanupFailed", {
-              subscriber: options.name,
-              eventId,
-              err: describeError(cleanupErr),
-            });
-          });
-        }
+        await attemptsRef.delete().catch((e) =>
+          logger.warn("eventBus.subscriber.attemptCleanupFailed", {
+            subscriber: options.name,
+            eventId,
+            err: describeError(e),
+          }),
+        );
       } catch (err) {
-        const attemptNumber = priorAttempts + 1;
         const errorEntry: AttemptError = {
           attempt: attemptNumber,
           message: describeError(err),
           at: Date.now(),
         };
 
-        if (attemptNumber >= MAX_ATTEMPTS) {
-          const dlqRef = db.doc(
-            eventBusDeadLetterPath(companyId, storeId, options.name, eventId),
-          );
+        if (attemptNumber >= maxAttempts) {
           await dlqRef.set(
             {
               subscriberName: options.name,
@@ -146,13 +200,13 @@ export function subscribe<T>(
             },
             { merge: true },
           );
-          await attemptsRef.delete().catch((cleanupErr) => {
+          await attemptsRef.delete().catch((e) =>
             logger.warn("eventBus.subscriber.attemptCleanupFailed", {
               subscriber: options.name,
               eventId,
-              err: describeError(cleanupErr),
-            });
-          });
+              err: describeError(e),
+            }),
+          );
           logger.error("eventBus.subscriber.deadLettered", {
             subscriber: options.name,
             eventId,
@@ -162,21 +216,10 @@ export function subscribe<T>(
             attempts: attemptNumber,
             lastError: errorEntry.message,
           });
-          return;
+          return; // swallow — do not retry past max
         }
 
-        const updates: Record<string, unknown> = {
-          attempts: FieldValue.increment(1),
-          errors: FieldValue.arrayUnion(errorEntry),
-          lastAttemptAt: Date.now(),
-        };
-        if (!attemptsSnap.exists) {
-          updates.subscriberName = options.name;
-          updates.eventId = eventId;
-          updates.eventType = options.type;
-          updates.firstAttemptAt = Date.now();
-        }
-        await attemptsRef.set(updates, { merge: true });
+        await attemptsRef.set({ errors: FieldValue.arrayUnion(errorEntry) }, { merge: true });
 
         logger.error("eventBus.subscriber.error", {
           subscriber: options.name,
@@ -188,7 +231,7 @@ export function subscribe<T>(
           err: errorEntry.message,
         });
 
-        throw err;
+        throw err; // trigger Cloud Functions retry
       }
     },
   );

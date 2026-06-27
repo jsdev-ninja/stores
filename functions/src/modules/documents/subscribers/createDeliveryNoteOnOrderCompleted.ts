@@ -26,6 +26,8 @@ export const createDeliveryNoteOnOrderCompleted = subscribe(
 		name: "documents-create-delivery-note-on-order-completed",
 		type: OrderEventTypes.completed,
 		payloadSchema: OrderCompletedPayload,
+		maxAttempts: 1,
+		functionOptions: { memory: "1GiB" },
 	},
 	async (event, ctx) => {
 		const { payload } = event;
