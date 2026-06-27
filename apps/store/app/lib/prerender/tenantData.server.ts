@@ -35,7 +35,7 @@ import { FirebaseAPI, type TCategory, type TProduct } from "@jsdev_ninja/core";
 const STORE_TARGET_ORIGINS: Record<string, string> = {
   tester: "https://jsdev-stores-prod.web.app",
   balasistore: "https://balasistore.com",
-  pecanis: "https://pecanis.com",
+  pecanis: "https://pecanis.online",
 };
 
 const FIREBASE_CONFIG = {
