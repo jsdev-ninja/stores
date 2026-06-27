@@ -84,7 +84,7 @@ jobs:
               echo "The package version is $VITE_STORE_VERSION"
               echo -e "\033[1;34mBUILD + DEPLOY PER TENANT (balasistore, pecanis)"
               # firebase CLI used by the deploy:* scripts; authed via GOOGLE_APPLICATION_CREDENTIALS
-              yarn global add firebase-tools
+              yarn global add firebase-tools --ignore-engines
               # deploy:stores = build:balasistore && deploy balasistore && build:pecanis && deploy pecanis (sequential)
               yarn workspace store run deploy:stores
 
