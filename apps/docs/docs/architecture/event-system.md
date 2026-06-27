@@ -318,4 +318,3 @@ consumers: tax reporting, customer email.
 - **One subscriber, one file, one job.** Subscriber filenames are
   `{verb}On{EventName}.ts` and each subscriber owns its dedup key. Multiple
   effects of the same event = multiple subscribers, not one fat handler.
-```

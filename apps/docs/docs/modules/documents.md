@@ -367,6 +367,7 @@ modules/documents/
 │   ├── settleDebt.ts                               write "-" entry for a payment
 │   └── reconcileOrganizationBalance.ts             scan ledger, rebuild rollups
 ├── subscribers/
+│   ├── createDeliveryNoteOnOrderCompleted.ts       reacts to order.completed (external → DN)
 │   ├── accrueOnDeliveryNoteCreated.ts              reacts to documents.delivery_note_created
 │   └── settleOnTransactionPosted.ts                reacts to ledger.transaction_posted
 ├── triggers/
