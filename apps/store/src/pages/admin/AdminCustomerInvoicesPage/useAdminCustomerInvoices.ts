@@ -2,6 +2,23 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useAppApi } from "src/appApi";
 import type { TOrder, TOrganization } from "@jsdev_ninja/core";
 
+// ─── Unbilled banner ──────────────────────────────────────────────────────────
+
+export type UnbilledSummary = {
+  dnCount: number;
+  companyCount: number;
+  totalAmount: number;
+};
+
+function getUnbilledSummary(orders: TOrder[]): UnbilledSummary {
+  const unbilled = orders.filter(
+    (o) => o.ezDeliveryNote?.success && !o.invoice && !o.ezInvoice?.success,
+  );
+  const companies = new Set(unbilled.map((o) => (o.organizationId as string | undefined) ?? null));
+  const totalAmount = unbilled.reduce((s, o) => s + (o.cart?.cartTotal ?? 0), 0);
+  return { dnCount: unbilled.length, companyCount: companies.size, totalAmount };
+}
+
 export type InvoiceStatus = "paid" | "open";
 
 export type InvoiceRow = {
@@ -114,6 +131,25 @@ export function useAdminCustomerInvoices() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
 
+  // Unbilled DN summary for the banner — loaded once on mount using current month
+  const [unbilledSummary, setUnbilledSummary] = useState<UnbilledSummary>({
+    dnCount: 0,
+    companyCount: 0,
+    totalAmount: 0,
+  });
+
+  const loadUnbilled = useCallback(async () => {
+    try {
+      const { fromDate, toDate } = getMonthRange(new Date());
+      const result = await appApi.admin.getDeliveryNotes({ fromDate, toDate });
+      if (result?.success) {
+        setUnbilledSummary(getUnbilledSummary((result.data ?? []) as TOrder[]));
+      }
+    } catch {
+      // silent — banner just won't show
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- appApi stable
+
   const loadInvoices = useCallback(async () => {
     setLoading(true);
     try {
@@ -130,6 +166,10 @@ export function useAdminCustomerInvoices() {
   useEffect(() => {
     loadInvoices();
   }, [loadInvoices]);
+
+  useEffect(() => {
+    loadUnbilled();
+  }, [loadUnbilled]);
 
   useEffect(() => {
     appApi.admin.listOrganizations().then((result) => {
@@ -200,5 +240,7 @@ export function useAdminCustomerInvoices() {
     selectedMonth,
     shiftMonth,
     reload: loadInvoices,
+    unbilledSummary,
+    reloadUnbilled: loadUnbilled,
   };
 }

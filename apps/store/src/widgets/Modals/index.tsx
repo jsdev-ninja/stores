@@ -1,4 +1,5 @@
 import { AuthModal } from "src/features/auth";
+import { BulkBillingModal } from "./BulkBillingModal";
 import { CategoryFormModal } from "src/features/category/CategoryFormModal";
 import { modalsSlice } from "src/infra/modals";
 
@@ -88,6 +89,9 @@ export const modals = {
 		row: OpenInvoiceRow;
 		onPaymentRecorded: (receipt: { doc_uuid: string; pdf_link: string; doc_number: string }) => void;
 	}) => <RecordInvoicePaymentModal row={row} onPaymentRecorded={onPaymentRecorded} />,
+	bulkBilling: ({ onDone }: { onDone?: () => void }) => (
+		<BulkBillingModal onDone={onDone} />
+	),
 	confirmModal: ({
 		title,
 		message,

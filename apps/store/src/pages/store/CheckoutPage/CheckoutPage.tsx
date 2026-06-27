@@ -9,7 +9,11 @@ import { useAppSelector } from "src/infra";
 import { AddressSchema, getCartCost, TOrder, TOrganization, TProfile } from "@jsdev_ninja/core";
 import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
-import { submitHypForm } from "src/lib/payment/submitHypForm";
+import {
+	submitHypForm,
+	showHypRedirectOverlay,
+	hideHypRedirectOverlay,
+} from "src/lib/payment/submitHypForm";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
 import { TCart } from "src/domains/cart";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
@@ -231,6 +235,11 @@ function CheckoutPage() {
 					if (isSubmitting) return;
 					setIsSubmitting(true);
 
+					// True only once we've handed off to the full-page POST to HYP. The
+					// redirect overlay must survive that navigation, so the finally below
+					// keeps it up in that case and removes it on every other exit.
+					let redirectingToPayment = false;
+
 					try {
 						// Resolve the chosen billing account (B2B). Default to the org's main
 						// (first) account when nothing was picked, so an org order always carries one.
@@ -303,6 +312,11 @@ function CheckoutPage() {
 
 						newOrder.paymentType = "j5";
 
+						// Paint the redirect overlay NOW, before the order-create + payment-link
+						// waits, so the customer sees "moving you to secure payment" instead of a
+						// frozen checkout page they might close. It carries through to the HYP POST.
+						showHypRedirectOverlay();
+
 						// Don't bail on success:false — that fires when the order already exists
 						// (rage-click / refresh). Continue to payment link generation either way.
 						await appApi.orders.order({
@@ -311,11 +325,15 @@ function CheckoutPage() {
 
 						const payment = await appApi.user.createPaymentLink({ order: newOrder, isJ5: true });
 						if (payment?.data?.formAction && payment?.data?.formFields) {
+							redirectingToPayment = true;
 							submitHypForm(payment.data.formAction, payment.data.formFields);
 							return;
 						}
 						navigate({ to: "store.paymentPending" });
 					} finally {
+						// Keep the overlay up only for the HYP handoff; clear it on any other
+						// exit (link failed, threw) so it doesn't stick over the next route.
+						if (!redirectingToPayment) hideHypRedirectOverlay();
 						setIsSubmitting(false);
 					}
 				}}

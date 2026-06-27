@@ -1,7 +1,7 @@
 import { Table, Chip, Spinner, Select, Input, ListBox, Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
-import { useAdminCustomerInvoices, type InvoiceStatus, type InvoiceRow } from "./useAdminCustomerInvoices";
+import { useAdminCustomerInvoices, type InvoiceStatus, type InvoiceRow, type UnbilledSummary } from "./useAdminCustomerInvoices";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -48,6 +48,41 @@ function InvoiceStatusPill({ status }: { status: InvoiceStatus }) {
     <Chip size="sm" color={meta.color} variant="soft">
       <Chip.Label>{meta.label}</Chip.Label>
     </Chip>
+  );
+}
+
+// ─── Unbilled banner ──────────────────────────────────────────────────────────
+
+type UnbilledBannerProps = {
+  summary: UnbilledSummary;
+  onOpenWizard: () => void;
+};
+
+function UnbilledBanner({ summary, onOpenWizard }: UnbilledBannerProps) {
+  if (summary.dnCount === 0) return null;
+  return (
+    <div
+      className="flex items-center justify-between gap-3 rounded-xl border border-[color-mix(in_oklab,var(--warning)_40%,transparent)] bg-[color-mix(in_oklab,var(--warning)_8%,transparent)] px-4 py-3 flex-wrap"
+      dir="rtl"
+    >
+      <div className="flex items-center gap-2 text-sm">
+        <Icon icon="lucide:receipt" width={16} height={16} style={{ color: "var(--warning)" }} />
+        <span>
+          יש <strong>{summary.dnCount}</strong> תעודות משלוח שטרם חויבו (
+          <strong>{summary.companyCount}</strong> לקוחות) ·{" "}
+          <strong>{fmtMoney(summary.totalAmount)}</strong>
+        </span>
+      </div>
+      <button
+        type="button"
+        onClick={onOpenWizard}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold border border-[color-mix(in_oklab,var(--warning)_50%,transparent)] bg-[color-mix(in_oklab,var(--warning)_15%,transparent)] hover:bg-[color-mix(in_oklab,var(--warning)_25%,transparent)] transition-colors"
+        style={{ color: "var(--warning)" }}
+      >
+        <Icon icon="lucide:zap" width={13} height={13} />
+        הפק חשבוניות מרוכזות
+      </button>
+    </div>
   );
 }
 
@@ -109,20 +144,34 @@ export default function AdminCustomerInvoicesPage() {
     selectedMonth,
     shiftMonth,
     reload,
+    unbilledSummary,
+    reloadUnbilled,
   } = useAdminCustomerInvoices();
+
+  function handleOpenBulkWizard() {
+    modalApi.openModal("bulkBilling", {
+      onDone: () => {
+        reload();
+        reloadUnbilled();
+      },
+    });
+  }
 
   const monthDisplay = selectedMonth.toLocaleDateString("he-IL", { year: "numeric", month: "long" });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-5">
+      {/* Unbilled banner — shown regardless of invoice loading state */}
+      <UnbilledBanner summary={unbilledSummary} onOpenWizard={handleOpenBulkWizard} />
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <Spinner size="lg" />
+        </div>
+      ) : null}
+
+      {!loading && (
+        <>
       {/* KPI strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard label='סה"כ חשבוניות' value={fmtMoney(kpis.totalInvoiced)} />
@@ -341,6 +390,8 @@ export default function AdminCustomerInvoicesPage() {
             </Table.ScrollContainer>
           </Table>
         </div>
+      )}
+        </>
       )}
     </div>
   );
