@@ -61,8 +61,8 @@ Tax documents live on the source `Order` document — there are no standalone
 | ----------------- | ------- | ------- |
 | `deliveryNote`    | `packages/core/lib/entities/DeliveryNote.ts` | Canonical DN state (`status: pending \| paid \| cancelled`, items, totals). |
 | `ezDeliveryNote`  | EZcount response | `doc_uuid`, `doc_number`, `pdf_link`, `success`, raw EZcount data. |
-| `invoice`         | `packages/core/lib/entities/Invoice.ts` | Tax invoice state (status, items, totals, `allocationNumber?`, `allocationDate?`). |
-| `ezInvoice`       | EZcount response (legacy mirror) | `doc_uuid`, `doc_number`, `pdf_link`. |
+| `invoice`         | EZcount response (**canonical**) | `doc_uuid`, `doc_number`, `pdf_link`, `success`, `calculatedData`. Where `createInvoice` writes, and what `getOpenInvoices` / `recordInvoicePayment` / the customer-invoices page read. (Typed as `Invoice` in core, but the runtime value is the EZcount payload — a known core type mismatch.) |
+| `ezInvoice`       | — | **DEPRECATED** — nothing writes it; all readers were migrated to `invoice`. Kept in the schema for legacy reads only. |
 
 ### AR collections (module-owned)
 
@@ -290,8 +290,10 @@ human-readable doc numbers. Passing a number returns
 | `createInvoice`                   | `onCall`     | admin claim  | Issue a tax invoice (see [Invoice flows](#invoice-flows)). |
 | `getOrganizationBalance`          | `onCall`     | admin claim  | Read rollup + filtered entry list for one org. |
 | `reconcileOrganizationBalanceCallable` | `onCall` | admin claim  | Admin-triggered reconcile (dry-run or apply). |
+| `createDeliveryNoteOnOrderCompleted` | subscriber | internal | On `order.completed`, for `paymentType: external` only, auto-creates the DN (→ AR accrual). `maxAttempts: 1`, `memory: 1GiB`. |
 | `accrueOnDeliveryNoteCreated`     | subscriber   | internal     | AR accrual on DN. |
 | `settleOnTransactionPosted`       | subscriber   | internal     | AR settlement on payment. |
+| `recordInvoicePayment`            | `onCall`     | admin claim  | Record full invoice payment: EZcount receipt + `manual` ledger txn (settles AR) + sets `invoicePaidAt`/`ezReceipt`/`paymentStatus: "completed"` on the order. |
 | `reconcileOrganizationBalanceSchedule` | scheduled | system      | Nightly reconcile (04:00 Asia/Jerusalem). |
 
 ## Invoice flows

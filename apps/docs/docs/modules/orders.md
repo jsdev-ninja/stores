@@ -143,12 +143,16 @@ admin/user cancel instead.) `onOrderUpdate` emits `order.completed` /
 transition order. See [Payment flows → Scenario 1](/architecture/payment-flows)
 for the full sequence.
 
-:::info This capture-on-completion path is **J5 only**
-`chargeJ5OnOrderCompleted` only acts on `paymentType: "j5"` orders.
-**External** orders (`paymentType: "external"` — cash / credit-terms) follow a
-**different** flow: completing the order does **not** charge a card — it fulfills
-the order, and an admin records the payment manually afterwards. See
-[Payment flows → Scenario 3](/architecture/payment-flows).
+:::info `order.completed` drives both flows — split by `paymentType`
+Two subscribers listen to `order.completed`, scoped to **disjoint** payment types
+(exactly one fires per order):
+- **`j5`** → `ledger: chargeJ5OnOrderCompleted` captures the J5 hold (charges the card).
+- **`external`** → `documents: createDeliveryNoteOnOrderCompleted` auto-creates the
+  delivery note (→ `documents.delivery_note_created` → AR accrual). No card charge;
+  an admin records payment later, and `recordInvoicePayment` then sets
+  `paymentStatus: "completed"`.
+
+See [Payment flows](/architecture/payment-flows) — Scenario 1 (J5), Scenario 3 (external).
 :::
 
 :::caution `completed` ≠ paid (J5)

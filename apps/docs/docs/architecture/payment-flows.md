@@ -207,80 +207,78 @@ sequenceDiagram
   participant FE as Storefront
   participant FS as Firestore
   participant A as Admin
-  participant Trigger as onOrderUpdate
-  participant DN as createDeliveryNote
-  participant L as Ledger
+  participant OU as onOrderUpdate
+  participant CD as createDeliveryNoteOnOrderCompleted
   participant AR as AR (documents)
   participant Inv as createInvoice
   participant R as recordInvoicePayment
 
   C->>FE: submit checkout (store.paymentType=external)
-  FE->>FS: create order<br/>{ status:"draft", paymentStatus:"external" }
+  FE->>FS: create order<br/>{ status:"pending", paymentStatus:"pending" }
   Note over A,FS: Admin sees order in admin app
-  A->>FE: approve → status:"completed"
-  FE->>FS: order.status = "completed"
-  FS->>Trigger: onOrderUpdate fires
-  Trigger->>DN: completeOrder()<br/>auto-creates delivery note
-  DN->>FS: write o.deliveryNote / o.ezDeliveryNote
-  DN-->>FS: emit documents.delivery_note_created
+  A->>FS: approve → status:"completed"
+  FS->>OU: onOrderUpdate fires (→ completed)
+  OU-->>CD: emit order.completed
+  CD->>FS: paymentType=external → createDeliveryNote(order)<br/>write o.deliveryNote / o.ezDeliveryNote
+  CD-->>FS: emit documents.delivery_note_created
   FS->>AR: accrueOnDeliveryNoteCreated<br/>org AR balance ↑
 
   Note over A,Inv: Later — admin creates invoice
   A->>Inv: createInvoice (from DN)
-  Inv->>FS: write o.invoice / o.ezInvoice
+  Inv->>FS: write o.invoice
   Inv-->>FS: emit documents.invoice_created
   Note over FS,AR: No AR effect — milestone only
 
-  Note over A,R: Customer pays in cash
-  A->>R: recordInvoicePayment(orderId, paymentMethod, date)
-  R->>L: postManualTransaction(reference:invoice)
-  L-->>AR: settleOnTransactionPosted<br/>org AR balance ↓
-  R->>FS: o.invoicePaidAt = now, o.ezReceipt = receipt
+  Note over A,R: Customer pays
+  A->>R: recordInvoicePayment(orderId, method, date)
+  R->>FS: write manual transaction (reference: invoice)
+  FS-->>AR: settleOnTransactionPosted<br/>org AR balance ↓
+  R->>FS: o.invoicePaidAt, o.ezReceipt,<br/>paymentStatus:"completed"
 ```
 
 ### State at each step
 
 | Step | order.status | order.paymentStatus | Ledger | AR balance |
 | --- | --- | --- | --- | --- |
-| Checkout submit | `draft` | `external` | — | unchanged |
-| Admin approve | `completed` | `external` | — | ↑ by order total (after DN auto-creates) |
+| Checkout submit | `pending` | `pending` | — | unchanged |
+| Admin approve (→ completed) | `completed` | `pending` | — | ↑ by DN total — `createDeliveryNoteOnOrderCompleted` auto-creates the DN → accrual |
 | Invoice created | unchanged | unchanged | — | unchanged |
-| Payment recorded | unchanged | `external` (legacy) | `manual` (in) | ↓ by invoice total |
+| Payment recorded | unchanged | **`completed`** | `manual` (in) | ↓ by invoice total |
 
-:::note paymentStatus on external orders
-External orders keep `paymentStatus: "external"` even after payment is recorded. The "is the invoice paid?" signal lives on `o.invoicePaidAt` / `o.ezReceipt`, NOT on `paymentStatus`. This is by design — `external` here means "paid offline, not via HYP" rather than literally "still owed".
+:::note paymentStatus is now set on payment
+Recording the invoice payment sets **`paymentStatus: "completed"`** on the order, in the same atomic write as `invoicePaidAt` + `ezReceipt` (in `recordInvoicePayment`). This fixed the earlier paid-but-still-`pending` gap: `markOrderPaidOnTransactionPosted` only acts on **order**-referenced transactions, but an invoice payment posts an **invoice**-referenced `manual` transaction, so it skips — `recordInvoicePayment` itself flips the status. (`paymentStatus: "external"` is deprecated; external orders run `pending → completed` like the rest.)
 :::
 
 ### What to check during testing
 
-1. **After checkout submit**: `status: "draft"`, `paymentStatus: "external"`, no DN yet, no invoice
+1. **After checkout submit**: `status: "pending"`, `paymentStatus: "pending"`, no DN yet, no invoice
 2. **After admin approves** (sets `status: "completed"`):
-   - `o.deliveryNote` and `o.ezDeliveryNote` populated (the trigger created them)
+   - `o.deliveryNote` and `o.ezDeliveryNote` populated (`createDeliveryNoteOnOrderCompleted` created them)
    - `documents.delivery_note_created` event in `events/`
    - `organizationBalance/{orgId}` (B2B) accrued the order total
 3. **After invoice created** (separate admin action):
-   - `o.invoice` / `o.ezInvoice` populated
+   - `o.invoice` populated (`ezInvoice` is **deprecated** — invoices live on `o.invoice`)
    - `documents.invoice_created` event in `events/` (no AR effect)
 4. **After record payment** (via [Customer Debts page](/admin/pages/customer-debts)):
-   - `o.invoicePaidAt` set to the payment date
-   - `o.ezReceipt` populated (PDF link, doc_number)
+   - `o.invoicePaidAt` set to the payment date, `o.ezReceipt` populated, and **`o.paymentStatus: "completed"`**
    - `transactions/` has a new `manual` credit row, `reference: { type: "invoice", id: invoiceUuid }`
    - `organizationBalance/{orgId}` balance reduced by invoice total
 
 ### Known bugs / odd behavior
 
-| Bug | Symptom | Fix |
+| Bug | Symptom | Status |
 | --- | --- | --- |
-| 🟠 Manual DN date silently ignored on external orders | Admin picks June 3 in the manual DN modal; auto-creation in `completeOrder` already filed June 4 — modal returns success but date unchanged | Tracked in `todo.md` — fix decision pending |
+| 🟠 Auto-created external DN uses "today", not an admin-chosen date | On completion, `createDeliveryNoteOnOrderCompleted` creates the DN with no explicit date → server "today". The manual DN modal (with date picker) only appears when a DN does **not** yet exist, so the auto-DN pre-empts it. To backdate, create the DN manually before completing. | Open — decision pending |
 | Manual DN modal returns `success: true` when DN already exists | Misleading UI feedback | Tracked in `todo.md` |
 
 ## Quick comparison
 
 | | J5 normal | J5 abort | External |
 | --- | --- | --- | --- |
-| Initial order | `pending` / `pending` | `draft` / `pending` | `draft` / `external` |
+| Initial order | `pending` / `pending` | `draft` / `pending` | `pending` / `pending` |
 | Customer interaction | HYP card form | abandoned | none |
-| Capture trigger | **admin completes order** → `order.completed` → `chargeJ5OnOrderCompleted` | — | admin records payment manually |
+| On `order.completed` | `chargeJ5OnOrderCompleted` → J5 capture | — | `createDeliveryNoteOnOrderCompleted` → delivery note |
+| Mark paid | auto (capture → `markOrderPaid`) | — | admin records payment → `recordInvoicePayment` sets `paymentStatus: completed` |
 | Ledger writes (success path) | `hyp_j5_auth` then `hyp_capture` | — | `manual` (only after admin records) |
 | AR accrual when | At delivery note creation (after admin approve) | At delivery note creation (after recovery + admin approve) | At delivery note creation (after admin approve) |
 | AR settlement when | At `hyp_capture` | At `hyp_direct` (if recovered via payment link) | At `recordInvoicePayment` |

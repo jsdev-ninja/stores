@@ -48,6 +48,7 @@ graph LR
   S1[cart: closeCartOnOrderPlaced]
   S2[notifications: onOrderPlacedAdminEmail]
   SJ[ledger: chargeJ5OnOrderCompleted]
+  SD[documents: createDeliveryNoteOnOrderCompleted]
   S5[orders: markOrderPaidOnTransactionPosted]
   S6[documents: settleOnTransactionPosted]
   S7[budget: updateProjectionsOnTransactionPosted]
@@ -65,6 +66,7 @@ graph LR
   OP --> S1
   OP --> S2
   OCMP --> SJ
+  OCMP --> SD
   OC --> N1
   TP --> S5
   TP --> S6
@@ -79,7 +81,7 @@ graph LR
 
   class E1,E2,E4,E5,E6 emitter
   class OP,OCMP,OC,TP,DNC,IC event
-  class S1,S2,SJ,S5,S6,S7,S8 subscriber
+  class S1,S2,SJ,SD,S5,S6,S7,S8 subscriber
   class N1,N2 none
 ```
 
@@ -143,13 +145,20 @@ delivery loop:
 
 - Attempts are tracked under
   `{companyId}/{storeId}/eventBusAttempts/{subscriberName}_{eventId}`.
-- Up to **5 attempts** (`MAX_ATTEMPTS` in `subscribe.ts`). Each error is
-  appended (truncated to 1KB so the attempts doc stays small).
-- On attempt 5 the event is moved to
-  `{companyId}/{storeId}/eventBusDeadLetter/{subscriberName}_{eventId}` with
-  the full attempt history, and the attempts doc is cleared.
-- A successful handler also clears the attempts doc — that's the
-  steady-state path.
+- **Claim-first:** the attempt count is persisted **before** the handler runs,
+  not in the `catch` after. So a hard crash (e.g. an OOM that kills the process
+  before any `catch` can run) still counts — the `received` log shows the true
+  attempt number, and dead-lettering still fires. On the next delivery, if the
+  budget is already exhausted, the event is dead-lettered at the top **without
+  re-running the handler** (important for handlers with external side effects).
+- Default **5 attempts** (`MAX_ATTEMPTS`), overridable per subscriber via the
+  `maxAttempts` option — e.g. `createDeliveryNoteOnOrderCompleted` sets
+  `maxAttempts: 1` (one shot at the external EZcount call, then dead-letter).
+  Each error is appended (truncated to 1KB).
+- On the final failed attempt the event is moved to
+  `{companyId}/{storeId}/eventBusDeadLetter/{subscriberName}_{eventId}` with the
+  full attempt history, and the attempts doc is cleared.
+- A successful handler clears the attempts doc — the steady-state path.
 
 ### Idempotency
 
@@ -169,7 +178,7 @@ Subscribers should be idempotent because Firestore delivers
 | Event                             | Emitted by                                                | Subscribers                                                                                                          |
 | --------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `order.placed`                    | `orders/services/orderService.ts` (`create`, in the create txn) | `cart: closeCartOnOrderPlaced` · `notifications: onOrderPlacedAdminEmail`                                      |
-| `order.completed`                 | `orders/triggers/onOrderUpdate.ts` (inline, on `→ completed`)   | `ledger: chargeJ5OnOrderCompleted` (J5 capture)                                                                 |
+| `order.completed`                 | `orders/triggers/onOrderUpdate.ts` (inline, on `→ completed`)   | `ledger: chargeJ5OnOrderCompleted` (J5 capture) · `documents: createDeliveryNoteOnOrderCompleted` (external DN)  |
 | `order.cancelled`                 | `orders/triggers/onOrderUpdate.ts` (inline, on `→ cancelled`)   | _none_ — AR reversal deferred (see note below)                                                                  |
 | `ledger.transaction_posted`       | `ledger/services/postTransaction.ts`                      | `orders: markOrderPaidOnTransactionPosted` · `documents: settleOnTransactionPosted` · `budget: updateProjectionsOnTransactionPosted` |
 | `documents.delivery_note_created` | `appApi/index.ts` (`createDeliveryNote`, inline emit)     | `documents: accrueOnDeliveryNoteCreated`                                                                             |
@@ -224,14 +233,12 @@ transitions `status → completed` (`before.status !== "completed" && after.stat
 **Payload** (`OrderCompletedPayload` in `orders/events.ts`): `orderId`,
 `paymentType?`.
 
-**Subscribers**
+**Subscribers** — two, each scoped to a different `paymentType` (disjoint, exactly one acts per order):
 
-- `ledger: chargeJ5OnOrderCompleted` (`ledger/subscribers/chargeJ5OnOrderCompleted.ts`) — for `paymentType: j5` orders not already paid, captures the J5 hold (`internalChargeJ5Order` → `hyp_capture`). Re-reads the authoritative order and guards on `paymentStatus === "completed"` to avoid re-capture. On failure it logs without throwing (no retry today). See [Payment flows → Scenario 1](./payment-flows).
+- `ledger: chargeJ5OnOrderCompleted` (`ledger/subscribers/chargeJ5OnOrderCompleted.ts`) — for **`paymentType: j5`** orders not already paid, captures the J5 hold (`internalChargeJ5Order` → `hyp_capture`). Re-reads the authoritative order and guards on `paymentStatus === "completed"` to avoid re-capture. See [Payment flows → Scenario 1](./payment-flows).
+- `documents: createDeliveryNoteOnOrderCompleted` (`documents/subscribers/createDeliveryNoteOnOrderCompleted.ts`) — for **`paymentType: external`** orders, auto-creates the delivery note (`appApi.documents.createDeliveryNote`), which then emits `documents.delivery_note_created` → AR accrual. Idempotency guard on `order.deliveryNote`/`ezDeliveryNote`; `maxAttempts: 1`; runs at `memory: 1GiB` (Chromium PDF rendering). See [Payment flows → Scenario 3](./payment-flows).
 
-This is the heart of the J5 capture flow: **completing the order is what charges
-the card** — for `paymentType: j5` only. External orders have no J5 hold, so the
-subscriber no-ops for them; external completion follows a different path (manual
-payment — see [Payment flows → Scenario 3](./payment-flows)).
+So **completing the order is the trigger for the next step in both flows** — a J5 capture for `j5`, a delivery note for `external`. The two subscribers handle disjoint payment types, so exactly one fires per order.
 
 ### `order.cancelled`
 
