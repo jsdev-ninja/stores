@@ -416,6 +416,10 @@ export const recordInvoicePayment = functionsV2.https.onCall(
 			batch.update(orderDocRef, {
 				invoicePaidAt: input.paymentDate,
 				ezReceipt: receiptData,
+				// Invoice fully paid → the order's payment is settled. markOrderPaid
+				// only acts on order-referenced txns (this one is invoice-referenced),
+				// so flip paymentStatus here in the same atomic write.
+				paymentStatus: "completed",
 				updatedAt: Date.now(),
 			});
 			await batch.commit();
