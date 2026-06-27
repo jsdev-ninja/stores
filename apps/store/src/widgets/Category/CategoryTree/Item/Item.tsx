@@ -8,7 +8,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "src/components";
 import { modalApi } from "src/infra/modals";
 import { navigate } from "src/navigation";
-export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
+export const iOS =
+	typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.platform);
 
 export interface AProps extends React.HTMLAttributes<HTMLButtonElement> {
 	active?: {

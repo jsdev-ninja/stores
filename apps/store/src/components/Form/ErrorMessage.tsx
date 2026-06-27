@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import get from "lodash/get";
 import { useFormContext } from "react-hook-form";
 import { NestedKeys } from "src/shared/types";
 

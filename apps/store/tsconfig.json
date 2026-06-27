@@ -3,7 +3,8 @@
 		"baseUrl": ".",
 		"paths": {
 			"src/*": ["./src/*"],
-			"@jsdev_ninja/core": ["../../packages/core/lib/index.ts"]
+			"@jsdev_ninja/core": ["../../packages/core/lib/index.ts"],
+			"~/*": ["./.react-router/types/*"]
 		},
 		"target": "ES2020",
 		"useDefineForClassFields": true,
@@ -27,7 +28,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"forceConsistentCasingInFileNames": true
 	},
-	"include": ["src"],
+	"include": ["src", "app", ".react-router/types/**/*"],
 	"references": [
 		{ "path": "./tsconfig.node.json" },
 		{ "path": "../../packages/core/tsconfig.app.json" }

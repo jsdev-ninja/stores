@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Route, useLocation } from "src/navigation";
+import { Route, useLocation, Bridge } from "src/navigation";
 import { useAppSelector, useStoreActions } from "src/infra";
 import { FirebaseApi } from "src/lib/firebase";
 import { useAppInit } from "./init";
@@ -195,6 +195,8 @@ function App() {
 
   return (
     <div className="min-h-screen min-w-screen">
+      {/* Strategy B: wire RR7 navigate/location into the custom router store */}
+      <Bridge />
       <ToastProvider />
       {/* todo fix fallback */}
       <Suspense fallback="loading">

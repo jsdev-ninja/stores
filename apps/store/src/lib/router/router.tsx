@@ -1,161 +1,196 @@
-import { ReactNode, useEffect } from "react";
-import { createStore } from "./store";
+/**
+ * router.tsx — createRouter factory, re-backed on React Router v7 (Strategy B).
+ *
+ * Public surface (Link, Route, navigate, useParams, Redirect, useLocation) is
+ * UNCHANGED — all 57+ call sites keep compiling without modification.
+ *
+ * Strategy B changes:
+ *  - createStore() now returns a RR7-backed store (see store.tsx).
+ *  - <RouterBridge/> is returned in the public surface so App.tsx can mount it
+ *    once to wire RR7's navigate/location into the custom store.
+ *  - useLocation() reads from RR7 (via store.useRouterStore which is synced
+ *    by RouterBridge) so location changes from RR7-initiated navigations
+ *    (back/forward, <Link to> from RR7) propagate correctly.
+ */
+
+import { ReactNode } from "react";
+import { createStore, RouterBridge } from "./store";
 import { Route, RouteKeys, RouteParams, Routes } from "./types";
 import { comparePathWithRoutePath } from "./utils";
 import { createLink } from "./components/Link";
 import { RouteData, getRouteData } from "./utils/traverse";
+import { Navigate } from "react-router";
 
 export type { RouteKeys };
 
 function checkChildMatch(
-	route: Route | undefined,
-	pathname: string = "",
-	parent?: Route | undefined
+  route: Route | undefined,
+  pathname: string = "",
+  parent?: Route | undefined
 ): boolean {
-	if (!route) return false;
+  if (!route) return false;
 
-	const fullPath = (parent?.path ? (parent.path === "/" ? "" : parent.path) : "") + route.path;
+  const fullPath =
+    (parent?.path ? (parent.path === "/" ? "" : parent.path) : "") +
+    route.path;
 
-	if (comparePathWithRoutePath(pathname, fullPath, route.exact)) {
-		return true;
-	}
-	if (!route?.children) return false;
+  if (comparePathWithRoutePath(pathname, fullPath, route.exact)) {
+    return true;
+  }
+  if (!route?.children) return false;
 
-	return Object.values(route?.children).some((r) => checkChildMatch(r, pathname, route));
+  return Object.values(route?.children).some((r) =>
+    checkChildMatch(r, pathname, route)
+  );
 }
 
 export type LinkTo<T extends Routes> = RouteKeys<T>;
 
 export function createRouter<T extends Routes>(routes: T) {
-	const store = createStore(routes);
+  const store = createStore(routes);
 
-	const { Link, navigate } = createLink<T>(routes, store);
+  const { Link, navigate } = createLink<T>(routes, store);
 
-	function useLocation() {
-		const state = store.useRouterStore();
+  function useLocation() {
+    const state = store.useRouterStore();
 
-		const location = {
-			pathname: state.pathname,
-		};
-		function setLocation({ path }: { path: string }) {
-			store.navigate({
-				path,
-			});
-		}
-		return [location, setLocation] as const;
-	}
+    const location = {
+      pathname: state.pathname,
+    };
+    function setLocation({ path }: { path: string }) {
+      store.navigate({
+        path,
+      });
+    }
+    return [location, setLocation] as const;
+  }
 
-	function matchRoute(routeData: RouteData, pathname: string): { match: boolean; exact: boolean } {
-		const exactMatch = comparePathWithRoutePath(pathname, routeData.fullPath, routeData.exact);
+  function matchRoute(
+    routeData: RouteData,
+    pathname: string
+  ): { match: boolean; exact: boolean } {
+    const exactMatch = comparePathWithRoutePath(
+      pathname,
+      routeData.fullPath,
+      routeData.exact
+    );
 
-		const isContain = pathname.includes(routeData.fullPath);
+    const isContain = pathname.includes(routeData.fullPath);
 
-		const isChildMatch = isContain && checkChildMatch(routeData, pathname);
+    const isChildMatch = isContain && checkChildMatch(routeData, pathname);
 
-		return {
-			match: exactMatch || !!isChildMatch,
-			exact: exactMatch,
-		};
-	}
+    return {
+      match: exactMatch || !!isChildMatch,
+      exact: exactMatch,
+    };
+  }
 
-	function Route(props: { name: RouteKeys<T>; children: ReactNode; index?: boolean }) {
-		const state = store.useRouterStore();
+  function RouteComponent(props: {
+    name: RouteKeys<T>;
+    children: ReactNode;
+    index?: boolean;
+  }) {
+    const state = store.useRouterStore();
 
-		const routeData = getRouteData(props.name, routes);
+    const routeData = getRouteData(props.name, routes);
 
-		if (!routeData) return null;
+    if (!routeData) return null;
 
-		const isRouteMatch = matchRoute(routeData, state.pathname);
+    const isRouteMatch = matchRoute(routeData, state.pathname);
 
-		if (!isRouteMatch.match) {
-			return null;
-		}
+    if (!isRouteMatch.match) {
+      return null;
+    }
 
-		if (props.index && !isRouteMatch.exact) {
-			return null;
-		}
+    if (props.index && !isRouteMatch.exact) {
+      return null;
+    }
 
-		return props.children;
-	}
+    return props.children;
+  }
 
-	function Redirect(props: { name: RouteKeys<T> }) {
-		store.useRouterStore();
+  function Redirect(props: { name: RouteKeys<T> }) {
+    const routeData = getRouteData(props.name, routes);
 
-		const routeData = getRouteData(props.name, routes);
+    if (!routeData) return null;
 
-		useEffect(() => {
-			navigate({
-				to: props.name,
-			});
-		}, []);
+    // RR7's <Navigate> drives history so both routers stay in sync.
+    return <Navigate to={routeData.fullPath} replace />;
+  }
 
-		if (!routeData) return null;
+  type RoutePath<key extends string, T extends Routes> = key extends keyof T
+    ? T[key] extends Route
+      ? T[key]["path"]
+      : never
+    : key extends `${infer S}.${infer B}`
+    ? S extends keyof T
+      ? T[S] extends Route
+        ? B extends keyof T[S]["children"]
+          ? T[S] extends undefined
+            ? never
+            : T[S]["children"] extends Routes
+            ? RoutePath<B, T[S]["children"]>
+            : never
+          : never
+        : never
+      : never
+    : never;
 
-		return null;
-	}
+  type TTo = RouteKeys<typeof routes>;
 
-	type RoutePath<key extends string, T extends Routes> = key extends keyof T
-		? T[key] extends Route
-			? T[key]["path"]
-			: never
-		: key extends `${infer S}.${infer B}`
-		? S extends keyof T
-			? T[S] extends Route
-				? B extends keyof T[S]["children"]
-					? T[S] extends undefined
-						? never
-						: T[S]["children"] extends Routes
-						? RoutePath<B, T[S]["children"]>
-						: never
-					: never
-				: never
-			: never
-		: never;
+  function useParams<K extends TTo>(
+    name: K
+  ): RouteParams<RoutePath<K, typeof routes>> extends never
+    ? Record<string, never>
+    : RouteParams<RoutePath<K, typeof routes>> {
+    const { pathname } = store.useRouterStore();
 
-	type TTo = RouteKeys<typeof routes>;
+    type Result = RouteParams<RoutePath<K, typeof routes>> extends never
+      ? Record<string, never>
+      : RouteParams<RoutePath<K, typeof routes>>;
 
-	function useParams<K extends TTo>(
-		name: K
-	): RouteParams<RoutePath<K, typeof routes>> extends never
-		? Record<string, never>
-		: RouteParams<RoutePath<K, typeof routes>> {
-		const { pathname } = store.useRouterStore();
+    const route = getRouteData(name, routes);
 
-		type Result = RouteParams<RoutePath<K, typeof routes>> extends never
-			? Record<string, never>
-			: RouteParams<RoutePath<K, typeof routes>>;
+    if (!route) {
+      return {} as Result;
+    }
+    const isMatch = matchRoute(route, pathname);
+    if (!isMatch.match) {
+      return {} as Result;
+    }
 
-		const route = getRouteData(name, routes);
+    const result: { [key: string]: string } = {};
 
-		if (!route) {
-			return {} as Result;
-		}
-		const isMatch = matchRoute(route, pathname);
-		if (!isMatch.match) {
-			return {} as Result;
-		}
+    const segments = route?.fullPath.split("/").filter(Boolean);
+    const pathSegments = pathname.split("/").filter(Boolean);
 
-		const result: { [key: string]: string } = {};
+    segments?.forEach((segment, index) => {
+      if (segment.startsWith(":")) {
+        const paramName = segment.slice(1);
+        result[paramName] = pathSegments[index] ?? "";
+      }
+    });
 
-		const segments = route?.fullPath.split("/").filter(Boolean);
-		const pathSegments = pathname.split("/").filter(Boolean);
+    return result as Result;
+  }
 
-		segments?.forEach((segment, index) => {
-			if (segment.startsWith(":")) {
-				const paramName = segment.slice(1);
-				result[paramName] = pathSegments[index] ?? "";
-			}
-		});
+  /**
+   * Bridge component — mount once inside the React Router tree so RR7's
+   * navigate/location are wired into the custom store.
+   * App.tsx renders this at the top of its component tree.
+   */
+  function Bridge() {
+    return <RouterBridge store={store} />;
+  }
 
-		return result as Result;
-	}
-
-	return {
-		navigate: navigate,
-		Link: Link,
-		Redirect: Redirect,
-		Route: Route,
-		useParams: useParams,
-		useLocation: useLocation,
-	};
+  return {
+    navigate,
+    Link,
+    Redirect,
+    Route: RouteComponent,
+    useParams,
+    useLocation,
+    /** Mount once inside RR7's tree (e.g. at the top of App) */
+    Bridge,
+  };
 }

@@ -24,9 +24,10 @@ export function OrderErrorPage() {
 
 	const [order, setOrder] = useState<TOrder | null>(null);
 
-	const queryParams = getQueryParams(window.location.href);
-
 	useEffect(() => {
+		const queryParams =
+			typeof window !== "undefined" ? getQueryParams(window.location.href) : {};
+
 		async function load() {
 			await appApi.system.onPaymentFailed(queryParams);
 
@@ -40,7 +41,8 @@ export function OrderErrorPage() {
 			}
 		}
 		load();
-	}, [queryParams.Order, window.location.href]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<div className="h-screen w-screen flex items-center justify-center p-4">

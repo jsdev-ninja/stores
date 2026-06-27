@@ -1,150 +1,172 @@
+/**
+ * navigation/index.tsx — Strategy B: same public surface as before, now
+ * re-backed on React Router v7.
+ *
+ * All 57+ call sites that import Link, Route, navigate, useParams, Redirect,
+ * or useLocation keep compiling without any changes — same import path,
+ * same signatures.
+ *
+ * New export: Bridge — a component that must be mounted once inside the RR7
+ * tree to wire navigation between the custom router store and RR7's history.
+ * App.tsx renders <Bridge/> at the top of its tree.
+ */
+
 import { createRouter } from "src/lib/router";
 import type { LinkTo } from "src/lib/router";
 
 export const routes = {
-	store: {
-		path: "/",
-		children: {
-			terms: {
-				path: "/terms",
-				exact: true,
-			},
-			catalog: {
-				path: "/catalog/:category1/:category2/:category3/:category4/:category5",
-				exact: false,
-			},
-			discounts: {
-				path: "/discounts",
-				exact: false,
-			},
+  store: {
+    path: "/",
+    children: {
+      terms: {
+        path: "/terms",
+        exact: true,
+      },
+      catalog: {
+        path: "/catalog/:category1/:category2/:category3/:category4/:category5",
+        exact: false,
+      },
+      discounts: {
+        path: "/discounts",
+        exact: false,
+      },
 
-			product: {
-				path: "/products/:id",
-			},
+      product: {
+        path: "/products/:id",
+      },
 
-			cart: {
-				path: "/cart",
-			},
-			checkout: {
-				path: "/checkout",
-			},
-			orders: {
-				path: "/orders",
-			},
-			orderPage: {
-				path: "/orders/:id",
-			},
-			orderSuccess: {
-				path: "/orderSuccess",
-			},
-			orderError: {
-				path: "/orderError",
-			},
-			paymentPending: {
-				path: "/payment-pending",
-			},
-			profile: {
-				path: "/profile",
-			},
-			favoritesProducts: {
-				path: "/favorites-products",
-			},
-		},
-	},
-	admin: {
-		path: "/admin",
-		children: {
-			settings: {
-				path: "/settings",
-			},
-			discounts: {
-				path: "/discounts",
-			},
-			addProduct: {
-				path: "/addProduct",
-			},
-			products: {
-				path: "/products/:category1/:category2/:category3/:category4/:category5",
-				exact: false,
-			},
-			editProduct: {
-				path: "/editProduct/:id",
-			},
-			productsByCategory: {
-				path: "/products/category/:categoryName",
-			},
-			categories: {
-				path: "/categories",
-			},
-			addCategory: {
-				path: "/addCategory",
-			},
-			orders: {
-				path: "/orders",
-			},
-			createOrder: {
-				path: "/createOrder",
-			},
-			order: {
-				path: "/orders/:id",
-			},
-			pickOrder: {
-				path: "/orders/:id/to-pick",
-			},
-			users: {
-				path: "/users",
-			},
-			clientProfile: {
-				path: "/clients/:id",
-			},
-			organizations: {
-				path: "/organizations",
-			},
-			organization: {
-				path: "/organizations/:id",
-			},
-			organizationGroups: {
-				path: "/organization-groups",
-			},
-			suppliers: {
-				path: "/suppliers",
-			},
-			invoices: {
-				path: "/invoices",
-			},
-			deliveryNotes: {
-				path: "/delivery-notes",
-			},
-			problemOrders: {
-				path: "/problem-orders",
-			},
-			inventoryCertificate: {
-				path: "/inventory-certificate",
-			},
-			inventoryCertificateDetail: {
-				path: "/inventory-certificate/:id",
-			},
-			budget: {
-				path: "/budget",
-			},
-			budgetOrganization: {
-				path: "/budget/:organizationId",
-			},
-			customerInvoices: {
-				path: "/customer-invoices",
-			},
-		},
-	},
-	superAdmin: {
-		path: "/superAdmin",
-	},
-	pay: {
-		path: "/pay/:token",
-	},
+      cart: {
+        path: "/cart",
+      },
+      checkout: {
+        path: "/checkout",
+      },
+      orders: {
+        path: "/orders",
+      },
+      orderPage: {
+        path: "/orders/:id",
+      },
+      orderSuccess: {
+        path: "/orderSuccess",
+      },
+      orderError: {
+        path: "/orderError",
+      },
+      paymentPending: {
+        path: "/payment-pending",
+      },
+      profile: {
+        path: "/profile",
+      },
+      favoritesProducts: {
+        path: "/favorites-products",
+      },
+    },
+  },
+  admin: {
+    path: "/admin",
+    children: {
+      settings: {
+        path: "/settings",
+      },
+      discounts: {
+        path: "/discounts",
+      },
+      addProduct: {
+        path: "/addProduct",
+      },
+      products: {
+        path: "/products/:category1/:category2/:category3/:category4/:category5",
+        exact: false,
+      },
+      editProduct: {
+        path: "/editProduct/:id",
+      },
+      productsByCategory: {
+        path: "/products/category/:categoryName",
+      },
+      categories: {
+        path: "/categories",
+      },
+      addCategory: {
+        path: "/addCategory",
+      },
+      orders: {
+        path: "/orders",
+      },
+      createOrder: {
+        path: "/createOrder",
+      },
+      order: {
+        path: "/orders/:id",
+      },
+      pickOrder: {
+        path: "/orders/:id/to-pick",
+      },
+      users: {
+        path: "/users",
+      },
+      clientProfile: {
+        path: "/clients/:id",
+      },
+      organizations: {
+        path: "/organizations",
+      },
+      organization: {
+        path: "/organizations/:id",
+      },
+      organizationGroups: {
+        path: "/organization-groups",
+      },
+      suppliers: {
+        path: "/suppliers",
+      },
+      invoices: {
+        path: "/invoices",
+      },
+      deliveryNotes: {
+        path: "/delivery-notes",
+      },
+      problemOrders: {
+        path: "/problem-orders",
+      },
+      inventoryCertificate: {
+        path: "/inventory-certificate",
+      },
+      inventoryCertificateDetail: {
+        path: "/inventory-certificate/:id",
+      },
+      budget: {
+        path: "/budget",
+      },
+      budgetOrganization: {
+        path: "/budget/:organizationId",
+      },
+      customerInvoices: {
+        path: "/customer-invoices",
+      },
+    },
+  },
+  superAdmin: {
+    path: "/superAdmin",
+  },
+  pay: {
+    path: "/pay/:token",
+  },
 } as const;
 
 export type TLinkTo = LinkTo<typeof routes>;
 
 export const Router = createRouter(routes);
 
-export const { Link, Route, navigate, useParams, Redirect, useLocation } = Router;
+export const {
+  Link,
+  Route,
+  navigate,
+  useParams,
+  Redirect,
+  useLocation,
+  /** Mount once at the top of <App/> to wire RR7 ↔ custom router */
+  Bridge,
+} = Router;

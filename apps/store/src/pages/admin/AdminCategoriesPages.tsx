@@ -3,7 +3,7 @@ import { Button } from "src/components/button";
 import { TCategory } from "@jsdev_ninja/core";
 import { navigate } from "src/navigation";
 import { CategoryTree } from "src/widgets/Category/CategoryTree/CategoryTree";
-import { isEqual } from "lodash";
+import isEqual from "lodash/isEqual";
 import { useAppApi } from "src/appApi";
 import { useTranslation } from "react-i18next";
 

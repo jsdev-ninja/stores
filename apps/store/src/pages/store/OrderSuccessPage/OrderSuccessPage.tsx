@@ -31,9 +31,10 @@ export function OrderSuccessPage() {
 
 	const store = useStore();
 
-	const queryParams = getQueryParams(window.location.href);
-
 	useEffect(() => {
+		const queryParams =
+			typeof window !== "undefined" ? getQueryParams(window.location.href) : {};
+
 		async function load() {
 			await appApi.system.onOrderPaid(queryParams);
 
@@ -48,7 +49,8 @@ export function OrderSuccessPage() {
 			});
 		}
 		load();
-	}, [queryParams.Order, window.location.href]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	// todo
 	if (!order || !store) return null;

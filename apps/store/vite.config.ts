@@ -1,6 +1,6 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import { reactRouter } from "@react-router/dev/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import legacy from "@vitejs/plugin-legacy";
 
@@ -10,7 +10,7 @@ export default defineConfig({
 		legacy({
 			polyfills: true,
 		}),
-		react(),
+		reactRouter(),
 		tsconfigPaths(),
 		sentryVitePlugin({
 			org: "jsdev-s7",

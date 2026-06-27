@@ -17,16 +17,18 @@ export function ProductPage() {
 	const appApi = useAppApi();
 	const store = useStore();
 
-	const [product, setProduct] = useState<TProduct | null>(() => {
-		const state = history.state?.product;
-		if (state) {
-			// todo history.replaceState({}, window.location.pathname);
-		}
-		return state ?? null;
-	});
+	const [product, setProduct] = useState<TProduct | null>(null);
 
+	// On mount: hydrate from navigation state (browser only) first, then fall
+	// back to a network fetch if no state was carried over.
 	useEffect(() => {
-		if (!params.id || !!product) return;
+		const state = typeof history !== "undefined" ? history.state?.product : null;
+		if (state) {
+			setProduct(state);
+			// todo history.replaceState({}, window.location.pathname);
+			return;
+		}
+		if (!params.id) return;
 		appApi.system.getProductById({ id: params.id }).then((res) => {
 			if (res?.success) {
 				setProduct(res.data);

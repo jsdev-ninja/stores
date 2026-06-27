@@ -1,7 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-
-import { getAnalytics } from "firebase/analytics";
+import { getApps, getApp, initializeApp } from "firebase/app";
 
 const firebaseConfig = {
 	apiKey: "AIzaSyAXtA4pdBs7GLX45lK3jYZRiUwo7M06-_s",
@@ -13,8 +11,21 @@ const firebaseConfig = {
 	measurementId: "G-CJ44QNETK8",
 };
 
-// Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const analytics = getAnalytics(app);
+// Guard against re-initialization: during build-time prerender the module may
+// be evaluated more than once in the same Node process. getApps() returns the
+// already-registered apps so we can reuse the existing [DEFAULT] instance
+// instead of calling initializeApp() a second time (which throws app/duplicate-app).
+export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+
+// analytics uses window — guard against Node/prerender environment.
+// Lazily initialized on first call in the browser.
+let _analytics: ReturnType<typeof import("firebase/analytics").getAnalytics> | null = null;
+export const getFirebaseAnalytics = async () => {
+	if (typeof window === "undefined") return null;
+	if (_analytics) return _analytics;
+	const { getAnalytics } = await import("firebase/analytics");
+	_analytics = getAnalytics(app);
+	return _analytics;
+};
 
 // TESTER

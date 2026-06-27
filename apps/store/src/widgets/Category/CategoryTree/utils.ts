@@ -2,7 +2,8 @@ import type { UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { TCategory } from "@jsdev_ninja/core";
 
-export const iOS = /iPad|iPhone|iPod/.test(navigator.platform);
+export const iOS =
+	typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.platform);
 
 export interface TreeItem extends TCategory {
 	id: string;

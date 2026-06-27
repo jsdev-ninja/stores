@@ -24,6 +24,8 @@ functions/src/services/documents/dev-preview/dist
 
 # app
 apps/store/dist
+apps/store/build
+apps/store/.react-router
 apps/super-admin/dist
 
 # functions folder
