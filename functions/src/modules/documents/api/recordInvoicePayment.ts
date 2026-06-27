@@ -49,8 +49,10 @@ const InputSchema = z.object({
 	paymentMethod: z.enum(["cash", "check", "bank_transfer", "credit_card"] as const),
 	/** When the payment was received. Epoch millis. */
 	paymentDate: z.number().int().positive(),
-	/** Optional note shown on the receipt as description. */
-	note: z.string().max(500).optional(),
+	/** Optional note shown on the receipt as description. Accepts null (callable
+	 * serialization turns an omitted/undefined field into null) and normalizes it
+	 * to undefined so downstream stays string | undefined. */
+	note: z.string().max(500).nullish().transform((v) => v ?? undefined),
 	/**
 	 * Client-supplied idempotency key. Convention: `inv-pay-{orderId}`.
 	 * Single full payment per invoice — the deterministic key means double-clicks

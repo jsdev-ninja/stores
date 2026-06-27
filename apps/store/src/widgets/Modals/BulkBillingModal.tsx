@@ -29,16 +29,23 @@ type DnRowProps = {
 
 function DnRow({ item, checked, onChange }: DnRowProps) {
   return (
-    <label
-      className="flex items-center gap-3 px-4 py-2 border-b border-[var(--border)] last:border-0 cursor-pointer hover:bg-[var(--background)] transition-colors"
+    <div
+      className="flex items-center gap-3 px-4 py-2 border-b border-[var(--border)] last:border-0 hover:bg-[var(--background)] transition-colors"
       dir="rtl"
     >
       <Checkbox
         isSelected={checked}
         onChange={(v) => onChange(item.orderId, v)}
         aria-label={`תעודה ${item.docNumber}`}
-      />
-      <div className="flex-1 min-w-0">
+        className="shrink-0"
+      >
+        <Checkbox.Content>
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+        </Checkbox.Content>
+      </Checkbox>
+      <div className="flex-1 min-w-0 text-start">
         <span className="font-semibold text-sm text-[var(--foreground)]">{item.docNumber}</span>
         <span className="text-xs text-[var(--muted)] ms-2">
           {fmtDate(item.date)} · {item.itemCount} פריטים
@@ -47,7 +54,7 @@ function DnRow({ item, checked, onChange }: DnRowProps) {
       <span className="text-sm font-bold text-[var(--foreground)] shrink-0">
         {fmtMoney(item.total)}
       </span>
-    </label>
+    </div>
   );
 }
 
@@ -92,7 +99,13 @@ function CompanyGroupRow({
           isIndeterminate={checkState === "some"}
           onChange={(v) => onToggleGroup(organizationId, v)}
           aria-label={`בחר את כל תעודות ${companyName}`}
-        />
+        >
+          <Checkbox.Content>
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+          </Checkbox.Content>
+        </Checkbox>
         <span className="flex-1 font-bold text-sm text-[var(--foreground)]">{companyName}</span>
         <span className="text-xs text-[var(--muted)]">
           {selectedCount}/{items.length} תעודות
@@ -232,15 +245,15 @@ export function BulkBillingModal({ onDone }: Props) {
         if (!open && !isRunning) close();
       }}
     >
-      <Modal.Container size="lg" scroll="inside">
-        <Modal.Dialog className="max-w-[720px] w-full">
+      <Modal.Container size="lg" scroll="inside" placement="center">
+        <Modal.Dialog className="max-h-[85vh] w-full max-w-[720px] flex flex-col">
           <Modal.Header>
             <Modal.Heading>
               <div className="text-start" dir="rtl">הפקת חשבוניות מרוכזות</div>
             </Modal.Heading>
           </Modal.Header>
 
-          <Modal.Body>
+          <Modal.Body className="flex-1 min-h-0 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <Spinner size="lg" />

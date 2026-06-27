@@ -60,11 +60,14 @@ export function RecordInvoicePaymentModal({ row, onPaymentRecorded }: Props) {
 
     const paymentDateMs = new Date(paymentDate).getTime();
 
+    const trimmedNote = note.trim();
     const result = await appApi.admin.recordInvoicePayment({
       orderId: row.orderId,
       paymentMethod,
       paymentDate: paymentDateMs,
-      note: note.trim() || undefined,
+      // Only include `note` when non-empty — an `undefined` field gets serialized
+      // to `null` over the callable wire, which the backend schema rejected.
+      ...(trimmedNote ? { note: trimmedNote } : {}),
       idempotencyKey: `inv-pay-${row.orderId}`,
     });
 
