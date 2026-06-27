@@ -80,6 +80,16 @@ export async function useAppInit() {
 		store = storeResponse?.data?.[0];
 	}
 
+	// Client-side tenant verification — confirm the correct company/store
+	// resolves for this domain (open the browser console on each store).
+	console.log("[tenant]", {
+		origin: window.location.origin,
+		source: injected?.companyId ? "prerender-injected" : "origin-query",
+		companyId: company?.id,
+		storeId: store?.id,
+		tenantId: store?.tenantId,
+	});
+
 	FirebaseApi.api.uiLogs({
 		message: "App init",
 		severity: "INFO",
