@@ -2,13 +2,13 @@ import admin from "firebase-admin";
 import { logger } from "firebase-functions/v2";
 import * as functionsV2 from "firebase-functions/v2";
 import { z } from "zod";
-import { FirebaseAPI, TOrder, TOrganization } from "@jsdev_ninja/core";
+import { FirebaseAPI, TEzInvoice, TOrder, TOrganization } from "@jsdev_ninja/core";
 import { ordersCollectionPath } from "../internal/orderPaths";
 
 /**
  * Shape returned for each open invoice row.
  *
- * "Open" means: the order has an invoice (o.ezInvoice or o.invoice) AND
+ * "Open" means: the order has an invoice (o.invoice) AND
  * neither invoicePaidAt nor ezReceipt is set on the order doc.
  *
  * Monetary amounts: `total` is in shekels (ILS float) — mirrors the legacy
@@ -45,13 +45,13 @@ const InputSchema = z.object({
  * Tenant: companyId + storeId from auth token — never from client input.
  *
  * A row is included iff:
- *   1. o.ezInvoice.doc_uuid OR o.invoice.id is present (invoice exists)
+ *   1. o.invoice.doc_uuid is present (invoice exists)
  *   2. o.invoicePaidAt is unset (no payment recorded)
  *   3. o.ezReceipt is unset (no receipt issued)
  *
  * Firestore limitation: we cannot filter on "invoice present AND invoicePaidAt
  * absent" in a single compound query without a denormalized field. We query by
- * ezInvoice.success == true (the primary flow), then filter server-side for
+ * invoice.success == true (the primary flow), then filter server-side for
  * unpaid. At realistic volumes (hundreds of invoices/year per store) this is
  * acceptable. A future optimization can add a denormalized `invoiceOpen: bool`
  * field if query volume grows.
@@ -92,13 +92,13 @@ export const getOpenInvoices = functionsV2.https.onCall(
 		const collPath = ordersCollectionPath(companyId, storeId);
 
 		// Primary query: orders with an EZcount invoice (the modern flow).
-		// ezInvoice.success == true guarantees the EZcount call actually succeeded
+		// invoice.success == true guarantees the EZcount call actually succeeded
 		// and doc_uuid is present. We then filter unpaid in-process below.
 		let ezQuery = db
 			.collection(collPath)
 			.where("companyId", "==", companyId)
 			.where("storeId", "==", storeId)
-			.where("ezInvoice.success", "==", true)
+			.where("invoice.success", "==", true)
 			.orderBy("date", "desc");
 
 		if (fromDate !== undefined) {
@@ -158,18 +158,22 @@ export const getOpenInvoices = functionsV2.https.onCall(
 		const rows: OpenInvoiceRow[] = [];
 
 		for (const order of unpaidOrders) {
-			const ez = order.ezInvoice;
-			if (!ez?.doc_uuid) continue; // defensive
+			// order.invoice holds an EZcount response (TEzInvoice) at runtime — createInvoice
+			// writes ezData (EzInvoiceSchema shape) into this field. The TOrder type declares
+			// it as InvoiceSchema (internal entity) which is a legacy type mismatch in core;
+			// the cast below reflects the actual runtime data until the core type is corrected.
+			const inv = order.invoice as unknown as TEzInvoice | undefined;
+			if (!inv?.doc_uuid) continue; // defensive
 
 			const total =
-				parseFloat(ez.calculatedData?.price_total ?? "0") ||
+				parseFloat(inv.calculatedData?.price_total ?? "0") ||
 				(order.cart?.cartTotal ?? 0);
 
 			// issueDate: EZcount returns the invoice date as calculatedData.date (YYYY-MM-DD).
 			// Convert to epoch millis. Fallback to order.date if absent.
 			let issueDate = order.date;
-			if (ez.calculatedData?.date) {
-				const parsedDate = Date.parse(ez.calculatedData.date);
+			if (inv.calculatedData?.date) {
+				const parsedDate = Date.parse(inv.calculatedData.date);
 				if (!isNaN(parsedDate)) {
 					issueDate = parsedDate;
 				}
@@ -177,7 +181,7 @@ export const getOpenInvoices = functionsV2.https.onCall(
 
 			// Name resolution cascade (first hit wins):
 			// 1. organization.name — authoritative for B2B orders
-			// 2. ez.calculatedData.client_name — what EZcount stamped on the invoice
+			// 2. inv.calculatedData.client_name — what EZcount stamped on the invoice
 			// 3. order.nameOnInvoice — explicitly set on the order
 			// 4. order.client?.companyName ?? order.client?.displayName — client fallback
 			//
@@ -185,7 +189,7 @@ export const getOpenInvoices = functionsV2.https.onCall(
 			// Such rows are excluded from results and a WARN is logged.
 			const displayName: string | undefined =
 				(order.organizationId ? orgNameMap.get(order.organizationId) : undefined) ??
-				(ez.calculatedData as Record<string, unknown> | undefined)?.client_name as string | undefined ??
+				(inv.calculatedData as Record<string, unknown> | undefined)?.client_name as string | undefined ??
 				order.nameOnInvoice ??
 				(order.client as Record<string, unknown> | undefined)?.companyName as string | undefined ??
 				order.client?.displayName;
@@ -193,7 +197,7 @@ export const getOpenInvoices = functionsV2.https.onCall(
 			if (!displayName) {
 				logger.warn("documents.getOpenInvoices: excluding row — no resolvable customer name", {
 					orderId: order.id,
-					invoiceUuid: ez.doc_uuid,
+					invoiceUuid: inv.doc_uuid,
 					organizationId: order.organizationId ?? null,
 					clientDisplayName: order.client?.displayName ?? null,
 					nameOnInvoice: order.nameOnInvoice ?? null,
@@ -205,9 +209,9 @@ export const getOpenInvoices = functionsV2.https.onCall(
 
 			rows.push({
 				orderId: order.id,
-				invoiceUuid: ez.doc_uuid,
-				invoiceNumber: ez.doc_number,
-				invoicePdfLink: ez.pdf_link,
+				invoiceUuid: inv.doc_uuid,
+				invoiceNumber: inv.doc_number,
+				invoicePdfLink: inv.pdf_link,
 				issueDate,
 				total,
 				displayName,

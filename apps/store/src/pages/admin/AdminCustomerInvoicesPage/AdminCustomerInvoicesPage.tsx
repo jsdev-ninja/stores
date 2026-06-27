@@ -1,10 +1,9 @@
-import { Table, Chip, Spinner, Select, Input, ListBox } from "@heroui/react";
+import { Table, Chip, Spinner, Select, Input, ListBox, Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { modalApi } from "src/infra/modals";
-import { useAdminCustomerInvoices, type InvoiceStatus } from "./useAdminCustomerInvoices";
-import type { OpenInvoiceRow } from "src/lib/firebase/api";
+import { useAdminCustomerInvoices, type InvoiceStatus, type InvoiceRow } from "./useAdminCustomerInvoices";
 
-// ─── Helpers (verbatim from AdminBudgetPage / AdminDeliveryNotesPage) ─────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function fmtDate(ms?: number): string {
   if (!ms) return "—";
@@ -36,11 +35,10 @@ function KpiCard({ label, value, color }: { label: string; value: string | numbe
   );
 }
 
-// ─── Status pill (mirrors demo invoiceStatusPill, no overdue) ─────────────────
+// ─── Status pill ──────────────────────────────────────────────────────────────
 
-const STATUS_META: Record<InvoiceStatus, { label: string; color: "success" | "warning" | "default" }> = {
-  paid: { label: "✓ שולם", color: "success" },
-  partial: { label: "חלקי", color: "warning" },
+const STATUS_META: Record<InvoiceStatus, { label: string; color: "success" | "default" }> = {
+  paid: { label: "שולם", color: "success" },
   open: { label: "פתוח", color: "default" },
 };
 
@@ -66,11 +64,11 @@ const COLUMNS = [
   { uid: "actions", label: "" },
 ];
 
-// ─── CSV export (verbatim pattern from AdminOrdersPage.exportOrders) ──────────
+// ─── CSV export ───────────────────────────────────────────────────────────────
 
-function exportToCSV(rows: (OpenInvoiceRow & { paid: number; balance: number; status: InvoiceStatus })[]) {
+function exportToCSV(rows: InvoiceRow[]) {
   const header = ["מס׳ חשבונית", "חברה", "תאריך", "סכום", "שולם", "יתרה", "סטטוס"];
-  const STATUS_LABELS: Record<InvoiceStatus, string> = { paid: "שולם", partial: "חלקי", open: "פתוח" };
+  const STATUS_LABELS: Record<InvoiceStatus, string> = { paid: "שולם", open: "פתוח" };
   const csvRows = rows.map((r) => [
     r.invoiceNumber,
     r.displayName,
@@ -108,8 +106,12 @@ export default function AdminCustomerInvoicesPage() {
     setStatusFilter,
     companyFilter,
     setCompanyFilter,
+    selectedMonth,
+    shiftMonth,
     reload,
   } = useAdminCustomerInvoices();
+
+  const monthDisplay = selectedMonth.toLocaleDateString("he-IL", { year: "numeric", month: "long" });
 
   if (loading) {
     return (
@@ -121,8 +123,6 @@ export default function AdminCustomerInvoicesPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold">חשבוניות לקוחות</h1>
-
       {/* KPI strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard label='סה"כ חשבוניות' value={fmtMoney(kpis.totalInvoiced)} />
@@ -198,22 +198,40 @@ export default function AdminCustomerInvoicesPage() {
           </div>
         </div>
 
-        {/* Export button */}
-        <button
-          type="button"
-          onClick={() => exportToCSV(filtered)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-        >
-          <Icon icon="lucide:download" width={14} height={14} />
-          ייצוא לאקסל
-        </button>
+        {/* Month nav + export */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-1">
+            <Button isIconOnly variant="ghost" size="sm" onPress={() => shiftMonth(-1)} aria-label="חודש קודם">
+              <Icon icon="lucide:chevron-right" width={16} height={16} />
+            </Button>
+            <span className="text-sm font-semibold text-[var(--foreground)] min-w-[7.5rem] text-center">
+              {monthDisplay}
+            </span>
+            <Button isIconOnly variant="ghost" size="sm" onPress={() => shiftMonth(1)} aria-label="חודש הבא">
+              <Icon icon="lucide:chevron-left" width={16} height={16} />
+            </Button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => exportToCSV(filtered)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+          >
+            <Icon icon="lucide:download" width={14} height={14} />
+            ייצוא לאקסל
+          </button>
+        </div>
       </div>
 
       {/* Table */}
       {filtered.length === 0 ? (
         <div className="text-center py-16 text-[var(--muted)]">
           <Icon icon="lucide:receipt" className="mx-auto mb-3 text-4xl" />
-          <p>אין חשבוניות להצגה</p>
+          <p>
+            {search || companyFilter !== "all" || statusFilter !== "all"
+              ? "לא נמצאו חשבוניות התואמות לסינון"
+              : "אין חשבוניות לחודש זה"}
+          </p>
         </div>
       ) : (
         <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] overflow-hidden">
@@ -287,7 +305,7 @@ export default function AdminCustomerInvoicesPage() {
                       {/* פעולות */}
                       <Table.Cell className="py-3">
                         <div className="flex items-center gap-1.5 justify-end">
-                          {/* צפה — open the EZcount PDF */}
+                          {/* צפה — open the PDF */}
                           <a
                             href={row.invoicePdfLink}
                             target="_blank"
@@ -314,9 +332,6 @@ export default function AdminCustomerInvoicesPage() {
                               רישום תשלום
                             </button>
                           )}
-
-                          {/* TODO: allocation editing — wire setInvoiceAllocation once backend lands
-                              see docs/plans/invoices-list-and-bulk-billing.md §3.4 */}
                         </div>
                       </Table.Cell>
                     </Table.Row>

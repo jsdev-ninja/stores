@@ -31,7 +31,7 @@ import { logger } from "firebase-functions/v2";
 import * as functionsV2 from "firebase-functions/v2";
 import { createHash } from "crypto";
 import { z } from "zod";
-import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
+import { FirebaseAPI, TEzInvoice, TOrder } from "@jsdev_ninja/core";
 import { TStorePrivate } from "src/schema";
 import { ezCountService } from "../../../services/ezCountService";
 import { postTransaction } from "../../ledger/services/postTransaction";
@@ -182,9 +182,13 @@ export const recordInvoicePayment = functionsV2.https.onCall(
 		}
 
 		// ── Step 2: Verify invoice exists ────────────────────────────────────────
-
-		const ez = order.ezInvoice;
-		const invoiceUuid = ez?.doc_uuid;
+		//
+		// order.invoice holds an EZcount response (TEzInvoice) at runtime — createInvoice
+		// writes ezData (EzInvoiceSchema shape) into this field. The TOrder type declares
+		// it as InvoiceSchema (internal entity) which is a legacy type mismatch in core;
+		// the cast below reflects the actual runtime data until the core type is corrected.
+		const inv = order.invoice as unknown as TEzInvoice | undefined;
+		const invoiceUuid = inv?.doc_uuid;
 
 		if (!invoiceUuid) {
 			logger.error("documents.recordInvoicePayment.invoiceMissing", {
@@ -237,7 +241,7 @@ export const recordInvoicePayment = functionsV2.https.onCall(
 		//
 		// Fallback chain: ez.calculatedData.price_total → cart.cartTotal → 0.
 
-		const priceTotalStr = ez?.calculatedData?.price_total;
+		const priceTotalStr = inv?.calculatedData?.price_total;
 		const invoiceTotalIls: number = priceTotalStr
 			? parseFloat(priceTotalStr)
 			: order.cart?.cartTotal ?? 0;
@@ -342,7 +346,7 @@ export const recordInvoicePayment = functionsV2.https.onCall(
 
 		const customerName: string =
 			resolvedOrgName ??
-			(ez.calculatedData as Record<string, unknown> | undefined)?.client_name as string | undefined ??
+			(inv?.calculatedData as Record<string, unknown> | undefined)?.client_name as string | undefined ??
 			order.nameOnInvoice ??
 			(order.client as Record<string, unknown> | undefined)?.companyName as string | undefined ??
 			order.client?.displayName ??

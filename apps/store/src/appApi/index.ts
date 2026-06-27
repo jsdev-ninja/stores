@@ -627,6 +627,56 @@ export const useAppApi = () => {
 				});
 			},
 			/**
+			 * List all orders with a successful invoice for the current store within
+			 * the given date range. Mirrors getDeliveryNotes — swaps ezDeliveryNote.success
+			 * → invoice.success and filters by order date (epoch millis).
+			 */
+			getInvoices: async ({
+				fromDate,
+				toDate,
+			}: {
+				fromDate: number;
+				toDate: number;
+			}) => {
+				if (!isValidAdmin) return;
+
+				return FirebaseApi.firestore.listV2<TOrder>({
+					collection: FirebaseAPI.firestore.getPath({
+						collectionName: "orders",
+						companyId,
+						storeId,
+					}),
+					where: [
+						{
+							name: "storeId" as const,
+							operator: "==" as const,
+							value: store.id,
+						},
+						{
+							name: "companyId" as const,
+							operator: "==" as const,
+							value: companyId,
+						},
+						{
+							name: "invoice.success" as const,
+							operator: "==" as const,
+							value: true,
+						},
+						{
+							name: "date" as const,
+							operator: ">=" as const,
+							value: fromDate,
+						},
+						{
+							name: "date" as const,
+							operator: "<=" as const,
+							value: toDate,
+						},
+					],
+					sort: [{ name: "date", value: "desc" }],
+				});
+			},
+			/**
 			 * List all open (unpaid) invoices for the current store.
 			 * Each row is an order that has an EZcount invoice and no recorded payment.
 			 * Auth guard is enforced server-side (admin custom claim).
