@@ -30,23 +30,24 @@ subscriber (green) for that event type.
 ```mermaid
 graph LR
   %% emitters
-  E1[onOrderCreated trigger]
-  E2[cancelOrder service]
-  E3[refundOrder service]
+  E1[createOrder / orderService.create]
+  E2[onOrderUpdate trigger]
   E4[postTransaction service]
   E5[createDeliveryNote — inline emit]
   E6[createInvoice — inline emit]
 
   %% events
   OP(("order.placed"))
+  OCMP(("order.completed"))
   OC(("order.cancelled"))
-  OR(("order.refunded"))
   TP(("ledger.<br/>transaction_posted"))
   DNC(("documents.<br/>delivery_note_created"))
   IC(("documents.<br/>invoice_created"))
 
   %% subscribers
   S1[cart: closeCartOnOrderPlaced]
+  S2[notifications: onOrderPlacedAdminEmail]
+  SJ[ledger: chargeJ5OnOrderCompleted]
   S5[orders: markOrderPaidOnTransactionPosted]
   S6[documents: settleOnTransactionPosted]
   S7[budget: updateProjectionsOnTransactionPosted]
@@ -55,15 +56,16 @@ graph LR
   N2[no subscribers yet]
 
   E1 --> OP
+  E2 --> OCMP
   E2 --> OC
-  E3 --> OR
   E4 --> TP
   E5 --> DNC
   E6 --> IC
 
   OP --> S1
+  OP --> S2
+  OCMP --> SJ
   OC --> N1
-  OR --> N1
   TP --> S5
   TP --> S6
   TP --> S7
@@ -75,9 +77,9 @@ graph LR
   classDef subscriber fill:#e7f6ec,stroke:#2f9a4d,color:#0f3e23
   classDef none fill:#f4f4f4,stroke:#bbb,stroke-dasharray:4 3,color:#666
 
-  class E1,E2,E3,E4,E5,E6 emitter
-  class OP,OC,OR,TP,DNC,IC event
-  class S1,S5,S6,S7,S8 subscriber
+  class E1,E2,E4,E5,E6 emitter
+  class OP,OCMP,OC,TP,DNC,IC event
+  class S1,S2,SJ,S5,S6,S7,S8 subscriber
   class N1,N2 none
 ```
 
@@ -166,28 +168,29 @@ Subscribers should be idempotent because Firestore delivers
 
 | Event                             | Emitted by                                                | Subscribers                                                                                                          |
 | --------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `order.placed`                    | `orders/triggers/onOrderCreated.ts`                       | `cart: closeCartOnOrderPlaced`                                                                                       |
-| `order.cancelled`                 | `orders/services/cancelOrder.ts`                          | _none_ — AR reversal deferred (see note below)                                                                      |
-| `order.refunded`                  | `orders/services/refundOrder.ts`                          | _none_ — AR reversal deferred                                                                                        |
+| `order.placed`                    | `orders/services/orderService.ts` (`create`, in the create txn) | `cart: closeCartOnOrderPlaced` · `notifications: onOrderPlacedAdminEmail`                                      |
+| `order.completed`                 | `orders/triggers/onOrderUpdate.ts` (inline, on `→ completed`)   | `ledger: chargeJ5OnOrderCompleted` (J5 capture)                                                                 |
+| `order.cancelled`                 | `orders/triggers/onOrderUpdate.ts` (inline, on `→ cancelled`)   | _none_ — AR reversal deferred (see note below)                                                                  |
 | `ledger.transaction_posted`       | `ledger/services/postTransaction.ts`                      | `orders: markOrderPaidOnTransactionPosted` · `documents: settleOnTransactionPosted` · `budget: updateProjectionsOnTransactionPosted` |
 | `documents.delivery_note_created` | `appApi/index.ts` (`createDeliveryNote`, inline emit)     | `documents: accrueOnDeliveryNoteCreated`                                                                             |
 | `documents.invoice_created`       | `documents/api/createInvoice.ts` (inline emit)            | _none_ (billing milestone only — no AR effect)                                                                      |
 
-:::warning Orphaned events (deferred work)
-`order.cancelled` and `order.refunded` are still emitted but currently have
-**no subscribers** — the old `budget` reversal handlers were removed with the
-AR refactor and a documents-side reversal hasn't been built yet. Today a
-cancelled/refunded order that was already fulfilled (delivery note issued)
-**leaves its AR accrual in place**. This is a known, tracked follow-up.
+:::warning Orphaned event (deferred work)
+`order.cancelled` is still emitted but currently has **no subscribers** — the
+old `budget` reversal handlers were removed with the AR refactor and a
+documents-side reversal hasn't been built yet. Today a cancelled order that was
+already fulfilled (delivery note issued) **leaves its AR accrual in place**.
+This is a known, tracked follow-up. (`order.refunded` no longer exists — it was
+removed from `OrderEventTypes`.)
 :::
 
 ## Per-event detail
 
 ### `order.placed`
 
-**Emitted from** `orders/triggers/onOrderCreated.ts` — the `onOrderCreated`
-Firestore trigger fires as soon as a new order doc is written by the
-storefront/admin.
+**Emitted from** `orders/services/orderService.ts` (`create`) — written **inside
+the create transaction** by the `createOrder` callable, atomic with the order
+doc (the old `onOrderCreated` trigger was removed).
 
 **Payload** (`OrderPlacedPayload` in `orders/events.ts`):
 
@@ -204,6 +207,7 @@ storefront/admin.
 **Subscribers**
 
 - `cart: closeCartOnOrderPlaced` (`cart/subscribers/closeCartOnOrderPlaced.ts`) — closes the cart referenced by `cartId` so the customer starts fresh.
+- `notifications: onOrderPlacedAdminEmail` (`notifications/subscribers/orderPlacedAdminEmail.tsx`) — emails the store owner about the new order.
 
 :::note Debt no longer accrues here
 Before the AR refactor, `budget: increaseDebtOnOrderPlaced` created B2B debt the
@@ -212,28 +216,33 @@ later, at **delivery-note creation**, on the fulfilled amount (orders change
 after picking/editing/cancelling, so placement was the wrong anchor).
 :::
 
+### `order.completed`
+
+**Emitted from** `orders/triggers/onOrderUpdate.ts` (inline) when the order
+transitions `status → completed` (`before.status !== "completed" && after.status === "completed"`).
+
+**Payload** (`OrderCompletedPayload` in `orders/events.ts`): `orderId`,
+`paymentType?`.
+
+**Subscribers**
+
+- `ledger: chargeJ5OnOrderCompleted` (`ledger/subscribers/chargeJ5OnOrderCompleted.ts`) — for `paymentType: j5` orders not already paid, captures the J5 hold (`internalChargeJ5Order` → `hyp_capture`). Re-reads the authoritative order and guards on `paymentStatus === "completed"` to avoid re-capture. On failure it logs without throwing (no retry today). See [Payment flows → Scenario 1](./payment-flows).
+
+This is the heart of the J5 capture flow: **completing the order is what charges
+the card** — for `paymentType: j5` only. External orders have no J5 hold, so the
+subscriber no-ops for them; external completion follows a different path (manual
+payment — see [Payment flows → Scenario 3](./payment-flows)).
+
 ### `order.cancelled`
 
-**Emitted from** `orders/services/cancelOrder.ts` when an admin transitions
-the order to `cancelled`.
+**Emitted from** `orders/triggers/onOrderUpdate.ts` (inline) when the order
+transitions `status → cancelled`.
 
 **Payload** (`OrderCancelledPayload`): `orderId`, `organizationId?`,
 `clientId?`, `total?`, `reason?`, `cancelledAt?`, `cancelledBy?`.
 
 **Subscribers** — _none_. AR reversal on cancellation is a deferred follow-up
 (see the orphaned-events warning above).
-
-### `order.refunded`
-
-**Emitted from** `orders/services/refundOrder.ts` when an admin marks the
-order refunded.
-
-**Payload** (`OrderRefundedPayload`): `orderId`, `organizationId?`,
-`clientId?`, `refundedAmount?`, `originalTotal?`, `reason?`, `refundedAt?`,
-`refundedBy?`.
-
-**Subscribers** — _none_. Refunds do not touch AR (a refund is a cash event;
-AR reversal is deferred).
 
 ### `ledger.transaction_posted`
 

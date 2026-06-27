@@ -1268,37 +1268,19 @@ export const useAppApi = () => {
 				);
 			},
 
-			/**
-			 * Approve a pending order → mark it completed, branching on payment type:
-			 *  - "j5"       → capture the J5 hold (chargeOrder). The ledger then emits
-			 *                 transaction_posted → paymentStatus "completed" + org debt
-			 *                 reduced. Only complete on a successful charge.
-			 *  - "external" → status only. onOrderUpdate.completeOrder creates the
-			 *                 delivery note. paymentStatus is left as-is (credit terms —
-			 *                 still owed; tracked by the budget/ledger).
-			 *  - "none"     → status only (no charge, no delivery note).
-			 */
 			async approveOrder({ order }: { order: TOrder }) {
 				if (!isValidAdmin) return { success: false as const };
-				const ordersPath = FirebaseAPI.firestore.getPath({
-					companyId,
-					storeId,
-					collectionName: "orders",
-				});
+
 				try {
-					if (order.paymentType === "j5") {
-						await FirebaseApi.api.chargeOrder({ order });
-					}
-					await FirebaseApi.firestore.update<TOrder>(
-						order.id,
-						{
+					const res = await FirebaseApi.api.updateOrder({
+						companyId,
+						storeId,
+						orderId: order.id,
+						updates: {
 							status: "completed",
-							updatedBy: userId ?? "",
-							updatedAt: Date.now(),
 						},
-						ordersPath,
-					);
-					return { success: true as const };
+					});
+					return { success: res.success };
 				} catch {
 					return { success: false as const };
 				}

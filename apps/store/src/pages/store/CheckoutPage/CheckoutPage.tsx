@@ -11,6 +11,7 @@ import { PaymentSummary } from "src/widgets/PaymentSummary";
 import { navigate } from "src/navigation";
 import { submitHypForm } from "src/lib/payment/submitHypForm";
 import { useDiscounts } from "src/domains/Discounts/Discounts";
+import { TCart } from "src/domains/cart";
 import { MinimumOrderAlert } from "src/widgets/MinimumOrderAlert/MinimumOrderAlert";
 import BalasiCheckoutLayout from "src/websites/balasistore/CheckoutLayout";
 import { EmptyState } from "src/components/EmptyState/EmptyState";
@@ -88,7 +89,20 @@ function CheckoutPage() {
 	const appApi = useAppApi();
 
 	const cartData = useAppSelector((state) => state.cart);
-	const cart = cartData.currentCart;
+
+	// Freeze the cart into a local snapshot the first time it's ready, and render
+	// from the frozen copy — not the live redux cart. Placing the order closes the
+	// cart server-side, and the live subscription then pushes an empty cart; without
+	// this freeze the page would flash the empty-cart screen during the wait for the
+	// payment redirect. A fresh snapshot is taken only on remount (leave and return).
+	const frozenCartRef = useRef<TCart | null>(null);
+	const cartLoadedRef = useRef(false);
+	if (cartData.isReady && !cartLoadedRef.current) {
+		frozenCartRef.current = cartData.currentCart;
+		cartLoadedRef.current = true;
+	}
+	const cart = frozenCartRef.current;
+	const isCartReady = cartLoadedRef.current;
 
 	const store = useAppSelector((state) => state.store.data);
 	const discounts = useDiscounts();
@@ -102,7 +116,7 @@ function CheckoutPage() {
 	const minDate = tomorrow.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 	const maxDate = twoWeeksFromToday.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 
-	if (!store || !user || (!cartData.isReady && !cart)) {
+	if (!store || !user || (!isCartReady && !cart)) {
 		// todo
 		return;
 	}
@@ -158,7 +172,7 @@ function CheckoutPage() {
 
 	// Cart is closed or has no items (e.g. the order was already placed and the
 	// user navigated back to checkout) — show an empty state, not a blank page.
-	if (cartData.isReady && (!cart || (cart.items?.length ?? 0) === 0)) {
+	if (isCartReady && (!cart || (cart.items?.length ?? 0) === 0)) {
 		return (
 			<div className="flex min-h-[60vh] w-full items-center justify-center p-4">
 				<EmptyState

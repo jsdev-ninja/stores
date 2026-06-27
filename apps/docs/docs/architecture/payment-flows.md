@@ -39,10 +39,13 @@ clobbers a `completed` order back to `pending`. Tracked in `todo.md` as
 🔴 CRITICAL. **If you hit weird status reverts during testing, this is why.**
 :::
 
-## Scenario 1 — Normal J5 (deferred capture)
+## Scenario 1 — Normal J5 (deferred capture, event-driven)
 
-The default online-card flow. Customer authorizes a hold; admin captures the
-real charge later.
+The default online-card flow. The customer authorizes a hold at checkout; the
+real charge is **captured automatically when an admin completes the order**.
+Capture is event-driven — completing the order emits `order.completed`, and the
+ledger's `chargeJ5OnOrderCompleted` subscriber captures the hold. There is no
+separate "capture" button in the happy path.
 
 ```mermaid
 sequenceDiagram
@@ -52,31 +55,36 @@ sequenceDiagram
   participant FS as Firestore
   participant HYP as HYP gateway
   participant A as Admin
-  participant L as Ledger
+  participant OU as onOrderUpdate
+  participant CJ as chargeJ5OnOrderCompleted
+  participant L as Ledger (postTransaction)
   participant T as transaction_posted
 
   C->>FE: submit checkout (cart)
-  FE->>FS: create order<br/>{ status:"draft", paymentStatus:"pending" }
+  FE->>FS: create order<br/>{ status:"pending", paymentStatus:"pending" }
   FE->>L: createHypCheckoutPayment(orderId)
-  L-->>FE: HYP form { action, fields }
+  L-->>FE: HYP J5 form { action, fields }
   FE->>HYP: form-POST
   HYP-->>C: authorize card (J5 hold)
-  HYP-->>FE: redirect with result params (Id, CCode, Amount, UID)
-
-  Note over FE: OrderSuccessPage loads
+  HYP-->>FE: redirect with result params (Id, CCode=700, Amount, UID)
   FE->>L: recordHypJ5Auth(redirect params)
   L->>HYP: VERIFY round-trip
   HYP-->>L: CCode=0 (valid)
-  L->>L: write hyp_j5_auth transaction<br/>(direction:none — auth, no cash yet)
-  Note over L,T: NOT settled — hyp_j5_auth excluded by RECEIVED_MONEY_TYPES
+  L->>L: write hyp_j5_auth transaction
+  L-->>T: emit transaction_posted
+  T->>FS: markOrderPaidOnTransactionPosted<br/>paymentStatus:→pending_j5
 
   Note over A,FE: Hours/days later
-  A->>L: captureHypJ5(j5TransactionId)
+  A->>FS: complete order → updateOrder<br/>status:→completed
+  FS->>OU: onOrderUpdate fires (→ completed)
+  OU-->>CJ: emit order.completed
+  CJ->>CJ: guard: paymentType=j5 & not already paid
+  CJ->>L: internalChargeJ5Order<br/>reads payments/{orderId} for J5 txn id
   L->>HYP: capture call
-  HYP-->>L: CCode=0
-  L->>L: write hyp_capture transaction<br/>(direction:in)
+  HYP-->>L: CCode=0 (charged)
+  L->>L: write hyp_capture transaction (direction:in)
   L-->>T: emit transaction_posted
-  T->>FS: markOrderPaidOnTransactionPosted<br/>status:draft→pending<br/>paymentStatus:→completed
+  T->>FS: markOrderPaidOnTransactionPosted<br/>paymentStatus:→completed
   T->>FS: settleOnTransactionPosted<br/>org AR balance ↓
 ```
 
@@ -84,29 +92,37 @@ sequenceDiagram
 
 | Step | order.status | order.paymentStatus | Ledger | Notes |
 | --- | --- | --- | --- | --- |
-| Checkout submit | `draft` | `pending` | — | Deterministic order id = `cart.id` (idempotent) |
-| After J5 auth recorded | `draft` | `pending_j5` | `hyp_j5_auth` (none) | Auth hold on card, no money moved |
-| After admin captures | `pending` | `completed` | `hyp_j5_auth` (none) + `hyp_capture` (in) | `markOrderPaidOnTransactionPosted` promoted draft → pending |
-| Admin approves | `processing` → `in_delivery` → `delivered` → `completed` | unchanged | unchanged | Triggers DN creation |
+| Checkout submit | `pending` | `pending` | — | Deterministic order id = `cart.id` (idempotent) |
+| After J5 auth recorded | `pending` | `pending_j5` | `hyp_j5_auth` | Hold on card, no money moved (HYP `CCode=700`) |
+| Admin completes order | `completed` | `pending_j5` | unchanged | `updateOrder` sets status; capture runs async next |
+| After auto-capture | `completed` | `completed` | + `hyp_capture` (in) | `chargeJ5OnOrderCompleted` → capture → `markOrderPaidOnTransactionPosted`; `lastPaymentTransactionId` set |
 
 ### What to check during testing
 
 1. **Order doc**:
-   - After J5 auth: `status: "draft"`, `paymentStatus: "pending_j5"`
-   - After capture: `status: "pending"`, `paymentStatus: "completed"`
-2. **transactions collection** — should see two rows for this order: `type: "hyp_j5_auth"` then `type: "hyp_capture"`
-3. **`organizationBalance/{orgId}`** (B2B only) — balance reduced by the capture amount
-4. **No `hyp_j5_auth` entry in the AR settlement log** — only `hyp_capture` settles
+   - After J5 auth: `status: "pending"`, `paymentStatus: "pending_j5"`
+   - After admin completes + capture: `status: "completed"`, `paymentStatus: "completed"`, `lastPaymentTransactionId: "hyp_{authId}"`
+2. **transactions collection** — two rows for this order: `type: "hyp_j5_auth"` then `type: "hyp_capture"`
+3. **events collection** — `order.completed` (from `onOrderUpdate`) plus a `ledger.transaction_posted` per transaction
+4. **`organizationBalance/{orgId}`** (B2B only) — reduced by the capture amount at `hyp_capture` (only `hyp_capture` settles, never `hyp_j5_auth`)
 
-### Known bugs to watch for
+Confirmed working example: order `0c08H07rKjNozDrefDNF` (₪41.77) — admin completed it, `chargeJ5OnOrderCompleted` auto-captured (HYP `CCode=0`), `paymentStatus → completed`.
 
-| Bug | Symptom | File |
+### Known bugs / caveats
+
+| Issue | Symptom | Where |
 | --- | --- | --- |
-| 🔴 CRITICAL — `chargeOrder` double-charges | Capture called twice → card debited twice, only one ledger entry (dedup by auth-id masks the second) | `chargeOrder` (legacy J5 capture, still live) |
-| 🔴 CRITICAL — `onOrderPaid` reverts completed orders | Re-opening `/orderSuccess` after capture flips `completed` back to `pending_j5` | `apps/store/src/appApi/index.ts ~L1628` |
-| 🟠 Ledger dedup hides real second charge | Real 2nd HYP charge not in ledger; books say one charge, card says two | `chargeOrder` |
+| 🟠 Failed capture leaves the order completed-but-unpaid | If HYP declines, or `payments/{orderId}` is missing, `chargeJ5OnOrderCompleted` logs the error but does **not** throw → no retry, no admin alert. Order stays `status: completed`, `paymentStatus: pending_j5`. **Gate fulfillment on `paymentStatus`, not `status`.** | `chargeJ5OnOrderCompleted` |
+| 🟠 Capture is not idempotent before the ledger write | The HYP capture runs before the idempotent `postTransaction`; a throw after a successful capture can re-capture on retry if `paymentStatus` isn't yet `completed`. | `internalChargeJ5Order` |
+| 🔴 `OrderSuccessPage` reverts completed orders | Re-opening `/orderSuccess?…` runs an unconditional client write that flips a `completed` order back to `pending` / `pending_j5`. | `apps/store/src/appApi/index.ts ~L1628` |
 
-Confirmed example: order `XFhPL8sdzIHmPExbQrYJ` exhibited all three.
+:::caution Re-completing an order that was never captured
+An order completed **before this flow was deployed** has `status: completed` but
+`paymentStatus: pending` and no `hyp_capture` (e.g. `xmkzFfql31aPmXQN4yUF`).
+Because the capture only fires on the `pending → completed` transition, simply
+re-saving a `completed` order does nothing — reset `status` to `pending` first,
+then complete it again to trigger `chargeJ5OnOrderCompleted`.
+:::
 
 ## Scenario 2 — J5 with aborted payment
 
@@ -125,7 +141,7 @@ sequenceDiagram
 
   C->>FE: submit checkout
   FE->>FS: create order<br/>{ status:"draft", paymentStatus:"pending" }
-  Note over FS: onOrderCreated trigger fires<br/>→ emit order.placed
+  Note over FS: createOrder writes order<br/>→ emit order.placed (in create txn)
   FS->>FS: cart.status = "completed"<br/>(closeCartOnOrderPlaced)
   FE->>HYP: redirect to HYP form
   Note over C,HYP: Customer closes browser<br/>or cancels on HYP
@@ -164,7 +180,7 @@ sequenceDiagram
    - "📦 מצב ליקוט" (Picking) — available for any non-final order (`status` not in `completed`/`cancelled`/`refunded`). Picking is fulfillment metadata, not a financial action; the payment guard lives on Approve.
    - "אשר → תעודת משלוח" (Approve) **does NOT show** — only for `status === "pending"`
 3. **No phantom ledger entries**: an aborted order must have zero `transactions` rows for that orderId
-4. **Cart was closed.** Counter-intuitively, the cart IS closed even on abort. The order document is written to Firestore at the moment of checkout submit (BEFORE the HYP redirect). That immediately fires `onOrderCreated` → emits `order.placed` → the `cart: closeCartOnOrderPlaced` subscriber sets the cart `status: "completed"`. So when the customer returns to the storefront, they see an empty cart — they cannot self-recover. Recovery must go through admin (Edit / Create payment link on the draft order).
+4. **Cart was closed.** Counter-intuitively, the cart IS closed even on abort. The order document is written to Firestore at the moment of checkout submit (BEFORE the HYP redirect) — `createOrder` emits `order.placed` in the same create transaction → the `cart: closeCartOnOrderPlaced` subscriber sets the cart `status: "completed"`. So when the customer returns to the storefront, they see an empty cart — they cannot self-recover. Recovery must go through admin (Edit / Create payment link on the draft order).
 
 :::caution paymentStatus vs paymentType — don't confuse them
 Two distinct fields on the order:
@@ -262,8 +278,9 @@ External orders keep `paymentStatus: "external"` even after payment is recorded.
 
 | | J5 normal | J5 abort | External |
 | --- | --- | --- | --- |
-| Initial order | `draft` / `pending` | `draft` / `pending` | `draft` / `external` |
+| Initial order | `pending` / `pending` | `draft` / `pending` | `draft` / `external` |
 | Customer interaction | HYP card form | abandoned | none |
+| Capture trigger | **admin completes order** → `order.completed` → `chargeJ5OnOrderCompleted` | — | admin records payment manually |
 | Ledger writes (success path) | `hyp_j5_auth` then `hyp_capture` | — | `manual` (only after admin records) |
 | AR accrual when | At delivery note creation (after admin approve) | At delivery note creation (after recovery + admin approve) | At delivery note creation (after admin approve) |
 | AR settlement when | At `hyp_capture` | At `hyp_direct` (if recovered via payment link) | At `recordInvoicePayment` |

@@ -45,4 +45,5 @@ export { postManualTransaction } from "./api/postManualTransaction"; // ✅ admi
 
 // AR accrual on delivery note: previously postDebitOnDeliveryNoteCreated lived here.
 // It has been DELETED — accrual now lives in documents/subscribers/accrueOnDeliveryNoteCreated.ts.
-// No subscribers re-exported from the ledger module.
+
+export { chargeJ5OnOrderCompleted } from "./subscribers/chargeJ5OnOrderCompleted";

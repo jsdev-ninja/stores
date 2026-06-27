@@ -27,6 +27,7 @@ export {
   // AR subscribers
   accrueOnDeliveryNoteCreated,
   settleOnTransactionPosted,
+  createDeliveryNoteOnOrderCompleted,
   // AR reconcile (admin callable + nightly schedule)
   reconcileOrganizationBalanceCallable,
   reconcileOrganizationBalanceSchedule,

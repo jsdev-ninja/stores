@@ -18,6 +18,7 @@ export { recordInvoicePayment } from "./api/recordInvoicePayment";
 // Subscribers (wired in functions/src/index.tsx)
 export { accrueOnDeliveryNoteCreated } from "./subscribers/accrueOnDeliveryNoteCreated";
 export { settleOnTransactionPosted } from "./subscribers/settleOnTransactionPosted";
+export { createDeliveryNoteOnOrderCompleted } from "./subscribers/createDeliveryNoteOnOrderCompleted";
 
 // Schedule trigger
 export { reconcileOrganizationBalanceSchedule } from "./triggers/reconcileOrganizationBalanceSchedule";

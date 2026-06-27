@@ -71,7 +71,7 @@ Cash only — four payment instruments:
 | `manual`        | Admin records external money (cash, bank transfer).              |
 | `hyp_direct`    | HYP direct payment link completed (`recordHypDirectPayment`).    |
 | `hyp_j5_auth`   | HYP J5 authorization recorded by the customer's browser.         |
-| `hyp_capture`   | J5 hold captured server-side via `captureHypJ5`.                 |
+| `hyp_capture`   | J5 hold captured server-side — automatically on order completion (`chargeJ5OnOrderCompleted`), or manually via `captureHypJ5` / legacy `chargeOrder`. |
 
 ## Idempotency
 
@@ -102,6 +102,14 @@ Subscribers of `ledger.transaction_posted`:
 | `updateProjectionsOnTransactionPosted`          | `budget`    | Revenue rollup (cash reporting)    |
 | `settleOnTransactionPosted`                     | `documents` | AR settlement (reduce org owed)    |
 | `onTransactionPostedMarkOrderPaid`              | `orders`    | Update order paymentStatus         |
+
+### Subscribers owned by this module
+
+The ledger also **subscribes** to an orders event to drive J5 capture:
+
+| Subscriber                  | Listens to        | Purpose                                                                 |
+| --------------------------- | ----------------- | ----------------------------------------------------------------------- |
+| `chargeJ5OnOrderCompleted`  | `order.completed` | For `paymentType: j5` orders not already paid, capture the J5 hold via `internalChargeJ5Order` → `hyp_capture`. Guards on `paymentStatus === "completed"` to avoid re-capture. On failure it logs (no throw / retry today). |
 
 ## Public surface
 
@@ -151,8 +159,12 @@ There is **no server-to-server HYP webhook**. HYP results return to the
 4. Server loads store HYP creds, calls HYP APISign, returns `{ formAction, formFields }`.
 5. Client form-POSTs to HYP; customer authorizes the card.
 6. HYP redirects back with result params (incl. `UID`).
-7. Client calls `recordHypJ5Auth` → server VERIFY-gates, writes `hyp_j5_auth` (stores the payment token).
-8. Admin later calls `captureHypJ5(j5TransactionId)` → server charges HYP, writes `hyp_capture`.
+7. Client calls `recordHypJ5Auth` → server VERIFY-gates, writes `hyp_j5_auth` (stores the payment token). `markOrderPaidOnTransactionPosted` flips `paymentStatus → pending_j5`.
+8. **Admin completes the order** (`status → completed`). `onOrderUpdate` emits `order.completed`; the ledger's `chargeJ5OnOrderCompleted` subscriber captures the hold via `internalChargeJ5Order` — it reads `payments/{orderId}` for the J5 transaction id, calls HYP, and writes `hyp_capture`. `markOrderPaidOnTransactionPosted` then flips `paymentStatus → completed`.
+
+The capture is **event-driven off order completion** — there is no separate
+capture button in the happy path. `captureHypJ5` (canonical) and `chargeOrder`
+(legacy) remain as manual single-order capture callables for the same operation.
 
 `createHypCheckoutPayment` writes **no** ledger transaction and creates **no**
 `paymentLinks` doc — money hasn't moved at form-generation time.

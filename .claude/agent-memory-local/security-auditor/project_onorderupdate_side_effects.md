@@ -5,12 +5,12 @@ metadata:
   type: project
 ---
 
-`functions/src/modules/orders/triggers/onOrderUpdate.ts` runs side-effecting services on status transitions of any order write:
-- `before.status !== "completed" && after.status === "completed"` → `completeOrder(...)`
-- `... === "cancelled"` → `cancelOrder(...)`
-- `... === "refunded"` → `refundOrder(...)`
+`functions/src/modules/orders/triggers/onOrderUpdate.ts` fires side-effects on status transitions of any order write. As of 2026-06-26 it was refactored from calling `orderService.complete/cancel` DIRECTLY to **emitting events** instead:
+- `before.status !== "completed" && after.status === "completed"` → emits `order.completed` (payload: orderId, paymentType)
+- `... === "cancelled"` → emits `order.cancelled`
+(No `→ refunded` branch in the current trigger; refund side-effects live elsewhere — re-grep if it matters.)
 
-So a "bare field set" of `Order.status` is NOT side-effect-free — it can trigger refunds/cancellation/invoicing flows (HYP/EZcount/ledger).
+Downstream subscribers on `order.completed`: `chargeJ5OnOrderCompleted` (j5 charge) and `createDeliveryNoteOnOrderCompleted` (external → delivery note → B2B AR accrual, see [[ar-money-path-idempotency]]). So a "bare field set" of `Order.status` is STILL NOT side-effect-free — it now asynchronously triggers charges/DN/AR via the event bus.
 
 **Why:** This is exactly why the super-admin console's E1 `saSetOrderStatus` callable was correctly deferred/not deployed (it would have fired refunds). The frontend still ships an `saSetOrderStatus` wrapper + form, but the backend callable is not exported, so it currently no-ops at runtime.
 
