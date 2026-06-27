@@ -147,9 +147,24 @@ export async function resolveTenant(target?: string): Promise<TenantContext> {
  * in Firestore data). Locale names are NOT used as URL slugs to keep paths
  * stable across locale changes.
  */
+/**
+ * A URL path segment is safe to prerender only if it has no whitespace,
+ * slashes, or control characters. Dirty Firestore ids (e.g. a barcode imported
+ * with a leading tab) otherwise produce a path React Router cannot match, and
+ * `ssr:false` prerendering fails the ENTIRE build on that single 404. Such ids
+ * are skipped here — the page still works for users via the SPA fallback.
+ */
+function isUrlSafeSegment(id: string): boolean {
+  return !!id && !/[\s/\\#?%]/.test(id);
+}
+
 function collectCategoryPaths(categories: TCategory[], ancestors: string[] = []): string[] {
   const paths: string[] = [];
   for (const cat of categories) {
+    if (!isUrlSafeSegment(cat.id)) {
+      console.warn(`[prerender] Skipping category with URL-unsafe id: ${JSON.stringify(cat.id)}`);
+      continue;
+    }
     const crumbs = [...ancestors, cat.id];
     paths.push(`/catalog/${crumbs.join("/")}`);
     if (cat.children && cat.children.length > 0) {
@@ -288,7 +303,14 @@ async function fetchProductPaths(
 
   const q = query(collection(db, collectionPath), ...constraints);
   const snap = await getDocs(q);
-  return snap.docs.map((d) => `/products/${d.id}`);
+  return snap.docs
+    .map((d) => d.id)
+    .filter((id) => {
+      if (isUrlSafeSegment(id)) return true;
+      console.warn(`[prerender] Skipping product with URL-unsafe id: ${JSON.stringify(id)}`);
+      return false;
+    })
+    .map((id) => `/products/${id}`);
 }
 
 // ---------------------------------------------------------------------------
