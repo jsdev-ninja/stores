@@ -13,6 +13,7 @@ import { z } from "zod";
 import { Icon } from "src/components";
 import { navigate } from "src/navigation";
 import { useAppApi } from "src/appApi";
+import { getRememberedEmail, rememberEmail } from "src/utils/rememberedEmail";
 
 function getError(error: unknown) {
 	if (error instanceof FirebaseError) {
@@ -76,6 +77,7 @@ export const LoginForm = ({
 					<Card.Content>
 						<Form<z.infer<typeof loginSchema>>
 							schema={loginSchema}
+							defaultValues={{ email: getRememberedEmail() }}
 							onSubmit={async (data, form) => {
 								const result = await appApi.auth.login(data);
 								if (!result?.success) {
@@ -84,6 +86,7 @@ export const LoginForm = ({
 								}
 								if (result.success) {
 									const { user } = result;
+									rememberEmail(data.email);
 									actions.dispatch(actions.user.setUser(user));
 									modalApi.closeModal("authModal");
 

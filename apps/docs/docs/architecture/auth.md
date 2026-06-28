@@ -46,6 +46,10 @@ sequenceDiagram
 
 The critical step is `auth.tenantId = store.tenantId` in `Auth.setTenantId` ([apps/store/src/lib/firebase/auth.ts:23](apps/store/src/lib/firebase/auth.ts)). Every subsequent sign-in, sign-up, and token refresh happens inside that Firebase tenant. A user from store A literally cannot authenticate against store B's domain — Firebase rejects it at the auth layer.
 
+### Remembered login email
+
+On a successful sign-in the login form saves the entered **email** (never the password) to `localStorage` under the key `rememberedEmail`, via [`apps/store/src/utils/rememberedEmail.ts`](apps/store/src/utils/rememberedEmail.ts). On a return visit the `LoginForm` pre-fills the email field from that value (`defaultValues`), so the customer only types their password. This is a client-only UX convenience — best-effort (reads/writes never throw) and unrelated to the Firebase session itself, which already persists via the default `browserLocalPersistence`. The password is intentionally not stored, for security.
+
 ## Custom claims
 
 The platform sets claims **only** for admins. The `createAdmin` script in `packages/scripts/src/index.ts` ([line 38-52](packages/scripts/src/index.ts#L38)):
