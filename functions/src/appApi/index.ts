@@ -8,6 +8,7 @@ import {
 	TOrganization,
 	TProduct,
 	TStore,
+	getCartCost,
 } from "@jsdev_ninja/core";
 import { ezCountService } from "../services/ezCountService";
 import { TStorePrivate } from "src/schema";
@@ -217,6 +218,12 @@ export function createAppApi(context: TContext) {
 						const url = file.publicUrl();
 
 						const ezDeliveryNote = { ...res.data, date: date.getTime() };
+						const dnCost = getCartCost({
+							cart: order.cart.items,
+							discounts: [],
+							isVatIncludedInPrice:
+								order.storeOptions?.isVatIncludedInPrice ?? store.isVatIncludedInPrice,
+						});
 						const deliveryNote = {
 							createdAt: date.getTime(),
 							date: date.getTime(),
@@ -224,11 +231,11 @@ export function createAppApi(context: TContext) {
 							number: res.data.doc_number,
 							status: "pending",
 							link: url,
-							items: order.cart.items.map((item) => ({
-								name: item.product.name[0].value,
-								price: item.product.price,
+							items: dnCost.items.map((item) => ({
+								name: item.product.name[0]?.value ?? "",
+								price: item.finalPrice,
 								quantity: item.amount,
-								total: item.product.price * item.amount,
+								total: item.finalPrice * item.amount,
 							})),
 							total: order.cart.cartTotal,
 							vat: order.cart.cartVat,

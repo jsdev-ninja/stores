@@ -1,9 +1,48 @@
-import { TCart, TDiscount, TProduct } from "../entities";
+import { TCart, TCartItemProduct, TDiscount, TProduct } from "../entities";
 // import { DiscountEngine } from "../entities/Discount/engine";
 
 const CONFIG = {
 	VAT: 18,
 };
+
+/**
+ * Internal normaliser for getCartCost — not a pricer.
+ *
+ * Rewrite the raw items array so it only contains lines that should be charged:
+ *  - "missing"     → dropped
+ *  - "substituted" (with a truthy substitutedWith) → product and amount replaced
+ *    with the substitute's. The substitute product's own discount is neutralised
+ *    (discount: { type:"none", value:0 }) so getCartCost's getPriceAfterDiscount
+ *    returns sub.price unchanged, keeping all callers (cartTotal, EZcount doc,
+ *    delivery-note PDF, HYP charge) consistent.
+ *  - everything else → passed through unchanged
+ *
+ * Pricing (finalPrice, VAT, discounts) is owned entirely by getCartCost — callers
+ * that need priced line items must use getCartCost(...).items, not this function.
+ *
+ * Pure and idempotent: a second pass re-reads substitutedWith intact and
+ * re-pins to the same values.
+ */
+export function getFulfilledCartItems(items: TCart["items"]): TCart["items"] {
+	return items.reduce<TCart["items"]>((acc, item) => {
+		if (item.status === "missing") {
+			return acc;
+		}
+		if (item.status === "substituted" && item.substitutedWith) {
+			const sub = item.substitutedWith;
+			acc.push({
+				...item,
+				// Pin price to sub.price and neutralise the substitute product's own
+				// discount so getPriceAfterDiscount returns sub.price with no reduction.
+				product: { ...sub.product, price: sub.price, discount: { type: "none", value: 0 } },
+				amount: sub.amount,
+			} as TCartItemProduct);
+			return acc;
+		}
+		acc.push(item);
+		return acc;
+	}, []);
+}
 
 function calculateDiscount(product: TProduct, isVatIncludedInPrice: boolean) {
 	if (product.discount?.type === "percent") {
@@ -34,7 +73,7 @@ function getPriceAfterDiscount(product: TProduct, isVatIncludedInPrice: boolean)
 
 // main
 export function getCartCost({
-	cart,
+	cart: rawCart,
 	discounts,
 	deliveryPrice = 0,
 	freeDeliveryPrice = 0,
@@ -53,6 +92,11 @@ export function getCartCost({
 	freeShipping?: boolean;
 	isVatIncludedInPrice?: boolean;
 }) {
+	// Normalise for picking: drop missing lines, replace substituted lines with
+	// the substitute product/amount/price. This is a no-op for regular (live)
+	// carts where no item has a status field.
+	const cart = getFulfilledCartItems(rawCart);
+
 	// Convert cart items to the format expected by the discount engine
 	// const cartForEngine = cart.map((item) => ({
 	// 	amount: item.amount,

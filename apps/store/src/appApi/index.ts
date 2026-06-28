@@ -1145,11 +1145,25 @@ export const useAppApi = () => {
 					return { success: false };
 				}
 			},
+			/**
+			 * Persist the caller's order with refreshed cart totals.
+			 *
+			 * cart.items is written VERBATIM from order.cart.items — fulfillment flags
+			 * (status, substitutedWith) and missing/substituted lines are preserved
+			 * exactly as the caller built them.
+			 *
+			 * Only the aggregate totals (cartDiscount, cartTotal, cartVat) are
+			 * recomputed via getCartCost so they reflect the current pricing rules.
+			 * This mirrors saveOrder's contract — raw items in, derived totals out —
+			 * and ensures that editing a previously-picked order does NOT destroy the
+			 * picking record.
+			 *
+			 * Note: the old per-line finalPrice refresh side-effect is intentionally
+			 * dropped. Money-critical consumers (delivery note, payments, invoices)
+			 * recompute via getCartCost themselves or read cartTotal directly.
+			 */
 			async updateOrder({ order }: { order: TOrder }) {
 				if (!isValidAdmin) return;
-				// mixPanelApi.track("", {
-				// 	order,
-				// });
 
 				const cartCost = getCartCost({
 					cart: order.cart.items ?? [],
@@ -1165,7 +1179,10 @@ export const useAppApi = () => {
 					...order,
 					cart: {
 						...order.cart,
-						items: cartCost.items,
+						// Preserve the caller's items (including fulfillment flags) verbatim.
+						// Do NOT replace with cartCost.items — that would strip status /
+						// substitutedWith and drop missing/substituted lines.
+						items: order.cart.items,
 						cartDiscount: cartCost.discount,
 						cartTotal: cartCost.finalCost,
 						cartVat: cartCost.vat,
@@ -1182,10 +1199,10 @@ export const useAppApi = () => {
 				});
 			},
 			/**
-			 * Write the order EXACTLY as built by the caller — NO cart recompute.
-			 * Use for picking/edit, where cart.items carry fulfillment status and
-			 * cart.cartTotal is already the FULFILLED total. updateOrder re-derives the
-			 * cart via getCartCost and would strip status + reset deliveryPrice.
+			 * Write the order EXACTLY as built by the caller — NO cart recompute at all.
+			 * Use for picking modals where cart.items already carry fulfillment status /
+			 * substitutedWith and cart.cartTotal is already the FULFILLED total computed
+			 * by the caller. Unlike updateOrder, saveOrder does not touch totals either.
 			 */
 			async saveOrder({ order }: { order: TOrder }) {
 				if (!isValidAdmin) return { success: false as const };

@@ -77,7 +77,10 @@ export default function AdminOrderPageNew() {
 				...order,
 				cart: {
 					...order.cart,
-					items: cartCost.items,
+					// Preserve the caller's items (including fulfillment flags) verbatim.
+					// Toggling delivery price must not strip status / substitutedWith from
+					// previously-picked items — only the aggregate totals are recomputed.
+					items: order.cart.items,
 					cartDiscount: cartCost.discount,
 					cartTotal: cartCost.finalCost,
 					cartVat: cartCost.vat,

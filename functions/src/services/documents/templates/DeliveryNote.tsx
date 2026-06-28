@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
+import { TOrder, TOrganization, TStore, getCartCost } from "@jsdev_ninja/core";
 import { InvoiceLayout } from "./InvoiceLayout";
 
 type DeliveryNoteProps = {
@@ -46,6 +46,14 @@ export function DeliveryNote({
 	const subtotal = cartTotal - cartVat;
 	const discount = order.cart.cartDiscount;
 	const deliveryPrice = order.cart.deliveryPrice || 0;
+
+	// Route through the pricing engine so VAT on substituted lines is computed
+	// consistently with cartTotal (using the store's isVatIncludedInPrice setting).
+	const lines = getCartCost({
+		cart: order.cart.items,
+		discounts: [],
+		isVatIncludedInPrice: order.storeOptions?.isVatIncludedInPrice ?? false,
+	}).items;
 
 	return (
 		<InvoiceLayout store={store}>
@@ -144,17 +152,17 @@ export function DeliveryNote({
 						</tr>
 					</thead>
 					<tbody>
-						{order.cart.items.map((item, index) => (
+						{lines.map((item, index) => (
 							<tr key={index} style={{ borderBottom: "1px solid #ddd" }}>
 								<td style={{ padding: "12px", textAlign: "right" }}>
 									{item.product.name[0]?.value || ""}
 								</td>
 								<td style={{ padding: "12px", textAlign: "center" }}>{item.amount}</td>
 								<td style={{ padding: "12px", textAlign: "left" }}>
-									{formatCurrency(item.product.price)}
+									{formatCurrency(item.finalPrice)}
 								</td>
 								<td style={{ padding: "12px", textAlign: "left" }}>
-									{formatCurrency(item.product.price * item.amount)}
+									{formatCurrency(item.finalPrice * item.amount)}
 								</td>
 							</tr>
 						))}
