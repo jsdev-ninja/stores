@@ -133,9 +133,37 @@ function dnItemCount(o: TOrder): number {
 function dnTotal(o: TOrder): number {
 	return o.deliveryNote?.total ?? o.cart?.cartTotal ?? 0;
 }
-// An issued (EZcount) invoice number, if this delivery note was already invoiced.
+// The issued invoice persisted on an order, if any. Two flows write it:
+//   • consolidated / from-delivery-note (createInvoice) → order.invoice (EZcount shape)
+//   • single-order "modern" flow                        → order.ezInvoice
+// Read both so an invoiced note is recognised regardless of which flow created it.
+function orderInvoice(o: TOrder):
+	| { docNumber: string; docUuid?: string; pdf?: string; date?: number }
+	| undefined {
+	const ez = o.ezInvoice;
+	const inv = o.invoice as
+		| {
+				doc_number?: string;
+				doc_uuid?: string;
+				pdf_link?: string;
+				pdf_link_copy?: string;
+				number?: string;
+				link?: string;
+				date?: number;
+		  }
+		| undefined;
+	const docNumber = ez?.doc_number ?? inv?.doc_number ?? inv?.number;
+	if (!docNumber) return undefined;
+	return {
+		docNumber,
+		docUuid: ez?.doc_uuid ?? inv?.doc_uuid,
+		pdf: ez?.pdf_link ?? ez?.pdf_link_copy ?? inv?.pdf_link ?? inv?.pdf_link_copy ?? inv?.link,
+		date: ez?.date ?? (typeof inv?.date === "number" ? inv.date : undefined),
+	};
+}
+// An issued invoice number, if this delivery note was already invoiced.
 function dnInvoiceNumber(o: TOrder): string | undefined {
-	return o.ezInvoice?.doc_number;
+	return orderInvoice(o)?.docNumber;
 }
 
 // ─── Baseline photo areas (mirrors PHOTO_AREAS in balasi admin.js) ───────────
@@ -1462,6 +1490,46 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 
 	const dnTotalSum = accountNotes.reduce((sum, o) => sum + dnTotal(o), 0);
 
+	// Invoices issued against this account's delivery notes. A consolidated
+	// invoice spans several notes that all carry the SAME invoice (same doc_uuid),
+	// so we group by it — one row per invoice, summing its notes' totals.
+	const invoiceRows = (() => {
+		const map = new Map<
+			string,
+			{
+				docNumber: string;
+				docUuid: string;
+				pdf?: string;
+				date: number;
+				total: number;
+				noteCount: number;
+				accountLabel?: string;
+			}
+		>();
+		for (const o of accountNotes) {
+			const inv = orderInvoice(o);
+			if (!inv) continue;
+			const key = inv.docUuid || inv.docNumber;
+			const prev = map.get(key);
+			if (prev) {
+				prev.total += dnTotal(o);
+				prev.noteCount += 1;
+			} else {
+				map.set(key, {
+					docNumber: inv.docNumber,
+					docUuid: inv.docUuid ?? key,
+					pdf: inv.pdf,
+					date: inv.date ?? dnDate(o),
+					total: dnTotal(o),
+					noteCount: 1,
+					accountLabel: o.billingAccount?.name,
+				});
+			}
+		}
+		return Array.from(map.values()).sort((a, b) => b.date - a.date);
+	})();
+	const invTotalSum = invoiceRows.reduce((sum, i) => sum + i.total, 0);
+
 	// Financial summary (agorot). For "all accounts" use the authoritative O(1)
 	// rollup cache when present; for a single account derive from its entries.
 	const accountEntries =
@@ -1523,12 +1591,15 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 	const LEDGER_TABS: { key: LedgerTab; label: string }[] = [
 		{ key: "all", label: "הכל" },
 		{ key: "dn", label: `תעודות משלוח (${accountNotes.length})` },
-		{ key: "inv", label: "חשבוניות (0)" },
+		{ key: "inv", label: `חשבוניות (${invoiceRows.length})` },
 		{ key: "rcp", label: "קבלות (0)" },
 		{ key: "crd", label: "זיכויים (0)" },
 	];
 
 	const showDeliveryNotes = ledgerTab === "all" || ledgerTab === "dn";
+	const showInvoices = ledgerTab === "all" || ledgerTab === "inv";
+	const dnVisible = showDeliveryNotes && accountNotes.length > 0;
+	const invVisible = showInvoices && invoiceRows.length > 0;
 
 	return (
 		<Modal.Backdrop isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -1659,8 +1730,15 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 										className="mx-auto h-6 w-6 animate-spin"
 									/>
 								</div>
-							) : showDeliveryNotes && accountNotes.length > 0 ? (
+							) : dnVisible || invVisible ? (
+								<div className="flex flex-col gap-4">
+								{dnVisible && (
 								<div className="flex flex-col gap-2">
+									{ledgerTab === "all" && (
+										<h4 className="text-sm font-bold text-[var(--foreground)]">
+											תעודות משלוח
+										</h4>
+									)}
 									{invoiceableNotes.length > 0 && (
 										<div className="flex items-center gap-2 px-1 text-sm text-[var(--muted)]">
 											<Icon icon="lucide:mouse-pointer-click" width={14} height={14} />
@@ -1796,6 +1874,86 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 										</tfoot>
 									</table>
 									</div>
+								</div>
+								)}
+								{invVisible && (
+									<div className="flex flex-col gap-2">
+										{ledgerTab === "all" && (
+											<h4 className="text-sm font-bold text-[var(--foreground)]">
+												חשבוניות
+											</h4>
+										)}
+										<div className="overflow-hidden rounded-lg border border-[var(--border)]">
+											<table className="w-full text-sm">
+												<thead>
+													<tr className="bg-[var(--background)] text-[11px] font-bold uppercase tracking-wide text-[var(--muted)] text-start">
+														<th className="px-3 py-2 text-start font-bold">סוג</th>
+														<th className="px-3 py-2 text-start font-bold">מס׳ חשבונית</th>
+														<th className="px-3 py-2 text-start font-bold">תאריך</th>
+														<th className="px-3 py-2 text-start font-bold">חשבון</th>
+														<th className="px-3 py-2 text-start font-bold">תעודות</th>
+														<th className="px-3 py-2 text-start font-bold">סה"כ</th>
+														<th className="px-3 py-2 text-end font-bold"></th>
+													</tr>
+												</thead>
+												<tbody>
+													{invoiceRows.map((inv) => (
+														<tr
+															key={inv.docUuid}
+															className="border-t border-[var(--border)] hover:bg-[var(--background)] transition-colors"
+														>
+															<td className="px-3 py-2">
+																<BadgePill color="var(--success)" icon="lucide:file-text">
+																	חשבונית מס
+																</BadgePill>
+															</td>
+															<td className="px-3 py-2 font-semibold text-[var(--foreground)]">
+																{inv.docNumber}
+															</td>
+															<td className="px-3 py-2 text-[var(--muted)]">
+																{fmtDate(inv.date)}
+															</td>
+															<td className="px-3 py-2 text-[var(--muted)]">
+																{inv.accountLabel ?? "—"}
+															</td>
+															<td className="px-3 py-2 text-[var(--muted)]">
+																{inv.noteCount} תעודות
+															</td>
+															<td className="px-3 py-2 font-bold text-[var(--foreground)]">
+																{fmtMoney(inv.total)}
+															</td>
+															<td className="px-3 py-2 text-end">
+																{inv.pdf ? (
+																	<a
+																		href={inv.pdf}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																		className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+																	>
+																		<Icon icon="lucide:eye" width={13} height={13} />
+																		צפה
+																	</a>
+																) : (
+																	<span className="text-[var(--muted)]">—</span>
+																)}
+															</td>
+														</tr>
+													))}
+												</tbody>
+												<tfoot>
+													<tr className="border-t border-[var(--border)] bg-[var(--background)] font-bold">
+														<td className="px-3 py-2 text-[var(--muted)]" colSpan={5}>
+															סך חשבוניות
+														</td>
+														<td className="px-3 py-2 text-[var(--foreground)]" colSpan={2}>
+															{fmtMoney(invTotalSum)}
+														</td>
+													</tr>
+												</tfoot>
+											</table>
+										</div>
+									</div>
+								)}
 								</div>
 							) : (
 								<div className="py-10 text-center text-[var(--muted)]">
