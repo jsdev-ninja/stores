@@ -52,8 +52,24 @@ class DocumentsService {
 				waitUntil: "domcontentloaded", // Faster than networkidle0, uses less memory
 			});
 
-			// Wait a bit for images to load if needed
-			await new Promise((resolve) => setTimeout(resolve, 500));
+			// Wait for images (logo, product images) to finish loading before
+			// printing — a fixed delay was too short for the store logo. Capped at
+			// 4s so a slow/blocked asset can never hang the render.
+			await page.evaluate(async () => {
+				const pending = Array.from(document.images).filter((img) => !img.complete);
+				await Promise.race([
+					Promise.all(
+						pending.map(
+							(img) =>
+								new Promise<void>((resolve) => {
+									img.addEventListener("load", () => resolve(), { once: true });
+									img.addEventListener("error", () => resolve(), { once: true });
+								})
+						)
+					),
+					new Promise<void>((resolve) => setTimeout(resolve, 4000)),
+				]);
+			});
 
 			// Generate PDF
 			const pdfBuffer = await page.pdf({

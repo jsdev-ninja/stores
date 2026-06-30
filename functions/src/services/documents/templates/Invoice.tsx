@@ -67,6 +67,16 @@ export function Invoice({
 	const deliveryPrice = order.cart.deliveryPrice || 0;
 	const grandTotal = order.cart.cartTotal + deliveryPrice;
 
+	// Actual VAT rate derived from the amounts (falls back to 18%).
+	const vatPct = subtotal > 0 ? Math.round((vatAmount / subtotal) * 100) : 18;
+
+	// Due date: net-30 from issue (payment terms aren't stored).
+	const dueDateStr = formatDate(order.date + 30 * 24 * 60 * 60 * 1000);
+
+	// Balance: unpaid until invoicePaidAt is set on the order.
+	const paidAt = (order as { invoicePaidAt?: number }).invoicePaidAt;
+	const balance = paidAt ? 0 : grandTotal;
+
 	const customerName = order.nameOnInvoice || order.client?.displayName || "—";
 
 	// shared cell styles
@@ -189,6 +199,10 @@ export function Invoice({
 						<div style={{ display: "flex", justifyContent: "space-between", gap: "14px" }}>
 							<span style={{ opacity: 0.75 }}>תאריך הפקה:</span>
 							<b style={{ fontWeight: 700 }}>{invoiceDateStr}</b>
+						</div>
+						<div style={{ display: "flex", justifyContent: "space-between", gap: "14px" }}>
+							<span style={{ opacity: 0.75 }}>לתשלום עד:</span>
+							<b style={{ fontWeight: 700 }}>{dueDateStr}</b>
 						</div>
 						<div style={{ display: "flex", justifyContent: "space-between", gap: "14px", alignItems: "center" }}>
 							<span style={{ opacity: 0.75 }}>מספר הקצאה:</span>
@@ -343,7 +357,7 @@ export function Invoice({
 					)}
 					{vatAmount > 0 && (
 						<div style={totRow}>
-							<span style={totSpan}>מע"מ ({store.isVatIncludedInPrice ? "כולל" : "נוסף"})</span>
+							<span style={totSpan}>מע"מ ({vatPct}%)</span>
 							<b style={totBold}>{formatCurrency(vatAmount)}</b>
 						</div>
 					)}
@@ -374,6 +388,24 @@ export function Invoice({
 						<span>סה"כ לתשלום</span>
 						<span style={{ color: ORANGE, fontSize: "20px" }}>{formatCurrency(grandTotal)}</span>
 					</div>
+					{balance > 0.001 && (
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "center",
+								background: "#fff3e0",
+								color: "#7a4a00",
+								padding: "10px 16px",
+								fontSize: "13.5px",
+								fontWeight: 800,
+								borderTop: `1px solid ${LINE}`,
+							}}
+						>
+							<span>יתרה לתשלום</span>
+							<b style={{ color: "#7a4a00" }}>{formatCurrency(balance)}</b>
+						</div>
+					)}
 				</div>
 			</div>
 
