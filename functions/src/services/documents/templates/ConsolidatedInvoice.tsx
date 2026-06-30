@@ -134,7 +134,7 @@ export function ConsolidatedInvoice({
 	return (
 		<div
 			style={{
-				maxWidth: "800px",
+				width: "100%",
 				margin: "0 auto",
 				background: "#fff",
 				color: INK,

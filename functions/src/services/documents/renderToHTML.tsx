@@ -51,7 +51,7 @@ export function renderInvoiceToHTML(options: RenderInvoiceOptions): string {
 				style={{
 					fontFamily: "Arial, sans-serif",
 					direction: "rtl",
-					padding: "40px",
+					padding: "0",
 					backgroundColor: "#fff",
 					color: "#333",
 				}}
@@ -90,7 +90,7 @@ export function renderConsolidatedInvoiceToHTML(
 				style={{
 					fontFamily: "Arial, sans-serif",
 					direction: "rtl",
-					padding: "40px",
+					padding: "0",
 					backgroundColor: "#fff",
 					color: "#333",
 				}}
