@@ -155,6 +155,7 @@ export function EditProductPage() {
 		<div className="">
 			<div className="text-2xl font-semibold mx-auto text-center">{title}</div>
 			<Form<TNewProduct>
+				key={product.id}
 				className="flex flex-wrap shadow flex-col gap-4 mx-auto mt-10  p-4 justify-center max-w-screen-md"
 				schema={NewProductSchema}
 				defaultValues={product}
