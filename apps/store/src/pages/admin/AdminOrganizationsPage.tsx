@@ -133,6 +133,13 @@ function dnItemCount(o: TOrder): number {
 function dnTotal(o: TOrder): number {
 	return o.deliveryNote?.total ?? o.cart?.cartTotal ?? 0;
 }
+// An order's organization can live at the top level (denormalized) or only
+// inside the client profile. Older / orphaned orders saved without the top-level
+// field still carry it on client.organizationId — read both so they attach to
+// their organization in the ledger instead of silently disappearing.
+function orderOrgId(o: TOrder): string | null | undefined {
+	return o.organizationId ?? o.client?.organizationId;
+}
 // The issued invoice persisted on an order, if any. Two flows write it:
 //   • consolidated / from-delivery-note (createInvoice) → order.invoice (EZcount shape)
 //   • single-order "modern" flow                        → order.ezInvoice
@@ -1436,7 +1443,7 @@ function LedgerModal({ state, onClose }: LedgerModalProps) {
 			});
 			if (result?.success) {
 				const forOrg = (result.data || []).filter(
-					(o) => o.organizationId === orgId,
+					(o) => orderOrgId(o) === orgId,
 				);
 				forOrg.sort((a, b) => dnDate(b) - dnDate(a));
 				setDeliveryNotes(forOrg);
