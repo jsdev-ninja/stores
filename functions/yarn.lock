@@ -1528,10 +1528,10 @@
   resolved "https://registry.npmjs.org/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@jsdev_ninja/core@^0.22.0":
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.22.0.tgz#bc71a48a82386891f80ad01c071dd629e7bf6c2b"
-  integrity sha512-XrgFMT+oVDAlGW67cA1z9ORFLJdlwBOqTKn+whILtL+w1GWFhX+ExdXMkv3k44ohR68OY7h2gC99q7n51v504Q==
+"@jsdev_ninja/core@^0.23.0":
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.23.0.tgz#6255f5adfd1817e5f4cedfe4c2f43ef79a665084"
+  integrity sha512-zyxynaEsj1UV0jkyDTno1hqiJ1IU04ZP8SWEUqe35pRGSDQLukumO5vOw6YzVEIsmxVZgsXwGzeb96q5o2BaUA==
   dependencies:
     zod "^3.23.8"
 
