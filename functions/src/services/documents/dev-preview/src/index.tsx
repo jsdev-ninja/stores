@@ -250,7 +250,13 @@ function App() {
 
 				{/* Content */}
 				{activeTab === "invoice" && (
-					<Invoice order={testOrder} store={testStore} invoiceNumber="INV-001" />
+					<Invoice
+						order={testOrder}
+						store={testStore}
+						invoiceNumber="INV-001"
+						allocationNumber="123456789"
+						allocationDate={testOrder.date}
+					/>
 				)}
 
 				{activeTab === "consolidated" && (
