@@ -354,7 +354,7 @@ export default function AdminCustomerInvoicesPage() {
                       {/* פעולות */}
                       <Table.Cell className="py-3">
                         <div className="flex items-center gap-1.5 justify-end">
-                          {/* צפה — open the PDF */}
+                          {/* צפה — EZcount PDF (the legal tax document) */}
                           <a
                             href={row.invoicePdfLink}
                             target="_blank"
@@ -362,8 +362,21 @@ export default function AdminCustomerInvoicesPage() {
                             className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
                           >
                             <Icon icon="lucide:eye" width={13} height={13} />
-                            צפה
+                            EZcount
                           </a>
+
+                          {/* צפה — our own rendered invoice (new design), when available */}
+                          {row.ourInvoicePdfLink && (
+                            <a
+                              href={row.ourInvoicePdfLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] bg-[var(--surface)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
+                            >
+                              <Icon icon="lucide:file-text" width={13} height={13} />
+                              שלנו
+                            </a>
+                          )}
 
                           {/* רישום תשלום — only when balance > 0 */}
                           {row.balance > 0 && (

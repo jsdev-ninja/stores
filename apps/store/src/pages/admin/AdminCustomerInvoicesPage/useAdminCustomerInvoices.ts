@@ -25,7 +25,10 @@ export type InvoiceRow = {
   orderId: string;
   invoiceUuid: string;
   invoiceNumber: string;
+  /** EZcount-hosted PDF (the legal tax document). */
   invoicePdfLink: string;
+  /** Our own rendered invoice PDF (new design), when createInvoice generated it. */
+  ourInvoicePdfLink?: string;
   issueDate: number; // epoch millis
   total: number; // shekels (ILS)
   displayName: string;
@@ -77,6 +80,10 @@ function mapOrderToRow(order: TOrder, orgNameById: Map<string, string>): Invoice
   const inv = getInvoiceEzShape(order);
   if (!inv?.success || !inv.doc_uuid || !inv.doc_number || !inv.pdf_link) return null;
 
+  // Our own rendered invoice PDF (new design) — createInvoice stores its public
+  // URL on order.invoice.link alongside the EZcount payload. Optional.
+  const ourInvoicePdfLink = (order.invoice as unknown as { link?: string } | undefined)?.link;
+
   // total: prefer EZcount calculatedData, fall back to cartTotal
   const total =
     parseFloat(inv.calculatedData?.price_total ?? "") ||
@@ -107,6 +114,7 @@ function mapOrderToRow(order: TOrder, orgNameById: Map<string, string>): Invoice
     invoiceUuid: inv.doc_uuid,
     invoiceNumber: inv.doc_number,
     invoicePdfLink: inv.pdf_link,
+    ourInvoicePdfLink,
     issueDate,
     total,
     displayName,
