@@ -245,3 +245,68 @@ discount type - per product | per category | per store | special
 isActive
 minOrder
 expirationDate
+
+
+
+
+pecanis
+
+
+
+oiSZq9WMUAFyPSYjx0SF - delivery note exists 70005
+
+jglKx0RUIRH8YflpMx8Y - delivery note exists 70006
+
+j2YrSgra1xW6hZI5B4av - delivery note exists 70007
+
+wZ8k1n472GXbcMvWhX4n - delivery note exists 70008
+
+OK07QJMQpWZRZiYPom9t - delivery note exists 70009
+
+PM7C6XYXTWbN7ugnA1xX - delivery note exists 70010
+
+YGVzajoGTTVu3cJcALAn - delivery note exists 70011
+
+yOzpakQ7tF82yzIZ53pF - delivery note exists 70012
+
+anrqnXHtzizzZJ76iqFZ - delivery note exists 70013
+
+cdVnwErTL588R9zt3aqz - delivery note exists 70014
+
+G7O1h9mij7XbN0G63qii - delivery note exists 70019
+
+oKLpvpIzbILk7V0uQoRV - delivery note exists 70021
+
+g1fNKcdIAVSVl2Oi0HiT - delivery note exists 70022
+
+7lo2ETLbtq7yAo8TgugX - delivery note exists 70020
+
+DhV42H5yY53b0penQUjm - delivery note exists 70023
+
+gPDBHFKTxZqGVjpeuDQV - delivery note exists 70025
+
+fbjiANakUDqbPvBRVMwk - delivery note exists 70024
+
+wTyOeUXafhscV9JxAJwv - delivery note exists 70026
+
+ezx9B8RmWL6CiNBcw2Kz - delivery note exists 70027
+
+JatKFXr8fY39pRdxVTZ9 - delivery note exists 70028
+
+EC4xz8XteKDft9V24UtV - delivery note exists 70029
+
+TvtQx3tz0qCLmH57cOcP - delivery note exists 70030
+
+lbi7bSQAFN7hRYZyDrrr - delivery note exists 70031
+
+i7u1rl6F85AQ7nNrfME6 - delivery note exists 70032
+
+dpmHpQcUzj18keV75q23 - delivery note exists 70033
+
+gjEIUVOAVbDhOXWXnsnS - delivery note exists 70034
+
+avz5De4ov9pIq77qjs2H - delivery note exists 70035
+
+
+
+

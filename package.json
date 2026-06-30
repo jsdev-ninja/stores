@@ -4,13 +4,19 @@
 	"main": "index.js",
 	"license": "MIT",
 	"private": true,
-	"workspaces": [
-		"packages/*",
-		"apps/*"
-	],
-	"nohoist": [
-		"functions/**"
-	],
+	"workspaces": {
+		"packages": [
+			"packages/*",
+			"apps/*"
+		],
+		"nohoist": [
+			"functions/**",
+			"docs/react-router",
+			"docs/react-router-dom",
+			"docs/**/react-router",
+			"docs/**/react-router-dom"
+		]
+	},
 	"browserslist": [
 		"defaults",
 		"last 5 versions",

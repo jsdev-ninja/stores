@@ -4363,6 +4363,13 @@
   dependencies:
     zod "^3.23.8"
 
+"@jsdev_ninja/core@^0.22.0":
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/@jsdev_ninja/core/-/core-0.22.0.tgz#bc71a48a82386891f80ad01c071dd629e7bf6c2b"
+  integrity sha512-XrgFMT+oVDAlGW67cA1z9ORFLJdlwBOqTKn+whILtL+w1GWFhX+ExdXMkv3k44ohR68OY7h2gC99q7n51v504Q==
+  dependencies:
+    zod "^3.23.8"
+
 "@jsonjoy.com/base64@17.67.0":
   version "17.67.0"
   resolved "https://registry.npmjs.org/@jsonjoy.com/base64/-/base64-17.67.0.tgz"
