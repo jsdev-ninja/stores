@@ -198,6 +198,13 @@ boundary — invoices below the threshold skip the requirement, invoices at
 or above it reject without an allocation number. Allocations are issued by
 the ITA (Israeli Tax Authority) and supplied by the admin.
 
+The rendered tax-invoice document (`functions/src/services/documents/templates/Invoice.tsx`)
+displays the allocation number in the header, in a dedicated
+"חשבונית מאושרת — חשבונית ישראל" banner, and in the print footer. The
+template accepts `allocationNumber` / `allocationDate` as props and falls
+back to the values persisted on `order.invoice`, so no `@jsdev_ninja/core`
+schema change is required to render it.
+
 ## Conventions
 
 ### Money
