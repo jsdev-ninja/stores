@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import React from "react";
 import { Invoice } from "./templates/Invoice";
+import { ConsolidatedInvoice } from "./templates/ConsolidatedInvoice";
 import { DeliveryNote } from "./templates/DeliveryNote";
 import { TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
 
@@ -9,6 +10,19 @@ type RenderInvoiceOptions = {
 	store: TStore;
 	invoiceNumber?: string;
 	invoiceDate?: string;
+	/** חשבונית ישראל allocation number (falls back to order.invoice). */
+	allocationNumber?: string;
+	/** Epoch millis the allocation number was issued. */
+	allocationDate?: number;
+};
+
+type RenderConsolidatedInvoiceOptions = {
+	orders: TOrder[];
+	store: TStore;
+	invoiceNumber?: string;
+	invoiceDate?: string;
+	allocationNumber?: string;
+	allocationDate?: number;
 };
 
 type RenderDeliveryNoteOptions = {
@@ -23,7 +37,7 @@ type RenderDeliveryNoteOptions = {
  * Renders React invoice component to HTML string
  */
 export function renderInvoiceToHTML(options: RenderInvoiceOptions): string {
-	const { order, store, invoiceNumber, invoiceDate } = options;
+	const { order, store, invoiceNumber, invoiceDate, allocationNumber, allocationDate } = options;
 
 	const invoiceNum = invoiceNumber || order.invoice?.number;
 
@@ -47,6 +61,47 @@ export function renderInvoiceToHTML(options: RenderInvoiceOptions): string {
 					store={store}
 					invoiceNumber={invoiceNumber}
 					invoiceDate={invoiceDate}
+					allocationNumber={allocationNumber}
+					allocationDate={allocationDate}
+				/>
+			</body>
+		</html>
+	);
+
+	return htmlString;
+}
+
+/**
+ * Renders the React consolidated-invoice component to an HTML string.
+ * Used when a single tax invoice aggregates several delivery notes / orders.
+ */
+export function renderConsolidatedInvoiceToHTML(
+	options: RenderConsolidatedInvoiceOptions
+): string {
+	const { orders, store, invoiceNumber, invoiceDate, allocationNumber, allocationDate } = options;
+
+	const htmlString = renderToStaticMarkup(
+		<html dir="rtl" lang="he">
+			<head>
+				<meta charSet="UTF-8" />
+				<title>חשבונית מרוכזת {invoiceNumber}</title>
+			</head>
+			<body
+				style={{
+					fontFamily: "Arial, sans-serif",
+					direction: "rtl",
+					padding: "40px",
+					backgroundColor: "#fff",
+					color: "#333",
+				}}
+			>
+				<ConsolidatedInvoice
+					orders={orders}
+					store={store}
+					invoiceNumber={invoiceNumber}
+					invoiceDate={invoiceDate}
+					allocationNumber={allocationNumber}
+					allocationDate={allocationDate}
 				/>
 			</body>
 		</html>

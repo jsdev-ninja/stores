@@ -1,9 +1,14 @@
 import * as functionsV2 from "firebase-functions/v2";
 import { createHash } from "crypto";
 import { ezCountService } from "../../../services/ezCountService";
+import { documentsService } from "../../../services/documents";
+import {
+	renderInvoiceToHTML,
+	renderConsolidatedInvoiceToHTML,
+} from "../../../services/documents/renderToHTML";
 import { TStorePrivate } from "src/schema";
 import admin from "firebase-admin";
-import { FirebaseAPI, TOrder, TOrganization } from "@jsdev_ninja/core";
+import { FirebaseAPI, TOrder, TOrganization, TStore } from "@jsdev_ninja/core";
 import { emitEvent } from "../../../platform/eventBus";
 import { DocumentEventTypes, DocumentInvoiceCreatedPayload } from "../events";
 
@@ -148,6 +153,88 @@ export const createInvoice = functionsV2.https.onCall<TData, void>(
 				}
 			});
 			await batch.commit();
+
+			// Generate OUR OWN invoice PDF after EZcount (mirrors the delivery-note
+			// flow): render the React template → PDF → upload to Storage → store the
+			// public URL on the order's invoice. This is a best-effort side effect —
+			// any failure here is logged and swallowed so it NEVER fails invoice
+			// creation (the EZcount invoice + persistence above already succeeded).
+			try {
+				if (ezData.doc_number) {
+					const companyId = auth?.token.companyId ?? "";
+					const tokenStoreId = auth?.token.storeId ?? "";
+
+					const storeDoc = await admin.firestore().collection("STORES").doc(storeId).get();
+					const store = storeDoc.data() as TStore | undefined;
+
+					if (store) {
+						const allocationDateMs =
+							"allocationDate" in invoiceToPersist
+								? (invoiceToPersist as { allocationDate?: number }).allocationDate
+								: undefined;
+
+						const ourHtml =
+							orders.length > 1
+								? renderConsolidatedInvoiceToHTML({
+										orders,
+										store,
+										invoiceNumber: ezData.doc_number,
+										invoiceDate: params.date,
+										allocationNumber: params.allocationNumber,
+										allocationDate: allocationDateMs,
+								  })
+								: renderInvoiceToHTML({
+										order: orders[0],
+										store,
+										invoiceNumber: ezData.doc_number,
+										invoiceDate: params.date,
+										allocationNumber: params.allocationNumber,
+										allocationDate: allocationDateMs,
+								  });
+
+						const pdf = await documentsService.createDocumentPdf({ html: ourHtml });
+
+						const path = `${companyId}/${tokenStoreId}/invoices/${ezData.doc_number}`;
+						const file = admin.storage().bucket().file(path);
+						await file.save(pdf, {
+							metadata: { contentType: "application/pdf" },
+							contentType: "application/pdf",
+							predefinedAcl: "publicRead",
+						});
+						await file.makePublic();
+						const ourInvoiceUrl = file.publicUrl();
+
+						// Additive: store our rendered-invoice URL on each order's invoice
+						// via a dotted-path update so the EZcount payload is preserved.
+						const linkBatch = admin.firestore().batch();
+						const ordersPath = FirebaseAPI.firestore.getPath({
+							collectionName: "orders",
+							companyId,
+							storeId: tokenStoreId,
+						});
+						orders.forEach((order) => {
+							linkBatch.update(
+								admin.firestore().collection(ordersPath).doc(order.id),
+								{ "invoice.link": ourInvoiceUrl }
+							);
+						});
+						await linkBatch.commit();
+
+						functionsV2.logger.info("createInvoice: rendered own invoice PDF", {
+							storeId,
+							invoiceNumber: ezData.doc_number,
+							url: ourInvoiceUrl,
+							consolidated: orders.length > 1,
+						});
+					}
+				}
+			} catch (renderErr: unknown) {
+				functionsV2.logger.error("createInvoice: own-invoice render failed (non-fatal)", {
+					storeId,
+					invoiceNumber: ezData.doc_number,
+					error: renderErr instanceof Error ? renderErr.message : String(renderErr),
+				});
+			}
 
 			// Emit invoice_created event when the invoice was created from a
 			// delivery note (params.parent set). Note: this event has NO AR effect —
