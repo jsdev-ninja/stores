@@ -6,7 +6,10 @@ import { FirebaseAPI, TOrder } from "@jsdev_ninja/core";
 import { TStorePrivate } from "src/schema";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import { sanitizeFormFields } from "../internal/sanitizeFormFields";
-import { buildFulfilledHeshDescItems } from "../internal/fulfilledHeshDescItems";
+import {
+	buildFulfilledHeshDescItems,
+	sumHeshDescItems,
+} from "../internal/fulfilledHeshDescItems";
 
 const InputSchema = z.object({
 	orderId: z.string().min(1),
@@ -15,23 +18,6 @@ const InputSchema = z.object({
 	/** J5 deferred-capture mode — defaults to true for checkout flow */
 	isJ5: z.boolean().default(true),
 });
-
-// HYP/EzCount recomputes each heshDesc line as `qty × price`, rounds it the way
-// the raw float naturally rounds (= toFixed(2)), then sums. `Amount` MUST equal
-// that sum exactly or HYP rejects with CCode=400 ("סכום הפריטים אינו תואם לסכום לחיוב").
-//
-// We derive Amount from the SAME per-line toFixed rounding HYP uses — NOT a raw
-// float sum (e.g. 16.87 + 24.90 = 41.769999999999996, which serialises to a
-// non-2dp string and diverges from HYP's 41.77 line sum). Bill exactly the
-// heshDesc line total, never order.cart.cartTotal (which can drift by an agora).
-function sumHeshDescItems(items: string[]): number {
-	const itemsSum = items.reduce((sum, line) => {
-		const m = line.match(/~([\d.]+)~([\d.]+)\]$/);
-		if (!m) return sum;
-		return sum + Number((parseFloat(m[1]) * parseFloat(m[2])).toFixed(2));
-	}, 0);
-	return Number(itemsSum.toFixed(2));
-}
 
 /**
  * Customer-facing callable — generates a signed HYP J5 payment form for

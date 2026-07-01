@@ -4,24 +4,10 @@ import { hypPaymentService } from "../../../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
 import * as crypto from "crypto";
-import { buildFulfilledHeshDescItems } from "../internal/fulfilledHeshDescItems";
-
-// Absorb tiny rounding drift between cart total and heshDesc items sum.
-// HYP rejects (CCode=400) when items sum != Amount. We only auto-fix small drifts
-// (≤ 0.20 ILS) to avoid masking real bugs.
-function fitAmountToItemsSum(amount: number, items: string[]): number {
-	// Raw sum — no per-line rounding, no final rounding.
-	const itemsSum = items.reduce((sum, line) => {
-		const m = line.match(/~([\d.]+)~([\d.]+)\]$/);
-		if (!m) return sum;
-		return sum + parseFloat(m[1]) * parseFloat(m[2]);
-	}, 0);
-	const diff = Math.abs(amount - itemsSum);
-	if (diff > 0 && diff <= 0.2) {
-		return itemsSum;
-	}
-	return amount;
-}
+import {
+	buildFulfilledHeshDescItems,
+	fitAmountToItemsSum,
+} from "../internal/fulfilledHeshDescItems";
 
 function isValidHttpUrl(value: string): boolean {
 	try {

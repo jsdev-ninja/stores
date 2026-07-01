@@ -4,16 +4,10 @@ import { logger } from "firebase-functions/v2";
 import { TPayProtocolResponse, TStorePrivate } from "src/schema";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import { postTransaction } from "../services/postTransaction";
-import { buildFulfilledHeshDescItems } from "./fulfilledHeshDescItems";
-
-function sumHeshDescItems(items: string[]): number {
-  const itemsSum = items.reduce((sum, line) => {
-    const m = line.match(/~([\d.]+)~([\d.]+)\]$/);
-    if (!m) return sum;
-    return sum + Number((parseFloat(m[1]) * parseFloat(m[2])).toFixed(2));
-  }, 0);
-  return Number(itemsSum.toFixed(2));
-}
+import {
+  buildFulfilledHeshDescItems,
+  fitAmountToItemsSum,
+} from "./fulfilledHeshDescItems";
 
 export async function internalChargeJ5Order(params: {
   orderId: string;
@@ -93,8 +87,11 @@ export async function internalChargeJ5Order(params: {
 
   const items = buildFulfilledHeshDescItems(order);
 
-  // Amount sent to HYP must equal HYP's own sum of the heshDesc lines.
-  const adjustedAmount = sumHeshDescItems(items);
+  // Amount sent to HYP must equal HYP's OWN raw sum of the heshDesc lines, or it
+  // rejects with CCode=400. fitAmountToItemsSum snaps to that raw sum (absorbing
+  // small rounding drift, e.g. weight items like 2.195kg × ₪4.90 = 10.7555).
+  // It must reach HYP at full precision — chargeJ5Transaction sends it as-is.
+  const adjustedAmount = fitAmountToItemsSum(order.cart.cartTotal, items);
 
   logger.info("internalChargeJ5Order: amounts", {
     orderId: order.id,

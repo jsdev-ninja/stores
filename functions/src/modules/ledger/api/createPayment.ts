@@ -3,23 +3,10 @@ import * as functions from "firebase-functions/v1";
 import { hypPaymentService } from "../../../services/hypPaymentService";
 import admin from "firebase-admin";
 import { TStorePrivate } from "src/schema";
-import { buildFulfilledHeshDescItems } from "../internal/fulfilledHeshDescItems";
-
-// HYP/EzCount recomputes each heshDesc line as `qty × price`, rounds it the way
-// the raw float naturally rounds (= toFixed(2)), then sums. `Amount` MUST equal
-// that sum exactly or HYP rejects with CCode=400 ("סכום הפריטים אינו תואם לסכום לחיוב").
-//
-// We derive Amount from the SAME per-line toFixed rounding HYP uses — NOT Math.round
-// (rounds half-agora line totals up) and NOT the raw unrounded float (e.g. 1.45 × 15.90 =
-// 23.0549… stays a long float, never equals HYP's 2dp line). Both diverge by an agora.
-function sumHeshDescItems(items: string[]): number {
-	const itemsSum = items.reduce((sum, line) => {
-		const m = line.match(/~([\d.]+)~([\d.]+)\]$/);
-		if (!m) return sum;
-		return sum + Number((parseFloat(m[1]) * parseFloat(m[2])).toFixed(2));
-	}, 0);
-	return Number(itemsSum.toFixed(2));
-}
+import {
+	buildFulfilledHeshDescItems,
+	sumHeshDescItems,
+} from "../internal/fulfilledHeshDescItems";
 
 export const createPayment = functions.https.onCall(async (data: { order: TOrder, isJ5?: boolean }, context) => {
 	try {

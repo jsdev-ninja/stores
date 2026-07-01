@@ -104,7 +104,10 @@ export const hypPaymentService = {
         "inputObj.originalUid": params.transactionUID,
         "inputObj.originalAmount": originalAmount.toString(),
         "inputObj.authorizationCodeManpik": "7",
-        Amount: Number(params.actualAmount).toFixed(2),
+        // Send the caller's amount at full precision (NOT toFixed(2)). For itemized
+        // captures (Pritim=True) HYP validates its raw per-line sum against this value;
+        // rounding to 2dp reintroduces sub-agora drift and triggers CCode=400.
+        Amount: String(params.actualAmount),
         AuthNum: params.creditCardConfirmNumber,
         Info: params.orderId ?? "",
         Masof: params.masof,
