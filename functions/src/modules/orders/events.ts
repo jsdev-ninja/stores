@@ -12,7 +12,10 @@ export const OrderPlacedPayload = z.object({
 	total: z.number().optional(),
 	status: z.string().optional(),
 	paymentType: z.string().optional(),
-	organizationId: z.string().optional(),
+	// Orders without an organization emit organizationId: null (not undefined).
+	// `.nullish()` accepts null | undefined | string so the payload validates and
+	// downstream subscribers (admin email, close cart) actually run.
+	organizationId: z.string().nullish(),
 	customerEmail: z.string().optional(),
 });
 
@@ -20,7 +23,7 @@ export type OrderPlacedPayload = z.infer<typeof OrderPlacedPayload>;
 
 export const OrderCancelledPayload = z.object({
 	orderId: z.string().min(1),
-	organizationId: z.string().optional(),
+	organizationId: z.string().nullish(),
 	clientId: z.string().optional(),
 	total: z.number().optional(),
 	reason: z.string().optional(),
