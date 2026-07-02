@@ -23,6 +23,11 @@ function round(value: number, digits = 2): number {
 	return Math.round((value + Number.EPSILON) * p) / p;
 }
 
+// Net purchase price per unit after applying the line discount.
+function netUnitPriceAfterDiscount(purchasePrice: number, lineDiscount: number): number {
+	return round(purchasePrice * (1 - (lineDiscount || 0) / 100), 2);
+}
+
 function marginPercentFromCostPrice(cost: number, price: number): number {
 	if (cost <= 0 || price <= 0 || cost > price) return 0;
 
@@ -422,18 +427,18 @@ export function AdminInventoryCertificatePage() {
 		const currentRow = (e.target as HTMLElement).closest("tr");
 		if (!currentRow) return;
 
-		// If not the last field, move to next field in same row
+		// If not the last field, move to the next editable input in the same row.
+		// We navigate by the row's actual <input> elements rather than fixed cell
+		// indices, so read-only/computed columns (e.g. net price after discount)
+		// don't break the Enter-key flow.
 		if (nextIndex < fieldOrder.length) {
-			// Get all table cells in the row (skip rowNumber which is index 0)
-			const cells = currentRow.querySelectorAll("td");
-			// Field order: sku(1), itemName(2), quantity(3), purchasePrice(4), lineDiscount(5), profitPercentage(6), price(7)
-			const nextCellIndex = nextIndex + 1; // +1 because rowNumber is at index 0
-			if (cells[nextCellIndex]) {
-				const nextInput = cells[nextCellIndex].querySelector("input") as HTMLInputElement;
-				if (nextInput) {
-					nextInput.focus();
-					nextInput.select();
-				}
+			const inputs = Array.from(currentRow.querySelectorAll("input")) as HTMLInputElement[];
+			const currentInput = e.target as HTMLInputElement;
+			const currentInputIndex = inputs.indexOf(currentInput);
+			const nextInput = currentInputIndex >= 0 ? inputs[currentInputIndex + 1] : undefined;
+			if (nextInput) {
+				nextInput.focus();
+				nextInput.select();
 			}
 		} else {
 			// Last field - move to first field of next row
@@ -481,6 +486,10 @@ export function AdminInventoryCertificatePage() {
 			{ name: t("common:inventoryCertificatePage.quantity"), uid: "quantity" },
 			{ name: t("common:inventoryCertificatePage.purchasePriceIn"), uid: "purchasePrice" },
 			{ name: t("common:inventoryCertificatePage.lineDiscount"), uid: "lineDiscount" },
+			{
+				name: t("common:inventoryCertificatePage.netPriceAfterDiscount"),
+				uid: "netPriceAfterDiscount",
+			},
 			{ name: t("common:inventoryCertificatePage.profitPercent"), uid: "profitPercentage" },
 			{ name: t("common:inventoryCertificatePage.salesPriceFrom"), uid: "price" },
 			{ name: t("common:inventoryCertificatePage.netPurchaseValue"), uid: "totalPurchasePrice" },
@@ -934,6 +943,11 @@ export function AdminInventoryCertificatePage() {
 														className="h-8 w-full bg-white text-[14px] pr-6"
 													/>
 													<span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-[14px] pointer-events-none">%</span>
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
+												<div className="min-w-[100px] text-right px-2">
+													₪ {netUnitPriceAfterDiscount(row.purchasePrice, row.lineDiscount).toFixed(2)}
 												</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-0 border-r border-gray-300 last:border-r-0">
