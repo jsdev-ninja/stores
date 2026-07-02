@@ -167,6 +167,7 @@ export const resources = {
 				quantity: "כמות",
 				purchasePriceIn: "מ קניה ב",
 				lineDiscount: "הנחת שורה",
+				netPriceAfterDiscount: "מחיר נטו לאחר הנחה",
 				profitPercent: "% רווח",
 				salesPriceFrom: "מ מכירה",
 				purchasePriceC: "מ קניה ג",

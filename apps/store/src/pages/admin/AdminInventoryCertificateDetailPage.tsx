@@ -12,6 +12,11 @@ function round(value: number, digits = 2): number {
 	return Math.round((value + Number.EPSILON) * p) / p;
 }
 
+// Net purchase price per unit after applying the line discount.
+function netUnitPriceAfterDiscount(purchasePrice: number, lineDiscount: number): number {
+	return round(purchasePrice * (1 - (lineDiscount || 0) / 100), 2);
+}
+
 export function AdminInventoryCertificateDetailPage() {
 	const { t } = useTranslation(["common"]);
 	const appApi = useAppApi();
@@ -58,6 +63,10 @@ export function AdminInventoryCertificateDetailPage() {
 			{ name: t("common:inventoryCertificatePage.quantity"), uid: "quantity" },
 			{ name: t("common:inventoryCertificatePage.purchasePriceIn"), uid: "purchasePrice" },
 			{ name: t("common:inventoryCertificatePage.lineDiscount"), uid: "lineDiscount" },
+			{
+				name: t("common:inventoryCertificatePage.netPriceAfterDiscount"),
+				uid: "netPriceAfterDiscount",
+			},
 			{ name: t("common:inventoryCertificatePage.profitPercent"), uid: "profitPercentage" },
 			{ name: t("common:inventoryCertificatePage.salesPriceFrom"), uid: "price" },
 			{ name: t("common:inventoryCertificatePage.netPurchaseValue"), uid: "totalPurchasePrice" },
@@ -238,6 +247,11 @@ export function AdminInventoryCertificateDetailPage() {
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
 												<div className="text-[14px]">
 													{row.lineDiscount ? `${row.lineDiscount}%` : "0%"}
+												</div>
+											</Table.Cell>
+											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
+												<div className="text-[14px] text-right">
+													₪ {netUnitPriceAfterDiscount(row.purchasePrice, row.lineDiscount).toFixed(2)}
 												</div>
 											</Table.Cell>
 											<Table.Cell className="text-[14px] leading-[22px] text-[#282828] p-2 border-r border-gray-300 last:border-r-0">
